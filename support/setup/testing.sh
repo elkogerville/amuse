@@ -50,7 +50,6 @@ test_framework() {
             cd src/tests && pytest --import-mode=append core_tests compile_tests --ignore compile_tests/java_implementation -k 'not TestCDistributedImplementationInterface and not TestAsyncDistributed' ${PYTEST_OPTS}
         else
             cd src/tests && pytest --import-mode=append core_tests compile_tests --ignore compile_tests/java_implementation -k 'not TestCDistributedImplementationInterface and not TestAsyncDistributed and not noci' ${PYTEST_OPTS}
-
         fi
 
         echo $? >"../../${ec_file}"
