@@ -80,7 +80,7 @@ test_amuse_ext() {
     log_file="$(log_file test amuse-ext)"
 
     (
-        cd src/tests && pytest ext_tests --import-mode=append ticket_tests ${PYTEST_OPTS}  -k "${bad_ext_tests}"
+        cd src/tests && pytest ext_tests ticket_tests --import-mode=append ${PYTEST_OPTS} -s -v -x -k "not noci and ${bad_ext_tests}"
 
         echo $? >"../../${ec_file}"
     ) 2>&1 | tee "${log_file}"
