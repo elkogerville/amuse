@@ -418,7 +418,8 @@ class TestCreatePythonWorker(TestCase):
         x.interface_class = ForTestingInterface
 
         script_string = x.new_executable_script_string()
-        self.assertTrue(script_string.find('syspath = (') > 0)
+        print(x.new_executable_script_string())
+        self.assertTrue(script_string.find('sys.path = [') > 0)
         self.assertTrue(script_string.find('ForTestingInterface') > 0)
         self.assertTrue(script_string.find('ForTestingImplementation') > 0)
         self.assertTrue(script_string.find('test_python_implementation') > 0)
@@ -435,7 +436,7 @@ class TestCreatePythonWorker(TestCase):
         x.interface_class = ForTestingInterface
 
         script_string = x.new_executable_script_string()
-        self.assertTrue(script_string.find('syspath = (') > 0)
+        self.assertTrue(script_string.find('sys.path = [') > 0)
         self.assertTrue(script_string.find('ForTestingInterface') > 0)
         self.assertTrue(script_string.find('ForTestingImplementation') > 0)
         self.assertTrue(script_string.find('test_python_implementation') > 0)
