@@ -75,5 +75,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: logs-${{ matrix.os }}
-        path: ${{ github.workspace }}/support/logs/
+        path: |
+          ${{ github.workspace }}/support/logs/
+          ${{ github.workspace }}/src/amuse_hermite_grx/support/*
         if-no-files-found: warn

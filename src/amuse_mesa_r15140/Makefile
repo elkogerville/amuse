@@ -116,6 +116,7 @@ $(MESA_DIR)/utils/makedepf90-2.8.8: | $(MESA_DIR)
 	cd $(MESA_DIR)/utils && tar xzf makedepf90-2.8.8.tar.gz -m
 
 src/bin/makedepf90: | $(MESA_DIR)/utils/makedepf90-2.8.8 src/bin
+	touch $(MESA_DIR)/utils/makedepf90-2.8.8/configure
 	cd $(MESA_DIR)/utils/makedepf90-2.8.8 && ./configure
 	cd $(MESA_DIR)/utils/makedepf90-2.8.8 && $(MAKE)
 	cp $(MESA_DIR)/utils/makedepf90-2.8.8/makedepf90 $@
@@ -223,7 +224,7 @@ package-%: %_contains
 	python3 -m pip install -vv --no-cache-dir --no-deps --no-build-isolation --prefix ${PREFIX} packages/$*
 
 test-%:
-	cd packages/$* && pytest
+	cd packages/$* && pytest -vvv -s
 
 
 # Cleaning up
