@@ -79,14 +79,22 @@ jobs:
       run: |
         #    These help with debugging, but produce lots of output
         echo "mpi_yield_when_idle = true" >>"$HOME/.openmpi/mca-params.conf"
-        echo "mca_base_verbose = stdout,level:9" >> "$HOME/.openmpi/mca-params.conf"
-        echo "mpi_comm_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
-        echo "btl_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
-        echo "hwloc_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
-        echo "if_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
-        echo "pmix_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "mca_base_verbose = stdout,level:9" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "mpi_comm_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "btl_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "hwloc_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "if_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "pmix_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
 
     - name: Test mesa-r15140
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      env:
+        OMP_NUM_THEADS: '1'
+      run: |
+        ./setup test amuse-mesa-r15140
+
+    - name: Test mesa-r15140
+      if: ${{ matrix.os == 'macos-latest' }}
       run: |
         ./setup test amuse-mesa-r15140
 
