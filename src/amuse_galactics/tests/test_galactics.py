@@ -7,6 +7,7 @@ from amuse.support.testing.amusetest import TestWithMPI
 
 from amuse_galactics.interface import GalactICsInterface, GalactICs
 
+
 # Change the default for some GalactICs(-Interface) keyword arguments:
 default_options = dict()
 # default_options = dict(redirection = "none")
@@ -155,7 +156,7 @@ class GalactICsInterfaceTests(TestWithMPI):
         x_velocities, y_velocities, z_velocities, errors = instance.get_velocity(range(number_of_particles_halo))
         self.assertEqual(errors, numpy.zeros(number_of_particles_halo))
         self.assertAlmostEqual(numpy.array([numpy.mean(x_velocities), numpy.mean(y_velocities),
-            numpy.mean(z_velocities)]), numpy.array([0.0]*3))
+            numpy.mean(z_velocities)]), numpy.array([0.0]*3), 6)
         self.assertAlmostRelativeEquals(numpy.array([numpy.mean(abs(x_velocities)), numpy.mean(abs(y_velocities)),
             numpy.mean(abs(z_velocities))]), expected_mean_vel, 2)
 
