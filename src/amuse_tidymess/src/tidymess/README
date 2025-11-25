@@ -1,0 +1,19 @@
+Welcome to TIDYMESS!
+
+- TIDYMESS is a C++ code.
+- It was developed and tested within the Ubuntu and Mac environments.
+
+- Simpy open a terminal, enter the tidymess directory, and compile the code using "make clean" and "make".
+- The compilation will produce the executable (tidymess.exe) and the "build" folder inside the "integrator" folder.
+- If there are compilation errors due to bugs within the code, please contact us with the error message. 
+
+- By typing "./tidymess.exe -h" or "./tidymess.exe --help" some documentation is presented on how to run the code. 
+- A simulation is defined by specifying two files: parameter file (e.g. tidymess.par) and initial condition file (e.g. tidymess.ic). 
+- We provide a few examples in the "examples" folder, which can be used to get you on your way with TIDYMESS.
+
+Boa Sorte!
+
+
+Tjarda Boekholt and Alexandre Correia
+Oct. 2022
+
