@@ -49,63 +49,54 @@ class TidyMessInterface(
                 'This index is supposed to be a local index for the code '
                 '(and not valid in other instances of the code or in other codes)'
             ),
-            unit = MethodWithUnitsDefinition.INDEX
             )
         function.addParameter(
             'mass',
             dtype='float64',
             direction=function.IN,
             description='The mass of the particle',
-            unit=nbody_system.mass
         )
         function.addParameter(
             'x',
             dtype='float64',
             direction=function.IN,
             description='The initial position vector of the particle',
-            unit=nbody_system.length
         )
         function.addParameter(
             'y',
             dtype='float64',
             direction=function.IN,
             description='The initial position vector of the particle',
-            unit=nbody_system.length
         )
         function.addParameter(
             'z',
             dtype='float64',
             direction=function.IN,
             description='The initial position vector of the particle',
-            unit=nbody_system.length
         )
         function.addParameter(
             'vx',
             dtype='float64',
             direction=function.IN,
             description='The initial velocity vector of the particle',
-            unit=nbody_system.speed
         )
         function.addParameter(
             'vy',
             dtype='float64',
             direction=function.IN,
             description='The initial velocity vector of the particle',
-            unit=nbody_system.speed
         )
         function.addParameter(
             'vz',
             dtype='float64', direction=function.IN,
             description='The initial velocity vector of the particle',
-            unit=nbody_system.speed
         )
         function.addParameter(
             'radius',
             dtype='float64',
             direction=function.IN,
             description='The radius of the particle',
-            default=-1, # what is this default
-            unit=nbody_system.length
+            default=0,
         )
         function.addParameter(
             'xi',
@@ -165,7 +156,6 @@ class TidyMessInterface(
                 'option for restoring state after loading'
             ),
             default=-1,
-            unit=MethodWithUnitsDefinition.NO_UNIT
         )
         function.result_type = 'int32'
         function.result_doc = '''\
