@@ -1,14 +1,13 @@
-from amuse.test.amusetest import TestWithMPI
-#from amuse.community import *
-
-from interface import Tidymess, TidymessInterface
-
 import numpy as np
 import matplotlib.pyplot as plt
+
+from amuse.support.testing.amusetest import TestWithMPI
+from amuse_tidymess.interface import Tidymess, TidymessInterface
 from amuse.units import units as u
 from amuse.units import constants as c
-from amuse.lab import Particles
-from amuse.ext.orbital_elements import new_binary_from_orbital_elements, get_orbital_elements_from_binary
+from amuse.units import generic_unit_system
+from amuse.datamodel import Particles
+#from amuse.ext.orbital_elements import new_binary_from_orbital_elements, get_orbital_elements_from_binary
 
 class TidymessInterfaceTests(TestWithMPI):
 
@@ -17,7 +16,7 @@ class TidymessInterfaceTests(TestWithMPI):
         # Test particle properties
         '''
 
-        instance = TIDYMESS(redirection="none")
+        instance = Tidymess()
 
         self.assertEquals(instance.get_number_of_particles(), 0)
 
