@@ -1,4 +1,4 @@
-#include "worker_code.h"
+#include "tidymess_worker.h"
 
 #include <iostream>
 
@@ -8,16 +8,16 @@
 
 using namespace std;
 
-#include "src/Timer.h"
-#include "src/Banner.h"
+#include "Timer.h"
+#include "Banner.h"
 
-#include "src/Initializer.h"
-#include "src/Output.h"
+#include "Initializer.h"
+#include "Output.h"
 
-#include "src/Tidy.h"
+#include "Tidy.h"
 
-#include "src/Collision.h"
-#include "src/Breakup.h"
+#include "Collision.h"
+#include "Breakup.h"
 
 static Tidy tidymess;
 static Initializer init;
@@ -52,7 +52,7 @@ int set_shapes_and_momenta() {  // copied from tidymess.cpp
                 tidymess.set_to_equilibrium_shape();
                 break;
         }
-        tidymess.update_angular_momentum();    
+        tidymess.update_angular_momentum();
     }
     return 0;}
 
@@ -62,7 +62,7 @@ int determine_dt_sgn(double t_end) {  // copied from tidymess.cpp
     if(t_end > tidymess.get_model_time()) {   // ** takes negative time step when evolving to 0, causes problems
         dt_pos = true;
         dt_sgn = 1;
-    }        
+    }
     else {
         dt_pos = false;
         dt_sgn = -1;
@@ -169,7 +169,7 @@ int initialize_code(){
     // any other call on the code (so before any parameters
     // are set or particles are defined in the code).
     // """
-    
+
     //initialize_stopping_conditions();
 
     // AMUSE STOPPING CONDITIONS SUPPORT
@@ -203,9 +203,9 @@ int recommit_parameters(){
 // For GravitationalDynamicsInterface
 // https://github.com/amusecode/amuse/blob/main/src/amuse/community/interface/gd.py
 
-int new_particle(int * index_of_the_particle, double mass, double x, 
+int new_particle(int * index_of_the_particle, double mass, double x,
     double y, double z, double vx, double vy, double vz, double radius,
-    double xi, double kf, double tau, double wx, double wy, double wz, double a_mb){
+    double xi, double kf, double tau, double wx, double wy, double wz, double a_mb, int id){
     // """
     // Define a new particle in the stellar dynamics code. The particle is
     // initialized with the provided mass, radius, position and velocity. This
@@ -213,7 +213,7 @@ int new_particle(int * index_of_the_particle, double mass, double x,
     // """
 
     vector<Body> bodies = tidymess.get_particles();
-    
+
     Body newbody = {mass, radius, xi, kf, tau, a_mb, wx, wy, wz, x, y, z, vx, vy, vz};
     *index_of_the_particle = highest_index;
     newbody.set_id(highest_index);
@@ -221,7 +221,7 @@ int new_particle(int * index_of_the_particle, double mass, double x,
 
     bodies.push_back(newbody);
     tidymess.set_particles(bodies);
-    
+
     tidymess.commit_parameters();
 
     return 0;}
@@ -235,7 +235,7 @@ int delete_particle(int index_of_the_particle){
 
 // setters & getters
 
-int set_state(int index_of_the_particle, double mass, double x, double y, 
+int set_state(int index_of_the_particle, double mass, double x, double y,
     double z, double vx, double vy, double vz, double radius){
     vector<Body> bodies = tidymess.get_particles();
     int ind = get_ind_from_index(index_of_the_particle);
@@ -245,8 +245,8 @@ int set_state(int index_of_the_particle, double mass, double x, double y,
     bodies[ind].v = {vx, vy, vz};
     tidymess.set_particles(bodies);
     return 0;}
-int get_state(int index_of_the_particle, double * mass, double * x, 
-    double * y, double * z, double * vx, double * vy, double * vz, 
+int get_state(int index_of_the_particle, double * mass, double * x,
+    double * y, double * z, double * vx, double * vy, double * vz,
     double * radius){
     vector<Body> bodies = tidymess.get_particles();
     Body body = bodies[get_ind_from_index(index_of_the_particle)];
@@ -254,7 +254,7 @@ int get_state(int index_of_the_particle, double * mass, double * x,
     *x = body.r[0];
     *y = body.r[1];
     *z = body.r[2];
-    *vx = body.v[0]; 
+    *vx = body.v[0];
     *vy = body.v[1];
     *vz = body.v[2];
     *radius = body.R;
@@ -280,7 +280,7 @@ int set_radius(int index_of_the_particle, double radius){
     tidymess.set_particles(bodies);
     return 0;}
 
-int get_position(int index_of_the_particle, double * x, double * y, 
+int get_position(int index_of_the_particle, double * x, double * y,
     double * z){
     vector<Body> bodies = tidymess.get_particles();
     array<double, 3> position = bodies[get_ind_from_index(index_of_the_particle)].r;
@@ -294,7 +294,7 @@ int set_position(int index_of_the_particle, double x, double y, double z){
     tidymess.set_particles(bodies);
     return 0;}
 
-int get_velocity(int index_of_the_particle, double * vx, double * vy, 
+int get_velocity(int index_of_the_particle, double * vx, double * vy,
     double * vz){
     vector<Body> bodies = tidymess.get_particles();
     array<double, 3> velocity = bodies[get_ind_from_index(index_of_the_particle)].v;
@@ -302,14 +302,14 @@ int get_velocity(int index_of_the_particle, double * vx, double * vy,
     *vy = velocity[1];
     *vz = velocity[2];
     return 0;}
-int set_velocity(int index_of_the_particle, double vx, double vy, 
+int set_velocity(int index_of_the_particle, double vx, double vy,
     double vz){
     vector<Body> bodies = tidymess.get_particles();
     bodies[get_ind_from_index(index_of_the_particle)].v = {vx, vy, vz};
     tidymess.set_particles(bodies);
     return 0;}
 
-int get_spin(int index_of_the_particle, double * wx, double * wy, 
+int get_spin(int index_of_the_particle, double * wx, double * wy,
     double * wz){
     vector<Body> bodies = tidymess.get_particles();
     array<double, 3> spin = bodies[get_ind_from_index(index_of_the_particle)].w;
@@ -317,17 +317,17 @@ int get_spin(int index_of_the_particle, double * wx, double * wy,
     *wy = spin[1];
     *wz = spin[2];
     return 0;}
-int set_spin(int index_of_the_particle, double wx, double wy, 
+int set_spin(int index_of_the_particle, double wx, double wy,
     double wz){
     vector<Body> bodies = tidymess.get_particles();
     bodies[get_ind_from_index(index_of_the_particle)].w = {wx, wy, wz};
     tidymess.set_particles(bodies);
     return 0;}
 
-int get_acceleration(int index_of_the_particle, double * ax, double * ay, 
+int get_acceleration(int index_of_the_particle, double * ax, double * ay,
     double * az){
     return 0;}
-int set_acceleration(int index_of_the_particle, double ax, double ay, 
+int set_acceleration(int index_of_the_particle, double ax, double ay,
     double az){
     return 0;}
 
@@ -361,7 +361,7 @@ int get_time_step(double * time_step){
         *time_step = tidymess.get_dt_prev();
     }
     return 0;}
-    
+
 int get_total_mass(double * mass){
     vector<Body> bodies = tidymess.get_particles();
     *mass = 0.0;
@@ -400,7 +400,7 @@ int get_index_of_first_particle(int * index_of_the_particle){
     Body body =  tidymess.get_particles()[0];
     *index_of_the_particle = body.id;
     return 0;}
-int get_index_of_next_particle(int index_of_the_particle, 
+int get_index_of_next_particle(int index_of_the_particle,
     int * index_of_the_next_particle){
     vector<Body> bodies = tidymess.get_particles();
     Body body = bodies[get_ind_from_index(index_of_the_particle)+1];
@@ -427,11 +427,11 @@ int recommit_particles(){
 int synchronize_model(){
     return 0;}
 
-int get_potential_at_point(double eps, double x, double y, double z, 
+int get_potential_at_point(double eps, double x, double y, double z,
     double * phi, int npoints){
     return 0;}
 
-int get_gravity_at_point(double eps, double x, double y, double z, 
+int get_gravity_at_point(double eps, double x, double y, double z,
     double * ax, double * ay, double * az, int npoints){
     return 0;}
 
@@ -480,7 +480,7 @@ int detect_collision(int * collision_flag, int * n_collisions, int * index1, int
     return 0;}
 
 int merge_collided_particles(int * number_of_particles) {
-    vector< array<int, 2> > cindex = tidymess.get_collision_indices(); 
+    vector< array<int, 2> > cindex = tidymess.get_collision_indices();
     collision.replace(bodies, cindex);
 
     tidymess.set_particles(bodies);
@@ -489,7 +489,3 @@ int merge_collided_particles(int * number_of_particles) {
     vector<Body> bodies = tidymess.get_particles();
     *number_of_particles = bodies.size();
     return 0;}
-
-
-
-
