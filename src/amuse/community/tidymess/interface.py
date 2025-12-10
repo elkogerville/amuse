@@ -1,5 +1,5 @@
 from amuse.support.import_helper import load_code
 
 
-TidyMessInterface = load_code("tidymess", "TidyMessInterface")
-TidyMess = load_code("tidymess", "TidyMess")
+TidymessInterface = load_code("tidymess", "TidymessInterface")
+Tidymess = load_code("tidymess", "Tidymess")
