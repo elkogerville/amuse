@@ -20,8 +20,16 @@ AS_IF([test $AR = ":"], [AC_MSG_ERROR([ar command not found.])])
 AC_PROG_RANLIB()
 AS_IF([test $RANLIB = ":"], [AC_MSG_ERROR([ranlib command not found.])])
 
+AMUSE_DOWNLOAD()
+AC_CHECK_TOOL(TAR, tar)
+
 # Find AMUSE libraries
 AMUSE_LIB_STOPCOND()
+
+# Find MPI for the worker
+AC_LANG_PUSH([C++])
+AX_MPI()
+AC_LANG_POP([C++])
 
 # Generate output
 AC_CONFIG_FILES([config.mk])
