@@ -20,33 +20,33 @@ src/tidymess: tidymess.tar.gz
 
 # Building the code into a static library
 DEPFLAGS += $(STOPCOND_CFLAGS)
-CFLAGS += $(DEPFLAGS)
+CXXFLAGS += $(DEPFLAGS)
 
 LDLIBS += -lm $(STOPCOND_LIBS)
 
 CODELIB = src/libtidymess.a
 
 .PHONY: $(CODELIB)
-$(CODELIB): | src
+$(CODELIB): | src/tidymess
 	$(MAKE) -C src -j $(CPU_COUNT) all
 
 
 # Building the workers
 tidymess_worker.h: interface.py
-	amusifier --type=h interface.py tidymessInterface -o $@
+	amusifier --type=h interface.py TidymessInterface -o $@
 
 tidymess_worker.cc: interface.py
-	amusifier --type=c interface.py tidymessInterface -o $@
+	amusifier --type=c interface.py TidymessInterface -o $@
 
 tidymess_worker.o: tidymess_worker.cc tidymess_worker.h
-	$(MPICXX) -c -o $@ $(CFLAGS) $<
+	$(MPICXX) -c -o $@ $(CXXFLAGS) $<
 
 tidymess_worker: interface.o tidymess_worker.o $(CODELIB)
 	$(MPICXX) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
 
-interface.o: interface.cc tidymess_worker.h
-	$(MPICXX) -o $@ -c -I src/tidymess/integrator/include $(CFLAGS) $<
+interface.o: interface.cc tidymess_worker.h | src/tidymess
+	$(MPICXX) -o $@ -c -I src/tidymess/integrator/include $(CXXFLAGS) $<
 
 
 # Which packages contain which workers?
