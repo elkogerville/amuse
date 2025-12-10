@@ -1,1 +1,1 @@
-from .interface import TidyMess
+from .interface import Tidymess
