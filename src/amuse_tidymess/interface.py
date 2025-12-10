@@ -790,7 +790,8 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
 
     def __init__(self, convert_nbody=None, **options):
 
-        legacy_interface = TidyMessInterface(**options)
+        legacy_interface = TidymessInterface(**options)
+        self.stopping_conditions = StoppingConditions(self)
 
         GravitationalDynamics.__init__(
             self,
@@ -798,10 +799,6 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             convert_nbody,
             **options
         )
-
-        # should this be here or before?
-        self.stopping_conditions = StoppingConditions(self)
-
 
     def define_state(self, handler):
         GravitationalDynamics.define_state(self, handler)
