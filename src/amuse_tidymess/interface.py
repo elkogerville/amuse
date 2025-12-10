@@ -1,6 +1,6 @@
 from amuse.community.interface.gd import GravitationalDynamics
 from amuse.community.interface.gd import GravitationalDynamicsInterface
-from amuse.community.interface.gd import GravityFieldInterface
+#from amuse.community.interface.gd import GravityFieldInterface
 from amuse.community.interface.gd import GravityFieldCode
 from amuse.community.interface.stopping_conditions import StoppingConditions, StoppingConditionInterface
 from amuse.rfi.core import CodeInterface, legacy_function, LegacyFunctionSpecification
@@ -8,12 +8,12 @@ from amuse.support.interface import MethodWithUnitsDefinition
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import nbody_system
 
-class TidyMessInterface(
+class TidymessInterface(
     CodeInterface,
     LiteratureReferencesMixIn,
     GravitationalDynamicsInterface,
     StoppingConditionInterface,
-    GravityFieldInterface
+    #GravityFieldInterface
 ):
     """
 
@@ -786,7 +786,7 @@ class TidyMessInterface(
         return function
 
 
-class TidyMess(GravitationalDynamics, GravityFieldCode):
+class Tidymess(GravitationalDynamics, GravityFieldCode):
 
     def __init__(self, convert_nbody=None, **options):
 
