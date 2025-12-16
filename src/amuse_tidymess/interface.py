@@ -813,27 +813,26 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
 
         GravitationalDynamics.define_methods(self, handler)
 
-        # Turn interface functions into methods.
+        # turn interface functions into methods.
         handler.add_method(
             'new_particle',
             (
-                nbody_system.mass,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.length, # radius
-
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length, # radius
                 handler.NO_UNIT,     # xi, moment of inertia factor
                 handler.NO_UNIT,     # kf, fluid Love number for potential
-                nbody_system.time,   # tau, fluid relaxation time
-                1/nbody_system.time, # wx
-                1/nbody_system.time, # wy
-                1/nbody_system.time, # wz
-
+                generic_unit_system.time,   # tau, fluid relaxation time
+                1 / generic_unit_system.time, # wx
+                1 / generic_unit_system.time, # wy
+                1 / generic_unit_system.time, # wz
                 handler.NO_UNIT,   # a_mb, magnetic braking coefficient
+                handler.INDEX
             ),
             (
                 handler.INDEX,
