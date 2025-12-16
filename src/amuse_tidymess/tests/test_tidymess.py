@@ -29,15 +29,14 @@ class TidymessInterfaceTests(TestWithMPI):
             1.0 | generic_unit_system.speed,
             1.0 | generic_unit_system.speed,
             1.0 | generic_unit_system.length, # radius
-
             1.0, # xi
             1.0, # kf
             1.0 | generic_unit_system.time, # tau
             1.0 | 1/generic_unit_system.time, # wx
             1.0 | 1/generic_unit_system.time, # wy
             1.0 | 1/generic_unit_system.time, # wz
-
             1.0, # a_mb
+            1.0
         )
         self.assertEquals(index_of_the_particle, 0)
 
