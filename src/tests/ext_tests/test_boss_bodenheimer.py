@@ -4,7 +4,7 @@ import numpy.random
 
 from amuse.support.testing import amusetest
 from amuse.units import units, nbody_system
-from amuse.ext.boss_bodenheimer import bb79_cloud
+from amuse.ic.boss_bodenheimer import bb79_cloud
 
 numpy.random.seed(1234567)
 
