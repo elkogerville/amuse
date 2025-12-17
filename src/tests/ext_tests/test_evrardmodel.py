@@ -1,6 +1,6 @@
 from amuse.support.testing import amusetest
 
-from amuse.ext.evrard_test import new_evrard_gas_sphere
+from amuse.ic.evrard_test import new_evrard_gas_sphere
 
 
 from amuse.units import nbody_system as nbody

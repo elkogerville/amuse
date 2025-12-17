@@ -27,7 +27,7 @@ from amuse.units import constants
 from amuse.community.simplex.interface import SimpleX
 from amuse.community.fi.interface import Fi
 
-from amuse.ext.evrard_test import uniform_random_unit_cube, uniform_unit_sphere
+from amuse.ic.evrard_test import uniform_random_unit_cube, uniform_unit_sphere
 from amuse.io import write_set_to_file, read_set_from_file
 
 from amuse import datamodel

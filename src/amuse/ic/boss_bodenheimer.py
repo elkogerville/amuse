@@ -1,6 +1,6 @@
 import numpy
 
-from amuse.ext.evrard_test import uniform_unit_sphere
+from amuse.ic.evrard_test import uniform_unit_sphere
 from amuse.units import nbody_system
 from amuse.units import generic_unit_system
 from amuse.units import units
@@ -10,27 +10,27 @@ from amuse import datamodel
 class bb79_cloud(object):
   """
   spherical uniformly rotating cloud of particles with density perturbation (m=2)
-  -- initial conditions for the 'standard isothermal test case' 
+  -- initial conditions for the 'standard isothermal test case'
      Boss & Bodenheimer (1979, http://adsabs.harvard.edu/abs/1979ApJ...234..289B)
-     -> binary fragmentation during isothermal collapse 
+     -> binary fragmentation during isothermal collapse
 
   arguments:
     targetN -- intended number of particles
-    omega -- angular velocity (cloud rotates as a rigid body around the z-axis), 
+    omega -- angular velocity (cloud rotates as a rigid body around the z-axis),
       given in units of base rad/s if a converter is given, in 1./nbody_system.time if no converter is given
     rho_perturb -- amplitude of the density perturbation
     ethep_ratio -- ratio between total thermal and potential enegry
     convert_nbody -- to set the Nbody units
     base_grid -- base grid
-  
+
   Default values set as in Boss & Bodenheimer (1979).
-  
+
   In the first step, uniform sphere of particles is generated; then the azimuth of
   particles is changed (while radius is kept constant) to achieve the cosine density
-  perturbation. See Kitsionas (2003, sec. 3.1, 
+  perturbation. See Kitsionas (2003, sec. 3.1,
   http://adsabs.harvard.edu/abs/2003PhDT.......219K)
   """
-  def __init__(self, targetN=10000, omega=0.775066020047 | nbody_system.time**-1, 
+  def __init__(self, targetN=10000, omega=0.775066020047 | nbody_system.time**-1,
                rho_perturb=0.5, ethep_ratio=0.25, convert_nbody=None, base_grid=None):
     self.targetN=targetN
     if convert_nbody is not None:
@@ -40,9 +40,9 @@ class bb79_cloud(object):
     self.ethep_ratio=ethep_ratio
     self.convert_nbody=convert_nbody
     self.base_grid=base_grid
-      
+
   def new_model(self):
-        
+
     base_sphere=uniform_unit_sphere(self.targetN,base_grid=self.base_grid)
     x_uni,y_uni,z=base_sphere.make_xyz()
     self.actualN=len(x_uni)
@@ -54,7 +54,7 @@ class bb79_cloud(object):
     phi_new=numpy.interp(phi,phi_old_vec,phi_new_vec)
     x=rad*numpy.cos(phi_new)
     y=rad*numpy.sin(phi_new)
-    
+
     rad=numpy.sqrt(x**2 + y**2)
     phi=numpy.arctan2(y,x)
     vel=self.omega*rad
@@ -67,7 +67,7 @@ class bb79_cloud(object):
     Ep=3./5
     self.internalE=Ep*self.ethep_ratio
     internal_energy=numpy.ones_like(x)*self.internalE
-    
+
     return (mass,x,y,z,vx,vy,vz,internal_energy)
 
   @property

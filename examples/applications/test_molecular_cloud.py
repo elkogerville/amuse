@@ -2,7 +2,7 @@ import os
 import numpy
 
 from amuse.community.fi import interface as interface
-from amuse.ext.evrard_test import regular_grid_unit_cube
+from amuse.ic.evrard_test import regular_grid_unit_cube
 from amuse.ext.molecular_cloud import molecular_cloud
 
 from amuse.test.amusetest import get_path_to_results
@@ -49,7 +49,7 @@ def run_cloud(x):
     nb.set_verbosity(0)
     nb.set_unitl_in_kpc(0.01)
     nb.set_unitm_in_msun(10000.)
-      
+
     ids, error = nb.new_sph_particle(mass, x, y, z, vx, vy, vz, u, smooth)
     if [x for x in error if x != 0] != []: raise Exception
 

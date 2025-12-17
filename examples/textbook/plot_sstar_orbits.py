@@ -3,7 +3,7 @@ import math
 import numpy
 from amuse.lab import *
 from amuse.ext.protodisk import ProtoPlanetaryDisk
-from amuse.ext.evrard_test import uniform_unit_sphere
+from amuse.ic.evrard_test import uniform_unit_sphere
 import time
 
 from initialize_sstars import *
@@ -69,7 +69,7 @@ def main(t_end=1, n_steps=1, filename=None):
         z.append(gravity.particles.z)
 
     gravity.stop()
-    plot_orbits(x, y, z)    
+    plot_orbits(x, y, z)
 
 def new_option_parser():
     from amuse.units.optparse import OptionParser

@@ -3,7 +3,7 @@ import os.path
 
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse_gadget2.interface import Gadget2Interface, Gadget2
-from amuse.ext.evrard_test import MakeEvrardTest, new_evrard_gas_sphere, body_centered_grid_unit_cube
+from amuse.ic.evrard_test import MakeEvrardTest, new_evrard_gas_sphere, body_centered_grid_unit_cube
 from amuse.ext.spherical_model import new_uniform_spherical_particle_distribution
 from amuse.support.exceptions import AmuseException
 

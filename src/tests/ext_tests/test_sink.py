@@ -12,7 +12,7 @@ from amuse.ext.sink import SinkParticles, new_sink_particles
 from amuse.ext import sink
 
 from amuse.community.gadget2.interface import Gadget2
-from amuse.ext.evrard_test import new_evrard_gas_sphere
+from amuse.ic.evrard_test import new_evrard_gas_sphere
 from amuse.ic.plummer import new_plummer_model
 
 

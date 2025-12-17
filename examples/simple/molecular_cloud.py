@@ -20,7 +20,7 @@ from amuse.community.fi.interface import Fi
 from amuse.community.bhtree.interface import BHTree
 
 from amuse.ext.molecular_cloud import molecular_cloud
-from amuse.ext.evrard_test import body_centered_grid_unit_cube
+from amuse.ic.evrard_test import body_centered_grid_unit_cube
 from amuse.couple import bridge
 
 

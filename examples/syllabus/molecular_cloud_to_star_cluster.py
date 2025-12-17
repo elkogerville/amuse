@@ -1,16 +1,16 @@
 """
-  example of molecular cloud evolution with explictly 
+  example of molecular cloud evolution with explictly
   split SPH and grav evolution
 
   Initial condition is a smooth spherical cloud with random velocities
-  as in Bonnell et al. (2003)  
-  
-"""  
+  as in Bonnell et al. (2003)
+
+"""
 from __future__ import print_function
 
 import numpy
-  
-from matplotlib import pyplot 
+
+from matplotlib import pyplot
 
 from amuse.lab import *
 from amuse.units import nbody_system
@@ -20,7 +20,7 @@ from amuse.units import constants
 from amuse.community.fi.interface import Fi
 
 from amuse.ext.molecular_cloud import molecular_cloud
-from amuse.ext.evrard_test import body_centered_grid_unit_cube
+from amuse.ic.evrard_test import body_centered_grid_unit_cube
 
 from amuse.ext.derived_grav_systems import copycat
 from amuse.ext.bridge import bridge
@@ -51,10 +51,10 @@ def make_map(sph,N=100,L=1):
     rho=rho.reshape((N+1,N+1))
 
     return rho
-    
+
 '''
 def write_output(filename, parts, conv):
-    
+
     output= file(filename, 'w')
     for i in range (0,len(parts)):
         #print i
@@ -145,7 +145,7 @@ def run_molecular_cloud(N=100, Mcloud=100. | units.MSun, Rcloud=1. | units.parse
     sph.parameters.gamma=1
     sph.parameters.isothermal_flag=True
     sph.parameters.integrate_entropy_flag=False
-    sph.parameters.timestep=dt  
+    sph.parameters.timestep=dt
     sph.parameters.verbosity = 0
     sph.parameters.eps_is_h_flag = False# h_smooth is constant
     eps = 0.1 | units.parsec
@@ -191,13 +191,13 @@ def run_molecular_cloud(N=100, Mcloud=100. | units.MSun, Rcloud=1. | units.parse
         filename = 'm400k_r10pc_e01_'+ str(i).zfill(2) + '.dat'
         print filename
         parts_sorted = parts.sorted_by_attribute('rho')
-        write_output(filename, parts_sorted, conv)        
+        write_output(filename, parts_sorted, conv)
         """
         plot_hydro(ttarget, sph, i, L)
         i=i+1
 
     plot_hydro_and_stars(ttarget, sph, L)
-    
+
     sph.stop()
     return parts
 
@@ -210,7 +210,7 @@ def make_stars(cluster_particle):
     if N>0:
         masses = new_salpeter_mass_distribution(N, 0.3|units.MSun, min(100|units.MSun, cluster_particle.mass))
 
-        r = cluster_particle.h_smooth  
+        r = cluster_particle.h_smooth
         converter=nbody_system.nbody_to_si(masses.sum(),r)
         stars = new_plummer_model(N, convert_nbody=converter)
         stars.mass = masses
@@ -248,10 +248,10 @@ def run_dynamics(bodies, t_end, nsteps):
     channel_from_se_to_framework.copy_attributes(["mass","radius","luminosity"])
 
     bodies.scale_to_standard(convert_nbody=converter)
-    
+
     filename = "GMC_stars.hdf5"
     write_set_to_file(bodies.savepoint(0|units.Myr), filename, 'hdf5')
-    
+
     Etot_init = gravity.kinetic_energy + gravity.potential_energy
     Etot_prev = Etot_init
 
@@ -272,16 +272,16 @@ def run_dynamics(bodies, t_end, nsteps):
 
         write_set_to_file(bodies.savepoint(time), filename, 'hdf5')
 
-        Ekin = gravity.kinetic_energy 
+        Ekin = gravity.kinetic_energy
         Epot = gravity.potential_energy
         Etot = Ekin + Epot
         dE = Etot_prev-Etot
         dE_se = Etot_prev_se-Etot
         Mtot = bodies.mass.sum()
-        print("T=", time, end=' ') 
+        print("T=", time, end=' ')
         print("M=", Mtot, "(dM[SE]=", Mtot/Mtot_init, ")", end=' ')
         print("E= ", Etot, "Q= ", Ekin/Epot, end=' ')
-        print("dE=", (Etot_init-Etot)/Etot, "ddE=", (Etot_prev-Etot)/Etot, end=' ') 
+        print("dE=", (Etot_init-Etot)/Etot, "ddE=", (Etot_prev-Etot)/Etot, end=' ')
         print("(dE[SE]=", dE_se/Etot, ")")
         Etot_init -= dE
         Etot_prev = Etot
@@ -293,12 +293,10 @@ def run_dynamics(bodies, t_end, nsteps):
     stellar.stop()
 
     plot_stars(time, bodies, i, L=20)
-  
+
 if __name__ in ("__main__","__plot__"):
 #    parts = run_molecular_cloud(4000, Mcloud=400000. | units.MSun, Rcloud=10. | units.parsec)
     parts = run_molecular_cloud(1000, Mcloud=10000. | units.MSun, Rcloud=3. | units.parsec)
     stars = get_stars_from_molecular_clous(parts)
 #    write_set_to_file(stars, "stars.hdf5", 'hdf5')
     run_dynamics(stars, 10.0|units.Myr, 10)
-
-    

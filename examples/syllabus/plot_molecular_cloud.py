@@ -1,20 +1,20 @@
 """
-  example of molecular cloud evolution with explictly 
+  example of molecular cloud evolution with explictly
   split SPH and grav evolution
 
   Initial condition is a smooth spherical cloud with random velocities
-  as in Bonnell et al. (2003)  
-  
-"""  
+  as in Bonnell et al. (2003)
+
+"""
 from __future__ import print_function
 
 import numpy
-  
-from matplotlib import pyplot 
+
+from matplotlib import pyplot
 
 from amuse.lab import *
 from amuse.ext.molecular_cloud import molecular_cloud
-from amuse.ext.evrard_test import body_centered_grid_unit_cube
+from amuse.ic.evrard_test import body_centered_grid_unit_cube
 from amuse.plot import sph_particles_plot, native_plot
 
 def create_molecular_cloud(N, Mcloud, Rcloud, t_end):
@@ -32,7 +32,7 @@ def create_molecular_cloud(N, Mcloud, Rcloud, t_end):
     ch.copy()
     sph.stop()
     return parts
-  
+
 if __name__ in ("__main__","__plot__"):
     sph_particles = create_molecular_cloud(10000, Mcloud=10000. | units.MSun, Rcloud=10. | units.parsec, t_end=1|units.day)
     native_plot.figure(figsize = (10, 10), dpi = 50)

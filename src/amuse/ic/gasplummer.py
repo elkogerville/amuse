@@ -1,6 +1,6 @@
 import numpy
 
-from amuse.ext.evrard_test import uniform_unit_sphere
+from amuse.ic.evrard_test import uniform_unit_sphere
 from amuse.units import nbody_system
 from amuse.units import units
 from amuse import datamodel

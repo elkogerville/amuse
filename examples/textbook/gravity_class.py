@@ -3,7 +3,7 @@ import math
 import numpy
 from amuse.lab import *
 from amuse.ext.protodisk import ProtoPlanetaryDisk
-from amuse.ext.evrard_test import uniform_unit_sphere
+from amuse.ic.evrard_test import uniform_unit_sphere
 import time
 
 from initialize_sstars import *
@@ -31,8 +31,8 @@ class Gravity:
         for pi in particles:
             self.code.particles.add_particles(pi)
         if isinstance(self.code, Mercury):
-            self.code.commit_particles() 
-    
+            self.code.commit_particles()
+
         self.channel_to_framework = []
         self.channel_from_framework = []
         for pi in particles:
@@ -69,8 +69,8 @@ def main(t_end=1687|units.yr, n_steps=1, filename=None):
 
     gravity = Gravity(Mercury, [black_hole, stars])
 #    gravity = Gravity(Mikkola, [black_hole, stars])
-    
-    print_diagnostics(gravity.model_time, [black_hole, stars], gravity.converter) 
+
+    print_diagnostics(gravity.model_time, [black_hole, stars], gravity.converter)
     if filename:
         write_set_to_file(gravity.particles, filename, "hdf5")
 
@@ -79,7 +79,7 @@ def main(t_end=1687|units.yr, n_steps=1, filename=None):
         gravity.evolve_model(gravity.model_time+dt)
         if filename:
             write_set_to_file(gravity.particles, filename, 'hdf5')
-        print_diagnostics(gravity.model_time, [black_hole, stars], gravity.converter) 
+        print_diagnostics(gravity.model_time, [black_hole, stars], gravity.converter)
     gravity.stop()
 
 def new_option_parser():
@@ -88,7 +88,7 @@ def new_option_parser():
                       help="number of diagnostics time steps [10]")
     result.add_option("-f", dest="filename", default = None,
                       help="write output filename")
-    result.add_option("-t", unit=units.Myr, 
+    result.add_option("-t", unit=units.Myr,
                       dest="t_end", type="float", default = 0.000001|units.Myr,
                       help="end time of the simulation [0.0000001] %unit")
     return result

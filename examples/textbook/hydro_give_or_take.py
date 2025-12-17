@@ -1,7 +1,7 @@
 import numpy
 from amuse.lab import *
 from amuse import datamodel
-from amuse.ext.evrard_test import uniform_unit_sphere
+from amuse.ic.evrard_test import uniform_unit_sphere
 
 def hydro_sink_particles(sinks, gas):
     removed_particles = Particles()
@@ -9,7 +9,7 @@ def hydro_sink_particles(sinks, gas):
         xs,ys,zs=s.x,s.y,s.z
         radius_squared = s.sink_radius**2
         #print "R=", s.key, numpy.sqrt(radius_squared).in_(units.AU)
-        insink=gas.select_array(lambda x,y,z: (x-xs)**2+(y-ys)**2+(z-zs)**2 < radius_squared,['x','y','z'])  
+        insink=gas.select_array(lambda x,y,z: (x-xs)**2+(y-ys)**2+(z-zs)**2 < radius_squared,['x','y','z'])
         if len(insink)>0:
             cm=s.position*s.mass
             p=s.velocity*s.mass
@@ -24,7 +24,7 @@ def new_sph_particles_from_stellar_wind(stars, mgas):
     for si in stars:
         Ngas = int(-si.Mwind/mgas)
         if Ngas==0:
-            continue 
+            continue
         Mgas = mgas*Ngas
         si.Mwind += Mgas
         si.mass -= Mgas
@@ -44,7 +44,7 @@ def new_sph_particles_from_stellar_wind(stars, mgas):
             add[ri].vx=si.vx + r[0]*si.terminal_wind_velocity
             add[ri].vy=si.vy + r[1]*si.terminal_wind_velocity
             add[ri].vz=si.vz + r[2]*si.terminal_wind_velocity
-        new_sph.add_particles(add)  
+        new_sph.add_particles(add)
     return new_sph
 
 def v_terminal_teff(star):
@@ -63,8 +63,8 @@ def remove_gas(gas, rremove):
 #        escaped_gas = gas.select_array(lambda r: r.length()>rremove,["position"])
 #        escaped_gas = gas[gas.position.length()>rremove].as_set()
         radius_squared = rremove**2
-        escaped_gas=gas.select_array(lambda x,y,z: (x**2+y**2+z**2) >= radius_squared,['x','y','z'])  
-        
+        escaped_gas=gas.select_array(lambda x,y,z: (x**2+y**2+z**2) >= radius_squared,['x','y','z'])
+
 #        print len(escaped_gas), escaped_gas.position.length()
     return escaped_gas
 
@@ -97,15 +97,15 @@ def main(filename):
     gas.mass = mgas
     gas.position = (0,0,0)|units.AU
     gas.velocity = (0,0,0)|units.kms
-    gas.u = 0 | units.m**2 * units.s**-2 
+    gas.u = 0 | units.m**2 * units.s**-2
     gas.h_smooth= 1*units.RSun
 
     hydro = new_hydro_code(Fi, dt, converter)
     hydro.gas_particles.add_particles(gas)
     hydro.dm_particles.add_particles(stars)
-    hydro_to_framework = hydro.gas_particles.new_channel_to(gas, 
+    hydro_to_framework = hydro.gas_particles.new_channel_to(gas,
         attributes=["x", "y", "z", "vx", "vy", "vz",
-                    "mass", "u", "rho", "h_smooth"]) 
+                    "mass", "u", "rho", "h_smooth"])
 
     generated_gas = Particles()
     accreted_gas = Particles()
@@ -132,12 +132,12 @@ def main(filename):
             hydro.gas_particles.remove_particles(escaped)
 
         new_sph = new_sph_particles_from_stellar_wind(stars, mgas)
-        if len(new_sph)>0: 
+        if len(new_sph)>0:
             #print "N wind:", len(new_sph)
             generated_gas.add_particles(new_sph.copy())
             gas.add_particles(new_sph)
             hydro.gas_particles.add_particles(new_sph)
-            
+
         if len(gas)>100:
             #gas.synchronize_to(hydro.gas_particles)
             hydro.evolve_model(hydro.model_time+dt)
@@ -150,7 +150,7 @@ def main(filename):
                 print("T=", time, "M=", stars[0].mass, stars[1].mass)
                 print("Gas = ", len(generated_gas), len(accreted_gas), \
                       len(escaped_gas))
-        
+
     hydro.stop()
 
 def new_option_parser():
@@ -162,8 +162,7 @@ def new_option_parser():
 
 if __name__ in ('__main__', '__plot__'):
     o, arguments  = new_option_parser().parse_args()
-    set_printing_strategy("custom", #nbody_converter = converter, 
-                          preferred_units = [units.MSun, units.AU, units.Myr], 
+    set_printing_strategy("custom", #nbody_converter = converter,
+                          preferred_units = [units.MSun, units.AU, units.Myr],
                           precision = 14, prefix = "", separator = " [", suffix = "]")
     main(o.filename)
-

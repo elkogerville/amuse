@@ -32,8 +32,8 @@ from matplotlib import rc
 from amuse.units import nbody_system
 from amuse.units import units
 
-from amuse.ext.boss_bodenheimer import bb79_cloud
-from amuse.ext.evrard_test import body_centered_grid_unit_cube
+from amuse.ic.boss_bodenheimer import bb79_cloud
+from amuse.ic.evrard_test import body_centered_grid_unit_cube
 
 from amuse.community.fi.interface import Fi
 

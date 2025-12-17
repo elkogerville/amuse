@@ -8,7 +8,8 @@ from amuse.ic.evrard_test import (
     uniform_unit_cube,
     uniform_unit_sphere,
     MakeEvrardTest,
-    MakeEvrardModel
+    MakeEvrardModel,
+    new_evrard_gas_sphere
 )
 
 warnings.warn(
