@@ -212,17 +212,18 @@ class TestTidymess(TestWithMPI):
         moon.wy = 8.4e1 | 1/u.yr
         moon.wz = 3.8e8 | 1/u.yr
 
-        system.move_to_center()
+        system = Particles()
+        system.add_particles(planet)
+        system.add_particles(moon)
 
         converter = nbody_system.nbody_to_si(system.mass.sum(), planet.position.length())
-        instance = TIDYMESS(converter)
+        instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         instance.set_tidal_model(0)
 
-        instance.particles.add_particles(system)  # hier wordt tidal_model weer naar 4 gezet?? waarom?
+        instance.particles.add_particles(system)
         instance.set_tidal_model(0)
 
-        instance.get_time_step()
-        # ^ dit kan hij alleen als bij new_particle() ook tidymess.commit_parameters(); staat
+        self.assertEquals(instance.get_time_step(), 0 | u.s)
 
         self.assertGreater(instance.get_total_mass(), 6.04562e24 | u.kg)
         self.assertLess(instance.get_total_mass(), 6.04563e24 | u.kg)
