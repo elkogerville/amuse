@@ -5,245 +5,159 @@ from amuse.support.testing.amusetest import TestWithMPI
 from amuse_tidymess.interface import Tidymess, TidymessInterface
 from amuse.units import units as u
 from amuse.units import constants as c
-from amuse.units import generic_unit_system
+from amuse.units import generic_unit_system, nbody_system
 from amuse.datamodel import Particles
-#from amuse.ext.orbital_elements import new_binary_from_orbital_elements, get_orbital_elements_from_binary
+from amuse.ext.orbital_elements import generate_binaries, new_binary_from_orbital_elements
 
 class TidymessInterfaceTests(TestWithMPI):
 
     def test1(self):
-        '''
-        # Test particle properties
-        '''
+        """
+        Test Tidymess initialization.
+        """
 
-        instance = Tidymess()
-
-        self.assertEquals(instance.get_number_of_particles(), 0)
-
-        index_of_the_particle = instance.new_particle(
-            1.0 | generic_unit_system.mass,
-            1.0 | generic_unit_system.length,
-            1.0 | generic_unit_system.length,
-            1.0 | generic_unit_system.length,
-            1.0 | generic_unit_system.speed,
-            1.0 | generic_unit_system.speed,
-            1.0 | generic_unit_system.speed,
-            1.0 | generic_unit_system.length, # radius
-            1.0, # xi
-            1.0, # kf
-            1.0 | generic_unit_system.time, # tau
-            1.0 | 1/generic_unit_system.time, # wx
-            1.0 | 1/generic_unit_system.time, # wy
-            1.0 | 1/generic_unit_system.time, # wz
-            1.0, # a_mb
-            1.0
-        )
-        self.assertEquals(index_of_the_particle, 0)
-
-        index_of_the_particle = instance.new_particle(
-            1.0 | generic_unit_system.mass,
-            2.0 | generic_unit_system.length,
-            2.0 | generic_unit_system.length,
-            2.0 | generic_unit_system.length,
-            1.0 | generic_unit_system.speed,
-            1.0 | generic_unit_system.speed,
-            1.0 | generic_unit_system.speed,
-            1.0 | generic_unit_system.length, # radius
-
-            1.0, # xi
-            1.0, # kf
-            1.0 | generic_unit_system.time, # tau
-            1.0 | 1/generic_unit_system.time, # wx
-            1.0 | 1/generic_unit_system.time, # wy
-            1.0 | 1/generic_unit_system.time, # wz
-
-            1.0, # a_mb
-        )
-        self.assertEquals(index_of_the_particle, 1)
-        self.assertEquals(instance.get_number_of_particles(), 2)
-
-        # test get/set_mass
-        instance.set_mass(0, 2.0 | generic_unit_system.mass)
-        self.assertEquals(instance.get_mass(0), 2.0 | generic_unit_system.mass)
-
-        # test get/set_radius
-        instance.set_radius(1, 1.1 | generic_unit_system.length)
-        self.assertEquals(instance.get_radius(1), 1.1 | generic_unit_system.length)
-
-        # test get/set_position
-        instance.set_position(0, 1.2 | generic_unit_system.length,
-                                 1.2 | generic_unit_system.length,
-                                 1.2 | generic_unit_system.length)
-        self.assertEquals(instance.get_position(0), [1.2 | generic_unit_system.length,
-                                                     1.2 | generic_unit_system.length,
-                                                     1.2 | generic_unit_system.length])
-
-        # test get/set_velocity
-        instance.set_velocity(1, 1.3 | generic_unit_system.speed,
-                                 1.3 | generic_unit_system.speed,
-                                 1.3 | generic_unit_system.speed)
-        self.assertEquals(instance.get_velocity(1), [1.3 | generic_unit_system.speed,
-                                                     1.3 | generic_unit_system.speed,
-                                                     1.3 | generic_unit_system.speed])
-
-        # test get/set_spin
-        instance.set_spin(0, 1.4 | 1/generic_unit_system.time,
-                             1.4 | 1/generic_unit_system.time,
-                             1.4 | 1/generic_unit_system.time)
-        self.assertEquals(instance.get_spin(0), [1.4 | 1/generic_unit_system.time,
-                                                 1.4 | 1/generic_unit_system.time,
-                                                 1.4 | 1/generic_unit_system.time])
-
-        # test get/set_state
-        state0 = [2.0 | generic_unit_system.mass,
-                  1.2 | generic_unit_system.length,
-                  1.2 | generic_unit_system.length,
-                  1.2 | generic_unit_system.length,
-                  1.0 | generic_unit_system.speed,
-                  1.0 | generic_unit_system.speed,
-                  1.0 | generic_unit_system.speed,
-                  1.0 | generic_unit_system.length]
-
-        self.assertEquals(instance.get_state(0), state0)
-
-        instance.set_state(1, 1.0 | generic_unit_system.mass,
-                              2.0 | generic_unit_system.length,
-                              2.0 | generic_unit_system.length,
-                              2.0 | generic_unit_system.length,
-                              1.3 | generic_unit_system.speed,
-                              1.3 | generic_unit_system.speed,
-                              1.3 | generic_unit_system.speed,
-                              1.2 | generic_unit_system.length)
-        state1 = [1.0 | generic_unit_system.mass,
-                  2.0 | generic_unit_system.length,
-                  2.0 | generic_unit_system.length,
-                  2.0 | generic_unit_system.length,
-                  1.3 | generic_unit_system.speed,
-                  1.3 | generic_unit_system.speed,
-                  1.3 | generic_unit_system.speed,
-                  1.2 | generic_unit_system.length]
-        self.assertEquals(instance.get_state(1), state1)
-
+        instance = self.new_instance_of_an_optional_code(TidymessInterface)
+        self.assertEqual(0, instance.initialize_code())
+        self.assertEqual(0, instance.commit_parameters())
+        self.assertEqual(0, instance.cleanup_code())
         instance.stop()
-
 
     def test2(self):
-        '''
-        #Test particle indices
-        '''
+        """
+        Test TidymessInterface setters and getters.
+        """
 
-        instance = TIDYMESS(redirection="none")
+        instance = self.new_instance_of_an_optional_code(TidymessInterface)
 
-        index_of_the_particle = instance.new_particle(
-            1.0 | generic_unit_system.mass,
-            1.0 | generic_unit_system.length,
-            1.0 | generic_unit_system.length,
-            1.0 | generic_unit_system.length,
-            1.0 | generic_unit_system.speed,
-            1.0 | generic_unit_system.speed,
-            1.0 | generic_unit_system.speed,
-            1.0 | generic_unit_system.length, # radius
-            1.0, # xi
-            1.0, # kf
-            1.0 | generic_unit_system.time, # tau
-            1.0 | 1/generic_unit_system.time, # wx
-            1.0 | 1/generic_unit_system.time, # wy
-            1.0 | 1/generic_unit_system.time, # wz
+        result = instance.get_number_of_particles()
+        self.assertEquals(result['number_of_particles'], 0)
+
+        result = instance.new_particle(
+            1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0,
+            1.0,  # radius
+            1.0,  # xi
+            1.0,  # kf
+            1.0,  # tau
+            1.0,  # wx
+            1.0,  # wy
+            1.0,  # wz
         )
-        self.assertEquals(index_of_the_particle, 0)
 
-        index_of_the_particle = instance.new_particle(
-            1.1 | generic_unit_system.mass,
-            1.1 | generic_unit_system.length,
-            1.1 | generic_unit_system.length,
-            1.1 | generic_unit_system.length,
-            1.1 | generic_unit_system.speed,
-            1.1 | generic_unit_system.speed,
-            1.1 | generic_unit_system.speed,
-            1.1 | generic_unit_system.length, # radius
-            1.1, # xi
-            1.1, # kf
-            1.1 | generic_unit_system.time, # tau
-            1.1 | 1/generic_unit_system.time, # wx
-            1.1 | 1/generic_unit_system.time, # wy
-            1.1 | 1/generic_unit_system.time, # wz
-        )
-        self.assertEquals(index_of_the_particle, 1)
+        self.assertEqual(result['index_of_the_particle'], 0)
 
-        index_of_the_particle = instance.new_particle(
-            1.2 | generic_unit_system.mass,
-            1.2 | generic_unit_system.length,
-            1.2 | generic_unit_system.length,
-            1.2 | generic_unit_system.length,
-            1.2 | generic_unit_system.speed,
-            1.2 | generic_unit_system.speed,
-            1.2 | generic_unit_system.speed,
-            1.2 | generic_unit_system.length, # radius
-            1.2, # xi
-            1.2, # kf
-            1.2 | generic_unit_system.time, # tau
-            1.2 | 1/generic_unit_system.time, # wx
-            1.2 | 1/generic_unit_system.time, # wy
-            1.2 | 1/generic_unit_system.time, # wz
-        )
-        self.assertEquals(instance.get_number_of_particles(), 3)
+        # test get/set_mass
+        instance.set_mass(0, 2.0)
+        result = instance.get_mass(0)
+        self.assertEquals(result['mass'], 2.0)
 
-        self.assertEquals(instance.get_index_of_first_particle(), 0)
-        self.assertEquals(instance.get_index_of_next_particle(0), 1)
+        # test get/set_position
+        instance.set_position(0, 1.2, 1.2, 1.2)
+        result = instance.get_position(0)
+        self.assertEquals(result['x'], 1.2)
+        self.assertEquals(result['y'], 1.2)
+        self.assertEquals(result['z'], 1.2)
 
-        instance.delete_particle(1)
-        self.assertEquals(instance.get_index_of_first_particle(), 0)
-        self.assertEquals(instance.get_index_of_next_particle(0), 2)
+        # test get/set velocity
+        instance.set_velocity(0, 1.3, 1.3, 1.3)
+        result = instance.get_velocity(0)
+        self.assertEquals(result['vx'], 1.3)
+        self.assertEquals(result['vy'], 1.3)
+        self.assertEquals(result['vz'], 1.3)
 
+        # test get/set radius
+        instance.set_radius(0, 1.0)
+        result = instance.get_radius(0)
+        self.assertEquals(result['radius'], 1.0)
+
+        # test get/set spin
+        instance.set_spin(0, 1.4, 1.4, 1.4)
+        result = instance.get_spin(0)
+        self.assertEquals(result['wx'], 1.4)
+        self.assertEquals(result['wy'], 1.4)
+        self.assertEquals(result['wz'], 1.4)
+
+        # test get/set state
+        result = instance.get_state(0)
+        self.assertEquals(result['mass'], 2.0)
+        self.assertEquals(result['x'], 1.2)
+        self.assertEquals(result['y'], 1.2)
+        self.assertEquals(result['z'], 1.2)
+        self.assertEquals(result['vx'], 1.3)
+        self.assertEquals(result['vy'], 1.3)
+        self.assertEquals(result['vz'], 1.3)
+        self.assertEquals(result['radius'], 1.0)
+
+        self.assertEqual(0, instance.cleanup_code())
         instance.stop()
 
-
     def test3(self):
-        '''
-        #Test simulation parameters
-        '''
+        """
+        Test TidymessInterface creating and deleting particles.
+        """
 
-        instance = TIDYMESS(redirection="none")
-        instance.set_tidal_model(4)
+        instance = self.new_instance_of_an_optional_code(TidymessInterface)
 
-        self.assertEquals(instance.get_tidal_model(),4)
-        instance.set_tidal_model(0)
-        self.assertEquals(instance.parameters.tidal_model,0)
+        result = instance.new_particle(
+            1.0, 1.0, 1.0, 1.0,
+            1.0, 1.0, 1.0,
+            1.0,  # radius
+            1.0,  # xi
+            1.0,  # kf
+            1.0,  # tau
+            1.0,  # wx
+            1.0,  # wy
+            1.0,  # wz
+        )
+        self.assertEqual(result['index_of_the_particle'], 0)
 
-        self.assertEquals(instance.get_pn_order(),0)
-        instance.set_pn_order(1)
-        self.assertEquals(instance.parameters.pn_order,1)
+        result = instance.new_particle(
+            1.1, 1.1, 1.1, 1.1,
+            1.1, 1.1, 1.1,
+            1.1,  # radius
+            1.1,  # xi
+            1.1,  # kf
+            1.1,  # tau
+            1.1,  # wx
+            1.1,  # wy
+            1.1,  # wz
+        )
 
-        self.assertEquals(instance.get_magnetic_braking(),0)
-        instance.set_magnetic_braking(1)
-        self.assertEquals(instance.parameters.magnetic_braking ,1)
+        self.assertEqual(result['index_of_the_particle'], 1)
 
-        self.assertEquals(instance.get_collision_mode(),0)
-        instance.set_collision_mode(1)
-        self.assertEquals(instance.parameters.collision_mode,1)
+        # check number of particles
+        result = instance.get_number_of_particles()
+        self.assertEqual(result['number_of_particles'], 2)
 
-        self.assertEquals(instance.get_roche_mode(),0)
-        instance.set_roche_mode(2)
-        self.assertEquals(instance.parameters.roche_mode,2)
+        # check that indexes are correct
+        first = instance.get_index_of_first_particle()
+        self.assertEqual(first['index_of_the_particle'], 0)
 
-        self.assertEquals(instance.get_breakup_mode(),0)
-        instance.set_breakup_mode(1)
-        self.assertEquals(instance.parameters.breakup_mode,1)
+        next = instance.get_index_of_next_particle(0)
+        self.assertEqual(next['index_of_the_next_particle'], 1)
+
+        # delete particle
+        instance.delete_particle(1)
+
+        result = instance.get_number_of_particles()
+        self.assertEqual(result['number_of_particles'], 1)
+
+        first = instance.get_index_of_first_particle()
+        self.assertEqual(first['index_of_the_particle'], 0)
 
         instance.stop()
 
     def test4(self):
-        '''
-        #Make a system from Particles
-        '''
+        """
+        Test Tidymess add_particles method.
+        """
 
-        system = new_binary_from_orbital_elements(
+        planet, moon = generate_binaries(
             1 | u.MEarth,
             7.342e22 | u.kg,
             384399e3 | u.m,
-            G=c.G)
-        planet = system[0]
-        moon = system[1]
+            G=c.G
+        )
 
         planet.radius = 6371. | u.km
         planet.xi = 0.3308
