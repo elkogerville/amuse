@@ -147,7 +147,45 @@ class TidymessInterfaceTests(TestWithMPI):
 
         instance.stop()
 
-    def test4(self):
+
+class TestTidymess(TestWithMPI):
+
+    def test1(self):
+        """
+        Test Tidymess parameters attribute.
+        """
+
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+
+        instance.set_tidal_model(4)
+        self.assertEquals(instance.get_tidal_model(), 4)
+
+        instance.set_tidal_model(0)
+        self.assertEquals(instance.parameters.tidal_model, 0)
+
+        self.assertEquals(instance.get_pn_order(), 0)
+        instance.set_pn_order(1)
+        self.assertEquals(instance.parameters.pn_order, 1)
+
+        self.assertEquals(instance.get_magnetic_braking(), 0)
+        instance.set_magnetic_braking(1)
+        self.assertEquals(instance.parameters.magnetic_braking ,1)
+
+        self.assertEquals(instance.get_collision_mode(), 0)
+        instance.set_collision_mode(1)
+        self.assertEquals(instance.parameters.collision_mode, 1)
+
+        self.assertEquals(instance.get_roche_mode(), 0)
+        instance.set_roche_mode(2)
+        self.assertEquals(instance.parameters.roche_mode, 2)
+
+        self.assertEquals(instance.get_breakup_mode(), 0)
+        instance.set_breakup_mode(1)
+        self.assertEquals(instance.parameters.breakup_mode, 1)
+
+        instance.stop()
+
+    def test2(self):
         """
         Test Tidymess add_particles method.
         """
