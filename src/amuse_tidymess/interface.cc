@@ -72,9 +72,12 @@ int determine_dt_sgn(double t_end) {  // copied from tidymess.cpp
 
 // tidymess-specific setters & getters
 
-int get_tidal_model(int * tidal_model){
+int get_tidal_model(int * tidal_model)
+{
     *tidal_model = tidymess.get_tidal_model();
-    return 0;}
+    return 0;
+}
+
 int set_tidal_model(int tidal_model){
     tidymess.set_tidal_model(tidal_model);
     set_shapes_and_momenta();
@@ -234,9 +237,21 @@ int delete_particle(int index_of_the_particle){
     return 0;}
 
 // setters & getters
+//
+// SHOULD SET STATE TRACK THE OTHER PARAMS?
 
-int set_state(int index_of_the_particle, double mass, double x, double y,
-    double z, double vx, double vy, double vz, double radius){
+int set_state(
+    int index_of_the_particle,
+    double mass,
+    double x,
+    double y,
+    double z,
+    double vx,
+    double vy,
+    double vz,
+    double radius
+)
+{
     vector<Body> bodies = tidymess.get_particles();
     int ind = get_ind_from_index(index_of_the_particle);
     bodies[ind].m = mass;
@@ -244,10 +259,21 @@ int set_state(int index_of_the_particle, double mass, double x, double y,
     bodies[ind].r = {x, y, z};
     bodies[ind].v = {vx, vy, vz};
     tidymess.set_particles(bodies);
-    return 0;}
-int get_state(int index_of_the_particle, double * mass, double * x,
-    double * y, double * z, double * vx, double * vy, double * vz,
-    double * radius){
+    return 0;
+}
+
+int get_state(
+    int index_of_the_particle,
+    double * mass,
+    double * x,
+    double * y,
+    double * z,
+    double * vx,
+    double * vy,
+    double * vz,
+    double * radius
+)
+{
     vector<Body> bodies = tidymess.get_particles();
     Body body = bodies[get_ind_from_index(index_of_the_particle)];
     *mass = body.m;
@@ -258,7 +284,8 @@ int get_state(int index_of_the_particle, double * mass, double * x,
     *vy = body.v[1];
     *vz = body.v[2];
     *radius = body.R;
-    return 0;}
+    return 0;
+}
 
 int get_mass(int index_of_the_particle, double * mass){
     vector<Body> bodies = tidymess.get_particles();
