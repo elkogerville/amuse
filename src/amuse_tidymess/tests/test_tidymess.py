@@ -9,7 +9,7 @@ from amuse.units import generic_unit_system, nbody_system
 from amuse.datamodel import Particles
 from amuse.ext.orbital_elements import generate_binaries, new_binary_from_orbital_elements
 
-class TidymessInterfaceTests(TestWithMPI):
+class TestTidymessInterface(TestWithMPI):
 
     def test1(self):
         """
