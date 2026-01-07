@@ -46,38 +46,26 @@ class TidymessInterfaceTests(TestWithMPI):
 
         self.assertEqual(result['index_of_the_particle'], 0)
 
-        # test get/set_mass
         instance.set_mass(0, 2.0)
         result = instance.get_mass(0)
         self.assertEquals(result['mass'], 2.0)
 
-        # test get/set_position
         instance.set_position(0, 1.2, 1.2, 1.2)
         result = instance.get_position(0)
         self.assertEquals(result['x'], 1.2)
         self.assertEquals(result['y'], 1.2)
         self.assertEquals(result['z'], 1.2)
 
-        # test get/set velocity
         instance.set_velocity(0, 1.3, 1.3, 1.3)
         result = instance.get_velocity(0)
         self.assertEquals(result['vx'], 1.3)
         self.assertEquals(result['vy'], 1.3)
         self.assertEquals(result['vz'], 1.3)
 
-        # test get/set radius
         instance.set_radius(0, 1.0)
         result = instance.get_radius(0)
         self.assertEquals(result['radius'], 1.0)
 
-        # test get/set spin
-        instance.set_spin(0, 1.4, 1.4, 1.4)
-        result = instance.get_spin(0)
-        self.assertEquals(result['wx'], 1.4)
-        self.assertEquals(result['wy'], 1.4)
-        self.assertEquals(result['wz'], 1.4)
-
-        # test get/set state
         result = instance.get_state(0)
         self.assertEquals(result['mass'], 2.0)
         self.assertEquals(result['x'], 1.2)
@@ -87,6 +75,62 @@ class TidymessInterfaceTests(TestWithMPI):
         self.assertEquals(result['vy'], 1.3)
         self.assertEquals(result['vz'], 1.3)
         self.assertEquals(result['radius'], 1.0)
+
+        instance.set_spin(0, 1.4, 1.4, 1.4)
+        result = instance.get_spin(0)
+        self.assertEquals(result['wx'], 1.4)
+        self.assertEquals(result['wy'], 1.4)
+        self.assertEquals(result['wz'], 1.4)
+
+        instance.set_tidal_model(0)
+        result = instance.get_tidal_model()
+        self.assertEquals(result['tidal_model'], 0)
+
+        instance.set_pn_order(2)
+        result = instance.get_pn_order()
+        self.assertEquals(result['pn_order'], 2)
+
+        instance.set_magnetic_braking(1)
+        result = instance.get_magnetic_braking()
+        self.assertEquals(result['magnetic_braking'], 1)
+
+        instance.set_speed_of_light(299792)
+        result = instance.get_speed_of_light()
+        self.assertEquals(result['speed_of_light'], 299792)
+
+        instance.set_dt_mode(0) # FIX
+        result = instance.get_dt_mode()
+        self.assertEquals(result['dt_mode'], 0)
+
+        instance.set_dt_const(0) # FIX
+        result = instance.get_dt_const()
+        self.assertEquals(result['dt_const'], 0)
+
+        result = instance.get_time_step()
+        self.assertEquals(result['time_step'], 0)
+
+        instance.set_eta(0) # FIX
+        result = instance.get_eta()
+        self.assertEquals(result['eta'], 0)
+
+        instance.set_n_iter(1) # FIX
+        result = instance.get_n_iter()
+        self.assertEquals(result['n_iter'], 1)
+
+        instance.set_collision_mode(2)
+        result = instance.get_collision_mode()
+        self.assertEquals(result['collision_mode'], 2)
+
+        instance.set_roche_mode(2)
+        result = instance.get_roche_mode()
+        self.assertEquals(result['roche_mode'], 2)
+
+        instance.set_breakup_mode(1)
+        result = instance.get_breakup_mode()
+        self.assertEquals(result['breakup_mode'], 1)
+
+        result = instance.get_num_integration_step() # FIX
+        self.assertEquals(result['num_integration_step'], 0)
 
         self.assertEqual(0, instance.cleanup_code())
         instance.stop()
