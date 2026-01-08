@@ -218,6 +218,41 @@ class TestTidymessInterface(TestWithMPI):
 
 class TestTidymess(TestWithMPI):
 
+    def earth_moon_system(self):
+        """
+        Generate a Earth - moon system.
+
+        Returns
+        -------
+        planet, moon : amuse.datamodel.particles.Particles
+            Particle objects of the system.
+        """
+
+        planet, moon = generate_binaries(
+            1 | u.MEarth,
+            7.342e22 | u.kg,
+            384399e3 | u.m,
+            G=c.G
+        )
+
+        planet.radius = 6371. | u.km
+        planet.xi = 0.3308
+        planet.kf = 0.933
+        planet.tau = 180 | u.s
+        planet.wx = 0.0 | 1/u.yr
+        planet.wy = 2.3e3 | 1/u.yr
+        planet.wz = -4.7e6 | 1/u.yr
+        moon.radius = 1737.4 | u.km
+        moon.xi = 0.394
+        moon.kf = 0
+        moon.kf = 0
+        moon.wx = 0.0 | 1/u.yr
+        moon.wy = 8.4e1 | 1/u.yr
+        moon.wz = 3.8e8 | 1/u.yr
+
+        return planet, moon
+
+
     def test1(self):
         """
         Test Tidymess parameters attribute.
