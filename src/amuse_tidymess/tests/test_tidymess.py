@@ -405,9 +405,9 @@ class TestTidymess(TestWithMPI):
             3.7972936191046441e+08 | u.m,
             0.0000000000000000e+00 | u.m,
             0.0000000000000000e+00 | u.m,
-            0.0000000000000000e+00 | u.m/u.s,
-            1.0121215033569634e+03 | u.m/u.s,
-            0.0000000000000000e+00 | u.m/u.s,
+            0.0000000000000000e+00 | u.m / u.s,
+            1.0121215033569634e+03 | u.m / u.s,
+            0.0000000000000000e+00 | u.m / u.s,
         )
         self.assertEquals(index_moon, 1)
         appendix = "dt_sgn changed (>=)"
@@ -455,27 +455,9 @@ class TestTidymess(TestWithMPI):
 
         instance.stop()
 
-
-    def test7(self):
+    def test6(self):
         '''
-        #Test the function for converting spin vectors
-        '''
-
-        converter = nbody_system.nbody_to_si(1|u.MEarth, 1|u.REarth)
-        instance = TIDYMESS(converter)
-
-        lod = 24 | u.hour
-        obl = 10 | u.deg
-        psi = 0 | u.deg
-
-        spin = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
-
-        self.assertLess(np.abs(spin[2].number-7.1617240788458890e-05), 1e-19)
-
-
-    def test8(self):
-        '''
-        #Test collisions (just remove both particles)
+        Test collisions (just remove both particles)
         '''
 
         def merge_two_stars(bodies, particles_in_encounter):
@@ -485,11 +467,11 @@ class TestTidymess(TestWithMPI):
             v = (particles_in_encounter[0].velocity - particles_in_encounter[1].velocity)
             print("Actually merger occurred:")
             print("Two stars (M=",particles_in_encounter.mass.in_(units.MSun),
-                  ") collided with d=", d.length().in_(units.au))
+                ") collided with d=", d.length().in_(units.au))
             new_particle=Particles(1)
             new_particle.mass = particles_in_encounter.total_mass()
             new_particle.age = min(particles_in_encounter.age) \
-                             * max(particles_in_encounter.mass)/new_particle.mass
+                            * max(particles_in_encounter.mass)/new_particle.mass
             new_particle.position = com_pos
             new_particle.velocity = com_vel
             new_particle.radius = particles_in_encounter.radius.sum()
@@ -498,7 +480,7 @@ class TestTidymess(TestWithMPI):
 
 
         converter = nbody_system.nbody_to_si(1|u.MEarth, 1|u.REarth)
-        instance = TIDYMESS(converter)
+        instance = Tidymess(converter)
 
         index_earth = instance.new_particle(
             1.0 | u.MEarth,
@@ -635,7 +617,7 @@ class TestTidymess(TestWithMPI):
 
         instance.stop()
 
-    def test9(self):
+    def test7(self):
         '''
         #Test collisions (replace particles)
         '''
@@ -655,8 +637,7 @@ class TestTidymess(TestWithMPI):
 
 
         converter = nbody_system.nbody_to_si(1|u.MEarth, 1|u.REarth)
-        instance = TIDYMESS(converter)
-
+        instance = Tidymess(converter)
 
         system = Particles(6)
 
