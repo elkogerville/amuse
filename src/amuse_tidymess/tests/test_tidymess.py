@@ -191,6 +191,30 @@ class TestTidymessInterface(TestWithMPI):
 
         instance.stop()
 
+    def test4(self):
+        """
+        Test TidymessInterface evolve_model with an equal mass binary.
+        """
+        instance = self.new_instance_of_an_optional_code(TidymessInterface)
+        self.assertEqual(0, instance.initialize_code())
+
+        self.assertEqual(0, instance.commit_parameters())
+
+        self.assertEqual([0, 0], list(instance.new_particle(0.5,  0.5, 0, 0,  0, 0.5, 0).values()))
+        self.assertEqual([1, 0], list(instance.new_particle(0.5, -0.5, 0, 0,  0, -0.5, 0).values()))
+        self.assertEqual(0, instance.commit_particles())
+
+        self.assertEqual(0, instance.evolve_model(np.pi))  # half an orbit
+        for result, expected in zip(instance.get_position(0).values(), [-0.5, 0.0, 0.0, 0]):
+            self.assertAlmostEqual(result, expected, 5)
+
+        self.assertEqual(0, instance.evolve_model(2 * np.pi))  # full orbit
+        for result, expected in zip(instance.get_position(0).values(), [0.5, 0.0, 0.0, 0]):
+            self.assertAlmostEqual(result, expected, 5)
+
+        self.assertEqual(0, instance.cleanup_code())
+        instance.stop()
+
 
 class TestTidymess(TestWithMPI):
 
