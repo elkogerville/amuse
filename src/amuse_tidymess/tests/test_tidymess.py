@@ -292,28 +292,7 @@ class TestTidymess(TestWithMPI):
         """
         Test Tidymess add_particles method.
         """
-
-        planet, moon = generate_binaries(
-            1 | u.MEarth,
-            7.342e22 | u.kg,
-            384399e3 | u.m,
-            G=c.G
-        )
-
-        planet.radius = 6371. | u.km
-        planet.xi = 0.3308
-        planet.kf = 0.933
-        planet.tau = 180 | u.s
-        planet.wx = 0.0 | 1/u.yr
-        planet.wy = 2.3e3 | 1/u.yr
-        planet.wz = -4.7e6 | 1/u.yr
-        moon.radius = 1737.4 | u.km
-        moon.xi = 0.394
-        moon.kf = 0
-        moon.kf = 0
-        moon.wx = 0.0 | 1/u.yr
-        moon.wy = 8.4e1 | 1/u.yr
-        moon.wz = 3.8e8 | 1/u.yr
+        planet, moon = self.earth_moon_system()
 
         system = Particles()
         system.add_particles(planet)
@@ -334,94 +313,92 @@ class TestTidymess(TestWithMPI):
 
         instance.stop()
 
-    def test5(self):
-        '''
-        #Evolve a system of Particles
-        '''
+    def test3(self):
+        """
+        Test the function for converting spin vectors
+        """
 
-        system = new_binary_from_orbital_elements(
-            5.9724e24 | u.kg,
-            0.0735e24 | u.kg,
-            0.3844e6 | u.km,
-            G=c.G)
-        planet = system[0]
-        moon = system[1]
+        converter = nbody_system.nbody_to_si(1 | u.MEarth, 1 | u.REarth)
+        instance = Tidymess(converter)
 
-        planet.radius = 6371. | u.km
-        planet.xi = 0.3308
-        planet.kf = 0
-        planet.tau = 180 | u.s
-        planet.wx = 0.0 | 1/u.yr
-        planet.wy = 0.0 | 1/u.yr
-        planet.wz = 0.0 | 1/u.yr
-        moon.radius = 1737.4 | u.km
-        moon.xi = 0.394
-        moon.kf = 0
-        moon.tau = 0 | u.s
-        moon.wx = 0.0 | 1/u.yr
-        moon.wy = 0.0 | 1/u.yr
-        moon.wz = 0.0 | 1/u.yr
+        lod = 24 | u.hour
+        obl = 10 | u.deg
+        psi = 0 | u.deg
+
+        spin = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
+
+        self.assertLess(np.abs(spin[2].number-7.1617240788458890e-05), 1e-19)
+
+    def test4(self):
+        """
+        Evolve a system of Particles
+        """
+        planet, moon = self.earth_moon_system()
+
+        system = Particles()
+        system.add_particles(planet)
+        system.add_particles(moon)
 
         system.move_to_center()
 
         converter = nbody_system.nbody_to_si(system.mass.sum(), planet.position.length())
-        instance = TIDYMESS(converter)
+        instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         tidal_model = 0
         instance.set_tidal_model(tidal_model)
 
-        instance.particles.add_particles(system)  # hier wordt tidal_model weer naar 4 gezet?? waarom?
+        instance.particles.add_particles(system)  # FIX : tidal_model != 0 after adding particles
         instance.set_tidal_model(tidal_model)
 
-        self.assertGreater(instance.get_total_mass(), 6.0458e24 | u.kg)
+        ratio = instance.get_total_mass() / system.mass.sum()
+
+        self.assertAlmostEquals(ratio, 1)
         self.assertLess(instance.get_total_mass(),    6.0460e24 | u.kg)
         self.assertEquals(instance.get_total_radius(), 8108400.0 | u.m)
 
         instance.set_dt_mode(2)
 
-        # Empty lists for properties to track
-        star_positions = []
-        planet_positions = []
-        moon_positions = []
-        channel = instance.particles.new_channel_to(system)
-
-        # Running gravity code
-        end_time = 1
+        end_time = 1.1
         dt = 0.1
         times = np.arange(0, end_time, dt) | u.yr
 
-        for t in times:
+        planet_positions = np.zeros((times.shape[0], 3))
+        moon_positions = np.zeros_like(planet_positions)
+        channel = instance.particles.new_channel_to(system)
+
+        for i, t in enumerate(times):
 
             instance.evolve_model(t)
             channel.copy()
 
-            system.move_to_center()
+            planet_positions[i] = system[0].position.number
+            moon_positions[i] = system[1].position.number
 
-            planet_positions.append([planet.position.number[0], planet.position.number[1], planet.position.number[2]])
-            moon_positions.append([moon.position.number[0], moon.position.number[1], moon.position.number[2]])
 
-        planet_positions = np.asarray(planet_positions)
-        moon_positions = np.asarray(moon_positions)
+        evol_time = instance.get_time()
+        year = u.yr.in_(u.s)
 
-        self.assertNotEqual(planet_positions[0,0],planet_positions[-1,0]) # check if it evolved at all
+        self.assertAlmostEquals(evol_time, year)
+        self.assertNotEqual(planet_positions[0,0], planet_positions[-1,0])
+        self.assertNotEqual(moon_positions[0,0], moon_positions[-1,0])
 
         instance.stop()
 
-    def test6(self):
-        '''
-        #Evolve a system
-        '''
+    def test5(self):
+        """
+        Evolve a system.
+        """
 
         converter = nbody_system.nbody_to_si(1|u.MEarth, 1|u.REarth)
-        instance = TIDYMESS(converter)
+        instance = Tidymess(converter)
 
         index_earth = instance.new_particle(
             1.0 | u.MEarth,
             -4.6706380895356489e+06 | u.m,
             0.0000000000000000e+00 | u.m,
             0.0000000000000000e+00 | u.m,
-            0.0000000000000000e+00 | u.m/u.s,
-            -1.2449006368729913e+01 | u.m/u.s,
-            0.0000000000000000e+00 | u.m/u.s,
+            0.0000000000000000e+00 | u.m / u.s,
+            -1.2449006368729913e+01 | u.m / u.s,
+            0.0000000000000000e+00 | u.m / u.s,
         )
         self.assertEquals(index_earth, 0)
 
