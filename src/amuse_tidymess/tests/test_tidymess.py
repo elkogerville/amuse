@@ -350,7 +350,6 @@ class TestTidymess(TestWithMPI):
         instance.set_tidal_model(tidal_model)
 
         ratio = instance.get_total_mass() / system.mass.sum()
-
         self.assertAlmostEquals(ratio, 1)
         self.assertLess(instance.get_total_mass(),    6.0460e24 | u.kg)
         self.assertEquals(instance.get_total_radius(), 8108400.0 | u.m)
@@ -372,7 +371,6 @@ class TestTidymess(TestWithMPI):
 
             planet_positions[i] = system[0].position.number
             moon_positions[i] = system[1].position.number
-
 
         evol_time = instance.get_time()
         year = u.yr.in_(u.s)
