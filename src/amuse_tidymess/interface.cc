@@ -1,5 +1,4 @@
 #include "tidymess_worker.h"
-
 #include <iostream>
 
 // AMUSE STOPPING CONDITIONS SUPPORT
@@ -29,21 +28,31 @@ int highest_index = 0;
 static double begin_time = 0;
 
 
-int get_ind_from_index(int index_of_the_particle) {
-    // find the position in bodies of the Body with a given index
+int get_body_index_by_id(int index_of_the_particle) {
+    /*
+     * Given a particle ID, find the index of that particle
+     * within Tidymess Bodies.
+     *
+     * @param index_of_the_particle Particle identifier
+     */
     vector<Body> bodies = tidymess.get_particles();
-    int ind;
-    int i;
-    for (i=0; i<bodies.size(); i++) {
+
+    for (int i = 0; i < bodies.size(); i++) {
         if (bodies[i].id == index_of_the_particle) {
-            ind = i;
+            return i;
         }
     }
-    return ind;}
+    return -1; // FIX
+}
 
-int set_shapes_and_momenta() {  // copied from tidymess.cpp
-    // Set initial shapes and angular momenta
-    if(tidymess.get_tidal_model() > 0) {
+int set_shapes_and_momenta() {
+    /**
+     * Set initial shapes and angular momenta.
+     *
+     * copied from tidymess.cpp
+     */
+
+    if (tidymess.get_tidal_model() > 0) {
         switch(init.initial_shape) {
             case 0:
                 tidymess.set_to_spherical_shape();
@@ -54,7 +63,8 @@ int set_shapes_and_momenta() {  // copied from tidymess.cpp
         }
         tidymess.update_angular_momentum();
     }
-    return 0;}
+    return 0;
+}
 
 int determine_dt_sgn(double t_end) {  // copied from tidymess.cpp
     bool dt_pos;
