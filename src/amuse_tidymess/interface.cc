@@ -28,13 +28,13 @@ int highest_index = 0;
 static double begin_time = 0;
 
 
+/**
+ * Given a particle ID, find the index of that particle
+ * within Tidymess Bodies.
+ *
+ * @param index_of_the_particle Particle identifier
+ */
 int get_body_index_by_id(int index_of_the_particle) {
-    /*
-     * Given a particle ID, find the index of that particle
-     * within Tidymess Bodies.
-     *
-     * @param index_of_the_particle Particle identifier
-     */
     vector<Body> bodies = tidymess.get_particles();
 
     for (int i = 0; i < bodies.size(); i++) {
@@ -45,12 +45,12 @@ int get_body_index_by_id(int index_of_the_particle) {
     return -1; // FIX
 }
 
+/**
+ * Set initial shapes and angular momenta.
+ *
+ * copied from tidymess.cpp
+ */
 int set_shapes_and_momenta() {
-    /**
-     * Set initial shapes and angular momenta.
-     *
-     * copied from tidymess.cpp
-     */
 
     if (tidymess.get_tidal_model() > 0) {
         switch(init.initial_shape) {
@@ -216,42 +216,57 @@ int initialize_code(){
     //set_support_for_condition(COLLISION_DETECTION);
     return 0;}
 
-int cleanup_code(){
+int cleanup_code() {
     // """
     // Run the cleanup for the code, called
     // just before stopping the code. No functions
     // should be called after this code.
     // """
-    return 0;}
+    return 0;
+}
 
-int commit_parameters(){
+int commit_parameters() {
     // """
     // Perform initialization in the code dependent on the
     // values of the parameters.
     // Called after the parameters have been set or updated.
     // """
-    return 0;}
-int recommit_parameters(){
+    return 0;
+}
+
+int recommit_parameters() {
     // """
     // Perform initialization actions after parameters
     // have been updated (after commit_parameters and
     // particles have been loaded).
     // """
-    return 0;}
+    return 0;
+}
 
-
-// For GravitationalDynamicsInterface
-// https://github.com/amusecode/amuse/blob/main/src/amuse/community/interface/gd.py
-
-int new_particle(int * index_of_the_particle, double mass, double x,
-    double y, double z, double vx, double vy, double vz, double radius,
-    double xi, double kf, double tau, double wx, double wy, double wz, double a_mb, int id){
-    // """
-    // Define a new particle in the stellar dynamics code. The particle is
-    // initialized with the provided mass, radius, position and velocity. This
-    // function returns an index that can be used to refer to this particle.
-    // """
-
+/**
+ * Define a new particle in the stellar dynamics code. The particle is
+ * initialized with the provided mass, radius, position and velocity.
+ * This function returns an index that can be used to refer to this particle.
+ */
+int new_particle(
+    int * index_of_the_particle,
+    double mass,
+    double x,
+    double y,
+    double z,
+    double vx,
+    double vy,
+    double vz,
+    double radius,
+    double xi,
+    double kf,
+    double tau,
+    double wx,
+    double wy,
+    double wz,
+    double a_mb,
+    int id
+) {
     vector<Body> bodies = tidymess.get_particles();
 
     Body newbody = {mass, radius, xi, kf, tau, a_mb, wx, wy, wz, x, y, z, vx, vy, vz};
