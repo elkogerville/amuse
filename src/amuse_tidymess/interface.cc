@@ -78,106 +78,133 @@ int determine_dt_sgn(double t_end) {  // copied from tidymess.cpp
         dt_sgn = -1;
     }
     tidymess.set_dt_sgn(dt_sgn);
-    return 0;}
-
-// tidymess-specific setters & getters
-
-int get_tidal_model(int * tidal_model)
-{
-    *tidal_model = tidymess.get_tidal_model();
     return 0;
 }
 
-int set_tidal_model(int tidal_model){
+// tidymess-specific setters & getters
+
+int get_tidal_model(int * tidal_model) {
+    *tidal_model = tidymess.get_tidal_model();
+    return 0;
+}
+int set_tidal_model(int tidal_model) {
     tidymess.set_tidal_model(tidal_model);
     set_shapes_and_momenta();
-    return 0;}
+    return 0;
+}
 
-int get_pn_order(int * pn_order){
+int get_pn_order(int * pn_order) {
     *pn_order = tidymess.get_pn_order();
-    return 0;}
-int set_pn_order(int pn_order){
+    return 0;
+}
+int set_pn_order(int pn_order) {
     tidymess.set_pn_order(pn_order);
-    return 0;}
+    return 0;
+}
 
-int get_magnetic_braking(int * magnetic_braking){
+int get_magnetic_braking(int * magnetic_braking) {
     *magnetic_braking = tidymess.get_magnetic_braking();
-    return 0;}
-int set_magnetic_braking(int magnetic_braking){
+    return 0;
+}
+int set_magnetic_braking(int magnetic_braking) {
     tidymess.set_magnetic_braking(magnetic_braking);
-    return 0;}
+    return 0;
+}
 
-int get_speed_of_light(double * speed_of_light){
+int get_speed_of_light(double * speed_of_light) {
     *speed_of_light = tidymess.get_speed_of_light();
-    return 0;}
-int set_speed_of_light(double speed_of_light){
+    return 0;
+}
+int set_speed_of_light(double speed_of_light) {
     tidymess.set_speed_of_light(speed_of_light);
-    return 0;}
+    return 0;
+}
 
-int get_dt_mode(int * dt_mode){
+int get_dt_mode(int * dt_mode) {
     *dt_mode = tidymess.get_dt_mode();
-    return 0;}
-int set_dt_mode(int dt_mode){
+    return 0;
+}
+int set_dt_mode(int dt_mode) {
     tidymess.set_dt_mode(dt_mode);
-    return 0;}
+    return 0;
+}
 
-int get_dt_const(double * dt_const){
+int get_dt_const(double * dt_const) {
     *dt_const = tidymess.get_dt_const();
-    return 0;}
-int set_dt_const(double dt_const){
+    return 0;
+}
+int set_dt_const(double dt_const) {
     tidymess.set_dt_const(dt_const);
-    return 0;}
+    return 0;
+}
 
-int get_eta(double * eta){
+int get_eta(double * eta) {
     *eta = tidymess.get_eta();
-    return 0;}
-int set_eta(double eta){
+    return 0;
+}
+int set_eta(double eta) {
     tidymess.set_eta(eta);
-    return 0;}
+    return 0;
+}
 
-int get_n_iter(int * n_iter){
+int get_n_iter(int * n_iter) {
     *n_iter = tidymess.get_n_iter();
-    return 0;}
-int set_n_iter(int n_iter){
+    return 0;
+}
+int set_n_iter(int n_iter) {
     tidymess.set_n_iter(n_iter);
-    return 0;}
+    return 0;
+}
 
-int get_collision_mode(int * collision_mode){
+// FIX
+int get_collision_mode(int * collision_mode) {
+    // if (tidymess.get_collision_mode() != collision.get_collision_mode()) {
+
+    // }
     *collision_mode = tidymess.get_collision_mode();
+
     // maybe check if Tidy and Collision have the same value set
-    return 0;}
-int set_collision_mode(int collision_mode){
+    return 0;
+}
+int set_collision_mode(int collision_mode) {
     tidymess.set_collision_mode(collision_mode);
     collision.set_collision_mode(collision_mode);
     collision.setup();
-    return 0;}
+    return 0;
+}
 
-int get_roche_mode(int * roche_mode){
+int get_roche_mode(int * roche_mode) {
     *roche_mode = collision.roche_mode; // doesn't appear in Tidy
-    return 0;}
-int set_roche_mode(int roche_mode){
+    return 0;
+}
+int set_roche_mode(int roche_mode) {
+    tidymess.set_roche_mode(roche_mode);
     collision.set_roche_mode(roche_mode); // doesn't appear in Tidy
     collision.setup();
-    return 0;}
+    return 0;
+}
 
-int get_breakup_mode(int * breakup_mode){
+int get_breakup_mode(int * breakup_mode) {
     *breakup_mode = breakup.mode; /// niet in Tidy
-    return 0;}
-int set_breakup_mode(int breakup_mode){
+    return 0;
+}
+int set_breakup_mode(int breakup_mode) {
     breakup.set_breakup_mode(breakup_mode);
     breakup.setup();
-    return 0;}
+    return 0;
+}
 
 int get_num_integration_step(int * num_integration_step) {
     *num_integration_step = tidymess.get_num_integration_step();
-    return 0;}
+    return 0;
+}
 
 
 // For CommonCodeInterface
 // https://github.com/amusecode/amuse/blob/main/src/amuse/community/interface/common.py
 
 int initialize_code(){
-    // """
+    //
     // Run the initialization for the code, called before
     // any other call on the code (so before any parameters
     // are set or particles are defined in the code).
