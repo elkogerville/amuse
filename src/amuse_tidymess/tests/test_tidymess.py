@@ -166,7 +166,6 @@ class TestTidymessInterface(TestWithMPI):
             1.1,  # wy
             1.1,  # wz
         )
-
         self.assertEqual(result['index_of_the_particle'], 1)
 
         # check number of particles
