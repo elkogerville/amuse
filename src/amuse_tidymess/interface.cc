@@ -655,14 +655,21 @@ int get_index_of_first_particle(int* index_of_the_particle) {
     return 0;
 }
 
-int get_index_of_next_particle(int index_of_the_particle,
-    int * index_of_the_next_particle){
-    vector<Body> bodies = tidymess.get_particles();
-    Body body = bodies[get_body_index_by_id(index_of_the_particle)+1];
-    *index_of_the_next_particle = body.id;
-    return 0;}
+int get_index_of_next_particle(
+    int index_of_the_particle,
+    int* index_of_the_next_particle
+) {
+    if (!index_of_the_next_particle) return -1;
 
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
 
+    const std::vector<Body>& bodies = tidymess.bodies;
+    if (static_cast<size_t>(i + 1) >= bodies.size()) return -1;
+
+    *index_of_the_next_particle = bodies[i + 1].id;
+    return 0;
+}
 
 int evolve_model(double time) {
     // Evolve the model until the given time, or until a stopping condition is set.
@@ -679,11 +686,11 @@ int synchronize_model() {
 }
 
 int get_potential_at_point(
-    double * eps,
-    double * x,
-    double * y,
-    double * z,
-    double * phi,
+    double* eps,
+    double* x,
+    double* y,
+    double* z,
+    double* phi,
     int npoints
 ) {
     /***
@@ -696,13 +703,13 @@ int get_potential_at_point(
 }
 
 int get_gravity_at_point(
-    double * eps,
-    double * x,
-    double * y,
-    double * z,
-    double * ax,
-    double * ay,
-    double * az,
+    double* eps,
+    double* x,
+    double* y,
+    double* z,
+    double* ax,
+    double* ay,
+    double* az,
     int npoints
 ) {
     /***
@@ -741,10 +748,12 @@ int convert_spin_vectors_to_inertial(double P, double obl, double psi, double * 
         }
     return 0;}
 
-
-// collision detection
-
-int detect_collision(int * collision_flag, int * n_collisions, int * index1, int * index2) {
+int detect_collision(
+    int* collision_flag,
+    int* n_collisions,
+    int* index1,
+    int* index2
+) {
     // Collision handling
     *collision_flag = tidymess.get_collision_flag();
     vector< array<int, 2> > collided_indices = tidymess.get_collision_indices();
