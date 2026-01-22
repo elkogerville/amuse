@@ -263,7 +263,7 @@ int set_tidal_model(int tidal_model) {
     return 0;
 }
 
-int get_pn_order(int * pn_order) {
+int get_pn_order(int* pn_order) {
     *pn_order = tidymess.get_pn_order();
     return 0;
 }
@@ -272,7 +272,7 @@ int set_pn_order(int pn_order) {
     return 0;
 }
 
-int get_magnetic_braking(int * magnetic_braking) {
+int get_magnetic_braking(int* magnetic_braking) {
     *magnetic_braking = tidymess.get_magnetic_braking();
     return 0;
 }
@@ -281,7 +281,7 @@ int set_magnetic_braking(int magnetic_braking) {
     return 0;
 }
 
-int get_speed_of_light(double * speed_of_light) {
+int get_speed_of_light(double* speed_of_light) {
     *speed_of_light = tidymess.get_speed_of_light();
     return 0;
 }
@@ -290,7 +290,7 @@ int set_speed_of_light(double speed_of_light) {
     return 0;
 }
 
-int get_dt_mode(int * dt_mode) {
+int get_dt_mode(int* dt_mode) {
     *dt_mode = tidymess.get_dt_mode();
     return 0;
 }
@@ -299,7 +299,7 @@ int set_dt_mode(int dt_mode) {
     return 0;
 }
 
-int get_dt_const(double * dt_const) {
+int get_dt_const(double* dt_const) {
     *dt_const = tidymess.get_dt_const();
     return 0;
 }
@@ -308,7 +308,7 @@ int set_dt_const(double dt_const) {
     return 0;
 }
 
-int get_eta(double * eta) {
+int get_eta(double* eta) {
     *eta = tidymess.get_eta();
     return 0;
 }
@@ -317,7 +317,7 @@ int set_eta(double eta) {
     return 0;
 }
 
-int get_n_iter(int *n_iter) {
+int get_n_iter(int* n_iter) {
     *n_iter = tidymess.n_iter;
     return 0;
 }
@@ -327,7 +327,7 @@ int set_n_iter(int n_iter) {
 }
 
 // FIX
-int get_collision_mode(int * collision_mode) {
+int get_collision_mode(int* collision_mode) {
     if (tidymess.get_collision_mode() != collision.collision_mode) {
         return -1;
     }
@@ -343,7 +343,7 @@ int set_collision_mode(int collision_mode) {
     return 0;
 }
 
-int get_roche_mode(int * roche_mode) {
+int get_roche_mode(int* roche_mode) {
     *roche_mode = collision.roche_mode; // doesn't appear in Tidy
     return 0;
 }
@@ -354,7 +354,7 @@ int set_roche_mode(int roche_mode) {
     return 0;
 }
 
-int get_breakup_mode(int * breakup_mode) {
+int get_breakup_mode(int* breakup_mode) {
     *breakup_mode = breakup.mode; /// niet in Tidy
     return 0;
 }
@@ -364,7 +364,7 @@ int set_breakup_mode(int breakup_mode) {
     return 0;
 }
 
-int get_num_integration_step(int * num_integration_step) {
+int get_num_integration_step(int* num_integration_step) {
     *num_integration_step = tidymess.get_num_integration_step();
     return 0;
 }
@@ -413,13 +413,20 @@ int recommit_parameters() {
     return 0;
 }
 
+int commit_particles() {
+    return 0;
+}
+int recommit_particles() {
+    return 0;
+}
+
 /**
  * Define a new particle in the stellar dynamics code. The particle is
  * initialized with the provided mass, radius, position and velocity.
  * This function returns an index that can be used to refer to this particle.
  */
 int new_particle(
-    int * index_of_the_particle,
+    int* index_of_the_particle,
     double mass,
     double x,
     double y,
