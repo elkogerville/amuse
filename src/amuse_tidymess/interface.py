@@ -32,13 +32,13 @@ class TidymessInterface(
 
     @legacy_function
     def new_particle():
-        '''
+        """
         Define a new particle in the stellar dynamics code. The particle is
         initialized with the provided mass, radius, position, velocity, moment
         of inertia factor, fluid love number, fluid relaxation time, spin, and
         magnetic breaking coefficient. This function returns an index that can
         be used to refer to this particle.
-        '''
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter(
@@ -148,23 +148,13 @@ class TidymessInterface(
             description='Magnetic braking coefficient',
             default=0
         )
-        function.addParameter(
-            'id',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                'Identifier of the particle, '
-                'option for restoring state after loading'
-            ),
-            default=-1,
-        )
         function.result_type = 'int32'
-        function.result_doc = '''\
+        function.result_doc = """\
             0 - OK
                 particle was created and added to the model
         -1 - ERROR
                 particle could not be created
-        '''
+        """
 
         return function
 
@@ -523,7 +513,6 @@ class TidymessInterface(
 
         return function
 
-
     @legacy_function
     def set_n_iter():
         '''
@@ -556,6 +545,7 @@ class TidymessInterface(
         function.result_doc = ''''''
 
         return function
+
 
 
     @legacy_function
@@ -801,14 +791,16 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             **options
         )
 
+
     def define_state(self, handler):
         GravitationalDynamics.define_state(self, handler)
+        GravityFieldCode.define_state(self, handler)
+
         handler.add_method('RUN', 'get_spin')
         handler.add_transition('RUN', 'UPDATE', 'set_spin', False)
         handler.add_method('UPDATE', 'set_spin')
 
         self.stopping_conditions.define_state(handler)
-
 
     def define_methods(self, handler):
 
@@ -825,28 +817,21 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 generic_unit_system.speed,
                 generic_unit_system.speed,
                 generic_unit_system.speed,
-                generic_unit_system.length, # radius
-                handler.NO_UNIT,     # xi, moment of inertia factor
-                handler.NO_UNIT,     # kf, fluid Love number for potential
-                generic_unit_system.time,   # tau, fluid relaxation time
+                generic_unit_system.length,   # radius
+                handler.NO_UNIT,              # xi, moment of inertia factor
+                handler.NO_UNIT,              # kf, fluid Love number for potential
+                generic_unit_system.time,     # tau, fluid relaxation time
                 1 / generic_unit_system.time, # wx
                 1 / generic_unit_system.time, # wy
                 1 / generic_unit_system.time, # wz
-                handler.NO_UNIT,   # a_mb, magnetic braking coefficient
-                handler.INDEX
+                handler.NO_UNIT,              # a_mb, magnetic braking coefficient
             ),
-            (
-                handler.INDEX,
-                handler.ERROR_CODE
-            )
+            (handler.INDEX, handler.ERROR_CODE)
         )
         handler.add_method(
             'get_num_integration_step',
             (),
-            (
-                handler.INDEX,
-                handler.ERROR_CODE
-            )
+            (handler.INDEX, handler.ERROR_CODE)
         )
         handler.add_method(
             'detect_collision',
@@ -897,9 +882,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
         )
         handler.add_method(
             'get_spin',
-            (
-                handler.NO_UNIT,
-            ),
+            (handler.NO_UNIT),
             (
                 1/nbody_system.time,
                 1/nbody_system.time,
@@ -907,18 +890,36 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 handler.ERROR_CODE
             )
         )
+        handler.add_method(
+            'set_n_iter',
+            (
+                handler.NO_UNIT,
+            ),
+            (
+                handler.ERROR_CODE,
+            )
+        )
+        handler.add_method(
+            'get_n_iter',
+            (),
+            (
+                handler.NO_UNIT,
+                handler.ERROR_CODE,
+            )
+        )
 
         self.stopping_conditions.define_methods(handler)
 
 
     def define_parameters(self, handler):
-        # Set/get parameters specific to the module, not part of the
-        # standard interface.  Accessors used here must be defined
-        # above and reflected in interface.cc.  Python access is
-        # (e.g.)
-        #
-        #        TidyMess.parameters.timestep_parameter = xxx
-        #
+        """
+        Set/get parameters specific to the module, not part of the
+        standard interface.  Accessors used here must be defined
+        above and reflected in interface.cc.  Python access is
+        (e.g.)
+
+        Tidymess.parameters.timestep_parameter = xxx
+        """
         handler.add_method_parameter(
             'get_tidal_model',
             'set_tidal_model',
