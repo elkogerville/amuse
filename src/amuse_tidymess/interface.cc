@@ -91,6 +91,9 @@ int get_state(
     double* vz,
     double* radius
 ) {
+    if (!mass || !x || !y || !z ||
+        !vx || !vy || !vz || !radius) return -1;
+
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
 
@@ -131,6 +134,8 @@ int set_state(
 }
 
 int get_mass(int index_of_the_particle, double* mass) {
+    if (!mass) return -1;
+
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
 
@@ -146,6 +151,8 @@ int set_mass(int index_of_the_particle, double mass) {
 }
 
 int get_radius(int index_of_the_particle, double* radius ) {
+    if (!radius) return -1;
+
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
 
@@ -166,6 +173,8 @@ int get_position(
     double* y,
     double* z
 ) {
+    if (!x || !y || !z) return -1;
+
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
 
@@ -197,6 +206,8 @@ int get_velocity(
     double* vy,
     double* vz
 ) {
+    if (!vx || !vy || !vz) return -1;
+
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
 
@@ -228,6 +239,8 @@ int get_spin(
     double* wy,
     double* wz
 ) {
+    if (!wx || !wy || !wz) return -1;
+
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
 
@@ -255,6 +268,8 @@ int set_spin(
 }
 
 int get_tidal_model(int* tidal_model) {
+    if (!tidal_model) return -1;
+
     *tidal_model = tidymess.get_tidal_model();
     return 0;
 }
@@ -264,6 +279,8 @@ int set_tidal_model(int tidal_model) {
 }
 
 int get_pn_order(int* pn_order) {
+    if (!pn_order) return -1;
+
     *pn_order = tidymess.get_pn_order();
     return 0;
 }
@@ -273,6 +290,8 @@ int set_pn_order(int pn_order) {
 }
 
 int get_magnetic_braking(int* magnetic_braking) {
+    if (!magnetic_braking) return -1;
+
     *magnetic_braking = tidymess.get_magnetic_braking();
     return 0;
 }
@@ -282,6 +301,8 @@ int set_magnetic_braking(int magnetic_braking) {
 }
 
 int get_speed_of_light(double* speed_of_light) {
+    if (!speed_of_light) return -1;
+
     *speed_of_light = tidymess.get_speed_of_light();
     return 0;
 }
@@ -291,6 +312,8 @@ int set_speed_of_light(double speed_of_light) {
 }
 
 int get_dt_mode(int* dt_mode) {
+    if (!dt_mode) return -1;
+
     *dt_mode = tidymess.get_dt_mode();
     return 0;
 }
@@ -300,6 +323,8 @@ int set_dt_mode(int dt_mode) {
 }
 
 int get_dt_const(double* dt_const) {
+    if (!dt_const) return -1;
+
     *dt_const = tidymess.get_dt_const();
     return 0;
 }
@@ -309,6 +334,8 @@ int set_dt_const(double dt_const) {
 }
 
 int get_eta(double* eta) {
+    if (!eta) return -1;
+
     *eta = tidymess.get_eta();
     return 0;
 }
@@ -318,6 +345,8 @@ int set_eta(double eta) {
 }
 
 int get_n_iter(int* n_iter) {
+    if (!n_iter) return -1;
+
     *n_iter = tidymess.n_iter;
     return 0;
 }
@@ -328,6 +357,8 @@ int set_n_iter(int n_iter) {
 
 // FIX
 int get_collision_mode(int* collision_mode) {
+    if (!collision_mode) return -1;
+
     if (tidymess.get_collision_mode() != collision.collision_mode) {
         return -1;
     }
@@ -344,6 +375,8 @@ int set_collision_mode(int collision_mode) {
 }
 
 int get_roche_mode(int* roche_mode) {
+    if (!roche_mode) return -1;
+
     *roche_mode = collision.roche_mode; // doesn't appear in Tidy
     return 0;
 }
@@ -355,6 +388,7 @@ int set_roche_mode(int roche_mode) {
 }
 
 int get_breakup_mode(int* breakup_mode) {
+    if (!breakup_mode) return -1;
     *breakup_mode = breakup.mode; /// niet in Tidy
     return 0;
 }
@@ -365,6 +399,8 @@ int set_breakup_mode(int breakup_mode) {
 }
 
 int get_num_integration_step(int* num_integration_step) {
+    if (!num_integration_step) return -1;
+
     *num_integration_step = tidymess.get_num_integration_step();
     return 0;
 }
@@ -443,6 +479,8 @@ int new_particle(
     double wz,
     double a_mb
 ) {
+    if (!index_of_the_particle) return -1;
+
     std::vector<Body>& bodies = tidymess.bodies;
 
     Body newbody(
@@ -477,6 +515,7 @@ int get_acceleration(
     double* ay,
     double* az
 ) {
+    if (!ax || !ay || !az) return -1;
     return 0;
 }
 int set_acceleration(
@@ -489,6 +528,7 @@ int set_acceleration(
 }
 
 int get_eps2(double* epsilon_squared) {
+    if (!epsilon_squared) return -1;
     return 0;
 }
 int set_eps2(double epsilon_squared) {
@@ -496,24 +536,29 @@ int set_eps2(double epsilon_squared) {
 }
 
 int get_potential(int index_of_the_particle, double* potential) {
+    if (!potential) return -1;
     return 0;
 }
 
 int get_kinetic_energy(double* kinetic_energy) {
+    if (!kinetic_energy) return -1;
     return 0;
 }
 
 int get_potential_energy(double* potential_energy) {
+    if (!potential_energy) return -1;
     *potential_energy = tidymess.get_potential_energy();
     return 0;
 }
 
 int get_time(double* time) {
+    if (!time) return -1;
     *time = tidymess.get_model_time();
     return 0;
 }
 
 int get_begin_time(double* time) {
+    if (!time) return -1;
     *time = begin_time;
     return 0;
 }
@@ -629,10 +674,9 @@ int evolve_model(double time) {
     return 0;
 }
 
-
-
-int synchronize_model(){
-    return 0;}
+int synchronize_model() {
+    return 0;
+}
 
 int get_potential_at_point(
     double * eps,
