@@ -262,34 +262,63 @@ int new_particle(
     double wx,
     double wy,
     double wz,
-    double a_mb,
-    int id
+    double a_mb
 ) {
-    vector<Body> bodies = tidymess.get_particles();
+    std::vector<Body>& bodies = tidymess.bodies;
 
-    Body newbody = {mass, radius, xi, kf, tau, a_mb, wx, wy, wz, x, y, z, vx, vy, vz};
-    *index_of_the_particle = highest_index;
-    newbody.set_id(highest_index);
-    highest_index++;
+    Body newbody(
+        mass, radius, xi, kf, tau, a_mb,
+        wx, wy, wz, x, y, z, vx, vy, vz
+    );
+
+    newbody.set_id(particle_id_counter);
+
+    *index_of_the_particle = particle_id_counter;
+    particle_id_counter++;
 
     bodies.push_back(newbody);
-    tidymess.set_particles(bodies);
 
-    tidymess.commit_parameters();
+    return 0;
+}
 
-    return 0;}
+int delete_particle(int index_of_the_particle) {
+    std::vector<Body>& bodies = tidymess.bodies;
+    int i = get_body_index_by_id(index_of_the_particle);
 
-int delete_particle(int index_of_the_particle){
-    vector<Body> bodies = tidymess.get_particles();
-    int ind = get_ind_from_index(index_of_the_particle);
-    bodies.erase(bodies.begin()+ind);
-    tidymess.set_particles(bodies);
-    return 0;}
+    if (i < 0) return -1;
 
-// setters & getters
-//
-// SHOULD SET STATE TRACK THE OTHER PARAMS?
+    bodies.erase(bodies.begin() + i);
 
+    return 0;
+}
+
+int get_state(
+    int index_of_the_particle,
+    double * mass,
+    double * x,
+    double * y,
+    double * z,
+    double * vx,
+    double * vy,
+    double * vz,
+    double * radius
+) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    const Body& body = tidymess.bodies[i];
+
+    *mass = body.m;
+    *x = body.r[0];
+    *y = body.r[1];
+    *z = body.r[2];
+    *vx = body.v[0];
+    *vy = body.v[1];
+    *vz = body.v[2];
+    *radius = body.R;
+
+    return 0;
+}
 int set_state(
     int index_of_the_particle,
     double mass,
