@@ -50,7 +50,6 @@ int get_body_index_by_id(int index_of_the_particle) {
  * copied from tidymess.cpp
  */
 int set_shapes_and_momenta() {
-
     if (tidymess.get_tidal_model() > 0) {
         switch(init.initial_shape) {
             case 0:
@@ -146,20 +145,20 @@ int set_eta(double eta) {
     return 0;
 }
 
-int get_n_iter(int * n_iter) {
-    *n_iter = tidymess.get_n_iter();
+int get_n_iter(int *n_iter) {
+    *n_iter = tidymess.n_iter;
     return 0;
 }
 int set_n_iter(int n_iter) {
-    tidymess.set_n_iter(n_iter);
+    tidymess.n_iter = n_iter;
     return 0;
 }
 
 // FIX
 int get_collision_mode(int * collision_mode) {
-    // if (tidymess.get_collision_mode() != collision.get_collision_mode()) {
-
-    // }
+    if (tidymess.get_collision_mode() != collision.collision_mode) {
+        return -1;
+    }
     *collision_mode = tidymess.get_collision_mode();
 
     // maybe check if Tidy and Collision have the same value set
