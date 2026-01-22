@@ -1,4 +1,5 @@
 #include "tidymess_worker.h"
+#include <cstddef>
 #include <iostream>
 
 // AMUSE STOPPING CONDITIONS SUPPORT
@@ -34,11 +35,11 @@ static double begin_time = 0;
  * @param index_of_the_particle Particle identifier
  */
 int get_body_index_by_id(int index_of_the_particle) {
-    std::vector<Body>& bodies = tidymess.bodies;
+    const std::vector<Body>& bodies = tidymess.bodies;
 
     for (size_t i = 0; i < bodies.size(); i++) {
         if (bodies[i].id == index_of_the_particle) {
-            return i;
+            return static_cast<int>(i);
         }
     }
     return -1;
@@ -79,7 +80,181 @@ int determine_dt_sgn(double t_end) {  // copied from tidymess.cpp
     return 0;
 }
 
-int get_tidal_model(int * tidal_model) {
+int get_state(
+    int index_of_the_particle,
+    double* mass,
+    double* x,
+    double* y,
+    double* z,
+    double* vx,
+    double* vy,
+    double* vz,
+    double* radius
+) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    const Body& body = tidymess.bodies[i];
+
+    *mass = body.m;
+    *x = body.r[0];
+    *y = body.r[1];
+    *z = body.r[2];
+    *vx = body.v[0];
+    *vy = body.v[1];
+    *vz = body.v[2];
+    *radius = body.R;
+
+    return 0;
+}
+int set_state(
+    int index_of_the_particle,
+    double mass,
+    double x,
+    double y,
+    double z,
+    double vx,
+    double vy,
+    double vz,
+    double radius
+) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    Body& body = tidymess.bodies[i];
+
+    body.m = mass;
+    body.R = radius;
+    body.r = {x, y, z};
+    body.v = {vx, vy, vz};
+    return 0;
+}
+
+int get_mass(int index_of_the_particle, double* mass) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    *mass = tidymess.bodies[i].m;
+    return 0;
+}
+int set_mass(int index_of_the_particle, double mass) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    tidymess.bodies[i].m = mass;
+    return 0;
+}
+
+int get_radius(int index_of_the_particle, double* radius ) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    *radius = tidymess.bodies[i].R;
+    return 0;
+}
+int set_radius(int index_of_the_particle, double radius) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    tidymess.bodies[i].R = radius;
+    return 0;
+}
+
+int get_position(
+    int index_of_the_particle,
+    double* x,
+    double* y,
+    double* z
+) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    const Body& body = tidymess.bodies[i];
+
+    *x = body.r[0];
+    *y = body.r[1];
+    *z = body.r[2];
+    return 0;
+}
+int set_position(
+    int index_of_the_particle,
+    double x,
+    double y,
+    double z
+) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    Body& body = tidymess.bodies[i];
+
+    body.r = {x, y, z};
+    return 0;
+}
+
+int get_velocity(
+    int index_of_the_particle,
+    double* vx,
+    double* vy,
+    double* vz
+) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    const Body& body = tidymess.bodies[i];
+
+    *vx = body.v[0];
+    *vy = body.v[1];
+    *vz = body.v[2];
+    return 0;
+}
+int set_velocity(
+    int index_of_the_particle,
+    double vx,
+    double vy,
+    double vz
+) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    Body& body = tidymess.bodies[i];
+
+    body.v = {vx, vy, vz};
+    return 0;
+}
+
+int get_spin(
+    int index_of_the_particle,
+    double* wx,
+    double* wy,
+    double* wz
+) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    const Body& body = tidymess.bodies[i];
+
+    *wx = body.w[0];
+    *wy = body.w[1];
+    *wz = body.w[2];
+    return 0;
+}
+int set_spin(
+    int index_of_the_particle,
+    double wx,
+    double wy,
+    double wz
+) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    Body& body = tidymess.bodies[i];
+
+    body.w = {wx, wy, wz};
+
+    return 0;
+}
+
+int get_tidal_model(int* tidal_model) {
     *tidal_model = tidymess.get_tidal_model();
     return 0;
 }
