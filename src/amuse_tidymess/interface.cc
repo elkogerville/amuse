@@ -22,27 +22,26 @@ static Tidy tidymess;
 static Initializer init;
 static Collision collision;
 static Breakup breakup;
-static vector<Body> bodies = tidymess.get_particles();
 
-int highest_index = 0;
+int particle_id_counter = 0;
 static double begin_time = 0;
 
 
 /**
- * Given a particle ID, find the index of that particle
+ * Given an AMUSE particle ID, find the index of that particle
  * within Tidymess Bodies.
  *
  * @param index_of_the_particle Particle identifier
  */
 int get_body_index_by_id(int index_of_the_particle) {
-    vector<Body> bodies = tidymess.get_particles();
+    std::vector<Body>& bodies = tidymess.bodies;
 
-    for (int i = 0; i < bodies.size(); i++) {
+    for (size_t i = 0; i < bodies.size(); i++) {
         if (bodies[i].id == index_of_the_particle) {
             return i;
         }
     }
-    return -1; // FIX
+    return -1;
 }
 
 /**
