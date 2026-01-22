@@ -471,289 +471,206 @@ int delete_particle(int index_of_the_particle) {
     return 0;
 }
 
-int get_state(
+int get_acceleration(
     int index_of_the_particle,
-    double * mass,
-    double * x,
-    double * y,
-    double * z,
-    double * vx,
-    double * vy,
-    double * vz,
-    double * radius
+    double* ax,
+    double* ay,
+    double* az
 ) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    const Body& body = tidymess.bodies[i];
-
-    *mass = body.m;
-    *x = body.r[0];
-    *y = body.r[1];
-    *z = body.r[2];
-    *vx = body.v[0];
-    *vy = body.v[1];
-    *vz = body.v[2];
-    *radius = body.R;
-
     return 0;
 }
-int set_state(
+int set_acceleration(
     int index_of_the_particle,
-    double mass,
-    double x,
-    double y,
-    double z,
-    double vx,
-    double vy,
-    double vz,
-    double radius
+    double ax,
+    double ay,
+    double az
 ) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    Body& body = tidymess.bodies[i];
-
-    body.m = mass;
-    body.R = radius;
-    body.r = {x, y, z};
-    body.v = {vx, vy, vz};
     return 0;
 }
 
-int get_mass(int index_of_the_particle, double * mass) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    *mass = tidymess.bodies[i].m;
+int get_eps2(double* epsilon_squared) {
     return 0;
 }
-int set_mass(int index_of_the_particle, double mass) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    tidymess.bodies[i].m = mass;
+int set_eps2(double epsilon_squared) {
     return 0;
 }
 
-int get_radius(int index_of_the_particle, double * radius ) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    *radius = tidymess.bodies[i].R;
-    return 0;
-}
-int set_radius(int index_of_the_particle, double radius) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    tidymess.bodies[i].R = radius;
+int get_potential(int index_of_the_particle, double* potential) {
     return 0;
 }
 
-int get_position(
-    int index_of_the_particle,
-    double * x,
-    double * y,
-    double * z
-) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    const Body& body = tidymess.bodies[i];
-
-    *x = body.r[0];
-    *y = body.r[1];
-    *z = body.r[2];
-    return 0;
-}
-int set_position(
-    int index_of_the_particle,
-    double x,
-    double y,
-    double z
-) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    Body& body = tidymess.bodies[i];
-
-    body.r = {x, y, z};
+int get_kinetic_energy(double* kinetic_energy) {
     return 0;
 }
 
-int get_velocity(
-    int index_of_the_particle,
-    double * vx,
-    double * vy,
-    double * vz
-) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    const Body& body = tidymess.bodies[i];
-
-    *vx = body.v[0];
-    *vy = body.v[1];
-    *vz = body.v[2];
-    return 0;
-}
-int set_velocity(
-    int index_of_the_particle,
-    double vx,
-    double vy,
-    double vz
-) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    Body& body = tidymess.bodies[i];
-
-    body.v = {vx, vy, vz};
-    return 0;}
-
-int get_spin(
-    int index_of_the_particle,
-    double * wx,
-    double * wy,
-    double * wz
-) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    const Body& body = tidymess.bodies[i];
-
-    *wx = body.w[0];
-    *wy = body.w[1];
-    *wz = body.w[2];
-    return 0;
-}
-int set_spin(
-    int index_of_the_particle,
-    double wx,
-    double wy,
-    double wz
-) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    Body& body = tidymess.bodies[i];
-
-    body.w = {wx, wy, wz};
-
+int get_potential_energy(double* potential_energy) {
+    *potential_energy = tidymess.get_potential_energy();
     return 0;
 }
 
-int get_acceleration(int index_of_the_particle, double * ax, double * ay,
-    double * az){
-    return 0;}
-int set_acceleration(int index_of_the_particle, double ax, double ay,
-    double az){
-    return 0;}
-
-int get_eps2(double * epsilon_squared){
-    return 0;}
-int set_eps2(double epsilon_squared){
-    return 0;}
-
-int get_potential(int index_of_the_particle, double * potential){
-    return 0;}
-
-int get_kinetic_energy(double * kinetic_energy){
-    return 0;}
-int get_potential_energy(double * potential_energy){
-    return 0;}
-
-int get_time(double * time){
+int get_time(double* time) {
     *time = tidymess.get_model_time();
-    return 0;}
+    return 0;
+}
 
-int get_begin_time(double * time){
+int get_begin_time(double* time) {
     *time = begin_time;
-    return 0;}
-int set_begin_time(double time){
+    return 0;
+}
+int set_begin_time(double time) {
     begin_time = time;
-    return 0;}
+    return 0;
+}
 
-int get_time_step(double * time_step){
+int get_time_step(double* time_step) {
+    if (!time_step) return -1;
+
     *time_step = tidymess.get_dt_const();
     if (tidymess.get_dt_mode() > 0) {
         *time_step = tidymess.get_dt_prev();
     }
-    return 0;}
+    return 0;
+}
 
-int get_total_mass(double * mass){
-    vector<Body> bodies = tidymess.get_particles();
-    *mass = 0.0;
-    for (int i = 0; i< bodies.size(); i++)  {
-        *mass += bodies[i].m;
+int get_total_mass(double* mass) {
+    if (!mass) return -1;
+
+    const std::vector<Body>& bodies = tidymess.bodies;
+
+    double total = 0.0;
+    for (size_t i = 0; i < bodies.size(); i++)  {
+        total += bodies[i].m;
     }
-    return 0;}
+    *mass = total;
+    return 0;
+}
 
-int get_total_radius(double * radius){
-    vector<Body> bodies = tidymess.get_particles();
-    *radius = 0.0;
-    for (int i = 0; i< bodies.size(); i++)  {
-        *radius += bodies[i].R;
+int get_total_radius(double* radius) {
+    if (!radius) return -1;
+
+    const std::vector<Body>& bodies = tidymess.bodies;
+
+    double total = 0.0;
+    for (size_t i = 0; i < bodies.size(); i++)  {
+        total += bodies[i].R;
     }
-    return 0;}
+    *radius = total;
+    return 0;
+}
 
-int get_center_of_mass_position(double * x, double * y, double * z){
-    array<double, 3> position = tidymess.get_center_of_mass();
+int get_center_of_mass_position(
+    double* x,
+    double* y,
+    double* z
+) {
+    if (!x || !y || !z) {
+        return -1;
+    }
+    const array<double, 3> position = tidymess.get_center_of_mass();
+
     *x = position[0];
     *y = position[1];
     *z = position[2];
-    return 0;}
-int get_center_of_mass_velocity(double * vx, double * vy, double * vz){
-    array<double, 3> velocity = tidymess.get_center_of_mass_velocity();
+    return 0;
+}
+
+int get_center_of_mass_velocity(
+    double* vx,
+    double* vy,
+    double* vz
+) {
+    if (!vx || !vy || !vz) {
+        return -1;
+    }
+
+    const array<double, 3> velocity = tidymess.get_center_of_mass_velocity();
+
     *vx = velocity[0];
     *vy = velocity[1];
     *vz = velocity[2];
-    return 0;}
+    return 0;
+}
 
-int get_number_of_particles(int * number_of_particles){
-    vector<Body> bodies = tidymess.get_particles();
-    *number_of_particles = bodies.size();
-    return 0;}
+int get_number_of_particles(int* number_of_particles) {
+    if (!number_of_particles) return -1;
 
-int get_index_of_first_particle(int * index_of_the_particle){
-    Body body =  tidymess.get_particles()[0];
-    *index_of_the_particle = body.id;
-    return 0;}
+    const std::vector<Body>& bodies = tidymess.bodies;
+
+    *number_of_particles = static_cast<int>(bodies.size());
+    return 0;
+}
+
+int get_index_of_first_particle(int* index_of_the_particle) {
+    if (!index_of_the_particle) return -1;
+
+    const std::vector<Body>& bodies = tidymess.bodies;
+    if (bodies.empty()) return -1;
+
+    *index_of_the_particle = bodies[0].id;
+    return 0;
+}
+
 int get_index_of_next_particle(int index_of_the_particle,
     int * index_of_the_next_particle){
     vector<Body> bodies = tidymess.get_particles();
-    Body body = bodies[get_ind_from_index(index_of_the_particle)+1];
+    Body body = bodies[get_body_index_by_id(index_of_the_particle)+1];
     *index_of_the_next_particle = body.id;
     return 0;}
 
 
-// evolving
 
-int evolve_model(double time){
+int evolve_model(double time) {
     // Evolve the model until the given time, or until a stopping condition is set.
 
     tidymess.commit_parameters(); // has to be called sometime before evolving
     determine_dt_sgn(time);
 
     tidymess.evolve_model(time);
-    return 0;}
+    return 0;
+}
 
-int commit_particles(){
-    return 0;}
-int recommit_particles(){
-    return 0;}
+
 
 int synchronize_model(){
     return 0;}
 
-int get_potential_at_point(double eps, double x, double y, double z,
-    double * phi, int npoints){
-    return 0;}
+int get_potential_at_point(
+    double * eps,
+    double * x,
+    double * y,
+    double * z,
+    double * phi,
+    int npoints
+) {
+    /***
+     * FIX
+     */
+    for (int i = 0; i < npoints; i++) {
+        phi[i] = 0.0;
+    }
+    return 0;
+}
 
-int get_gravity_at_point(double eps, double x, double y, double z,
-    double * ax, double * ay, double * az, int npoints){
-    return 0;}
+int get_gravity_at_point(
+    double * eps,
+    double * x,
+    double * y,
+    double * z,
+    double * ax,
+    double * ay,
+    double * az,
+    int npoints
+) {
+    /***
+     * FIX
+     */
+    for (int i = 0; i < npoints; i++) {
+        ax[i] = 0.0;
+        ay[i] = 0.0;
+        az[i] = 0.0;
+    }
+    return 0;
+}
 
 
 // compute spin vector (largely copied from Initializer)
