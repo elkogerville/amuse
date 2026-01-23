@@ -406,9 +406,6 @@ int get_num_integration_step(int* num_integration_step) {
 }
 
 
-// For CommonCodeInterface
-// https://github.com/amusecode/amuse/blob/main/src/amuse/community/interface/common.py
-
 int initialize_code(){
     //
     // Run the initialization for the code, called before
