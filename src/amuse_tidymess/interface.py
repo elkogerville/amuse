@@ -913,19 +913,24 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
 
     def define_parameters(self, handler):
         """
-        Set/get parameters specific to the module, not part of the
-        standard interface.  Accessors used here must be defined
-        above and reflected in interface.cc.  Python access is
-        (e.g.)
-
-        Tidymess.parameters.timestep_parameter = xxx
+        Define setters and getters as Tidymess.parameters.
+        This is the standard API for users to access and modify
+        Tidymess parameters. Users should use parameters rather
+        than acessing the setters and getters defined in
+        TidymessInterface directly. Accessors used here must be
+        defined in TidymessInterface as a legacy_function, as
+        well as the interface.cc.
+        User access then follows the syntax:
+            Tidymess.parameters.param_name = value
+        Users should not use:
+            Tidymess.set_param_name(value)
         """
         handler.add_method_parameter(
             'get_tidal_model',
             'set_tidal_model',
             'tidal_model',
-            '0=none, 1=conservative, 2=linear, 3=creep direct, 4=creep tidymess (default)',
-            default_value=4,
+            '0=none (default), 1=conservative, 2=linear, 3=creep direct, 4=creep tidymess',
+            default_value=0,
             is_vector=False,
             must_set_before_get=False,
         )
@@ -954,7 +959,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'get_speed_of_light',
             'set_speed_of_light',
             'speed_of_light',
-            '',
+            'Speed of light. Should be set depending on unit system being used, or if using post newtonian.',
             default_value=1e100,
             is_vector=False,
             must_set_before_get=False,
