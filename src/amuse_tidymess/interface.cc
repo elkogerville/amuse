@@ -26,6 +26,7 @@ static Breakup breakup;
 
 int particle_id_counter = 0;
 static double begin_time = 0;
+int init_shape = 0;
 
 
 /**
@@ -264,6 +265,17 @@ int set_spin(
 
     body.w = {wx, wy, wz};
 
+    return 0;
+}
+
+int get_initial_shape(int* initial_shape) {
+    if (!initial_shape) return -1;
+
+    *initial_shape = init_shape;
+    return 0;
+}
+int set_initial_shape(int initial_shape) {
+    init_shape = initial_shape;
     return 0;
 }
 
