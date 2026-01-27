@@ -459,6 +459,21 @@ int recommit_parameters() {
 }
 
 int commit_particles() {
+    if (tidymess.get_tidal_model() > 0) {
+        switch(init_shape) {
+            case 0:
+                tidymess.set_to_spherical_shape();
+                break;
+            case 1:
+                tidymess.set_to_equilibrium_shape();
+                break;
+            default:
+                return -1;
+        }
+        tidymess.update_angular_momentum();
+    }
+
+    tidymess.commit_parameters();
     return 0;
 }
 int recommit_particles() {
@@ -503,7 +518,6 @@ int new_particle(
     particle_id_counter++;
 
     bodies.push_back(newbody);
-
     return 0;
 }
 
