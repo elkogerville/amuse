@@ -89,7 +89,8 @@ class TidymessInterface(
         )
         function.addParameter(
             'vz',
-            dtype='float64', direction=function.IN,
+            dtype='float64',
+            direction=function.IN,
             description='The initial velocity vector of the particle',
         )
         function.addParameter(
@@ -650,10 +651,43 @@ class TidymessInterface(
             )
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
+        function.result_doc = """"""
 
         return function
 
+    @legacy_function
+    def set_initial_shape():
+        """
+        Set Tidymess initial shape.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'initial_shape',
+            dtype='int32',
+            direction=function.IN,
+            description='0=default'
+        )
+        function.result_type = 'int32'
+        function.result_doc = """"""
+
+        return function
+
+    @legacy_function
+    def get_initial_shape():
+        """
+        Get Tidymess initial shape value.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'initial_shape',
+            dtype='int32',
+            direction=function.OUT,
+            description=''
+        )
+        function.result_type = 'int32'
+        function.result_doc = """"""
+
+        return function
 
     @legacy_function
     def get_num_integration_step():
