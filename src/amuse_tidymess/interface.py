@@ -1003,8 +1003,8 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'get_dt_mode',
             'set_dt_mode',
             'dt_mode',
-            '0=constant dt, 1=adaptive dt, 2=adaptive, weighted dt',
-            default_value=1, # of 2?
+            '0=constant dt; 1=adaptive dt; 2=adaptive, weighted dt',
+            default_value=2,
             is_vector=False,
             must_set_before_get=False,
         )
@@ -1054,6 +1054,16 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'set_breakup_mode',
             'breakup_mode',
             'Centrifugal breakup speed detection. 0=off, 1=flag, 2=exception',
+            default_value=0,
+            is_vector=False,
+            must_set_before_get=False,
+        )
+
+        handler.add_method_parameter(
+            'get_initial_shape',
+            'set_initial_shape',
+            'initial_shape',
+            'Initial shape, default=0',
             default_value=0,
             is_vector=False,
             must_set_before_get=False,
