@@ -282,6 +282,23 @@ int set_radius(int index_of_the_particle, double radius) {
     return 0;
 }
 
+int get_xi(int index_of_the_particle, double* xi) {
+    if (!xi) return -1;
+
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    *xi = tidymess.bodies[i].xi;
+    return 0;
+}
+int set_xi(int index_of_the_particle, double xi) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    tidymess.bodies[i].xi = xi;
+    return 0;
+}
+
 int get_spin(
     int index_of_the_particle,
     double* wx,
