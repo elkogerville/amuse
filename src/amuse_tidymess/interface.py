@@ -1299,7 +1299,6 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             **options
         )
 
-
     def define_state(self, handler):
         GravitationalDynamics.define_state(self, handler)
         GravityFieldCode.define_state(self, handler)
