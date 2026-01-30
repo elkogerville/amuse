@@ -1337,6 +1337,28 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
         )
 
         handler.add_method(
+            'get_kf',
+            (handler.INDEX,),
+            (handler.NO_UNIT, handler.ERROR_CODE,)
+        )
+        handler.add_method(
+            'set_kf',
+            (handler.INDEX, handler.NO_UNIT),
+            (handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
+            'get_tau',
+            (handler.INDEX,),
+            (generic_unit_system.time, handler.ERROR_CODE,)
+        )
+        handler.add_method(
+            'set_tau',
+            (handler.INDEX, generic_unit_system.time),
+            (handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
             'get_num_integration_step',
             (),
             (handler.INDEX, handler.ERROR_CODE)
