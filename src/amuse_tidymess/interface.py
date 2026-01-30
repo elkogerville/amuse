@@ -387,10 +387,6 @@ class TidymessInterface(
             particle was found in the model and the information was set
         -1 - ERROR
             particle could not be found
-        -2 - ERROR
-            code does not support updating of a particle
-        -3 - ERROR
-            not yet implemented
         """
         return function
 
@@ -441,7 +437,6 @@ class TidymessInterface(
 
         return function
 
-
     @legacy_function
     def set_spin():
         '''
@@ -488,7 +483,6 @@ class TidymessInterface(
         '''
 
         return function
-
 
     @legacy_function
     def set_tidal_model():
@@ -1071,10 +1065,13 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
         self.stopping_conditions.define_state(handler)
 
     def define_methods(self, handler):
+        """
+        Map legacy functions in TidymessInterface into
+        Tidymess user methods.
+        """
 
         GravitationalDynamics.define_methods(self, handler)
 
-        # turn interface functions into methods.
         handler.add_method(
             'new_particle',
             (
@@ -1096,6 +1093,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             ),
             (handler.INDEX, handler.ERROR_CODE)
         )
+
         handler.add_method(
             'get_state',
             (handler.INDEX),
