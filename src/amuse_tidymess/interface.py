@@ -151,10 +151,10 @@ class TidymessInterface(
         )
         function.result_type = 'int32'
         function.result_doc = """\
-            0 - OK
-                particle was created and added to the model
+        0 - OK
+            particle was created and added to the model
         -1 - ERROR
-                particle could not be created
+            particle could not be created
         """
 
         return function
@@ -476,7 +476,7 @@ class TidymessInterface(
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
-            particle was found in the model and the moment of inertia was retrieved
+            particle was found in the model and the fluid love number was retrieved
         -1 - ERROR
             particle could not be found
         """
@@ -507,7 +507,7 @@ class TidymessInterface(
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
-            particle was found in the model and the moment of inertia was set
+            particle was found in the model and the fluid love number was set
         -1 - ERROR
             particle could not be found
         """
@@ -538,7 +538,8 @@ class TidymessInterface(
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
-            particle was found in the model and the moment of inertia was retrieved
+            particle was found in the model and the fluid
+            relaxation time was retrieved
         -1 - ERROR
             particle could not be found
         """
@@ -569,7 +570,8 @@ class TidymessInterface(
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
-            particle was found in the model and the moment of inertia was set
+            particle was found in the model and the fluid
+            relaxation time was set
         -1 - ERROR
             particle could not be found
         """
@@ -578,10 +580,10 @@ class TidymessInterface(
 
     @legacy_function
     def get_spin():
-        '''
+        """
         Retrieve the spin vector of a particle. Spin is a vector
         property, this function has 3 OUT arguments.
-        '''
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'index_of_the_particle',
@@ -612,22 +614,19 @@ class TidymessInterface(
         )
         function.result_type = 'int32'
         function.can_handle_array = True
-        function.result_doc = '''\
+        function.result_doc = """\
             0 - OK
-                current value was retrieved
-        -1 - ERROR
+                particle was found in the model and the spin was retrieved
+            -1 - ERROR
                 particle could not be found
-        -2 - ERROR
-                not yet implemented
-        '''
-
+        """
         return function
 
     @legacy_function
     def set_spin():
-        '''
+        """
         Update the spin of a particle.
-        '''
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'index_of_the_particle',
@@ -660,10 +659,10 @@ class TidymessInterface(
         function.result_type = 'int32'
         function.can_handle_array = True
         function.result_doc = """\
-            0 - OK
-                particle was found in the model and the information was set
+        0 - OK
+            particle was found in the model and the spin was set
         -1 - ERROR
-                particle could not be found
+            particle could not be found
         """
         return function
 
@@ -685,7 +684,8 @@ class TidymessInterface(
         function.result_type = 'int32'
         function.result_doc = """\
             0 - OK
-                particle was found in the model and the information was set
+                particle was found in the model and the
+                tidal model was retrieved
             -1 - ERROR
                 particle could not be found
         """
@@ -708,34 +708,18 @@ class TidymessInterface(
         )
         function.result_type = 'int32'
         function.result_doc = """\
-            0 - OK
-                particle was found in the model and the information was set
-            -1 - ERROR
-                particle could not be found
+        0 - OK
+            particle was found in the model and the tidal model was set
+        -1 - ERROR
+            particle could not be found
         """
         return function
 
     @legacy_function
-    def set_pn_order():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'pn_order',
-            dtype='int32',
-            direction=function.IN,
-            description='Post-Newtonian order: 0=none, 1=1pn, 2=1+2pn, 25=1+2+2.5pn'
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-
-        return function
-
-
-    @legacy_function
     def get_pn_order():
-        '''
-        '''
+        """
+        Get Tidymess pn order parameter.
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'pn_order',
@@ -744,10 +728,35 @@ class TidymessInterface(
             description='Post-Newtonian order: 0=none, 1=1pn, 2=1+2pn, 25=1+2+2.5pn'
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
+        function.result_doc = """\
+        0 - OK
+            particle was found in the model and the pn order was retrieved
+        -1 - ERROR
+            particle could not be found
+        """
 
         return function
 
+    @legacy_function
+    def set_pn_order():
+        """
+        Set Tidymess pn order parameter
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'pn_order',
+            dtype='int32',
+            direction=function.IN,
+            description='Post-Newtonian order: 0=none, 1=1pn, 2=1+2pn, 25=1+2+2.5pn'
+        )
+        function.result_type = 'int32'
+        function.result_doc = """\
+        0 - OK
+            particle was found in the model and the pn order was set
+        -1 - ERROR
+            particle could not be found
+        """
+        return function
 
     @legacy_function
     def set_magnetic_braking():
