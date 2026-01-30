@@ -659,40 +659,19 @@ class TidymessInterface(
         )
         function.result_type = 'int32'
         function.can_handle_array = True
-        function.result_doc = '''\
+        function.result_doc = """\
             0 - OK
                 particle was found in the model and the information was set
         -1 - ERROR
                 particle could not be found
-        -2 - ERROR
-                code does not support updating of a particle
-        '''
-
+        """
         return function
-
-    @legacy_function
-    def set_tidal_model():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'tidal_model',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                '0=none, 1=conservative, 2=linear, '
-                '3=creep direct, 4=creep tidymess (default)'
-            )
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-        return function
-
 
     @legacy_function
     def get_tidal_model():
-        '''
-        '''
+        """
+        Get Tidymess tidal model.
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'tidal_model',
@@ -704,10 +683,37 @@ class TidymessInterface(
             )
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
-
+        function.result_doc = """\
+            0 - OK
+                particle was found in the model and the information was set
+            -1 - ERROR
+                particle could not be found
+        """
         return function
 
+    @legacy_function
+    def set_tidal_model():
+        """
+        Set Tidymess tidal model.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'tidal_model',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                '0=none, 1=conservative, 2=linear, '
+                '3=creep direct, 4=creep tidymess (default)'
+            )
+        )
+        function.result_type = 'int32'
+        function.result_doc = """\
+            0 - OK
+                particle was found in the model and the information was set
+            -1 - ERROR
+                particle could not be found
+        """
+        return function
 
     @legacy_function
     def set_pn_order():
