@@ -515,6 +515,68 @@ class TidymessInterface(
         return function
 
     @legacy_function
+    def get_tau():
+        """
+        Retrieve the fluid relaxation time of a particle.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                'Index of the particle to get the state from. This index must '
+                'have been returned by an earlier call to :meth:`new_particle`'
+            )
+        )
+        function.addParameter(
+            'tau',
+            dtype='float64',
+            direction=function.OUT,
+            description='The fluid relaxation time of a particle.'
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the moment of inertia was retrieved
+        -1 - ERROR
+            particle could not be found
+        """
+
+        return function
+
+    @legacy_function
+    def set_tau():
+        """
+        Set the fluid relaxation time of a particle.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                'Index of the particle to get the state from. This index must '
+                'have been returned by an earlier call to :meth:`new_particle`'
+            )
+        )
+        function.addParameter(
+            'tau',
+            dtype='float64',
+            direction=function.IN,
+            description='The fluid relaxation time of a particle.'
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the moment of inertia was set
+        -1 - ERROR
+            particle could not be found
+        """
+
+        return function
+
+    @legacy_function
     def get_spin():
         '''
         Retrieve the spin vector of a particle. Spin is a vector
