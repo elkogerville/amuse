@@ -1097,6 +1097,50 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             (handler.INDEX, handler.ERROR_CODE)
         )
         handler.add_method(
+            'get_state',
+            (handler.INDEX),
+            (
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,   # radius
+                handler.NO_UNIT,              # xi, moment of inertia factor
+                handler.NO_UNIT,              # kf, fluid Love number for potential
+                generic_unit_system.time,     # tau, fluid relaxation time
+                1 / generic_unit_system.time, # wx
+                1 / generic_unit_system.time, # wy
+                1 / generic_unit_system.time, # wz
+                handler.NO_UNIT,              # a_mb, magnetic braking coefficient
+                handler.ERROR_CODE,
+            )
+        )
+        handler.add_method(
+            'set_state',
+            (
+                handler.INDEX,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,   # radius
+                handler.NO_UNIT,              # xi, moment of inertia factor
+                handler.NO_UNIT,              # kf, fluid Love number for potential
+                generic_unit_system.time,     # tau, fluid relaxation time
+                1 / generic_unit_system.time, # wx
+                1 / generic_unit_system.time, # wy
+                1 / generic_unit_system.time, # wz
+                handler.NO_UNIT,              # a_mb, magnetic braking coefficient
+            ),
+            (handler.ERROR_CODE,)
+        )
+        handler.add_method(
             'get_num_integration_step',
             (),
             (handler.INDEX, handler.ERROR_CODE)
@@ -1144,9 +1188,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 1/nbody_system.time,
                 1/nbody_system.time,
             ),
-            (
-                handler.ERROR_CODE
-            )
+            (handler.ERROR_CODE,)
         )
         handler.add_method(
             'get_spin',
