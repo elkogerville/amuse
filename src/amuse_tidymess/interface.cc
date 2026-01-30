@@ -442,24 +442,18 @@ int set_tidal_model(int tidal_model) {
     return 0;
 }
 
-
-int get_initial_shape(int* initial_shape) {
-    if (!initial_shape) return -1;
-
-    *initial_shape = init_shape;
-    return 0;
-}
-int set_initial_shape(int initial_shape) {
-    init_shape = initial_shape;
-    return 0;
-}
-
+/**
+ * Get Tidymess pn order parameter
+ */
 int get_pn_order(int* pn_order) {
     if (!pn_order) return -1;
 
     *pn_order = tidymess.get_pn_order();
     return 0;
 }
+/**
+ * Set Tidymess pn order parameter
+ */
 int set_pn_order(int pn_order) {
     tidymess.set_pn_order(pn_order);
     return 0;
@@ -581,6 +575,22 @@ int get_num_integration_step(int* num_integration_step) {
     return 0;
 }
 
+/**
+ * Get Tidymess initial shape parameter
+ */
+int get_initial_shape(int* initial_shape) {
+    if (!initial_shape) return -1;
+
+    *initial_shape = init_shape;
+    return 0;
+}
+/**
+ * Set Tidymess initial shape parameter
+ */
+int set_initial_shape(int initial_shape) {
+    init_shape = initial_shape;
+    return 0;
+}
 
 int initialize_code(){
     //
