@@ -682,11 +682,10 @@ class TidymessInterface(
         )
         function.result_type = 'int32'
         function.result_doc = """\
-            0 - OK
-                particle was found in the model and the
-                tidal model was retrieved
-            -1 - ERROR
-                particle could not be found
+        0 - OK
+            tidal model was retrieved
+        -1 - ERROR
+            tidal model could not be found
         """
         return function
 
@@ -708,9 +707,9 @@ class TidymessInterface(
         function.result_type = 'int32'
         function.result_doc = """\
         0 - OK
-            particle was found in the model and the tidal model was set
+            tidal model was set
         -1 - ERROR
-            particle could not be found
+            tidal model could not be set
         """
         return function
 
@@ -729,9 +728,9 @@ class TidymessInterface(
         function.result_type = 'int32'
         function.result_doc = """\
         0 - OK
-            particle was found in the model and the pn order was retrieved
+            pn order was retrieved
         -1 - ERROR
-            particle could not be found
+            pn order could not be found
         """
 
         return function
@@ -751,16 +750,17 @@ class TidymessInterface(
         function.result_type = 'int32'
         function.result_doc = """\
         0 - OK
-            particle was found in the model and the pn order was set
+            pn order was set
         -1 - ERROR
-            particle could not be found
+            pn order could not be set
         """
         return function
 
     @legacy_function
     def set_magnetic_braking():
-        '''
-        '''
+        """
+        Set the magnetic braking parameter.
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'magnetic_braking',
@@ -769,8 +769,12 @@ class TidymessInterface(
             description='Magnetic braking. 0=off, 1=on'
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
-
+        function.result_doc = """\
+        0 - OK
+            magnetic braking coefficient was set
+        -1 - ERROR
+            Could not set magnetic braking coefficient
+        """
         return function
 
 
