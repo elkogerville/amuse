@@ -887,26 +887,10 @@ class TidymessInterface(
         return function
 
     @legacy_function
-    def set_dt_const():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'dt_const',
-            dtype='float64',
-            direction=function.IN,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-
-        return function
-
-
-    @legacy_function
     def get_dt_const():
-        '''
-        '''
+        """
+        Retrieve Tidymess constant dt parameter.
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'dt_const',
@@ -915,8 +899,33 @@ class TidymessInterface(
             description=''
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
+        function.result_doc = """\
+        0 - OK
+            constant dt was retrieved
+        -1 - ERROR
+            Could not find constant dt
+        """
+        return function
 
+    @legacy_function
+    def set_dt_const():
+        """
+        Set Tidymess constant dt parameter.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'dt_const',
+            dtype='float64',
+            direction=function.IN,
+            description=''
+        )
+        function.result_type = 'int32'
+        function.result_doc = """\
+        0 - OK
+            constant dt was set
+        -1 - ERROR
+            Could not set constant dt
+        """
         return function
 
 
@@ -1436,14 +1445,6 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 handler.ERROR_CODE
             )
         )
-        handler.add_method(
-            'get_dt_const',
-            (),
-            (
-                nbody_system.time,
-                handler.ERROR_CODE
-            )
-        )
 
         handler.add_method(
             'convert_spin_vectors_to_inertial',
@@ -1541,6 +1542,16 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'dt_mode',
             '0=constant dt; 1=adaptive dt; 2=adaptive, weighted dt',
             default_value=2,
+            is_vector=False,
+            must_set_before_get=False,
+        )
+
+        handler.add_method(
+            'get_dt_const',
+            'set_dt_const',
+            'dt_const',
+            'constant time step in units given by time_unit (only used if dt_mode=0)', # FIX
+            default_value=0.015625,
             is_vector=False,
             must_set_before_get=False,
         )
