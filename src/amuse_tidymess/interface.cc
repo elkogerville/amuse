@@ -425,6 +425,23 @@ int set_spin(
     return 0;
 }
 
+/**
+ * Get Tidymess tidal model parameter
+ */
+int get_tidal_model(int* tidal_model) {
+    if (!tidal_model) return -1;
+
+    *tidal_model = tidymess.get_tidal_model();
+    return 0;
+}
+/**
+ * Set Tidymess tidal model parameter
+ */
+int set_tidal_model(int tidal_model) {
+    tidymess.set_tidal_model(tidal_model);
+    return 0;
+}
+
 int get_initial_shape(int* initial_shape) {
     if (!initial_shape) return -1;
 
@@ -433,17 +450,6 @@ int get_initial_shape(int* initial_shape) {
 }
 int set_initial_shape(int initial_shape) {
     init_shape = initial_shape;
-    return 0;
-}
-
-int get_tidal_model(int* tidal_model) {
-    if (!tidal_model) return -1;
-
-    *tidal_model = tidymess.get_tidal_model();
-    return 0;
-}
-int set_tidal_model(int tidal_model) {
-    tidymess.set_tidal_model(tidal_model);
     return 0;
 }
 
