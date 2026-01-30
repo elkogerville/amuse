@@ -459,34 +459,52 @@ int set_pn_order(int pn_order) {
     return 0;
 }
 
+/**
+ * Get Tidymess magnetic braking paramter
+ */
 int get_magnetic_braking(int* magnetic_braking) {
     if (!magnetic_braking) return -1;
 
     *magnetic_braking = tidymess.get_magnetic_braking();
     return 0;
 }
+/**
+ * Set Tidymess magnetic braking parameter
+ */
 int set_magnetic_braking(int magnetic_braking) {
     tidymess.set_magnetic_braking(magnetic_braking);
     return 0;
 }
 
+/**
+ * Get Tidymess speed of light parameter
+ */
 int get_speed_of_light(double* speed_of_light) {
     if (!speed_of_light) return -1;
 
     *speed_of_light = tidymess.get_speed_of_light();
     return 0;
 }
+/**
+ * Set Tidymess speed of light parameter
+ */
 int set_speed_of_light(double speed_of_light) {
     tidymess.set_speed_of_light(speed_of_light);
     return 0;
 }
 
+/**
+ * Get Tidymess dt mode parameter
+ */
 int get_dt_mode(int* dt_mode) {
     if (!dt_mode) return -1;
 
     *dt_mode = tidymess.get_dt_mode();
     return 0;
 }
+/**
+ * Set Tidymess dt mode parameter
+ */
 int set_dt_mode(int dt_mode) {
     tidymess.set_dt_mode(dt_mode);
     return 0;
