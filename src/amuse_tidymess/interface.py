@@ -156,7 +156,6 @@ class TidymessInterface(
         -1 - ERROR
             particle could not be created
         """
-
         return function
 
     @legacy_function
@@ -418,7 +417,6 @@ class TidymessInterface(
         -1 - ERROR
             particle could not be found
         """
-
         return function
 
     @legacy_function
@@ -449,7 +447,6 @@ class TidymessInterface(
         -1 - ERROR
             particle could not be found
         """
-
         return function
 
     @legacy_function
@@ -480,7 +477,6 @@ class TidymessInterface(
         -1 - ERROR
             particle could not be found
         """
-
         return function
 
     @legacy_function
@@ -511,7 +507,6 @@ class TidymessInterface(
         -1 - ERROR
             particle could not be found
         """
-
         return function
 
     @legacy_function
@@ -543,7 +538,6 @@ class TidymessInterface(
         -1 - ERROR
             particle could not be found
         """
-
         return function
 
     @legacy_function
@@ -575,7 +569,6 @@ class TidymessInterface(
         -1 - ERROR
             particle could not be found
         """
-
         return function
 
     @legacy_function
@@ -928,6 +921,91 @@ class TidymessInterface(
         """
         return function
 
+    @legacy_function
+    def get_eta():
+        """
+        Retrieve Tidymess eta (accuracy) parameter.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'eta',
+            dtype='float64',
+            direction=function.OUT,
+            description=''
+        )
+        function.result_type = 'int32'
+        function.result_doc = """\
+        0 - OK
+            eta was retrieved
+        -1 - ERROR
+            Could not find eta
+        """
+        return function
+
+    @legacy_function
+    def set_eta():
+        """
+        Set Tidymess eta (accuracy) parameter.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'eta',
+            dtype='float64',
+            direction=function.IN,
+            description=''
+        )
+        function.result_type = 'int32'
+        function.result_doc = """\
+        0 - OK
+            eta was set
+        -1 - ERROR
+            Could not set eta
+        """
+        return function
+
+    @legacy_function
+    def get_n_iter():
+        """
+        Retrieve Tidymess n iter parameter. This is the
+        number of iterations to improve reversibility.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'n_iter',
+            dtype='int32',
+            direction=function.OUT,
+            description=''
+        )
+        function.result_type = 'int32'
+        function.result_doc = """\
+        0 - OK
+            n_iter was retrieved
+        -1 - ERROR
+            Could not find n_iter
+        """
+        return function
+
+    @legacy_function
+    def set_n_iter():
+        """
+        Set Tidymess n iter parameter. This is the
+        number of iterations to improve reversibility.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'n_iter',
+            dtype='int32',
+            direction=function.IN,
+            description=''
+        )
+        function.result_type = 'int32'
+        function.result_doc = """\
+        0 - OK
+            n_iter was set
+        -1 - ERROR
+            Could not set n_iter
+        """
+        return function
 
     @legacy_function
     def get_time_step():
@@ -944,75 +1022,6 @@ class TidymessInterface(
         function.result_doc = ''''''
 
         return function
-
-
-    @legacy_function
-    def set_eta():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'eta',
-            dtype='float64',
-            direction=function.IN,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-
-        return function
-
-
-    @legacy_function
-    def get_eta():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'eta',
-            dtype='float64',
-            direction=function.OUT,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-
-        return function
-
-    @legacy_function
-    def set_n_iter():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'n_iter',
-            dtype='int32',
-            direction=function.IN,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-
-        return function
-
-
-    @legacy_function
-    def get_n_iter():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'n_iter',
-            dtype='int32',
-            direction=function.OUT,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-
-        return function
-
-
 
     @legacy_function
     def set_collision_mode():
@@ -1461,24 +1470,6 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             )
         )
 
-        handler.add_method(
-            'set_n_iter',
-            (
-                handler.NO_UNIT,
-            ),
-            (
-                handler.ERROR_CODE,
-            )
-        )
-        handler.add_method(
-            'get_n_iter',
-            (),
-            (
-                handler.NO_UNIT,
-                handler.ERROR_CODE,
-            )
-        )
-
         self.stopping_conditions.define_methods(handler)
 
 
@@ -1550,7 +1541,10 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'get_dt_const',
             'set_dt_const',
             'dt_const',
-            'constant time step in units given by time_unit (only used if dt_mode=0)', # FIX
+            (
+                'constant time step in units given by time_unit, ' # FIX
+                'default=0.015625 (only used if dt_mode=0)'
+            ),
             default_value=0.015625,
             is_vector=False,
             must_set_before_get=False,

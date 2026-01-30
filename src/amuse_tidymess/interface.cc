@@ -527,23 +527,35 @@ int set_dt_const(double dt_const) {
     return 0;
 }
 
+/**
+ * Get Tidymess eta (accuracy parameter)
+ */
 int get_eta(double* eta) {
     if (!eta) return -1;
 
     *eta = tidymess.get_eta();
     return 0;
 }
+/**
+ * Set Tidymess eta (accuracy parameter)
+ */
 int set_eta(double eta) {
     tidymess.set_eta(eta);
     return 0;
 }
 
+/**
+ * Get Tidymess n iter parameter
+ */
 int get_n_iter(int* n_iter) {
     if (!n_iter) return -1;
 
     *n_iter = tidymess.n_iter;
     return 0;
 }
+/**
+ * Set Tidymess n iter parameter
+ */
 int set_n_iter(int n_iter) {
     tidymess.n_iter = n_iter;
     return 0;
