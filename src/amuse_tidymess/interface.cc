@@ -199,23 +199,6 @@ int set_mass(int index_of_the_particle, double mass) {
     return 0;
 }
 
-int get_radius(int index_of_the_particle, double* radius ) {
-    if (!radius) return -1;
-
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    *radius = tidymess.bodies[i].R;
-    return 0;
-}
-int set_radius(int index_of_the_particle, double radius) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    tidymess.bodies[i].R = radius;
-    return 0;
-}
-
 int get_position(
     int index_of_the_particle,
     double* x,
@@ -279,6 +262,23 @@ int set_velocity(
     Body& body = tidymess.bodies[i];
 
     body.v = {vx, vy, vz};
+    return 0;
+}
+
+int get_radius(int index_of_the_particle, double* radius ) {
+    if (!radius) return -1;
+
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    *radius = tidymess.bodies[i].R;
+    return 0;
+}
+int set_radius(int index_of_the_particle, double radius) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    tidymess.bodies[i].R = radius;
     return 0;
 }
 
@@ -489,11 +489,9 @@ int cleanup_code() {
 }
 
 int commit_parameters() {
-    // """
     // Perform initialization in the code dependent on the
     // values of the parameters.
     // Called after the parameters have been set or updated.
-    // """
     return 0;
 }
 
@@ -525,58 +523,6 @@ int commit_particles() {
     return 0;
 }
 int recommit_particles() {
-    return 0;
-}
-
-/**
- * Define a new particle in the stellar dynamics code. The particle is
- * initialized with the provided mass, radius, position and velocity.
- * This function returns an index that can be used to refer to this particle.
- */
-int new_particle(
-    int* index_of_the_particle,
-    double mass,
-    double x,
-    double y,
-    double z,
-    double vx,
-    double vy,
-    double vz,
-    double radius,
-    double xi,
-    double kf,
-    double tau,
-    double wx,
-    double wy,
-    double wz,
-    double a_mb
-) {
-    if (!index_of_the_particle) return -1;
-
-    std::vector<Body>& bodies = tidymess.bodies;
-
-    Body newbody(
-        mass, radius, xi, kf, tau, a_mb,
-        wx, wy, wz, x, y, z, vx, vy, vz
-    );
-
-    newbody.set_id(particle_id_counter);
-
-    *index_of_the_particle = particle_id_counter;
-    particle_id_counter++;
-
-    bodies.push_back(newbody);
-    return 0;
-}
-
-int delete_particle(int index_of_the_particle) {
-    std::vector<Body>& bodies = tidymess.bodies;
-    int i = get_body_index_by_id(index_of_the_particle);
-
-    if (i < 0) return -1;
-
-    bodies.erase(bodies.begin() + i);
-
     return 0;
 }
 
@@ -741,6 +687,22 @@ int get_index_of_next_particle(
     *index_of_the_next_particle = bodies[i + 1].id;
     return 0;
 }
+
+int determine_dt_sgn(double t_end) {  // copied from tidymess.cpp
+    bool dt_pos;
+    int dt_sgn;
+    if(t_end > tidymess.get_model_time()) {  // ** takes negative time step when evolving to 0, causes problems
+        dt_pos = true;
+        dt_sgn = 1;
+    }
+    else {
+        dt_pos = false;
+        dt_sgn = -1;
+    }
+    tidymess.set_dt_sgn(dt_sgn);
+    return 0;
+}
+
 
 int evolve_model(double time) {
     // Evolve the model until the given time, or until a stopping condition is set.
