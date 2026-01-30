@@ -98,21 +98,6 @@ int delete_particle(int index_of_the_particle) {
     return 0;
 }
 
-int determine_dt_sgn(double t_end) {  // copied from tidymess.cpp
-    bool dt_pos;
-    int dt_sgn;
-    if(t_end > tidymess.get_model_time()) {  // ** takes negative time step when evolving to 0, causes problems
-        dt_pos = true;
-        dt_sgn = 1;
-    }
-    else {
-        dt_pos = false;
-        dt_sgn = -1;
-    }
-    tidymess.set_dt_sgn(dt_sgn);
-    return 0;
-}
-
 int get_state(
     int index_of_the_particle,
     double* mass,
@@ -122,10 +107,21 @@ int get_state(
     double* vx,
     double* vy,
     double* vz,
-    double* radius
+    double* radius,
+    double* xi,
+    double* kf,
+    double* tau,
+    double* wx,
+    double* wy,
+    double* wz,
+    double* a_mb
 ) {
-    if (!mass || !x || !y || !z ||
-        !vx || !vy || !vz || !radius) return -1;
+    if (!mass || !x || !y || !z || !vx || !vy || !vz ||
+        !radius || !xi || !kf || !tau || !wx || !wy ||
+        !wz || !a_mb)
+    {
+        return -1;
+    }
 
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
@@ -140,6 +136,13 @@ int get_state(
     *vy = body.v[1];
     *vz = body.v[2];
     *radius = body.R;
+    *xi = body.xi;
+    *kf = body.kf;
+    *tau = body.tau;
+    *wx = body.w[0];
+    *wy = body.w[1];
+    *wz = body.w[2];
+    *a_mb = body.a_mb;
 
     return 0;
 }
@@ -152,7 +155,14 @@ int set_state(
     double vx,
     double vy,
     double vz,
-    double radius
+    double radius,
+    double xi,
+    double kf,
+    double tau,
+    double wx,
+    double wy,
+    double wz,
+    double a_mb
 ) {
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
@@ -163,6 +173,12 @@ int set_state(
     body.R = radius;
     body.r = {x, y, z};
     body.v = {vx, vy, vz};
+    body.xi = xi;
+    body.kf = kf;
+    body.tau = tau;
+    body.w = {wx, wy, wz};
+    body.a_mb = a_mb;
+
     return 0;
 }
 
