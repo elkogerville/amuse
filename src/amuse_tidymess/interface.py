@@ -757,6 +757,27 @@ class TidymessInterface(
         return function
 
     @legacy_function
+    def get_magnetic_braking():
+        """
+        Get magnetic braking parameter.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'magnetic_braking',
+            dtype='int32',
+            direction=function.OUT,
+            description='Magnetic braking. 0=off, 1=on'
+        )
+        function.result_type = 'int32'
+        function.result_doc = """\
+        0 - OK
+            magnetic braking was retrieved
+        -1 - ERROR
+            magnetic braking could not be found
+        """
+        return function
+
+    @legacy_function
     def set_magnetic_braking():
         """
         Set the magnetic braking parameter.
@@ -776,24 +797,6 @@ class TidymessInterface(
             Could not set magnetic braking coefficient
         """
         return function
-
-
-    @legacy_function
-    def get_magnetic_braking():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'magnetic_braking',
-            dtype='int32',
-            direction=function.OUT,
-            description='Magnetic braking. 0=off, 1=on'
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-
-        return function
-
 
     @legacy_function
     def set_speed_of_light():
