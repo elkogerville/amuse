@@ -1378,6 +1378,26 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             (handler.INDEX, generic_unit_system.time),
             (handler.ERROR_CODE,)
         )
+        handler.add_method(
+            'get_spin',
+            (handler.NO_UNIT),
+            (
+                1/nbody_system.time,
+                1/nbody_system.time,
+                1/nbody_system.time,
+                handler.ERROR_CODE
+            )
+        )
+        handler.add_method(
+            'set_spin',
+            (
+                handler.NO_UNIT,
+                1/nbody_system.time,
+                1/nbody_system.time,
+                1/nbody_system.time,
+            ),
+            (handler.ERROR_CODE,)
+        )
 
         handler.add_method(
             'get_num_integration_step',
@@ -1419,26 +1439,6 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             )
         )
 
-        handler.add_method(
-            'set_spin',
-            (
-                handler.NO_UNIT,
-                1/nbody_system.time,
-                1/nbody_system.time,
-                1/nbody_system.time,
-            ),
-            (handler.ERROR_CODE,)
-        )
-        handler.add_method(
-            'get_spin',
-            (handler.NO_UNIT),
-            (
-                1/nbody_system.time,
-                1/nbody_system.time,
-                1/nbody_system.time,
-                handler.ERROR_CODE
-            )
-        )
         handler.add_method(
             'set_n_iter',
             (
