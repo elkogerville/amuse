@@ -391,6 +391,68 @@ class TidymessInterface(
         return function
 
     @legacy_function
+    def get_xi():
+        """
+        Retrieve the moment of inertia of a particle.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                'Index of the particle to get the state from. This index must '
+                'have been returned by an earlier call to :meth:`new_particle`'
+            )
+        )
+        function.addParameter(
+            'xi',
+            dtype='float64',
+            direction=function.OUT,
+            description='The moment of inertia of a particle.'
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the moment of inertia was retrieved
+        -1 - ERROR
+            particle could not be found
+        """
+
+        return function
+
+    @legacy_function
+    def set_xi():
+        """
+        Set the moment of inertia of a particle.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                'Index of the particle to get the state from. This index must '
+                'have been returned by an earlier call to :meth:`new_particle`'
+            )
+        )
+        function.addParameter(
+            'xi',
+            dtype='float64',
+            direction=function.IN,
+            description='The moment of inertia of a particle.'
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the moment of inertia was set
+        -1 - ERROR
+            particle could not be found
+        """
+
+        return function
+
+    @legacy_function
     def get_spin():
         '''
         Retrieve the spin vector of a particle. Spin is a vector
@@ -1138,6 +1200,18 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             ),
             (handler.ERROR_CODE,)
         )
+
+        handler.add_method(
+            'get_xi',
+            (handler.INDEX,),
+            (handler.NO_UNIT, handler.ERROR_CODE,)
+        )
+        handler.add_method(
+            'set_xi',
+            (handler.INDEX, handler.NO_UNIT),
+            (handler.ERROR_CODE,)
+        )
+
         handler.add_method(
             'get_num_integration_step',
             (),
