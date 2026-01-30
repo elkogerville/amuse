@@ -86,7 +86,9 @@ int new_particle(
     bodies.push_back(newbody);
     return 0;
 }
-
+/**
+ * Delete a particle inside Tidymess
+ */
 int delete_particle(int index_of_the_particle) {
     std::vector<Body>& bodies = tidymess.bodies;
     int i = get_body_index_by_id(index_of_the_particle);
@@ -98,6 +100,11 @@ int delete_particle(int index_of_the_particle) {
     return 0;
 }
 
+// Tidymess setters and getters
+
+/**
+ * Get state of a particle
+ */
 int get_state(
     int index_of_the_particle,
     double* mass,
@@ -146,6 +153,9 @@ int get_state(
 
     return 0;
 }
+/**
+ * Set state of a particle
+ */
 int set_state(
     int index_of_the_particle,
     double mass,
@@ -182,6 +192,9 @@ int set_state(
     return 0;
 }
 
+/**
+ * Get mass of a particle
+ */
 int get_mass(int index_of_the_particle, double* mass) {
     if (!mass) return -1;
 
@@ -191,6 +204,9 @@ int get_mass(int index_of_the_particle, double* mass) {
     *mass = tidymess.bodies[i].m;
     return 0;
 }
+/**
+ * Set mass of a particle
+ */
 int set_mass(int index_of_the_particle, double mass) {
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
@@ -199,6 +215,9 @@ int set_mass(int index_of_the_particle, double mass) {
     return 0;
 }
 
+/**
+ * Get position of a particle
+ */
 int get_position(
     int index_of_the_particle,
     double* x,
@@ -217,6 +236,9 @@ int get_position(
     *z = body.r[2];
     return 0;
 }
+/**
+ * Set position of a particle
+ */
 int set_position(
     int index_of_the_particle,
     double x,
@@ -232,6 +254,9 @@ int set_position(
     return 0;
 }
 
+/**
+ * Get velocity of a particle
+ */
 int get_velocity(
     int index_of_the_particle,
     double* vx,
@@ -250,6 +275,9 @@ int get_velocity(
     *vz = body.v[2];
     return 0;
 }
+/**
+ * Set velocity of a particle
+ */
 int set_velocity(
     int index_of_the_particle,
     double vx,
@@ -265,6 +293,9 @@ int set_velocity(
     return 0;
 }
 
+/**
+ * Get radius of a particle
+ */
 int get_radius(int index_of_the_particle, double* radius ) {
     if (!radius) return -1;
 
@@ -274,6 +305,9 @@ int get_radius(int index_of_the_particle, double* radius ) {
     *radius = tidymess.bodies[i].R;
     return 0;
 }
+/**
+ * Set radius of a particle
+ */
 int set_radius(int index_of_the_particle, double radius) {
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
@@ -282,6 +316,9 @@ int set_radius(int index_of_the_particle, double radius) {
     return 0;
 }
 
+/**
+ * Get moment of inertia of a particle
+ */
 int get_xi(int index_of_the_particle, double* xi) {
     if (!xi) return -1;
 
@@ -291,6 +328,9 @@ int get_xi(int index_of_the_particle, double* xi) {
     *xi = tidymess.bodies[i].xi;
     return 0;
 }
+/**
+ * Set moment of inertia of a particle
+ */
 int set_xi(int index_of_the_particle, double xi) {
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
@@ -299,7 +339,9 @@ int set_xi(int index_of_the_particle, double xi) {
     return 0;
 }
 
-
+/**
+ * Get fluid love number of a particle
+ */
 int get_kf(int index_of_the_particle, double* kf) {
     if (!kf) return -1;
 
@@ -309,6 +351,9 @@ int get_kf(int index_of_the_particle, double* kf) {
     *kf = tidymess.bodies[i].kf;
     return 0;
 }
+/**
+ * Set fluid love number of a particle
+ */
 int set_kf(int index_of_the_particle, double kf) {
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
@@ -317,6 +362,9 @@ int set_kf(int index_of_the_particle, double kf) {
     return 0;
 }
 
+/**
+ * Get fluid relaxation time of a particle
+ */
 int get_tau(int index_of_the_particle, double* tau) {
     if (!tau) return -1;
 
@@ -326,6 +374,9 @@ int get_tau(int index_of_the_particle, double* tau) {
     *tau = tidymess.bodies[i].tau;
     return 0;
 }
+/**
+ * Set fluid relaxation time of a particle
+ */
 int set_tau(int index_of_the_particle, double tau) {
     int i = get_body_index_by_id(index_of_the_particle);
     if (i < 0) return -1;
@@ -334,6 +385,9 @@ int set_tau(int index_of_the_particle, double tau) {
     return 0;
 }
 
+/**
+ * Get spin of a particle
+ */
 int get_spin(
     int index_of_the_particle,
     double* wx,
@@ -352,6 +406,9 @@ int get_spin(
     *wz = body.w[2];
     return 0;
 }
+/**
+ * Set spin of a particle
+ */
 int set_spin(
     int index_of_the_particle,
     double wx,
