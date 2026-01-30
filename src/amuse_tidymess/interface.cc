@@ -299,6 +299,41 @@ int set_xi(int index_of_the_particle, double xi) {
     return 0;
 }
 
+
+int get_kf(int index_of_the_particle, double* kf) {
+    if (!kf) return -1;
+
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    *kf = tidymess.bodies[i].kf;
+    return 0;
+}
+int set_kf(int index_of_the_particle, double kf) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    tidymess.bodies[i].kf = kf;
+    return 0;
+}
+
+int get_tau(int index_of_the_particle, double* tau) {
+    if (!tau) return -1;
+
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    *tau = tidymess.bodies[i].tau;
+    return 0;
+}
+int set_tau(int index_of_the_particle, double tau) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    tidymess.bodies[i].tau = tau;
+    return 0;
+}
+
 int get_spin(
     int index_of_the_particle,
     double* wx,
