@@ -30,8 +30,8 @@ int init_shape = 0;
 
 
 /**
- * Given an AMUSE particle ID, find the index of that particle
- * within Tidymess Bodies.
+ * Given an AMUSE particle index, find the corresponding
+ * index of that particle within Tidymess.
  *
  * @param index_of_the_particle Particle identifier
  */
@@ -47,29 +47,61 @@ int get_body_index_by_id(int index_of_the_particle) {
 }
 
 /**
- * Set initial shapes and angular momenta.
- *
- * copied from tidymess.cpp
+ * Define a new particle in the stellar dynamics code. The particle is
+ * initialized with the provided mass, radius, position and velocity.
+ * This function returns an index that can be used to refer to this particle.
  */
-int set_shapes_and_momenta() {
-    if (tidymess.get_tidal_model() > 0) {
-        switch(init.initial_shape) {
-            case 0:
-                tidymess.set_to_spherical_shape();
-                break;
-            case 1:
-                tidymess.set_to_equilibrium_shape();
-                break;
-        }
-        tidymess.update_angular_momentum();
-    }
+int new_particle(
+    int* index_of_the_particle,
+    double mass,
+    double x,
+    double y,
+    double z,
+    double vx,
+    double vy,
+    double vz,
+    double radius,
+    double xi,
+    double kf,
+    double tau,
+    double wx,
+    double wy,
+    double wz,
+    double a_mb
+) {
+    if (!index_of_the_particle) return -1;
+
+    std::vector<Body>& bodies = tidymess.bodies;
+
+    Body newbody(
+        mass, radius, xi, kf, tau, a_mb,
+        wx, wy, wz, x, y, z, vx, vy, vz
+    );
+
+    newbody.set_id(particle_id_counter);
+
+    *index_of_the_particle = particle_id_counter;
+    particle_id_counter++;
+
+    bodies.push_back(newbody);
+    return 0;
+}
+
+int delete_particle(int index_of_the_particle) {
+    std::vector<Body>& bodies = tidymess.bodies;
+    int i = get_body_index_by_id(index_of_the_particle);
+
+    if (i < 0) return -1;
+
+    bodies.erase(bodies.begin() + i);
+
     return 0;
 }
 
 int determine_dt_sgn(double t_end) {  // copied from tidymess.cpp
     bool dt_pos;
     int dt_sgn;
-    if(t_end > tidymess.get_model_time()) {   // ** takes negative time step when evolving to 0, causes problems
+    if(t_end > tidymess.get_model_time()) {  // ** takes negative time step when evolving to 0, causes problems
         dt_pos = true;
         dt_sgn = 1;
     }
