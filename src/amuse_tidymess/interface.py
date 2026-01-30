@@ -159,6 +159,240 @@ class TidymessInterface(
 
         return function
 
+    @legacy_function
+    def get_state():
+        """
+        Retrieve the current state of a particle.
+        """
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                "Index of the particle to get the state from. This index must "
+                "have been returned by an earlier call to :meth:`new_particle`"
+            ),
+        )
+        function.addParameter(
+            'mass',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current mass of the particle',
+        )
+        function.addParameter(
+            'x',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current position vector of the particle',
+        )
+        function.addParameter(
+            'y',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current position vector of the particle',
+        )
+        function.addParameter(
+            'z',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current position vector of the particle',
+        )
+        function.addParameter(
+            'vx',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current velocity vector of the particle',
+        )
+        function.addParameter(
+            'vy',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current velocity vector of the particle',
+        )
+        function.addParameter(
+            'vz',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current velocity vector of the particle',
+        )
+        function.addParameter(
+            'radius',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current radius of the particle',
+        )
+        function.addParameter(
+            'xi',
+            dtype='float64',
+            direction=function.OUT,
+            description='Moment of inertia factor',
+        )
+        function.addParameter(
+            'kf',
+            dtype='float64',
+            direction=function.OUT,
+            description='Fluid Love number from potential',
+        )
+        function.addParameter(
+            'tau',
+            dtype='float64',
+            direction=function.OUT,
+            description='Fluid relaxation time',
+        )
+        function.addParameter(
+            'wx',
+            dtype='float64',
+            direction=function.OUT,
+            description='Spin',
+        )
+        function.addParameter(
+            'wy',
+            dtype='float64',
+            direction=function.OUT,
+            description='Spin',
+        )
+        function.addParameter(
+            'wz',
+            dtype='float64',
+            direction=function.OUT,
+            description='Spin',
+        )
+        function.addParameter(
+            'a_mb',
+            dtype='float64',
+            direction=function.OUT,
+            description='Magnetic braking coefficient',
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            state was retrieved from particle
+        -1 - ERROR
+            particle could not be found
+        """
+        return function
+
+    @legacy_function
+    def set_state():
+        """
+        Update the current state of a particle.
+        """
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                "Index of the particle for which the state is to be updated. "
+                "This index must have been returned by an earlier call to "
+                ":meth:`new_particle`"
+            ),
+        )
+        function.addParameter(
+            'mass',
+            dtype='float64',
+            direction=function.IN,
+            description='The new mass of the particle',
+        )
+        function.addParameter(
+            'x',
+            dtype='float64',
+            direction=function.IN,
+            description='The new position vector of the particle',
+        )
+        function.addParameter(
+            'y',
+            dtype='float64',
+            direction=function.IN,
+            description='The new position vector of the particle',
+        )
+        function.addParameter(
+            'z',
+            dtype='float64',
+            direction=function.IN,
+            description='The new position vector of the particle',
+        )
+        function.addParameter(
+            'vx',
+            dtype='float64',
+            direction=function.IN,
+            description='The new velocity vector of the particle',
+        )
+        function.addParameter(
+            'vy',
+            dtype='float64',
+            direction=function.IN,
+            description='The new velocity vector of the particle',
+        )
+        function.addParameter(
+            'vz',
+            dtype='float64',
+            direction=function.IN,
+            description='The new velocity vector of the particle',
+        )
+        function.addParameter(
+            'radius',
+            dtype='float64',
+            direction=function.IN,
+            description='The new radius of the particle',
+        )
+        function.addParameter(
+            'xi',
+            dtype='float64',
+            direction=function.IN,
+            description='Moment of inertia factor',
+        )
+        function.addParameter(
+            'kf',
+            dtype='float64',
+            direction=function.IN,
+            description='Fluid Love number from potential',
+        )
+        function.addParameter(
+            'tau',
+            dtype='float64',
+            direction=function.IN,
+            description='Fluid relaxation time',
+        )
+        function.addParameter(
+            'wx',
+            dtype='float64',
+            direction=function.IN,
+            description='Spin',
+        )
+        function.addParameter(
+            'wy',
+            dtype='float64',
+            direction=function.IN,
+            description='Spin',
+        )
+        function.addParameter(
+            'wz',
+            dtype='float64',
+            direction=function.IN,
+            description='Spin',
+        )
+        function.addParameter(
+            'a_mb',
+            dtype='float64',
+            direction=function.IN,
+            description='Magnetic braking coefficient',
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the information was set
+        -1 - ERROR
+            particle could not be found
+        -2 - ERROR
+            code does not support updating of a particle
+        -3 - ERROR
+            not yet implemented
+        """
+        return function
 
     @legacy_function
     def get_spin():
