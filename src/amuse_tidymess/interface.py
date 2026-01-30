@@ -799,9 +799,35 @@ class TidymessInterface(
         return function
 
     @legacy_function
+    def get_speed_of_light():
+        """
+        Retrieve Tidymess speed of light parameter.
+        Only used in conjunction with N-body units
+        and pn_order>0, otherwise equal to c.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'speed_of_light',
+            dtype='float64',
+            direction=function.OUT,
+            description=''
+        )
+        function.result_type = 'int32'
+        function.result_doc = """\
+        0 - OK
+            speed of light was retrieved
+        -1 - ERROR
+            Could not find speed of light
+        """
+        return function
+
+    @legacy_function
     def set_speed_of_light():
-        '''
-        '''
+        """
+        Set Tidymess speed of light. Only used in
+        conjunction with N-body units and pn_order>0,
+        otherwise equal to c.
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'speed_of_light',
@@ -809,61 +835,56 @@ class TidymessInterface(
             direction=function.IN,
             description='')
         function.result_type = 'int32'
-        function.result_doc = ''''''
-
+        function.result_doc = """\
+        0 - OK
+            speed of light was set
+        -1 - ERROR
+            Could not set speed of light
+        """
         return function
 
-
     @legacy_function
-    def get_speed_of_light():
-        '''
-        '''
+    def get_dt_mode():
+        """
+        Retrieve Tidymess dt mode parameter.
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
-            'speed_of_light',
-            dtype='float64',
+            'dt_mode',
+            dtype='int32',
             direction=function.OUT,
             description=''
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
-
+        function.result_doc = """\
+        0 - OK
+            dt mode was retrieved
+        -1 - ERROR
+            Could not find dt mode
+        """
         return function
-
 
     @legacy_function
     def set_dt_mode():
-        '''
-        '''
+        """
+        Set Tidymess dt mode parameter. Controls
+        which dt scheme is used in Tidymess.
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'dt_mode',
             dtype='int32',
             direction=function.IN,
-            description=''
+            description='0=constant dt, 1=adaptive dt, 2=adaptive, weighted dt'
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
-
+        function.result_doc = """\
+        0 - OK
+            dt mode was set
+        -1 - ERROR
+            Could not set dt mode
+        """
         return function
-
-
-    @legacy_function
-    def get_dt_mode():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'dt_mode',
-            dtype='int32',
-            direction=function.OUT,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-
-        return function
-
 
     @legacy_function
     def set_dt_const():
@@ -1578,7 +1599,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'get_initial_shape',
             'set_initial_shape',
             'initial_shape',
-            'Initial shape, default=0',
+            'Initial shape, 0=sphere (default), 1=equilibrium',
             default_value=0,
             is_vector=False,
             must_set_before_get=False,
