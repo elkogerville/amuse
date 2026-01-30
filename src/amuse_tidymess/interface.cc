@@ -510,12 +510,18 @@ int set_dt_mode(int dt_mode) {
     return 0;
 }
 
+/**
+ * Get Tidymess constant dt parameter
+ */
 int get_dt_const(double* dt_const) {
     if (!dt_const) return -1;
 
     *dt_const = tidymess.get_dt_const();
     return 0;
 }
+/**
+ * Set Tidymess constant dt parameter
+ */
 int set_dt_const(double dt_const) {
     tidymess.set_dt_const(dt_const);
     return 0;
@@ -621,6 +627,9 @@ int initialize_code(){
 
     // AMUSE STOPPING CONDITIONS SUPPORT
     //set_support_for_condition(COLLISION_DETECTION);
+    // reset id counter?
+    //particle_id_counter = 0;
+
     return 0;}
 
 int cleanup_code() {
