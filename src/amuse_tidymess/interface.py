@@ -424,7 +424,7 @@ class TidymessInterface(
     @legacy_function
     def set_xi():
         """
-        Set the moment of inertia of a particle.
+        Update the current moment of inertia of a particle.
         """
         function = LegacyFunctionSpecification()
         function.addParameter(
@@ -486,7 +486,7 @@ class TidymessInterface(
     @legacy_function
     def set_kf():
         """
-        Set the fluid love number of a particle.
+        Update the current fluid love number of a particle.
         """
         function = LegacyFunctionSpecification()
         function.addParameter(
@@ -549,7 +549,7 @@ class TidymessInterface(
     @legacy_function
     def set_tau():
         """
-        Set the fluid relaxation time of a particle.
+        Update the current fluid relaxation time of a particle.
         """
         function = LegacyFunctionSpecification()
         function.addParameter(
@@ -581,8 +581,7 @@ class TidymessInterface(
     @legacy_function
     def get_spin():
         """
-        Retrieve the spin vector of a particle. Spin is a vector
-        property, this function has 3 OUT arguments.
+        Retrieve the spin vector of a particle.
         """
         function = LegacyFunctionSpecification()
         function.addParameter(
@@ -625,7 +624,7 @@ class TidymessInterface(
     @legacy_function
     def set_spin():
         """
-        Update the spin of a particle.
+        Update the current spin of a particle.
         """
         function = LegacyFunctionSpecification()
         function.addParameter(
