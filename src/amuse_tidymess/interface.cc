@@ -687,27 +687,28 @@ int commit_particles() {
     tidymess.commit_parameters();
     return 0;
 }
+
 int recommit_particles() {
     return 0;
 }
 
-int get_acceleration(
-    int index_of_the_particle,
-    double* ax,
-    double* ay,
-    double* az
-) {
-    if (!ax || !ay || !az) return -1;
-    return 0;
-}
-int set_acceleration(
-    int index_of_the_particle,
-    double ax,
-    double ay,
-    double az
-) {
-    return 0;
-}
+// int get_acceleration(
+//     int index_of_the_particle,
+//     double* ax,
+//     double* ay,
+//     double* az
+// ) {
+//     if (!ax || !ay || !az) return -1;
+//     return 0;
+// }
+// int set_acceleration(
+//     int index_of_the_particle,
+//     double ax,
+//     double ay,
+//     double az
+// ) {
+//     return 0;
+// }
 
 int get_eps2(double* epsilon_squared) {
     if (!epsilon_squared) return -1;
@@ -967,13 +968,27 @@ int detect_collision(
 
     return 0;}
 
-int merge_collided_particles(int * number_of_particles) {
-    vector< array<int, 2> > cindex = tidymess.get_collision_indices();
-    collision.replace(bodies, cindex);
+// int merge_collided_particles(int * number_of_particles) {
+//     vector<Body> bodies = tidymess.get_particles();
+//     vector< array<int, 2> > cindex = tidymess.get_collision_indices();
+//     collision.replace(bodies, cindex);
 
-    tidymess.set_particles(bodies);
+//     tidymess.set_particles(bodies);
+//     tidymess.commit_particles();
+
+//     *number_of_particles = bodies.size();
+//     return 0;
+// }
+int merge_collided_particles(int* number_of_particles) {
+    if (!number_of_particles) return -1;
+
+    std::vector<Body>& bodies = tidymess.bodies;
+    vector< array<int, 2> > cindex = tidymess.get_collision_indices();
+
+    collision.replace(bodies, cindex);
+    //tidymess.set_particles(bodies);
     tidymess.commit_particles();
 
-    vector<Body> bodies = tidymess.get_particles();
     *number_of_particles = bodies.size();
-    return 0;}
+    return 0;
+}
