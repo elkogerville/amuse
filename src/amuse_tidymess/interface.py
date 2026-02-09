@@ -50,7 +50,7 @@ class TidymessInterface(
                 'This index is supposed to be a local index for the code '
                 '(and not valid in other instances of the code or in other codes)'
             ),
-            )
+        )
         function.addParameter(
             'mass',
             dtype='float64',
