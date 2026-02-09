@@ -1,5 +1,6 @@
+from enum import IntEnum
+import numpy as np
 from amuse.support.interface import InCodeComponentImplementation
-
 from amuse.community.interface.gd import GravitationalDynamics
 from amuse.community.interface.gd import GravitationalDynamicsInterface
 from amuse.community.interface.gd import GravityFieldInterface
@@ -10,6 +11,28 @@ from amuse.support.interface import MethodWithUnitsDefinition
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import generic_unit_system, nbody_system
 
+
+class TsunamiPtype(IntEnum):
+    LOW_MASS_MS = 0
+    HIGH_MASS_MS = 1
+    HGAP = 2
+    GIANT_BRANCH = 3
+    CORE_HE_BURN = 4
+    EARLY_AGBe = 5
+    TP_AGB = 6
+    NAKED_HE = 7
+    NAKED_HE_HGAP = 8
+    NAKED_HE_GIANT = 9
+    HE_WD = 10
+    CO_WD = 11
+    ONE_WD = 12
+    NS = 13
+    BH = 14
+    # planets
+    ROCKY = 100
+    GAS_GIANT = 101
+    # null
+    UNCLASSIFIED = -1
 
 class TsunamiInterface(
     CodeInterface,
@@ -36,7 +59,184 @@ class TsunamiInterface(
         )
         LiteratureReferencesMixIn.__init__(self)
 
-    # here you must specify the prototypes of the interface functions:
+    @legacy_function
+    def new_particle():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.OUT,
+            description=(
+                'An index assigned to the newly created particle. '
+                'This index is supposed to be a local index for the code '
+                '(and not valid in other instances of the code or in other codes)'
+            ),
+        )
+        function.addParameter(
+            'mass',
+            dtype='float64',
+            direction=function.IN,
+            description='The mass of the particle',
+        )
+        function.addParameter(
+            'x',
+            dtype='float64',
+            direction=function.IN,
+            description='The initial position vector of the particle',
+        )
+        function.addParameter(
+            'y',
+            dtype='float64',
+            direction=function.IN,
+            description='The initial position vector of the particle',
+        )
+        function.addParameter(
+            'z',
+            dtype='float64',
+            direction=function.IN,
+            description='The initial position vector of the particle',
+        )
+        function.addParameter(
+            'vx',
+            dtype='float64',
+            direction=function.IN,
+            description='The initial velocity vector of the particle',
+        )
+        function.addParameter(
+            'vy',
+            dtype='float64',
+            direction=function.IN,
+            description='The initial velocity vector of the particle',
+        )
+        function.addParameter(
+            'vz',
+            dtype='float64',
+            direction=function.IN,
+            description='The initial velocity vector of the particle',
+        )
+        function.addParameter(
+            'radius',
+            dtype='float64',
+            direction=function.IN,
+            description='The radius of the particle',
+            default=0,
+        )
+        function.addParameter(
+            'stype',
+            dtype='int32',
+            direction=function.IN,
+            description='The physical type of the particle',
+            default=TsunamiPtype.UNCLASSIFIED,
+        )
+        function.addParameter(
+            'wx',
+            dtype='float64',
+            direction=function.IN,
+            description='The initial spin vector of the particle',
+            default=0
+        )
+        function.addParameter(
+            'wy',
+            dtype='float64',
+            direction=function.IN,
+            description='The initial spin vector of the particle',
+            default=0
+        )
+        function.addParameter(
+            'wz',
+            dtype='float64',
+            direction=function.IN,
+            description='The initial spin vector of the particle',
+            default=0
+        )
+        function.addParameter(
+            'polyt',
+            dtype='float64',
+            direction=function.IN,
+            description='The particle polytropic index',
+            default=0
+        )
+        function.addParameter(
+            'kaps',
+            dtype='float64',
+            direction=function.IN,
+            description='The particle 2nd degree love number (apsidal constant)',
+            default=0
+        )
+        function.addParameter(
+            'inert',
+            dtype='float64',
+            direction=function.IN,
+            description='The particle intertia',
+            default=0
+        )
+        function.addParameter(
+            'taulag',
+            dtype='float64',
+            direction=function.IN,
+            description='The particle time lag',
+            default=0,
+        )
+        function.addParameter(
+            'taumigx',
+            dtype='float64',
+            direction=function.IN,
+            description='The particle migration timescale',
+            default=np.inf,
+        )
+        function.addParameter(
+            'taumigy',
+            dtype='float64',
+            direction=function.IN,
+            description='The particle migration timescale',
+            default=np.inf,
+        )
+        function.addParameter(
+            'taumigz',
+            dtype='float64',
+            direction=function.IN,
+            description='The particle migration timescale',
+            default=np.inf,
+        )
+        function.addParameter(
+            'eloss',
+            dtype='float64',
+            direction=function.IN,
+            description='The particle energy loss',
+            default=0,
+        )
+        function.addParameter(
+            'haspn',
+            dtype='bool',
+            direction=function.IN,
+            description='Enable post-Newtonian corrections for this particle',
+            default=False,
+        )
+        function.addParameter(
+            'hastide',
+            dtype='bool',
+            direction=function.IN,
+            description='Enable tidal interactions for this particle',
+            default=False,
+        )
+        function.addParameter(
+            'sigmadiss',
+            dtype='float64',
+            direction=function.IN,
+            description='', # FIXME
+            default=0,
+        )
+        function.addParameter(
+            'Atide',
+            dtype='float64',
+            direction=function.IN,
+            description='', # FIXME
+            default=0,
+        )
+        function.result_type = 'int32'
+        function.can_handle_array = True
+        return function
 
     @legacy_function
     def echo_int():
