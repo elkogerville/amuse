@@ -1536,7 +1536,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             must_set_before_get=False,
         )
 
-        handler.add_method(
+        handler.add_method_parameter(
             'get_dt_const',
             'set_dt_const',
             'dt_const',
