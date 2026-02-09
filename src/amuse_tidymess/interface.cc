@@ -6,8 +6,6 @@
 #include <stopcond.h>
 #include <time.h>
 
-using namespace std;
-
 #include "Timer.h"
 #include "Banner.h"
 
@@ -692,23 +690,24 @@ int recommit_particles() {
     return 0;
 }
 
-// int get_acceleration(
-//     int index_of_the_particle,
-//     double* ax,
-//     double* ay,
-//     double* az
-// ) {
-//     if (!ax || !ay || !az) return -1;
-//     return 0;
-// }
-// int set_acceleration(
-//     int index_of_the_particle,
-//     double ax,
-//     double ay,
-//     double az
-// ) {
-//     return 0;
-// }
+// FIXME
+int get_acceleration(
+    int index_of_the_particle,
+    double* ax,
+    double* ay,
+    double* az
+) {
+    if (!ax || !ay || !az) return -1;
+    return 0;
+}
+int set_acceleration(
+    int index_of_the_particle,
+    double ax,
+    double ay,
+    double az
+) {
+    return 0;
+}
 
 int get_eps2(double* epsilon_squared) {
     if (!epsilon_squared) return -1;
@@ -934,7 +933,7 @@ int convert_spin_vectors_to_inertial(double P, double obl, double psi, double * 
         else {
             double wmag = 2*M_PI/P;
 
-            vector<double> w_vec(3);
+            std::vector<double> w_vec(3);
             w_vec[0] = 0;
             w_vec[1] = 0;
             w_vec[2] = wmag;
@@ -955,7 +954,7 @@ int detect_collision(
 ) {
     // Collision handling
     *collision_flag = tidymess.get_collision_flag();
-    vector< array<int, 2> > collided_indices = tidymess.get_collision_indices();
+    std::vector< array<int, 2> > collided_indices = tidymess.get_collision_indices();
     *n_collisions = collided_indices.size();
     *index1 = 0;
     *index2 = 0;
@@ -983,7 +982,7 @@ int merge_collided_particles(int* number_of_particles) {
     if (!number_of_particles) return -1;
 
     std::vector<Body>& bodies = tidymess.bodies;
-    vector< array<int, 2> > cindex = tidymess.get_collision_indices();
+    std::vector< array<int, 2> > cindex = tidymess.get_collision_indices();
 
     collision.replace(bodies, cindex);
     //tidymess.set_particles(bodies);
