@@ -9,6 +9,8 @@
 
 static TsunamiCode Tsunami;
 
+int particle_id_counter = 0;
+
 
 /**
  * Define a new particle in the stellar dynamics code. The particle is
@@ -43,8 +45,6 @@ int new_particle(
     double Atide
 ) {
     if (!index_of_the_particle) return -1;
-
-    std::vector<>
 
     std::vector<Body>& bodies = tidymess.bodies;
 
