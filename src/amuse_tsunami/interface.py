@@ -123,13 +123,6 @@ class TsunamiInterface(
             default=0,
         )
         function.addParameter(
-            'stype',
-            dtype='int32',
-            direction=function.IN,
-            description='The physical type of the particle',
-            default=TsunamiPtype.UNCLASSIFIED,
-        )
-        function.addParameter(
             'wx',
             dtype='float64',
             direction=function.IN,
@@ -151,88 +144,11 @@ class TsunamiInterface(
             default=0
         )
         function.addParameter(
-            'polyt',
-            dtype='float64',
+            'stype',
+            dtype='int32',
             direction=function.IN,
-            description='The particle polytropic index',
-            default=0
-        )
-        function.addParameter(
-            'kaps',
-            dtype='float64',
-            direction=function.IN,
-            description='The particle 2nd degree love number (apsidal constant)',
-            default=0
-        )
-        function.addParameter(
-            'inert',
-            dtype='float64',
-            direction=function.IN,
-            description='The particle intertia',
-            default=0
-        )
-        function.addParameter(
-            'taulag',
-            dtype='float64',
-            direction=function.IN,
-            description='The particle time lag',
-            default=0,
-        )
-        function.addParameter(
-            'taumigx',
-            dtype='float64',
-            direction=function.IN,
-            description='The particle migration timescale',
-            default=np.inf,
-        )
-        function.addParameter(
-            'taumigy',
-            dtype='float64',
-            direction=function.IN,
-            description='The particle migration timescale',
-            default=np.inf,
-        )
-        function.addParameter(
-            'taumigz',
-            dtype='float64',
-            direction=function.IN,
-            description='The particle migration timescale',
-            default=np.inf,
-        )
-        function.addParameter(
-            'eloss',
-            dtype='float64',
-            direction=function.IN,
-            description='The particle energy loss',
-            default=0,
-        )
-        function.addParameter(
-            'haspn',
-            dtype='bool',
-            direction=function.IN,
-            description='Enable post-Newtonian corrections for this particle',
-            default=False,
-        )
-        function.addParameter(
-            'hastide',
-            dtype='bool',
-            direction=function.IN,
-            description='Enable tidal interactions for this particle',
-            default=False,
-        )
-        function.addParameter(
-            'sigmadiss',
-            dtype='float64',
-            direction=function.IN,
-            description='', # FIXME
-            default=0,
-        )
-        function.addParameter(
-            'Atide',
-            dtype='float64',
-            direction=function.IN,
-            description='', # FIXME
-            default=0,
+            description='The physical type of the particle',
+            default=TsunamiPtype.UNCLASSIFIED,
         )
         function.result_type = 'int32'
         function.can_handle_array = True

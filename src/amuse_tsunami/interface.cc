@@ -27,24 +27,16 @@ int new_particle(
     double vy,
     double vz,
     double radius,
-    int stype,
     double wx,
     double wy,
     double wz,
-    double polyt,
-    double kaps,
-    double inert,
-    double taulag,
-    double taumigx,
-    double taumigy,
-    double taumigz,
-    double eloss,
-    bool haspn,
-    bool hastide,
-    double sigmadiss,
-    double Atide
+    int stype,
 ) {
     if (!index_of_the_particle) return -1;
+
+    int Npar = Tsunami.System.pos.size()
+
+
 
     std::vector<Body>& bodies = tidymess.bodies;
 
