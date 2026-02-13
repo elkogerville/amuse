@@ -145,10 +145,10 @@ class TsunamiInterface(
         )
         function.addParameter(
             'stype',
-            dtype='int32',
+            dtype='float64',
             direction=function.IN,
             description='The physical type of the particle',
-            default=TsunamiPtype.UNCLASSIFIED,
+            default=0
         )
         function.result_type = 'int32'
         function.can_handle_array = True
