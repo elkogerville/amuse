@@ -25,12 +25,13 @@ struct ParticleData {
     long stype;
 };
 std::vector<ParticleData> particle_buffer;
-std::vector<ParticleData> particle_storage;
-
 
 /**
- * Define a new particle in the stellar dynamics code. The particle is
- * initialized with the provided mass, radius, position and velocity.
+ * Define a new particle within Tsunami, initialized with the
+ * provided mass, radius, position, velocity, spin, and particle type.
+ * The particle type at the moment does nothing and is just 0 of type double.
+ * In the future, it seems stype could be used to specify a particle as a
+ * specific astronomical object, however this has not been implemented yet.
  * This function returns an index that can be used to refer to this particle.
  */
 int new_particle(
@@ -46,23 +47,18 @@ int new_particle(
     double wx,
     double wy,
     double wz,
-    long stype,
+    long stype
 ) {
     if (!index_of_the_particle) return -1;
 
-    ParticleData p;
-    p.mass = mass;
-    p.pos[0] = x;
-    p.pos[1] = y;
-    p.pos[2] = z;
-    p.vel[0] = vx;
-    p.vel[1] = vy;
-    p.vel[2] = vz;
-    p.radius = radius;
-    p.spin[0] = wx;
-    p.spin[1] = wy;
-    p.spin[2] = wz;
-    p.stype = static_cast<long>(stype);
+    ParticleData p = {
+        mass,
+        {x, y, z},
+        {vx, vy, vz},
+        radius,
+        {wx, wy, wz},
+        stype
+    };
 
     particle_buffer.push_back(p);
     *index_of_the_particle = particle_id_counter;
