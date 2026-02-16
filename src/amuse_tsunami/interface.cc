@@ -66,49 +66,87 @@ int new_particle(
     return 0;
 }
 
-/**
- * Insert the particles from the buffer into the
- */
-int buffer_to_particle_storage() {
-    particle_storage.insert(
-        particle_storage.end(),
-        particle_buffer.begin(),
-        particle_buffer.end()
-    );
-    particle_buffer.clear();
-}
 
+/**
+ * Commits all new particles into Tsunami
+ *
+ * Pre-existing particles along any new particles added to
+ * the buffer are copied into a set of arrays and passed to
+ * Tsunami.add_particle_set which reallocates all the arrays
+ * within Tsunami and copies the particles over.
+ */
 int commit_particles() {
 
-    size_t N = particle_storage.size();
+    size_t N_existing = Tsunami.System.Nparts;
+    size_t N_new = particle_buffer.size();
+    size_t N_total = N_existing + N_new;
 
-    std::vector<double> pos(3*N);
-    std::vector<double> vel(3*N);
-    std::vector<double> mass(N);
-    std::vector<double> radius(N);
-    std::vector<long> stype(N);
+    // no new particles
+    if (N_new == 0) {
+        return 0;
+    }
+    // not enough particles to commit
+    if (N_total < 2) {
+        return -1;
+    }
 
-    for (size_t n = 0; n < N; n++) {
-        pos[3*n]   = particle_storage[n].pos[0];
-        pos[3*n+1] = particle_storage[n].pos[1];
-        pos[3*n+2] = particle_storage[n].pos[2];
+    // preallocate vectors
+    std::vector<double> pos(3 * N_total);
+    std::vector<double> vel(3 * N_total);
+    std::vector<double> spin(3 * N_total);
+    std::vector<double> mass(N_total);
+    std::vector<double> radius(N_total);
+    std::vector<long> stype(N_total);
 
-        vel[3*n]   = particle_storage[n].vel[0];
-        vel[3*n+1] = particle_storage[n].vel[1];
-        vel[3*n+2] = particle_storage[n].vel[2];
+    for (size_t i = 0; i < N_existing; i++) {
+        pos[3*i] = Tsunami.System.pos[i].x;
+        pos[3*i + 1] = Tsunami.System.pos[i].y;
+        pos[3*i + 2] = Tsunami.System.pos[i].z;
 
-        mass[n] = particle_storage[n].mass;
-        radius[n] = particle_storage[n].radius;
-        stype[n] = particle_storage[n].stype;
+        vel[3*i] = Tsunami.System.vel[i].x;
+        vel[3*i + 1] = Tsunami.System.vel[i].y;
+        vel[3*i + 2] = Tsunami.System.vel[i].z;
+
+        spin[3*i] = Tsunami.System.spin[i][0];
+        spin[3*i + 1] = Tsunami.System.spin[i][1];
+        spin[3*i + 2] = Tsunami.System.spin[i][2];
+
+        mass[i] = Tsunami.System.mass[i];
+        radius[i] = Tsunami.System.radius[i];
+        stype[i] = static_cast<long>(Tsunami.System.xdata[i].stype);
+
+    }
+    for (size_t i = 0; i < N_new; i++) {
+        size_t idx = N_existing + i;
+        const ParticleData& p = particle_buffer[i];
+
+        pos[3*idx] = p.pos[0];
+        pos[3*idx + 1] = p.pos[1];
+        pos[3*idx + 2] = p.pos[2];
+
+        vel[3*idx] = p.vel[0];
+        vel[3*idx + 1] = p.vel[1];
+        vel[3*idx + 2] = p.vel[2];
+
+        spin[3*idx] = p.spin[0];
+        spin[3*idx + 1] = p.spin[1];
+        spin[3*idx + 2] = p.spin[2];
+
+        mass[idx] = p.mass;
+        radius[idx] = p.radius;
+        stype[idx] = p.stype;
     }
 
     Tsunami.add_particle_set(
-        pos.data(), N, 3,
-        vel.data(), N, 3,
-        mass.data(), N,
-        radius.data(), N,
-        stype.data(), N
+        pos.data(), N_total, 3,
+        vel.data(), N_total, 3,
+        mass.data(), N_total,
+        radius.data(), N_total,
+        stype.data(), N_total,
+        spin.data(), N_total, 3
     );
+    // clear particle buffer
+    particle_buffer.clear();
 
     return 0;
 }
