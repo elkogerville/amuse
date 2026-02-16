@@ -154,31 +154,25 @@ class TsunamiInterface(
         function.can_handle_array = True
         return function
 
-    @legacy_function
-    def echo_int():
-        function = LegacyFunctionSpecification()
-        function.addParameter('int_in', dtype='int32', direction=function.IN, unit=None)
-        function.addParameter('int_out', dtype='int32', direction=function.OUT, unit=None)
-        function.result_type = 'int32'
-        function.can_handle_array = True
-        return function
 
-    # optionally, this can be shortened to:
-
-    # @remote_function(can_handle_array=True)
-    # def echo_int(int_in='i'):
-    #     returns (int_out='i')
-
-
-class Tsunami(InCodeComponentImplementation):
+class Tsunami(GravitationalDynamics, GravityFieldCode):
     """One line description of this code
 
     Some more details about what it does, any special features it has beyond the
     standard interfaces, and anything else the user needs to know.
     """
-    def __init__(self, **options):
-        """Create a tsunami instance to run simulations with."""
+    def __init__(self, convert_nbody=None, **options):
+        """Create a Tsunami instance to run simulations with."""
         super().__init__(self,  TsunamiInterface(**options), **options)
+
+        legacy_interface = TsunamiInterface(**options)
+
+        GravitationalDynamics.__init__(
+            self,
+            legacy_interface,
+            convert_nbody,
+            **options
+        )
 
     # the following alternative __init__ is appropiate for codes that use an unspecified
     # unit system (i.e. the quantities have dimension but no definite scale)
@@ -205,6 +199,33 @@ class Tsunami(InCodeComponentImplementation):
     def define_properties(self, handler):
         # handler.add_property('name_of_the_getter', public_name="name_of_the_property")
         pass
+
+    def define_methods(self, handler):
+        """
+        Map legacy functions in TsunamiInterface into
+        Tsunami user methods.
+        """
+
+        GravitationalDynamics.define_methods(self, handler)
+
+        handler.add_method(
+            'new_particle',
+            (
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,        # radius
+                1 / generic_unit_system.time,      # wx
+                1 / generic_unit_system.time,      # wy
+                1 / generic_unit_system.time,      # wz
+                handler.NO_UNIT,                   # stype
+            ),
+            (handler.INDEX, handler.ERROR_CODE)
+        )
 
     def define_parameters(self, handler):
         """Define model parameters.
