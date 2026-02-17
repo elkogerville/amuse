@@ -26,6 +26,20 @@ struct ParticleData {
 };
 std::vector<ParticleData> particle_buffer;
 
+
+/**
+ * Check that the index_of_the_particle points to
+ * an actual particle inside of Tsunami
+ */
+inline bool index_in_bounds(int index_of_the_particle)
+{
+    const ChainSys& system = Tsunami.System;
+
+    return index_of_the_particle >= 0 &&
+           index_of_the_particle < static_cast<int>(system.Npart);
+}
+
+
 /**
  * Define a new particle within Tsunami, initialized with the
  * provided mass, radius, position, velocity, spin, and particle type.
