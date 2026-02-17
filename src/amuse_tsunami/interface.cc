@@ -339,3 +339,44 @@ int get_position(int index_of_the_particle, double* x, double* y, double* z) {
 
      return 0;
  }
+
+ /**
+  * Get velocity of a particle
+  */
+ int get_velocity(int index_of_the_particle, double* vx, double* vy, double* vz) {
+     if (!vx || !vy || !vz) return -1;
+
+     ChainSys& system = Tsunami.System;
+
+     if (!index_in_bounds(index_of_the_particle))
+         return -1;
+
+     *vx = system.vel[index_of_the_particle].x;
+     *vy = system.vel[index_of_the_particle].y;
+     *vz = system.vel[index_of_the_particle].z;
+
+     return 0;
+ }
+ /**
+  * Set velocity of a particle
+  */
+ int set_velocity(int index_of_the_particle, double vx, double vy, double vz) {
+     ChainSys& system = Tsunami.System;
+
+     if (!index_in_bounds(index_of_the_particle))
+         return -1;
+
+     system.vel[index_of_the_particle].x = vx;
+     system.vel[index_of_the_particle].y = vy;
+     system.vel[index_of_the_particle].z = vz;
+
+     return 0;
+ }
+
+/**
+ * Evolve Tsunami system
+ */
+ int evolve_model(double time) {
+     Tsunami.evolve_system(time);
+     return 0;
+ }
