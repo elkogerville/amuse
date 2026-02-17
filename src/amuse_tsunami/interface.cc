@@ -10,6 +10,7 @@
 
 #include "chain.hpp"
 #include "custom_types.hpp"
+#include "errhand.hpp"
 #include "tsunami.hpp"
 
 static TsunamiCode Tsunami;
@@ -377,6 +378,11 @@ int get_position(int index_of_the_particle, double* x, double* y, double* z) {
  * Evolve Tsunami system
  */
  int evolve_model(double time) {
-     Tsunami.evolve_system(time);
-     return 0;
- }
+     try {
+        Tsunami.evolve_system(time);
+        return 0;
+    } catch (const TsuError& e) { //FIXME
+        std::cerr << "evolve_model error: " << e.what() << std::endl;
+        return -1;
+    }
+}
