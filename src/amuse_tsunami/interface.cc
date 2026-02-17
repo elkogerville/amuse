@@ -96,13 +96,11 @@ int commit_particles() {
     size_t N_total = N_existing + N_new;
 
     // no new particles
-    if (N_new == 0) {
+    if (N_new == 0)
         return 0;
-    }
     // not enough particles to commit
-    if (N_total < 2) {
+    if (N_total < 2)
         return -1;
-    }
 
     // preallocate vectors
     std::vector<double> pos(3 * N_total);
@@ -188,8 +186,7 @@ int get_state(
 
     ChainSys& system = Tsunami.System;
 
-    if (index_of_the_particle < 0 ||
-        index_of_the_particle >= static_cast<int>(system.Npart))
+    if (!index_in_bounds(index_of_the_particle))
         return -1;
 
     *x = system.pos[index_of_the_particle].x;
@@ -230,8 +227,7 @@ int set_state(
 ) {
     ChainSys& system = Tsunami.System;
 
-    if (index_of_the_particle < 0 ||
-        index_of_the_particle >= static_cast<int>(system.Npart))
+    if (!index_in_bounds(index_of_the_particle))
         return -1;
 
     system.pos[index_of_the_particle].x = x;
