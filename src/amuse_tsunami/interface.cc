@@ -150,3 +150,91 @@ int commit_particles() {
 
     return 0;
 }
+
+/**
+ * Get state of a particle
+ */
+int get_state(
+    int index_of_the_particle,
+    double* mass,
+    double* x,
+    double* y,
+    double* z,
+    double* vx,
+    double* vy,
+    double* vz,
+    double* radius,
+    double* wx,
+    double* wy,
+    double* wz,
+    long* stype
+) {
+    if (!mass || !x || !y || !z || !vx || !vy || !vz ||
+        !radius || !wx || !wy || !wz || !stype) return -1;
+
+    ChainSys& system = Tsunami.System;
+
+    if (index_of_the_particle < 0 ||
+        index_of_the_particle >= static_cast<int>(system.Npart))
+        return -1;
+
+    *x = system.pos[index_of_the_particle].x;
+    *y = system.pos[index_of_the_particle].y;
+    *z = system.pos[index_of_the_particle].z;
+
+    *vx = system.vel[index_of_the_particle].x;
+    *vy = system.vel[index_of_the_particle].y;
+    *vz = system.vel[index_of_the_particle].z;
+
+    *wx = system.spin[index_of_the_particle][0];
+    *wy = system.spin[index_of_the_particle][1];
+    *wz = system.spin[index_of_the_particle][2];
+
+    *mass = system.mass[index_of_the_particle];
+    *radius = system.radius[index_of_the_particle];
+    *stype = static_cast<long>(system.xdata[index_of_the_particle].stype);
+
+    return 0;
+}
+/**
+ * Set state of a particle
+ */
+int set_state(
+    int index_of_the_particle,
+    double mass,
+    double x,
+    double y,
+    double z,
+    double vx,
+    double vy,
+    double vz,
+    double radius,
+    double wx,
+    double wy,
+    double wz,
+    long stype
+) {
+    ChainSys& system = Tsunami.System;
+
+    if (index_of_the_particle < 0 ||
+        index_of_the_particle >= static_cast<int>(system.Npart))
+        return -1;
+
+    system.pos[index_of_the_particle].x = x;
+    system.pos[index_of_the_particle].y = y;
+    system.pos[index_of_the_particle].z = z;
+
+    system.vel[index_of_the_particle].x = x;
+    system.vel[index_of_the_particle].y = y;
+    system.vel[index_of_the_particle].z = z;
+
+    system.spin[index_of_the_particle][0] = wx;
+    system.spin[index_of_the_particle][1] = wy;
+    system.spin[index_of_the_particle][2] = wz;
+
+    system.mass[index_of_the_particle] = mass;
+    system.radius[index_of_the_particle] = radius;
+    system.xdata[index_of_the_particle].stype = static_cast<ptype>(stype);
+
+    return 0;
+}
