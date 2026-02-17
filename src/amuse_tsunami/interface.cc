@@ -268,7 +268,6 @@ int get_mass(int index_of_the_particle, double* mass) {
  * Set mass of a particle
  */
 int set_mass(int index_of_the_particle, double mass) {
-
     ChainSys& system = Tsunami.System;
 
     if (!index_in_bounds(index_of_the_particle))
@@ -298,7 +297,6 @@ int get_radius(int index_of_the_particle, double* radius) {
  * Set radius of a particle
  */
 int set_radius(int index_of_the_particle, double radius) {
-
     ChainSys& system = Tsunami.System;
 
     if (!index_in_bounds(index_of_the_particle))
@@ -308,3 +306,36 @@ int set_radius(int index_of_the_particle, double radius) {
 
     return 0;
 }
+
+/**
+ * Get position of a particle
+ */
+int get_position(int index_of_the_particle, double* x, double* y, double* z) {
+    if (!x || !y || !z) return -1;
+
+    ChainSys& system = Tsunami.System;
+
+    if (!index_in_bounds(index_of_the_particle))
+        return -1;
+
+    *x = system.pos[index_of_the_particle].x;
+    *y = system.pos[index_of_the_particle].y;
+    *z = system.pos[index_of_the_particle].z;
+
+    return 0;
+}
+/**
+ * Set position of a particle
+ */
+ int set_position(int index_of_the_particle, double x, double y, double z) {
+     ChainSys& system = Tsunami.System;
+
+     if (!index_in_bounds(index_of_the_particle))
+         return -1;
+
+     system.pos[index_of_the_particle].x = x;
+     system.pos[index_of_the_particle].y = y;
+     system.pos[index_of_the_particle].z = z;
+
+     return 0;
+ }
