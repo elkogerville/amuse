@@ -248,3 +248,63 @@ int set_state(
 
     return 0;
 }
+
+/**
+ * Get mass of a particle
+ */
+int get_mass(int index_of_the_particle, double* mass) {
+    if (!mass) return -1;
+
+    ChainSys& system = Tsunami.System;
+
+    if (!index_in_bounds(index_of_the_particle))
+        return -1;
+
+    *mass = system.mass[index_of_the_particle];
+
+    return 0;
+}
+/**
+ * Set mass of a particle
+ */
+int set_mass(int index_of_the_particle, double mass) {
+
+    ChainSys& system = Tsunami.System;
+
+    if (!index_in_bounds(index_of_the_particle))
+        return -1;
+
+    system.mass[index_of_the_particle] = mass;
+
+    return 0;
+}
+
+/**
+ * Get radius of a particle
+ */
+int get_radius(int index_of_the_particle, double* radius) {
+    if (!radius) return -1;
+
+    ChainSys& system = Tsunami.System;
+
+    if (!index_in_bounds(index_of_the_particle))
+        return -1;
+
+    *radius = system.radius[index_of_the_particle];
+
+    return 0;
+}
+/**
+ * Set radius of a particle
+ */
+int set_radius(int index_of_the_particle, double radius) {
+
+    ChainSys& system = Tsunami.System;
+
+    if (!index_in_bounds(index_of_the_particle))
+        return -1;
+
+    system.radius[index_of_the_particle] = radius;
+
+    return 0;
+}
