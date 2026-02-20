@@ -399,8 +399,8 @@ int get_total_mass(double *mass) {
     for (size_t i = 0; i < system.Nparts; i++) {
         m_total += system.mass[i];
     }
-    *mass = m_total;
 
+    *mass = m_total;
     return 0;
 }
 
@@ -522,5 +522,46 @@ int get_number_of_particles(int* number_of_particles) {
     std::vector<double> pos(3 * N_total) = Tsunami.System.pos;
 
     *number_of_particles = static_cast<int>(Tsunami.System.Nparts);
+    return 0;
+}
+
+/**
+ * Get the index of the first particle
+ */
+int get_index_of_first_particle(int *index_of_the_particle)
+{
+    if (!index_of_the_particle)
+        return -1;
+
+    ChainSys& system = Tsunami.System;
+
+    if (system.Nparts == 0)
+        return -1;
+
+    *index_of_the_particle = 0;
+
+    return 0;
+}
+
+/**
+ * Get the index of the next particle
+ * given a particle index
+ */
+int get_index_of_next_particle(
+    int index_of_the_particle,
+    int *index_of_the_next_particle
+) {
+    if (!index_of_the_next_particle)
+        return -1;
+
+    ChainSys& system = Tsunami.System;
+
+    int next = index_of_the_particle + 1;
+
+    if (next >= (int)system.Nparts)
+        return -1;
+
+    *index_of_the_next_particle = next;
+
     return 0;
 }
