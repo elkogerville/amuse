@@ -386,3 +386,141 @@ int get_position(int index_of_the_particle, double* x, double* y, double* z) {
         return -1;
     }
 }
+
+/**
+ * Get total mass of all particles in Tsunami
+ */
+int get_total_mass(double *mass) {
+    if (!mass) return -1;
+
+    ChainSys& system = Tsunami.System;
+    double m_total = 0.0;
+
+    for (size_t i = 0; i < system.Nparts; i++) {
+        m_total += system.mass[i];
+    }
+    *mass = m_total;
+
+    return 0;
+}
+
+/**
+ * Get position center of mass of all particles
+ */
+int get_center_of_mass_position(double *x, double *y, double *z) {
+    if (!x || !y || !z) return -1;
+
+    ChainSys& system = Tsunami.System;
+    size_t Nparts = system.Nparts;
+
+    if (Nparts == 0) { // FIXME
+        *x = 0.0;
+        *y = 0.0;
+        *z = 0.0;
+        return 0;
+    }
+
+    double m_total = 0.0;
+    double xcom = 0.0;
+    double ycom = 0.0;
+    double zcom = 0.0;
+
+    for (size_t i = 0; i < Nparts; i++) {
+        m_total += system.mass[i];
+        xcom += system.mass[i] * system.pos[i].x;
+        ycom += system.mass[i] * system.pos[i].y;
+        zcom += system.mass[i] * system.pos[i].z;
+    }
+
+    if (m_total == 0)
+        return -1;
+
+    *x = xcom / m_total;
+    *y = ycom / m_total;
+    *z = zcom / m_total;
+
+    return 0;
+}
+
+/**
+ * Get velocity center of mass of all particles
+ */
+int get_center_of_mass_velocity(double *vx, double *vy, double *vz) {
+    if (!vx || !vy || !vz) return -1;
+
+    ChainSys& system = Tsunami.System;
+    size_t Nparts = system.Nparts;
+
+    if (Nparts == 0) { // FIXME
+        *vx = 0.0;
+        *vy = 0.0;
+        *vz = 0.0;
+        return 0;
+    }
+
+    double m_total = 0.0;
+    double vxcom = 0.0;
+    double vycom = 0.0;
+    double vzcom = 0.0;
+
+    for (size_t i = 0; i < Nparts; i++) {
+        m_total += system.mass[i];
+        vxcom += system.mass[i] * system.vel[i].x;
+        vycom += system.mass[i] * system.vel[i].y;
+        vzcom += system.mass[i] * system.vel[i].z;
+    }
+
+    if (m_total == 0)
+        return -1;
+
+    *vx = vxcom / m_total;
+    *vy = vycom / m_total;
+    *vz = vzcom / m_total;
+
+    return 0;
+}
+
+/**
+ * Get the minimum radius of a sphere centered around
+ * the center of mass of all particles that contains
+ * every particle within Tsunami
+ */
+int get_total_radius(double *radius) {
+    if (!radius) return -1;
+
+    ChainSys& system = Tsunami.System;
+    double xcom, ycom, zcom;
+    double rsq_max = 0.0;
+
+    // compute the COM
+    if (get_center_of_mass_position(&xcom, &ycom, &zcom) != 0)
+        return -1;
+
+    for (size_t i = 0; i < system.Nparts; i++) {
+        // compute distance between particle and COM
+        double dx = system.pos[i].x - xcom;
+        double dy = system.pos[i].y - ycom;
+        double dz = system.pos[i].z - zcom;
+
+        double r_sq = dx*dx + dy*dy + dz*dz;
+        if (rsq_max < r_sq)
+            rsq_max = r_sq;
+    }
+
+    *radius = std::sqrt(rsq_max);
+    return 0;
+}
+
+/**
+ * Get number of particles in Tsunami
+ */
+int get_number_of_particles(int* number_of_particles) {
+    if (!number_of_particles) return -1;
+
+    ChainSys& system = Tsunami.System;
+
+    std::vector<double> pos(3 * N_total) = Tsunami.System.pos;
+
+    *number_of_particles = static_cast<int>(Tsunami.System.Nparts);
+    return 0;
+}
