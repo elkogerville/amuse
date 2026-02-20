@@ -152,6 +152,308 @@ class TsunamiInterface(
         )
         function.result_type = 'int32'
         function.can_handle_array = True
+        function.result_doc = """
+        0 - OK
+            particle was added to Tsunami
+        -1 - ERROR
+            particle could not be added
+        """
+        return function
+
+    @legacy_function
+    def get_state():
+        """
+        Retrieve the current state of a particle. The *minimal* information of
+        a stellar dynamics particle (mass, radius, position and velocity) is
+        returned.
+        """
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                "Index of the particle to get the state from. This index must "
+                "have been returned by an earlier call to :meth:`new_particle`"
+            ),
+        )
+        function.addParameter(
+            'mass',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current mass of the particle',
+        )
+        function.addParameter(
+            'x',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current position vector of the particle',
+        )
+        function.addParameter(
+            'y',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current position vector of the particle',
+        )
+        function.addParameter(
+            'z',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current position vector of the particle',
+        )
+        function.addParameter(
+            'vx',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current velocity vector of the particle',
+        )
+        function.addParameter(
+            'vy',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current velocity vector of the particle',
+        )
+        function.addParameter(
+            'vz',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current velocity vector of the particle',
+        )
+        function.addParameter(
+            'radius',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current radius of the particle',
+        )
+        function.addParameter(
+            'wx',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current spin of the particle',
+        )
+        function.addParameter(
+            'wy',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current spin of the particle',
+        )
+        function.addParameter(
+            'wz',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current spin of the particle',
+        )
+        function.addParameter(
+            'stype',
+            dtype='float64',
+            direction=function.OUT,
+            description='The particle type',
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            particle was removed from the model
+        -1 - ERROR
+            particle could not be found
+        """
+        return function
+
+    @legacy_function
+    def set_state():
+        """
+        Update the current state of a particle. The *minimal* information of a
+        stellar dynamics particle (mass, radius, position and velocity) is
+        updated.
+        """
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                "Index of the particle for which the state is to be updated. "
+                "This index must have been returned by an earlier call to "
+                ":meth:`new_particle`"
+            ),
+        )
+        function.addParameter(
+            'mass',
+            dtype='float64',
+            direction=function.IN,
+            description='The new mass of the particle',
+        )
+        function.addParameter(
+            'x',
+            dtype='float64',
+            direction=function.IN,
+            description='The new position vector of the particle',
+        )
+        function.addParameter(
+            'y',
+            dtype='float64',
+            direction=function.IN,
+            description='The new position vector of the particle',
+        )
+        function.addParameter(
+            'z',
+            dtype='float64',
+            direction=function.IN,
+            description='The new position vector of the particle',
+        )
+        function.addParameter(
+            'vx',
+            dtype='float64',
+            direction=function.IN,
+            description='The new velocity vector of the particle',
+        )
+        function.addParameter(
+            'vy',
+            dtype='float64',
+            direction=function.IN,
+            description='The new velocity vector of the particle',
+        )
+        function.addParameter(
+            'vz',
+            dtype='float64',
+            direction=function.IN,
+            description='The new velocity vector of the particle',
+        )
+        function.addParameter(
+            'radius',
+            dtype='float64',
+            direction=function.IN,
+            description='The new radius of the particle',
+            default=0,
+        )
+        function.addParameter(
+            'wx',
+            dtype='float64',
+            direction=function.IN,
+            description='The current spin of the particle',
+        )
+        function.addParameter(
+            'wy',
+            dtype='float64',
+            direction=function.IN,
+            description='The current spin of the particle',
+        )
+        function.addParameter(
+            'wz',
+            dtype='float64',
+            direction=function.IN,
+            description='The current spin of the particle',
+        )
+        function.addParameter(
+            'stype',
+            dtype='float64',
+            direction=function.IN,
+            description='The particle type',
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the information was set
+        -1 - ERROR
+            particle could not be found
+        """
+        return function
+
+    @legacy_function
+    def get_mass():
+        """
+        Retrieve the mass of a particle. Mass is a scalar property of a
+        particle, this function has one OUT argument.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                "Index of the particle to get the state from. This index must "
+                "have been returned by an earlier call to :meth:`new_particle`"
+            ),
+        )
+        function.addParameter(
+            'mass',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current mass of the particle',
+        )
+        function.result_type = 'int32'
+        function.can_handle_array = True
+        function.result_doc = """
+        0 - OK
+            particle was found and the mass was retrieved
+        -1 - ERROR
+            particle could not be found
+        """
+        return function
+
+    @legacy_function
+    def set_mass():
+        """
+        Update the mass of a particle. Mass is a scalar property of a particle.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                "Index of the particle for which the state is to be updated. "
+                "This index must have been returned by an earlier call to "
+                ":meth:`new_particle`"
+            ),
+        )
+        function.addParameter(
+            'mass',
+            dtype='float64',
+            direction=function.IN,
+            description='The new mass of the particle',
+        )
+        function.result_type = 'int32'
+        function.can_handle_array = True
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the information was set
+        -1 - ERROR
+            particle could not be found
+        """
+        return function
+
+    @legacy_function
+    def get_radius():
+        """
+        Retrieve the radius of a particle. Radius is a scalar property of a
+        particle, this function has one OUT argument.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'index_of_the_particle',
+            dtype='int32',
+            direction=function.IN,
+            description=(
+                "Index of the particle to get the radius of. This index must "
+                "have been returned by an earlier call to :meth:`new_particle`"
+            ),
+        )
+        function.addParameter(
+            'radius',
+            dtype='float64',
+            direction=function.OUT,
+            description='The current radius of the particle',
+        )
+        function.result_type = 'int32'
+        function.can_handle_array = True
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the information was retreived
+        -1 - ERROR
+            particle could not be found
+        """
         return function
 
 
