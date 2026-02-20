@@ -92,7 +92,7 @@ int new_particle(
  */
 int commit_particles() {
 
-    size_t N_existing = Tsunami.System.Nparts;
+    size_t N_existing = Tsunami.System.Npart;
     size_t N_new = particle_buffer.size();
     size_t N_total = N_existing + N_new;
 
@@ -388,6 +388,14 @@ int get_position(int index_of_the_particle, double* x, double* y, double* z) {
 }
 
 /**
+ * Get current simulation timescale in years
+ */
+int get_time(double *time) {
+    *time = Tsunami.Tscale;
+    return 0;
+}
+
+/**
  * Get total mass of all particles in Tsunami
  */
 int get_total_mass(double *mass) {
@@ -396,7 +404,7 @@ int get_total_mass(double *mass) {
     ChainSys& system = Tsunami.System;
     double m_total = 0.0;
 
-    for (size_t i = 0; i < system.Nparts; i++) {
+    for (size_t i = 0; i < system.Npart; i++) {
         m_total += system.mass[i];
     }
 
@@ -411,9 +419,9 @@ int get_center_of_mass_position(double *x, double *y, double *z) {
     if (!x || !y || !z) return -1;
 
     ChainSys& system = Tsunami.System;
-    size_t Nparts = system.Nparts;
+    size_t Npart = system.Npart;
 
-    if (Nparts == 0) { // FIXME
+    if (Npart == 0) { // FIXME
         *x = 0.0;
         *y = 0.0;
         *z = 0.0;
@@ -425,7 +433,7 @@ int get_center_of_mass_position(double *x, double *y, double *z) {
     double ycom = 0.0;
     double zcom = 0.0;
 
-    for (size_t i = 0; i < Nparts; i++) {
+    for (size_t i = 0; i < Npart; i++) {
         m_total += system.mass[i];
         xcom += system.mass[i] * system.pos[i].x;
         ycom += system.mass[i] * system.pos[i].y;
@@ -449,9 +457,9 @@ int get_center_of_mass_velocity(double *vx, double *vy, double *vz) {
     if (!vx || !vy || !vz) return -1;
 
     ChainSys& system = Tsunami.System;
-    size_t Nparts = system.Nparts;
+    size_t Npart = system.Npart;
 
-    if (Nparts == 0) { // FIXME
+    if (Npart == 0) { // FIXME
         *vx = 0.0;
         *vy = 0.0;
         *vz = 0.0;
@@ -463,7 +471,7 @@ int get_center_of_mass_velocity(double *vx, double *vy, double *vz) {
     double vycom = 0.0;
     double vzcom = 0.0;
 
-    for (size_t i = 0; i < Nparts; i++) {
+    for (size_t i = 0; i < Npart; i++) {
         m_total += system.mass[i];
         vxcom += system.mass[i] * system.vel[i].x;
         vycom += system.mass[i] * system.vel[i].y;
@@ -496,7 +504,7 @@ int get_total_radius(double *radius) {
     if (get_center_of_mass_position(&xcom, &ycom, &zcom) != 0)
         return -1;
 
-    for (size_t i = 0; i < system.Nparts; i++) {
+    for (size_t i = 0; i < system.Npart; i++) {
         // compute distance between particle and COM
         double dx = system.pos[i].x - xcom;
         double dy = system.pos[i].y - ycom;
@@ -521,7 +529,7 @@ int get_number_of_particles(int* number_of_particles) {
 
     std::vector<double> pos(3 * N_total) = Tsunami.System.pos;
 
-    *number_of_particles = static_cast<int>(Tsunami.System.Nparts);
+    *number_of_particles = static_cast<int>(Tsunami.System.Npart);
     return 0;
 }
 
@@ -535,7 +543,7 @@ int get_index_of_first_particle(int *index_of_the_particle)
 
     ChainSys& system = Tsunami.System;
 
-    if (system.Nparts == 0)
+    if (system.Npart == 0)
         return -1;
 
     *index_of_the_particle = 0;
@@ -558,7 +566,7 @@ int get_index_of_next_particle(
 
     int next = index_of_the_particle + 1;
 
-    if (next >= (int)system.Nparts)
+    if (next >= (int)system.Npart)
         return -1;
 
     *index_of_the_next_particle = next;
