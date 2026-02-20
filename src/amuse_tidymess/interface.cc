@@ -759,32 +759,26 @@ int get_time_step(double* time_step) {
     return 0;
 }
 
+/**
+ * Get total mass of all particles in Tidymess
+ */
 int get_total_mass(double* mass) {
     if (!mass) return -1;
 
     const std::vector<Body>& bodies = tidymess.bodies;
-
     double total = 0.0;
+
     for (size_t i = 0; i < bodies.size(); i++)  {
         total += bodies[i].m;
     }
+
     *mass = total;
     return 0;
 }
 
-int get_total_radius(double* radius) {
-    if (!radius) return -1;
-
-    const std::vector<Body>& bodies = tidymess.bodies;
-
-    double total = 0.0;
-    for (size_t i = 0; i < bodies.size(); i++)  {
-        total += bodies[i].R;
-    }
-    *radius = total;
-    return 0;
-}
-
+/**
+ * Get position center of mass of all particles
+ */
 int get_center_of_mass_position(
     double* x,
     double* y,
@@ -801,6 +795,9 @@ int get_center_of_mass_position(
     return 0;
 }
 
+/**
+ * Get velocity center of mass of all particles
+ */
 int get_center_of_mass_velocity(
     double* vx,
     double* vy,
@@ -818,6 +815,42 @@ int get_center_of_mass_velocity(
     return 0;
 }
 
+/**
+ * Get the minimum radius of a sphere centered around
+ * the center of mass of all particles that contains
+ * every particle within Tidymess
+ */
+int get_total_radius(double* radius) {
+    if (!radius) return -1;
+
+    const std::vector<Body>& bodies = tidymess.bodies;
+    double xcom, ycom, zcom;
+    double rsq_max = 0.0;
+
+    if (get_center_of_mass_position(&xcom, &ycom, &zcom) != 0)
+        return -1;
+
+    for (size_t i = 0; i < bodies.size(); i++) {
+        // compute distance between particle and COM
+
+        const Body& body = bodies[i];
+
+        double dx = body.r[0] - xcom;
+        double dy = body.r[1] - ycom;
+        double dz = body.r[2] - zcom;
+
+        double r_sq = dx*dx + dy*dy + dz*dz;
+        if (rsq_max < r_sq)
+            rsq_max = r_sq;
+    }
+
+    *radius = std::sqrt(rsq_max);
+    return 0;
+}
+
+/**
+ * Get total number of particles within Tidymess
+ */
 int get_number_of_particles(int* number_of_particles) {
     if (!number_of_particles) return -1;
 
