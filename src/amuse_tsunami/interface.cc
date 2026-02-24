@@ -482,13 +482,200 @@ int set_wExt(bool wExt) {
 }
 
 /**
-* get external potential flag value
-* True enables external potentials
-*/
+ * get external potential flag value
+ * True enables external potentials
+ */
 int get_wExt_vdep(bool *wExt_vdep) {
     if (!wExt_vdep) return -1;
 
     *wExt_vdep = Tsunami.Conf.wExt_vdep;
+    return 0;
+}
+/**
+ * set external potential flag value
+ * True enables external potentials
+ */
+int set_wExt_vdep(bool wExt_vdep) {
+
+    Tsunami.Conf.wExt_vdep = wExt_vdep;
+    return 0;
+}
+
+/**
+ * get alpha regularization parameter
+ */
+int get_alpha(double *alpha) {
+    if (!alpha) return -1;
+
+    *alpha = Tsunami.Config.alpha;
+    return 0;
+}
+/**
+ * set alpha regularization parameter
+ */
+int set_alpha(double alpha) {
+
+    Tsunami.Config.alpha = alpha;
+    return 0;
+}
+
+/**
+ * get beta regularization parameter
+ */
+int get_beta(double *beta) {
+    if (!beta) return -1;
+
+    *beta = Tsunami.Config.beta
+    return 0;
+}
+/**
+ * set beta regularization parameter
+ */
+int set_beta(double beta) {
+
+    Tsunami.Config.beta = beta;
+    return 0;
+}
+
+/**
+ * get gamma regularization parameter
+ */
+int get_gamma(double *gamma) {
+    if (!gamma) return -1;
+
+    *gamma = Tsunami.Config.gamma
+    return 0;
+}
+/**
+ * set gamma regularization parameter
+ */
+int set_gamma(double gamma) {
+
+    Tsunami.Config.gamma = gamma;
+    return 0;
+}
+
+/**
+ * get multiplying factor for particle radii that is
+ * used when checking for collisions. A collision
+ * between two particles is registered whenever:
+ *     d < d_coll * (R1 +  R2)
+ */
+int get_dcoll(double *dcoll) {
+    if (!dcoll) return -1;
+
+    *dcoll = Tsunami.Config.dcoll
+    return 0;
+}
+/**
+ * set multiplying factor for particle radii that is
+ * used when checking for collisions. A collision
+ * between two particles is registered whenever:
+ *     d < d_coll * (R1 +  R2)
+ */
+int set_dcoll(double dcoll) {
+
+    Tsunami.Config.dcoll = dcoll;
+    return 0;
+}
+
+/**
+ * get pn1 flag value
+ * True enables first order post-Newtonian corrections
+ */
+int get_pn1(double *pn1) {
+    if (!pn1) return -1;
+
+    *pn1 = Tsunami.Config.pn1
+    return 0;
+}
+/**
+ * set pn1 flag value
+ * True enables first order post-Newtonian corrections
+ */
+int set_pn1(double pn1) {
+
+    Tsunami.Config.pn1 = pn1;
+    return 0;
+}
+
+/**
+ * get pn2 flag value
+ * True enables second order post-Newtonian corrections
+ */
+int get_pn2(double *pn2) {
+    if (!pn2) return -1;
+
+    *pn2 = Tsunami.Config.pn2;
+    return 0;
+}
+/**
+ * set pn2 flag value
+ * True enables second order post-Newtonian corrections
+ */
+int set_pn2(double pn2) {
+
+    Tsunami.Config.pn2 = pn2;
+    return 0;
+}
+
+/**
+ * get pn2 flag value
+ * True enables 2.5 order post-Newtonian corrections
+ */
+int get_pn25(double *pn25) {
+    if (!pn25) return -1;
+
+    *pn25 = Tsunami.Config.pn25;
+    return 0;
+}
+/**
+ * set pn25 flag value
+ * True enables 2.5 order post-Newtonian corrections
+ */
+int set_pn25(double pn25) {
+
+    Tsunami.Config.pn25 = pn25;
+    return 0;
+}
+
+/**
+ * get pn3 flag value
+ * True enables third order post-Newtonian corrections
+ */
+int get_pn3(double *pn3) {
+    if (!pn3) return -1;
+
+    *pn3 = Tsunami.Config.pn3;
+    return 0;
+}
+/**
+ * set pn3 flag value
+ * True enables third order post-Newtonian corrections
+ */
+int set_pn3(double pn3) {
+
+    Tsunami.Config.pn3 = pn3;
+    return 0;
+}
+
+/**
+ * get pn35 flag value
+ * True enables 3.5 order post-Newtonian corrections
+ */
+int get_pn35(double *pn35) {
+    if (!pn35) return -1;
+
+    *pn35 = Tsunami.Config.pn35;
+    return 0;
+}
+/**
+ * set pn35 flag value
+ * True enables 3.5 order post-Newtonian corrections
+ */
+int set_pn35(double pn35) {
+
+    Tsunami.Config.pn35 = pn35;
     return 0;
 }
 
