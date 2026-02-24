@@ -1,5 +1,7 @@
+#include <tuple>
 #include <cstddef>
 #include <iostream>
+#include <array>
 
 #include "tsunami_worker.h"
 
@@ -328,57 +330,173 @@ int get_position(int index_of_the_particle, double* x, double* y, double* z) {
 /**
  * Set position of a particle
  */
- int set_position(int index_of_the_particle, double x, double y, double z) {
-     ChainSys& system = Tsunami.System;
+int set_position(int index_of_the_particle, double x, double y, double z) {
+    ChainSys& system = Tsunami.System;
 
-     if (!index_in_bounds(index_of_the_particle))
-         return -1;
+    if (!index_in_bounds(index_of_the_particle))
+        return -1;
 
-     system.pos[index_of_the_particle].x = x;
-     system.pos[index_of_the_particle].y = y;
-     system.pos[index_of_the_particle].z = z;
+    system.pos[index_of_the_particle].x = x;
+    system.pos[index_of_the_particle].y = y;
+    system.pos[index_of_the_particle].z = z;
 
-     return 0;
- }
+    return 0;
+}
 
- /**
-  * Get velocity of a particle
-  */
- int get_velocity(int index_of_the_particle, double* vx, double* vy, double* vz) {
-     if (!vx || !vy || !vz) return -1;
+/**
+ * Get velocity of a particle
+ */
+int get_velocity(int index_of_the_particle, double* vx, double* vy, double* vz) {
+    if (!vx || !vy || !vz) return -1;
 
-     ChainSys& system = Tsunami.System;
+    ChainSys& system = Tsunami.System;
 
-     if (!index_in_bounds(index_of_the_particle))
-         return -1;
+    if (!index_in_bounds(index_of_the_particle))
+        return -1;
 
-     *vx = system.vel[index_of_the_particle].x;
-     *vy = system.vel[index_of_the_particle].y;
-     *vz = system.vel[index_of_the_particle].z;
+    *vx = system.vel[index_of_the_particle].x;
+    *vy = system.vel[index_of_the_particle].y;
+    *vz = system.vel[index_of_the_particle].z;
 
-     return 0;
- }
- /**
-  * Set velocity of a particle
-  */
- int set_velocity(int index_of_the_particle, double vx, double vy, double vz) {
-     ChainSys& system = Tsunami.System;
+    return 0;
+}
+/**
+ * Set velocity of a particle
+ */
+int set_velocity(int index_of_the_particle, double vx, double vy, double vz) {
+    ChainSys& system = Tsunami.System;
 
-     if (!index_in_bounds(index_of_the_particle))
-         return -1;
+    if (!index_in_bounds(index_of_the_particle))
+        return -1;
 
-     system.vel[index_of_the_particle].x = vx;
-     system.vel[index_of_the_particle].y = vy;
-     system.vel[index_of_the_particle].z = vz;
+    system.vel[index_of_the_particle].x = vx;
+    system.vel[index_of_the_particle].y = vy;
+    system.vel[index_of_the_particle].z = vz;
 
-     return 0;
- }
+    return 0;
+}
+
+/**
+ * Compute the acceleration onto a particle due to the
+ * gravitational influence from all other particles
+ */
+int get_acceleration(
+    int index_of_the_particle,
+    double *ax,
+    double *ay,
+    double *az
+) {
+    ChainSys& system = Tsunami.System;
+    int i = index_of_the_particle;
+
+    double ax_i = 0.0;
+    double ay_i = 0.0;
+    double az_i = 0.0;
+
+    for (size_t j = i; j < system.Npart; j++) {
+        if (i == j) continue;
+        std::tuple<std::array<double,3>, std::array<double,3>> accel_pair =
+            Tsunami.get_accelerations_of_particles(i, j);
+
+    const std::array<double,3>& acc_i = std::get<0>(accel_pair);
+
+    ax_1 += acc_i[0];
+    ay_1 += acc_i[1];
+    az_1 += acc_i[2];
+    }
+
+    *ax = ax_i;
+    *ay = ay_i;
+    *az = az_i;
+
+    return 0;
+}
+
+/**
+ * Set Tsunami code units
+ */
+int set_units(double Mscale, double Lscale) {
+
+    Tsunami.set_units(Mscale, Lscale);
+    return 0;
+}
+
+/**
+ * Get post-Newtonian correction flag value
+ * True enables post-Newtonian corrections
+ */
+int get_wPNs(bool *wPNs) {
+    if (!wPNs) return -1;
+
+    *wPNs = Tsunami.Conf.wPNs;
+    return 0;
+}
+/**
+ * Set post-Newtonian correction flag value
+ * True enables post-Newtonian corrections
+ */
+int set_wPNs(bool wPNs) {
+
+    Tsunami.Conf.wPNs = wPNs;
+    return 0;
+}
+
+/**
+ * Get equilibrium tides flag value
+ * True enables equilibrium tides
+ */
+int get_wEqTides(bool *wEqTides) {
+    if (!wEqTides) return -1;
+
+    *wEqTides = Tsunami.Conf.wEqTides;
+    return 0;
+}
+/**
+ * Set equilibrium tides flag value
+ * True enables equilibrium tides
+ */
+int set_wEqTides(bool wEqTides) {
+
+    Tsunami.Conf.wEqTides = wEqTides;
+    return 0;
+}
+
+/**
+ * Get external potential flag value
+ * True enables external potentials
+ */
+int get_wExt(bool *wExt) {
+    if (!wExt) return -1;
+
+    *wExt = Tsunami.Conf.wExt;
+    return 0;
+}
+/**
+ * Set external potential flag value
+ * True enables external potentials
+ */
+int set_wExt(bool wExt) {
+
+    Tsunami.Conf.wExt = wExt;
+    return 0;
+}
+
+/**
+* get external potential flag value
+* True enables external potentials
+*/
+int get_wExt_vdep(bool *wExt_vdep) {
+    if (!wExt_vdep) return -1;
+
+    *wExt_vdep = Tsunami.Conf.wExt_vdep;
+    return 0;
+}
 
 /**
  * Evolve Tsunami system
  */
- int evolve_model(double time) {
-     try {
+int evolve_model(double time) {
+    try {
         Tsunami.evolve_system(time);
         return 0;
     } catch (const TsuError& e) { //FIXME
@@ -388,9 +506,41 @@ int get_position(int index_of_the_particle, double* x, double* y, double* z) {
 }
 
 /**
+ * Get total kinetic energy of the system
+ */
+int get_kinetic_energy(double *kinetic_energy) {
+    if (!kinetic_energy) return -1;
+
+    *kinetic_energy = Tsunami.kin;
+    return 0;
+}
+
+/**
+ * Get total potential energy of the system
+ */
+int get_potential_energy(double *potential_energy) {
+    if (!potential_energy) return -1;
+
+    *potential_energy = Tsunami.pot;
+    return 0;
+}
+
+/**
+ * Get total energy of the system
+ */
+int get_total_energy(double *total_energy) {
+    if (!total_energy) return -1;
+
+    *total_energy = Tsunami.energy;
+    return 0;
+}
+
+/**
  * Get current simulation timescale in years
  */
 int get_time(double *time) {
+    if (!time) return -1;
+
     *time = Tsunami.Tscale;
     return 0;
 }
