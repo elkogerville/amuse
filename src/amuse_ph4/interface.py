@@ -464,6 +464,14 @@ class ph4Interface(CodeInterface,
         function.result_type = 'int32'
         return function
 
+    def get_nj_max(self):
+        """
+        Returns the maximum number of particles supported by Sapporo Light.
+        """
+        function = LegacyFunctionSpecification()
+        return function(
+            returns=int,
+        )
 
 class ph4(GravitationalDynamics,GravityFieldCode):
 

@@ -936,3 +936,13 @@ int get_id_of_updated_particle(int index, int * index_of_particle, int * status)
     *status = jd->UpdatedParticles[index].status;
     return 0;
 }
+
+extern "C" {
+    int sapporo_get_nj_max(int *value);
+}
+
+int get_nj_max(int *value)
+{
+    if (!jd) return -1;
+    return sapporo_get_nj_max(value);
+}

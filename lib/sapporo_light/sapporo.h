@@ -182,8 +182,10 @@ public:
     device.acc_i = NULL;
     device.vel_i = NULL;
     device.jrk_i = NULL;
+
     
   };
+  int get_nj_max() const;
   ~sapporo() {};
   
   int open(int cluster_id);
