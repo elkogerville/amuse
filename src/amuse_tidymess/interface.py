@@ -1008,22 +1008,6 @@ class TidymessInterface(
         return function
 
     @legacy_function
-    def get_time_step():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'time_step',
-            dtype='float64',
-            direction=function.OUT,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-
-        return function
-
-    @legacy_function
     def set_collision_mode():
         '''
         '''
