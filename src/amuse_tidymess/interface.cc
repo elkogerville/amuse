@@ -758,35 +758,11 @@ int recommit_particles() {
     return 0;
 }
 
-// FIXME
-int get_acceleration(
-    int index_of_the_particle,
-    double* ax,
-    double* ay,
-    double* az
-) {
-    if (!ax || !ay || !az) return -1;
-    return 0;
-}
-int set_acceleration(
-    int index_of_the_particle,
-    double ax,
-    double ay,
-    double az
-) {
-    return 0;
-}
-
 int get_eps2(double* epsilon_squared) {
     if (!epsilon_squared) return -1;
     return 0;
 }
 int set_eps2(double epsilon_squared) {
-    return 0;
-}
-
-int get_potential(int index_of_the_particle, double* potential) {
-    if (!potential) return -1;
     return 0;
 }
 
@@ -801,11 +777,15 @@ int get_potential_energy(double* potential_energy) {
     return 0;
 }
 
+/**
+ * Get current Tidymess model time
+ */
 int get_time(double* time) {
     if (!time) return -1;
     *time = tidymess.get_model_time();
     return 0;
 }
+
 
 int get_begin_time(double* time) {
     if (!time) return -1;
@@ -941,32 +921,6 @@ int get_index_of_next_particle(
     if (static_cast<size_t>(i + 1) >= bodies.size()) return -1;
 
     *index_of_the_next_particle = bodies[i + 1].id;
-    return 0;
-}
-
-int determine_dt_sgn(double t_end) {  // copied from tidymess.cpp
-    bool dt_pos;
-    int dt_sgn;
-    if(t_end > tidymess.get_model_time()) {  // ** takes negative time step when evolving to 0, causes problems
-        dt_pos = true;
-        dt_sgn = 1;
-    }
-    else {
-        dt_pos = false;
-        dt_sgn = -1;
-    }
-    tidymess.set_dt_sgn(dt_sgn);
-    return 0;
-}
-
-
-int evolve_model(double time) {
-    // Evolve the model until the given time, or until a stopping condition is set.
-
-    tidymess.commit_parameters(); // has to be called sometime before evolving
-    determine_dt_sgn(time);
-
-    tidymess.evolve_model(time);
     return 0;
 }
 
