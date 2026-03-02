@@ -26,6 +26,7 @@ int particle_id_counter = 0;
 static double begin_time = 0;
 int init_shape = 0;
 
+// TIDYMESS HELPER FUNCTIONS
 
 /**
  * Given an AMUSE particle index, find the corresponding
@@ -42,6 +43,26 @@ int get_body_index_by_id(int index_of_the_particle) {
         }
     }
     return -1;
+}
+
+/**
+ * Determine sign of dt value
+ * for integrating foward or backwards
+ * in time. copied from tidymess.cpp
+ */
+int determine_dt_sgn(double t_end) {
+    bool dt_pos;
+    int dt_sgn;
+    if(t_end > tidymess.get_model_time()) {  // ** takes negative time step when evolving to 0, causes problems
+        dt_pos = true;
+        dt_sgn = 1;
+    }
+    else {
+        dt_pos = false;
+        dt_sgn = -1;
+    }
+    tidymess.set_dt_sgn(dt_sgn);
+    return 0;
 }
 
 /**
@@ -214,6 +235,29 @@ int set_mass(int index_of_the_particle, double mass) {
 }
 
 /**
+ * Get radius of a particle
+ */
+int get_radius(int index_of_the_particle, double* radius ) {
+    if (!radius) return -1;
+
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    *radius = tidymess.bodies[i].R;
+    return 0;
+}
+/**
+ * Set radius of a particle
+ */
+int set_radius(int index_of_the_particle, double radius) {
+    int i = get_body_index_by_id(index_of_the_particle);
+    if (i < 0) return -1;
+
+    tidymess.bodies[i].R = radius;
+    return 0;
+}
+
+/**
  * Get position of a particle
  */
 int get_position(
@@ -288,29 +332,6 @@ int set_velocity(
     Body& body = tidymess.bodies[i];
 
     body.v = {vx, vy, vz};
-    return 0;
-}
-
-/**
- * Get radius of a particle
- */
-int get_radius(int index_of_the_particle, double* radius ) {
-    if (!radius) return -1;
-
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    *radius = tidymess.bodies[i].R;
-    return 0;
-}
-/**
- * Set radius of a particle
- */
-int set_radius(int index_of_the_particle, double radius) {
-    int i = get_body_index_by_id(index_of_the_particle);
-    if (i < 0) return -1;
-
-    tidymess.bodies[i].R = radius;
     return 0;
 }
 
@@ -420,6 +441,37 @@ int set_spin(
 
     body.w = {wx, wy, wz};
 
+    return 0;
+}
+
+/**
+ * FIXME
+ */
+int get_acceleration(
+    int index_of_the_particle,
+    double* ax,
+    double* ay,
+    double* az
+) {
+    if (!ax || !ay || !az) return -1;
+    return 0;
+}
+
+/**
+ * FIXME
+ */
+int get_potential(int index_of_the_particle, double* potential) {
+    if (!potential) return -1;
+    return 0;
+}
+
+int evolve_model(double time) {
+    // Evolve the model until the given time, or until a stopping condition is set.
+
+    tidymess.commit_parameters(); // has to be called sometime before evolving
+    determine_dt_sgn(time);
+
+    tidymess.evolve_model(time);
     return 0;
 }
 
