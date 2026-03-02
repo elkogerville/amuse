@@ -578,6 +578,22 @@ int set_dt_const(double dt_const) {
 }
 
 /**
+ * Get internal integrator dt value of previous timestep
+ */
+int get_time_step(double* time_step) {
+    if (!time_step) return -1;
+
+    if (tidymess.get_dt_mode() > 0) {
+        *time_step = tidymess.get_dt_prev();
+    }
+    else {
+        *time_step = tidymess.get_dt_const();
+    }
+
+    return 0;
+}
+
+/**
  * Get Tidymess eta (accuracy parameter)
  */
 int get_eta(double* eta) {
@@ -798,16 +814,6 @@ int get_begin_time(double* time) {
 }
 int set_begin_time(double time) {
     begin_time = time;
-    return 0;
-}
-
-int get_time_step(double* time_step) {
-    if (!time_step) return -1;
-
-    *time_step = tidymess.get_dt_const();
-    if (tidymess.get_dt_mode() > 0) {
-        *time_step = tidymess.get_dt_prev();
-    }
     return 0;
 }
 
