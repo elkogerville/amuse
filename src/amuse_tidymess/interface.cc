@@ -22,9 +22,10 @@ static Initializer init;
 static Collision collision;
 static Breakup breakup;
 
-int particle_id_counter = 0;
+static int particle_id_counter = 0;
 static double begin_time = 0;
-int init_shape = 0;
+static int init_shape = 0;
+static int dt_sign = 1;
 
 // TIDYMESS HELPER FUNCTIONS
 
@@ -52,16 +53,16 @@ int get_body_index_by_id(int index_of_the_particle) {
  */
 int determine_dt_sgn(double t_end) {
     bool dt_pos;
-    int dt_sgn;
+
     if(t_end > tidymess.get_model_time()) {  // ** takes negative time step when evolving to 0, causes problems
         dt_pos = true;
-        dt_sgn = 1;
+        dt_sign = 1;
     }
     else {
         dt_pos = false;
-        dt_sgn = -1;
+        dt_sign = -1;
     }
-    tidymess.set_dt_sgn(dt_sgn);
+    tidymess.set_dt_sgn(dt_sign);
     return 0;
 }
 
@@ -468,7 +469,8 @@ int get_potential(int index_of_the_particle, double* potential) {
 int evolve_model(double time) {
     // Evolve the model until the given time, or until a stopping condition is set.
 
-    tidymess.commit_parameters(); // has to be called sometime before evolving
+     // has to be called sometime before evolving
+    //tidymess.set_dt_sgn(dt_sign);
     determine_dt_sgn(time);
 
     tidymess.evolve_model(time);
@@ -719,10 +721,13 @@ int cleanup_code() {
     return 0;
 }
 
+/**
+ * Perform initialization in the code dependent on the
+ * values of the parameters.Called after the parameters
+ * have been set or updated.
+ */
 int commit_parameters() {
-    // Perform initialization in the code dependent on the
-    // values of the parameters.
-    // Called after the parameters have been set or updated.
+    tidymess.commit_parameters();
     return 0;
 }
 
