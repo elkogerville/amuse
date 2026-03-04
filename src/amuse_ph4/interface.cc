@@ -935,4 +935,4 @@ int get_id_of_updated_particle(int index, int * index_of_particle, int * status)
     *index_of_particle = jd->UpdatedParticles[index].index_of_particle;
     *status = jd->UpdatedParticles[index].status;
     return 0;
- }
+}
