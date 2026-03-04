@@ -9,7 +9,7 @@
 # - coreutils
 # - Python 3
 # - PkgConfig
-# - wget or curl
+# - curl
 # - patch
 # - GNU tar
 # - unzip
