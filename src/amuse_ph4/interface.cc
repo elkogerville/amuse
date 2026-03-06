@@ -936,3 +936,10 @@ int get_id_of_updated_particle(int index, int * index_of_particle, int * status)
     *status = jd->UpdatedParticles[index].status;
     return 0;
 }
+
+extern "C" int g6_get_nj_max_();
+
+int get_nj_max()
+{
+    return g6_get_nj_max_();
+}
