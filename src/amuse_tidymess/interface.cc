@@ -106,6 +106,7 @@ int new_particle(
     bodies.push_back(newbody);
     return 0;
 }
+
 /**
  * Delete a particle inside Tidymess
  */
@@ -629,13 +630,30 @@ int set_n_iter(int n_iter) {
     return 0;
 }
 
+/**
+ * Get Tidymess initial shape parameter
+ */
+int get_initial_shape(int* initial_shape) {
+    if (!initial_shape) return -1;
+
+    *initial_shape = init_shape;
+    return 0;
+}
+/**
+ * Set Tidymess initial shape parameter
+ */
+int set_initial_shape(int initial_shape) {
+    init_shape = initial_shape;
+    return 0;
+}
+
 // FIX
 int get_collision_mode(int* collision_mode) {
     if (!collision_mode) return -1;
 
-    if (tidymess.get_collision_mode() != collision.collision_mode) {
+    if (tidymess.get_collision_mode() != collision.collision_mode)
         return -1;
-    }
+
     *collision_mode = tidymess.get_collision_mode();
 
     // maybe check if Tidy and Collision have the same value set
@@ -676,23 +694,6 @@ int get_num_integration_step(int* num_integration_step) {
     if (!num_integration_step) return -1;
 
     *num_integration_step = tidymess.get_num_integration_step();
-    return 0;
-}
-
-/**
- * Get Tidymess initial shape parameter
- */
-int get_initial_shape(int* initial_shape) {
-    if (!initial_shape) return -1;
-
-    *initial_shape = init_shape;
-    return 0;
-}
-/**
- * Set Tidymess initial shape parameter
- */
-int set_initial_shape(int initial_shape) {
-    init_shape = initial_shape;
     return 0;
 }
 
