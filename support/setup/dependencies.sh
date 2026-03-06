@@ -9,7 +9,7 @@
 # - coreutils
 # - Python 3
 # - PkgConfig
-# - wget or curl
+# - curl
 # - patch
 # - GNU tar
 # - unzip
@@ -33,7 +33,7 @@
 
 # MESA r15140 fails its tests when compiled with gfortran 14
 
-DEPS_conda="c-compiler cxx-compiler fortran-compiler 'gfortran<14' python pkgconfig"
+DEPS_conda="c-compiler cxx-compiler fortran-compiler 'gfortran<14' python-gil pkgconfig"
 DEPS_conda="${DEPS_conda} coreutils patch"
 DEPS_conda="${DEPS_conda} curl tar unzip gzip bzip2 xz perl bison make cmake openmpi"
 DEPS_conda="${DEPS_conda} gsl fftw gmp mpfr hdf5 netcdf4 qhull healpix_cxx libopenblas"
