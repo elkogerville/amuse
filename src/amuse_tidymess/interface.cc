@@ -860,7 +860,7 @@ int get_center_of_mass_velocity(
 }
 
 /**
- * Get the minimum radius of a sphere centered around
+ * Get the radius of a sphere centered around
  * the center of mass of all particles that contains
  * every particle within Tidymess
  */
@@ -904,6 +904,9 @@ int get_number_of_particles(int* number_of_particles) {
     return 0;
 }
 
+/**
+ * Get the index of the first inside of Tidymess
+ */
 int get_index_of_first_particle(int* index_of_the_particle) {
     if (!index_of_the_particle) return -1;
 
@@ -914,6 +917,9 @@ int get_index_of_first_particle(int* index_of_the_particle) {
     return 0;
 }
 
+/**
+ * Get the index of the next particle given an index
+ */
 int get_index_of_next_particle(
     int index_of_the_particle,
     int* index_of_the_next_particle
@@ -1016,7 +1022,8 @@ int detect_collision(
         *index2 = collided_index[1];
     }
 
-    return 0;}
+    return 0;
+}
 
 // int merge_collided_particles(int * number_of_particles) {
 //     vector<Body> bodies = tidymess.get_particles();
@@ -1029,16 +1036,16 @@ int detect_collision(
 //     *number_of_particles = bodies.size();
 //     return 0;
 // }
-int merge_collided_particles(int* number_of_particles) {
-    if (!number_of_particles) return -1;
+// int merge_collided_particles(int* number_of_particles) {
+//     if (!number_of_particles) return -1;
 
-    std::vector<Body>& bodies = tidymess.bodies;
-    std::vector< array<int, 2> > cindex = tidymess.get_collision_indices();
+//     std::vector<Body>& bodies = tidymess.bodies;
+//     std::vector< array<int, 2> > cindex = tidymess.get_collision_indices();
 
-    collision.replace(bodies, cindex);
-    //tidymess.set_particles(bodies);
-    tidymess.commit_particles();
+//     collision.replace(bodies, cindex);
+//     //tidymess.set_particles(bodies);
+//     tidymess.commit_particles();
 
-    *number_of_particles = bodies.size();
-    return 0;
-}
+//     *number_of_particles = bodies.size();
+//     return 0;
+// }
