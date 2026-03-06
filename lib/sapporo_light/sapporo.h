@@ -169,7 +169,7 @@ public:
 
     predict = false;
     nj_modified = 0;
-    
+
     device.address_j = NULL;
 
     device.t_j   = NULL;
@@ -232,3 +232,13 @@ public:
 };
 
 #endif 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int g6_get_nj_max_();
+
+#ifdef __cplusplus
+}
+#endif

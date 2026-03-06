@@ -81,3 +81,9 @@ extern "C" {
 
 }
 
+extern "C" {
+    int g6_get_nj_max_() {
+        return grav.get_nj_max();
+    }
+}
+

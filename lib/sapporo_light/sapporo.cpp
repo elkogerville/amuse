@@ -275,14 +275,3 @@ int sapporo::get_nj_max() const
 {
     return nj_max;
 }
-
-extern "C" {
-
-int sapporo_get_nj_max(sapporo *s, int *value)
-{
-    if (!s) return -1;
-    *value = s->get_nj_max();
-    return 0;
-}
-
-}
