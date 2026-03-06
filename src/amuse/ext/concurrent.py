@@ -84,8 +84,8 @@ class MPISharedParticlesProxy(object):
         units_dump = pickle.dumps(units)
         attributes_dump = pickle.dumps(attribute_names)
         
-        units_dump = numpy.fromstring(units_dump,dtype='uint8')
-        attributes_dump = numpy.fromstring(attributes_dump,dtype='uint8')
+        units_dump = numpy.frombuffer(units_dump,dtype='uint8')
+        attributes_dump = numpy.frombuffer(attributes_dump,dtype='uint8')
         
         sendbuffer = numpy.zeros(4,  dtype='int64')
         sendbuffer[0] = self.shared_id
