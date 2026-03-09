@@ -1,5 +1,6 @@
 import numpy
 import warnings
+from amuse.support.helpers import rename_fn_par
 from amuse.ext.evrard_test import body_centered_grid_unit_cube
 from amuse.ext.evrard_test import regular_grid_unit_cube
 from amuse.ext.evrard_test import uniform_random_unit_cube
@@ -54,45 +55,15 @@ class uniform_unit_cylinder:
 class ProtoPlanetaryDisk:
     def __init__(
         self, targetN, convert_nbody=None, discfraction=0.1,
-        densitypower=1., thermalpower=0.5, radius_min=1, radius_max=100,
+        densitypower=1., thermalpower=0.5, radius_min=None, radius_max=None,
         gamma=1., q_out=2., base_grid=None, Rmin=None, Rmax=None,
     ):
-        if Rmin is not None:
-            warnings.warn(
-                "Rmin is deprecated, use radius_min instead",
-                category=FutureWarning,
-            )
-            if radius_min is not None and radius_min != Rmin:
-                raise ValueError(
-                    "Rmin and radius_min have different values, "
-                    "this is only allowed if one of them is None"
-                )
-            radius_min = Rmin
-
-        if radius_min is None:
-            raise ValueError("radius_min must be set")
-
-        if Rmax is not None:
-            warnings.warn(
-                "Rmax is deprecated, use radius_max instead",
-                category=FutureWarning,
-            )
-            if radius_max is not None and radius_max != Rmax:
-                raise ValueError(
-                    "Rmax and radius_max have different values, "
-                    "this is only allowed if one of them is None"
-                )
-            radius_max = Rmax
-
-        if radius_max is None:
-            raise ValueError("radius_max must be set")
-
         self.targetN = targetN
         self.convert_nbody = convert_nbody
         self.densitypower = densitypower
         self.thermalpower = thermalpower
-        self.Rmin = radius_min
-        self.Rmax = radius_max
+        self.Rmin = rename_fn_par("radius_min", radius_min, "Rmin", Rmin, 1)
+        self.Rmax = rename_fn_par("radius_max", radius_max, "Rmax", Rmax, 100)
         self.gamma = gamma
         self.q_out = q_out
         self.discfraction = discfraction
@@ -101,12 +72,21 @@ class ProtoPlanetaryDisk:
         self.a2 = self.thermalpower/2
         self.g = densitypower
         self.g2 = 2 - densitypower
-        self.k_out = ((1 + discfraction) / Rmax**3)**0.5
+        self.k_out = ((1 + discfraction) / self.Rmax**3)**0.5
         self.sigma_out = self.g2 * discfraction / (
-                2 * numpy.pi * Rmax**self.g * (Rmax**self.g2 - Rmin**self.g2))
+                2 * numpy.pi * self.Rmax**self.g *
+                (self.Rmax**self.g2 - self.Rmin**self.g2))
         self.cs_out = self.q_out * numpy.pi * self.sigma_out / self.k_out
 
         self.base_cylinder = uniform_unit_cylinder(targetN, base_grid)
+
+    @property
+    def radius_min(self):
+        return self.Rmin
+
+    @property
+    def radius_max(self):
+        return self.Rmax
 
     def sigma(self, r):
         return self.sigma_out * (self.Rmax / r)**self.g
