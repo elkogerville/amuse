@@ -37,19 +37,15 @@ jobs:
         conda info
         conda list
 
-    - name: Install dependencies
+    - name: Install dependencies (Linux)
+      if: ${{ startsWith(matrix.os, 'ubuntu') }}
       run: |
         conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python-gil pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake openmpi gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
 
-      # - name: Configure OpenMPI
-      #      run: |
-      #        mkdir -p "$HOME/.openmpi"
-      #        echo "rmaps_base_oversubscribe = true" >>"$HOME/.openmpi/mca-params.conf"
-      #        echo "mpi_yield_when_idle = true" >>"$HOME/.openmpi/mca-params.conf"
-      #        echo "btl_tcp_if_include = lo,eth0" >>"$HOME/.openmpi/mca-params.conf"
-      #        mkdir -p "$HOME/.prte"
-      #        echo "rmaps_default_mapping_policy = :oversubscribe" >>"$HOME/.prte/mca-params.conf"
-      #        echo "prte_if_include = lo,eth0" >>"$HOME/.prte/mca-params.conf"
+    - name: Install dependencies (macOS)
+      if: ${{ startsWith(matrix.os, 'macos') }}
+      run: |
+        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python-gil pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake mpich gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -62,15 +58,16 @@ jobs:
         ./setup install amuse-framework
 
     - name: Test framework
-      #      env:
-      #        OMPI_MCA_rmaps_base_oversubscribe: 1
-      #        PRTE_MCA_rmaps_base_oversubscribe: 1
-      #        PRTE_MCA_rmaps_default_mapping_policy: ":oversubscribe"
-      #        OMPI_MCA_mpi_yield_when_idle: 1
-      #        OMPI_MCA_btl_tcp_if_include: lo,eth0
-      #        PRTE_MCA_btl_tcp_if_include: lo,eth0
-      #        PRTE_MCA_if_include: lo,eth0
-      #        OMPI_MCA_pmix_server_max_wait: 10
+      env:
+        OMPI_MCA_rmaps_base_oversubscribe: 1
+        PRTE_MCA_rmaps_base_oversubscribe: 1
+        PRTE_MCA_rmaps_default_mapping_policy: ":oversubscribe"
+        OMPI_MCA_mpi_yield_when_idle: 1
+        PRTE_MCA_mpi_yield_when_idle: 1
+        OMPI_MCA_btl_tcp_if_include: lo,eth0
+        PRTE_MCA_btl_tcp_if_include: lo,eth0
+        PRTE_MCA_if_include: lo,eth0
+        OMPI_MCA_pmix_server_max_wait: 10
       run: |
         ./setup test amuse-framework
 
