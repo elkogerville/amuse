@@ -69,7 +69,7 @@ jobs:
         PRTE_MCA_if_include: lo,eth0
         OMPI_MCA_pmix_server_max_wait: 10
       run: |
-        export PYTEST_OPTS='-x' && ./setup test amuse-framework
+        ./setup test amuse-framework
 
     - name: Save build logs
       run: |
