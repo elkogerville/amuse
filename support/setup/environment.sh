@@ -91,7 +91,7 @@ detect_installed_packages() {
 # DISABLED_PACKAGES_TEXT - adds amuse-framework if features are missing
 #
 check_build_framework() {
-    missing_features=$(filter_out "${FEATURES}" "c c++ fortran python python-dev install mpi")
+    missing_features=$(filter_out "${FEATURES}" "c c++ fortran python python-dev gmake install mpi")
 
     if [ "a${missing_features}" = "a" ] ; then
         installed="$(is_installed amuse-framework)"
