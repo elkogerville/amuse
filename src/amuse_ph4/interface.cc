@@ -937,9 +937,8 @@ int get_id_of_updated_particle(int index, int * index_of_particle, int * status)
     return 0;
 }
 
-extern "C" int g6_get_nj_max_();
-
-int get_nj_max()
+int get_nj_max(int * value)
 {
-    return g6_get_nj_max_();
+  *value = jd->get_nj_max();
+  return 0;
 }
