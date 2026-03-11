@@ -464,8 +464,11 @@ class ph4Interface(CodeInterface,
         function.result_type = 'int32'
         return function
 
+    @legacy_function
     def get_nj_max():
         function = LegacyFunctionSpecification()
+        function.addParameter('nj_max', dtype='int32',
+                              direction=function.OUT)
         function.result_type = 'int32'
         return function
 
