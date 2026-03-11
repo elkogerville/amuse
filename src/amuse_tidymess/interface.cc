@@ -728,7 +728,7 @@ int cleanup_code() {
  * have been set or updated.
  */
 int commit_parameters() {
-    tidymess.commit_parameters();
+    //tidymess.commit_parameters();
     return 0;
 }
 
@@ -1036,16 +1036,16 @@ int detect_collision(
 //     *number_of_particles = bodies.size();
 //     return 0;
 // }
-// int merge_collided_particles(int* number_of_particles) {
-//     if (!number_of_particles) return -1;
+int merge_collided_particles(int* number_of_particles) {
+    if (!number_of_particles) return -1;
 
-//     std::vector<Body>& bodies = tidymess.bodies;
-//     std::vector< array<int, 2> > cindex = tidymess.get_collision_indices();
+    std::vector<Body>& bodies = tidymess.bodies;
+    std::vector< array<int, 2> > cindex = tidymess.get_collision_indices();
 
-//     collision.replace(bodies, cindex);
-//     //tidymess.set_particles(bodies);
-//     tidymess.commit_particles();
+    collision.replace(bodies, cindex);
+    //tidymess.set_particles(bodies);
+    tidymess.commit_particles();
 
-//     *number_of_particles = bodies.size();
-//     return 0;
-// }
+    *number_of_particles = bodies.size();
+    return 0;
+}
