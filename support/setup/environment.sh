@@ -30,8 +30,10 @@ detect_environments() {
     fi
 
     if [ "a${CONDA_DEFAULT_ENV}" != "a" ] ; then
-        ENV_TYPE="conda"
-        ENV_NAME="${CONDA_DEFAULT_ENV}"
+        if [ "a${CONDA_DEFAULT_ENV}" != "abase" ] ; then
+            ENV_TYPE="conda"
+            ENV_NAME="${CONDA_DEFAULT_ENV}"
+        fi
     fi
 }
 
