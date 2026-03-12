@@ -1204,8 +1204,10 @@ class TidymessInterface(
 
     @legacy_function
     def convert_spin_vectors_to_inertial():
-        '''
-        '''
+        """
+        Function to convert a spin vector in the form of
+        LOD, OBL, PSI to {wx, wy, wz}
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'lod',
@@ -1244,7 +1246,14 @@ class TidymessInterface(
             description=''
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
+        function.result_doc = """\
+        0 - OK
+            spin converted to inertial frame succesfully
+        -1 - ERROR
+            Could not convert to inertial frame
+        -2 - ERROR
+            Negative length of day detected
+        """
 
         return function
 
