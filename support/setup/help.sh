@@ -134,6 +134,25 @@ again to continue."
 }
 
 
+print_mixed_packages() {
+    # Note that MIXED_CONDA_PACKAGES starts with a space
+    printf '%b\n' "${BOLD}${COLOR_YELLOW}* (error) Fix mixed-source packages *${COLOR_END}${END_BOLD}
+
+Installation is disabled because packages from mixed sources were found in your Conda
+environment. This can cause some very weird problems. AMUSE is designed and tested with
+packages from conda-forge. The following packages were not installed from conda-forge:
+
+   ${MIXED_CONDA_PACKAGES}
+
+To reinstall them from conda-forge, you can try:
+
+    conda install --channel conda-forge --override-channels${MIXED_CONDA_PACKAGES}
+
+If you're sure you know what you're doing, then you can disable this check by setting
+the environment variable AMUSE_ENABLE_MIXED_PACKAGES to 1 and running ./setup again."
+}
+
+
 print_pip_wheel_step() {
     printf '%b\n' "${BOLD}${COLOR_YELLOW}* (2/4) Install pip and wheel *${COLOR_END}${END_BOLD}
 
