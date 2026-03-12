@@ -3087,6 +3087,19 @@ test -n "$target_alias" &&
     NONENONEs,x,x, &&
   program_prefix=${target_alias}-
 
+
+    amuse_le_vars="SHELL CC CXX FC F77 MPICC MPICXX MPIFC CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LIBS OMPI_CC OMPI_CXX OMPI_FC OMPI_CPPFLAGS OMPI_LDFLAGS OMPI_LIBS"
+
+    printf "%s\n" "=== Shell environment ==="
+
+    for amuse_le_var in ${amuse_le_vars}
+    do
+        eval "amuse_le_val=\${$amuse_le_var}"
+        printf "%s\n" "${amuse_le_var}=${amuse_le_val}"
+    done
+    printf "%s\n" "=== End shell environment ==="
+
+
 # If we have a Conda environment active, then we're going to do everything via Conda,
 # including the dependencies. So in this case, we'll detect installed Conda packages,
 # rather than searching the system for libraries in the usual way.
