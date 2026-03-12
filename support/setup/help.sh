@@ -104,8 +104,9 @@ print_environment_step() {
 
 To install any packages, you need to create and activate a Conda environment
 or a Python virtualenv. If you have an environment into which you'd like to
-install AMUSE, you should activate it now. To create a new Conda environment,
-use
+install AMUSE, then you should activate it now.
+
+To create a new Conda environment, use
 
     conda create --channel conda-forge --override-channels -n Amuse-env
 
@@ -114,6 +115,10 @@ Then you activate it using
     conda activate Amuse-env
 
 You can name the environment anything you like instead of my-amuse-env.
+
+Note that installing packages other than conda itself in the (base) environment
+is not supported by conda, and this installer will refuse to do so. Please make
+a specific conda environment for your project as described above.
 
 To create a Python virtualenv, use
 
