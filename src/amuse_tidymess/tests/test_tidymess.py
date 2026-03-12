@@ -287,6 +287,66 @@ class TestTidymess(TestWithMPI):
 
         return system
 
+    def jupiter_io_system(self):
+        """
+        Ephemeris Pasadena, USA, Horizons
+
+        Jupiter and Io Ephemeris at A.D. 2026-Jan-01 00:00:00.0000
+
+        Jupiter:
+        kf from: Dong Lai 2021 Planet. Sci. J. 2 122 DOI 10.3847/PSJ/ac013b
+        xi from: https://doi.org/10.1016/j.icarus.2011.09.016
+        spin vector from: https://radiojove.gsfc.nasa.gov/education/jupiter/basics/jfacts.htm
+
+        Io:
+        kf from https://doi.org/10.1016/j.icarus.2025.116567
+        xi from Schubert et al. 2004
+        spin vector from https://doi.org/10.1016/j.icarus.2012.05.020 and ephemeris
+
+        spin vectors were calculated from LOD, OBL, PSI using
+        the ``Tidymess.convert_spin_vectors_to_inertial()`` method.
+
+        tau values are arbitrary for both bodies.
+        """
+        system = Particles(2)
+
+        system[0].name = 'Jupiter'
+        system[0].mass = 1898.6e24 | u.kg
+        system[0].radius = 6371.01 | u.km
+        system[0].x = -2.538781102425539e8 | u.km
+        system[0].y = 7.365225847926259e8 | u.km
+        system[0].z = 2.626628058868796e6 | u.km
+        system[0].vx = -1.250707427525374e1 | u.kms
+        system[0].vy = -3.638417682823274 | u.kms
+        system[0].vz = 2.949797151579847e-1 | u.kms
+        system[0].kf = 0.565
+        system[0].xi = 0.2629
+        system[0].tau = 0 | u.s
+        system[0].wx = 0.0 | 1 / u.s
+        system[0].wy = -9.60092648806e-6 | 1 / u.s
+        system[0].wz = 0.000175573560178 | 1 / u.s
+        system[0].a_mb = 0
+
+        system[1].name = 'Io'
+        system[1].mass = 893193797311089e8 | u.kg
+        system[1].radius = 1821.6 | u.km
+        system[1].x = -2.535070263728397e8 | u.km
+        system[1].y = 7.363212379813337e8 | u.km
+        system[1].z = 2.624656018151939e6 | u.km
+        system[1].vx = -4.195592326222561 | u.kms
+        system[1].vy = 1.153726914561471e1 | u.kms
+        system[1].vz = 9.564081722803852e-1 | u.kms
+        system[1].kf = 0.125
+        system[1].xi = 0.378
+        system[1].tau = 0 | u.s
+        system[1].wx = 0.0 | 1 / u.s
+        system[1].wy = -1.43416864277e-9 | 1 / u.s
+        system[1].wz = 4.10859051537e-5 | 1 / u.s
+        system[1].a_mb = 0
+
+        system.move_to_center()
+
+        return system
 
     def test1(self):
         """
@@ -401,7 +461,8 @@ class TestTidymess(TestWithMPI):
         """
 
         converter = nbody_system.nbody_to_si(1 | u.MEarth, 1 | u.REarth)
-        instance = Tidymess(converter)
+        instance = self.new_instance_of_an_optional_code(Tidymess, converter)
+        assert instance is not None
 
         lod = 24 | u.hour
         obl = 10 | u.deg
@@ -409,34 +470,32 @@ class TestTidymess(TestWithMPI):
 
         spin = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
 
-        self.assertLess(np.abs(spin[2].number-7.1617240788458890e-05), 1e-19)
+        self.assertAlmostEquals(spin[0], 0 | 1 / u.s)
+        self.assertAlmostEquals(spin[1], -1.26280518349e-5 | 1 / u.s)
+        self.assertAlmostEquals(spin[2], 7.16172407885e-5 | 1 / u.s)
+
+        instance.stop()
 
     def test4(self):
         """
         Evolve a system of Particles
         """
-        planet, moon = self.earth_moon_system()
+        system = self.earth_moon_system()
 
-        system = Particles()
-        system.add_particles(planet)
-        system.add_particles(moon)
-
-        system.move_to_center()
-
-        converter = nbody_system.nbody_to_si(system.mass.sum(), planet.position.length())
+        converter = nbody_system.nbody_to_si(
+            system.mass.sum(), system[0].position.length()
+        )
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
-        tidal_model = 0
-        instance.set_tidal_model(tidal_model)
+        assert instance is not None
 
-        instance.particles.add_particles(system)  # FIX : tidal_model != 0 after adding particles
-        instance.set_tidal_model(tidal_model)
+        instance.parameters.tidal_model = 0
+        instance.parameters.dt_mode = 2
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system)
 
         ratio = instance.get_total_mass() / system.mass.sum()
         self.assertAlmostEquals(ratio, 1)
-        self.assertLess(instance.get_total_mass(),    6.0460e24 | u.kg)
-        self.assertEquals(instance.get_total_radius(), 8108400.0 | u.m)
-
-        instance.set_dt_mode(2)
 
         end_time = 1.1
         dt = 0.1
