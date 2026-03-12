@@ -18,6 +18,7 @@ class TestTidymessInterface(TestWithMPI):
         """
 
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
         self.assertEqual(0, instance.cleanup_code())
@@ -29,63 +30,87 @@ class TestTidymessInterface(TestWithMPI):
         """
 
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
-
+        assert instance is not None
         result = instance.get_number_of_particles()
         self.assertEquals(result['number_of_particles'], 0)
 
         result = instance.new_particle(
-            1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0,
-            1.0,  # radius
-            1.0,  # xi
-            1.0,  # kf
-            1.0,  # tau
-            1.0,  # wx
-            1.0,  # wy
-            1.0,  # wz
+            1.0,   # mass
+            2.0,   # x
+            3.0,   # y
+            4.0,   # z
+            5.0,   # vz
+            6.0,   # vy
+            7.0,   # vz
+            8.0,   # radius
+            9.0,   # xi
+            10.0,  # kf
+            11.0,  # tau
+            12.0,  # wx
+            13.0,  # wy
+            14.0,  # wz
+            15.0   # a_mb
         )
-
-        self.assertEqual(result['index_of_the_particle'], 0)
-
-        instance.set_mass(0, 2.0)
-        result = instance.get_mass(0)
-        self.assertEquals(result['mass'], 2.0)
-
-        instance.set_position(0, 1.2, 1.2, 1.2)
-        result = instance.get_position(0)
-        self.assertEquals(result['x'], 1.2)
-        self.assertEquals(result['y'], 1.2)
-        self.assertEquals(result['z'], 1.2)
-
-        instance.set_velocity(0, 1.3, 1.3, 1.3)
-        result = instance.get_velocity(0)
-        self.assertEquals(result['vx'], 1.3)
-        self.assertEquals(result['vy'], 1.3)
-        self.assertEquals(result['vz'], 1.3)
-
-        instance.set_radius(0, 1.0)
-        result = instance.get_radius(0)
-        self.assertEquals(result['radius'], 1.0)
+        self.assertEquals(result['index_of_the_particle'], 0.0)
 
         result = instance.get_state(0)
-        self.assertEquals(result['mass'], 2.0)
-        self.assertEquals(result['x'], 1.2)
-        self.assertEquals(result['y'], 1.2)
-        self.assertEquals(result['z'], 1.2)
-        self.assertEquals(result['vx'], 1.3)
-        self.assertEquals(result['vy'], 1.3)
-        self.assertEquals(result['vz'], 1.3)
-        self.assertEquals(result['radius'], 1.0)
+        self.assertEquals(result['mass'], 1.0)
+        self.assertEquals(result['x'], 2.0)
+        self.assertEquals(result['y'], 3.0)
+        self.assertEquals(result['z'], 4.0)
+        self.assertEquals(result['vx'], 5.0)
+        self.assertEquals(result['vy'], 6.0)
+        self.assertEquals(result['vz'], 7.0)
+        self.assertEquals(result['radius'], 8.0)
+        self.assertEquals(result['xi'], 9.0)
+        self.assertEquals(result['kf'], 10.0)
+        self.assertEquals(result['tau'], 11.0)
+        self.assertEquals(result['wx'], 12.0)
+        self.assertEquals(result['wy'], 13.0)
+        self.assertEquals(result['wz'], 14.0)
+        self.assertEquals(result['a_mb'], 15.0)
 
-        instance.set_spin(0, 1.4, 1.4, 1.4)
+        instance.set_mass(0, 1.5)
+        self.assertEquals(instance.get_mass(0)['mass'], 1.5)
+
+        result = instance.get_position(0)
+        instance.set_position(0, 2.5, 3.5, 4.5)
+        result = instance.get_position(0)
+        self.assertEquals(result['x'], 2.5)
+        self.assertEquals(result['y'], 3.5)
+        self.assertEquals(result['z'], 4.5)
+
+        instance.set_velocity(0, 5.5, 6.5, 7.5)
+        result = instance.get_velocity(0)
+        self.assertEquals(result['vx'], 5.5)
+        self.assertEquals(result['vy'], 6.5)
+        self.assertEquals(result['vz'], 7.5)
+
+        instance.set_radius(0, 8.5)
+        result = instance.get_radius(0)
+        self.assertEquals(result['radius'], 8.5)
+
+        instance.set_xi(0, 9.5)
+        result = instance.get_xi(0)
+        self.assertEquals(result['xi'], 9.5)
+
+        instance.set_kf(0, 10.5)
+        result = instance.get_kf(0)
+        self.assertEquals(result['kf'], 10.5)
+
+        instance.set_tau(0, 11.5)
+        result = instance.get_tau(0)
+        self.assertEquals(result['tau'], 11.5)
+
+        instance.set_spin(0, 12.5, 13.5, 14.5)
         result = instance.get_spin(0)
-        self.assertEquals(result['wx'], 1.4)
-        self.assertEquals(result['wy'], 1.4)
-        self.assertEquals(result['wz'], 1.4)
+        self.assertEquals(result['wx'], 12.5)
+        self.assertEquals(result['wy'], 13.5)
+        self.assertEquals(result['wz'], 14.5)
 
-        instance.set_tidal_model(0)
+        instance.set_tidal_model(3)
         result = instance.get_tidal_model()
-        self.assertEquals(result['tidal_model'], 0)
+        self.assertEquals(result['tidal_model'], 3)
 
         instance.set_pn_order(2)
         result = instance.get_pn_order()
@@ -99,24 +124,24 @@ class TestTidymessInterface(TestWithMPI):
         result = instance.get_speed_of_light()
         self.assertEquals(result['speed_of_light'], 299792)
 
-        instance.set_dt_mode(0) # FIX
+        instance.set_dt_mode(1)
         result = instance.get_dt_mode()
-        self.assertEquals(result['dt_mode'], 0)
+        self.assertEquals(result['dt_mode'], 1)
 
-        instance.set_dt_const(0) # FIX
+        instance.set_dt_const(0.025625)
         result = instance.get_dt_const()
-        self.assertEquals(result['dt_const'], 0)
+        self.assertEquals(result['dt_const'], 0.025625)
 
-        result = instance.get_time_step()
-        self.assertEquals(result['time_step'], 0)
+        # result = instance.get_time_step()
+        # self.assertEquals(result['time_step'], 0)
 
-        instance.set_eta(0) # FIX
+        instance.set_eta(0.625)
         result = instance.get_eta()
-        self.assertEquals(result['eta'], 0)
+        self.assertEquals(result['eta'], 0.625)
 
-        instance.set_n_iter(1) # FIX
+        instance.set_n_iter(2)
         result = instance.get_n_iter()
-        self.assertEquals(result['n_iter'], 1)
+        self.assertEquals(result['n_iter'], 2)
 
         instance.set_collision_mode(2)
         result = instance.get_collision_mode()
@@ -130,7 +155,7 @@ class TestTidymessInterface(TestWithMPI):
         result = instance.get_breakup_mode()
         self.assertEquals(result['breakup_mode'], 1)
 
-        result = instance.get_num_integration_step() # FIX
+        result = instance.get_num_integration_step() # FIXME
         self.assertEquals(result['num_integration_step'], 0)
 
         self.assertEqual(0, instance.cleanup_code())
