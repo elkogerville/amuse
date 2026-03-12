@@ -1160,6 +1160,6 @@ int jdata::get_nj_max()
 #ifdef GPU
     return g6_get_nj_max_();
 #else
-    return 0;
+    return std::numeric_limits<int>::max();
 #endif
 }
