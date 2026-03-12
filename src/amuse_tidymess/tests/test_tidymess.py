@@ -257,6 +257,7 @@ class TestTidymess(TestWithMPI):
         planet, moon : amuse.datamodel.particles.Particles
             Particle objects of the system.
         """
+        system = Particles()
 
         planet, moon = generate_binaries(
             1 | u.MEarth,
@@ -280,41 +281,92 @@ class TestTidymess(TestWithMPI):
         moon.wy = 8.4e1 | 1/u.yr
         moon.wz = 3.8e8 | 1/u.yr
 
-        return planet, moon
+        system.add_particles(planet)
+        system.add_particles(moon)
+        system.move_to_center()
+
+        return system
 
 
     def test1(self):
         """
-        Test Tidymess parameters attribute.
+        Test Tidymess parameters attribute and their defaults
         """
+        system = self.earth_moon_system()
+        converter = nbody_system.nbody_to_si(
+            system.mass.sum(), system[0].position.length()
+        )
+        instance = self.new_instance_of_an_optional_code(
+            Tidymess, converter
+        )
+        assert instance is not None
 
-        instance = self.new_instance_of_an_optional_code(Tidymess)
-
-        instance.set_tidal_model(4)
-        self.assertEquals(instance.get_tidal_model(), 4)
-
-        instance.set_tidal_model(0)
         self.assertEquals(instance.parameters.tidal_model, 0)
+        instance.parameters.tidal_model = 4
+        self.assertEquals(instance.parameters.tidal_model, 4)
 
-        self.assertEquals(instance.get_pn_order(), 0)
-        instance.set_pn_order(1)
+        self.assertEquals(instance.parameters.pn_order, 0)
+        instance.parameters.pn_order = 1
         self.assertEquals(instance.parameters.pn_order, 1)
 
-        self.assertEquals(instance.get_magnetic_braking(), 0)
-        instance.set_magnetic_braking(1)
-        self.assertEquals(instance.parameters.magnetic_braking ,1)
+        self.assertEquals(instance.parameters.magnetic_braking, 0)
+        instance.parameters.magnetic_braking = 1
+        self.assertEquals(instance.parameters.magnetic_braking, 1)
 
-        self.assertEquals(instance.get_collision_mode(), 0)
-        instance.set_collision_mode(1)
+        self.assertEquals(instance.parameters.speed_of_light, 1e100)
+        instance.parameters.speed_of_light = 2e100
+        self.assertEquals(instance.parameters.speed_of_light, 2e100)
+
+        self.assertEquals(instance.parameters.dt_mode, 1)
+        instance.parameters.dt_mode = 2
+        self.assertEquals(instance.parameters.dt_mode, 2)
+
+        self.assertEquals(instance.parameters.dt_const, 0.015625)
+        instance.parameters.dt_const = 0.025625
+        self.assertEquals(instance.parameters.dt_const, 0.025625)
+
+        self.assertEquals(instance.parameters.eta, 0.0625)
+        instance.parameters.eta = 0.0726
+        self.assertEquals(instance.parameters.eta, 0.0726)
+
+        self.assertEquals(instance.parameters.n_iter, 1)
+        instance.parameters.n_iter = 2
+        self.assertEquals(instance.parameters.n_iter, 2)
+
+        self.assertEquals(instance.parameters.collision_mode, 0)
+        instance.parameters.collision_mode = 1
         self.assertEquals(instance.parameters.collision_mode, 1)
 
-        self.assertEquals(instance.get_roche_mode(), 0)
-        instance.set_roche_mode(2)
+        self.assertEquals(instance.parameters.roche_mode, 0)
+        instance.parameters.roche_mode = 2
         self.assertEquals(instance.parameters.roche_mode, 2)
 
-        self.assertEquals(instance.get_breakup_mode(), 0)
-        instance.set_breakup_mode(1)
+        self.assertEquals(instance.parameters.breakup_mode, 0)
+        instance.parameters.breakup_mode = 1
         self.assertEquals(instance.parameters.breakup_mode, 1)
+
+        self.assertEquals(instance.parameters.initial_shape, 0)
+        instance.parameters.initial_shape = 1
+        self.assertEquals(instance.parameters.initial_shape, 1)
+
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system)
+
+        # check that parameters are still set
+        # correctly after adding a particle
+        self.assertEquals(instance.parameters.tidal_model, 4)
+        self.assertEquals(instance.parameters.pn_order, 1)
+        self.assertEquals(instance.parameters.magnetic_braking, 1)
+        self.assertEquals(instance.parameters.speed_of_light, 2e100)
+        self.assertEquals(instance.parameters.dt_mode, 2)
+        self.assertEquals(instance.parameters.dt_const, 0.025625)
+        self.assertEquals(instance.parameters.eta, 0.0726)
+        self.assertEquals(instance.parameters.n_iter, 2)
+        self.assertEquals(instance.parameters.collision_mode, 1)
+        self.assertEquals(instance.parameters.roche_mode, 2)
+        self.assertEquals(instance.parameters.breakup_mode, 1)
+        self.assertEquals(instance.parameters.initial_shape, 1)
 
         instance.stop()
 
@@ -322,24 +374,24 @@ class TestTidymess(TestWithMPI):
         """
         Test Tidymess add_particles method.
         """
-        planet, moon = self.earth_moon_system()
+        system = self.earth_moon_system()
+        converter = nbody_system.nbody_to_si(system.mass.sum(), system[0].position.length())
 
-        system = Particles()
-        system.add_particles(planet)
-        system.add_particles(moon)
-
-        converter = nbody_system.nbody_to_si(system.mass.sum(), planet.position.length())
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
-        instance.set_tidal_model(0)
+        assert instance is not None
 
+        instance.parameters.tidal_model = 0
         instance.particles.add_particles(system)
-        instance.set_tidal_model(0)
 
-        self.assertEquals(instance.get_time_step(), 0 | u.s)
+        self.assertEquals(instance.get_number_of_particles(), 2)
 
-        self.assertGreater(instance.get_total_mass(), 6.04562e24 | u.kg)
-        self.assertLess(instance.get_total_mass(), 6.04563e24 | u.kg)
-        self.assertEquals(instance.get_total_radius(), 8108400.0 | u.m)
+        self.assertEquals(instance.model_time, 0 | u.s)
+        self.assertAlmostEquals(instance.get_total_mass(), system[0].mass + system[1].mass)
+        self.assertAlmostEquals(instance.get_total_radius(), 379730731.968 | u.m, 3)
+
+        instance.delete_particle(1)
+        self.assertEquals(instance.get_number_of_particles(), 1)
+        self.assertAlmostEquals(instance.get_total_mass(), system[0].mass)
 
         instance.stop()
 
