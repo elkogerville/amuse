@@ -125,7 +125,8 @@ def _make_packages(code_dir: Path, code: str, variables: Dict[str, str]) -> None
     def make_package(pkg_type: str, suffix: str) -> None:
         pkg_dir = code_dir / "packages" / f"amuse-{code}{suffix}"
         pkg_dir.mkdir()
-        (pkg_dir / code).symlink_to("../..", True)
+        module = 'amuse_' + code
+        (pkg_dir / module).symlink_to("../..", True)
 
         _instantiate_template(
                 "amuse-code.amuse_deps",
