@@ -15,7 +15,7 @@ except ImportError:
         return None
 
 
-def get(example_name, prefix="amuse.examples"):
+def get(example_name, prefix="amuse_examples"):
     """
     Retrieves an AMUSE example.
     """
@@ -25,7 +25,7 @@ def get(example_name, prefix="amuse.examples"):
     return inspect.getsource(importlib.import_module(f"{prefix}{example_name}"))
 
 
-def to_cell(example_name, prefix="amuse.examples"):
+def to_cell(example_name, prefix="amuse_examples"):
     """
     Creates a Jupyter cell from an AMUSE example.
     Works also for other modules, set prefix to None in that case.
@@ -36,7 +36,7 @@ def to_cell(example_name, prefix="amuse.examples"):
     shell.set_next_input(contents, replace=False)
 
 
-def show(example_name, prefix="amuse.examples"):
+def show(example_name, prefix="amuse_examples"):
     """
     Prints the source code of an AMUSE example.
     """
@@ -47,7 +47,7 @@ def run(example_name):
     """
     Runs an AMUSE example.
     """
-    prefix = "amuse.examples."
+    prefix = "amuse_examples."
     try:
         example = importlib.import_module(f"{prefix}{example_name}")
     except ImportError as exc:

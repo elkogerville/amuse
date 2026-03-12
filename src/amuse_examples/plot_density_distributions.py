@@ -15,7 +15,7 @@ from amuse.ic.fractalcluster import new_fractal_cluster_model
 from amuse.ext.halogen_model import new_halogen_model
 from amuse.ext.protodisk import ProtoPlanetaryDisk
 
-from amuse.examples.make_oort_cloud import add_comets
+from amuse_examples.make_oort_cloud import add_comets
 
 plt.style.use("amuse.examples.book_v2")
 

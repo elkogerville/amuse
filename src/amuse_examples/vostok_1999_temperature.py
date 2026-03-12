@@ -35,7 +35,7 @@ def read_earth_orbit(datafile):
 
 
 def vostok_1999_temperature():
-    data_dir = files("amuse.examples.data")
+    data_dir = files("amuse_examples.data")
     tv, T = read_vostok_1999_temperature_data(
         f"{data_dir}/vostok_1999_temperature.data"
     )
