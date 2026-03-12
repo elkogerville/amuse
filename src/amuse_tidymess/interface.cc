@@ -979,29 +979,44 @@ int get_gravity_at_point(
 }
 
 
-// compute spin vector (largely copied from Initializer)
-int convert_spin_vectors_to_inertial(double P, double obl, double psi, double * wx, double * wy, double * wz) {
+/**
+ * Convert spin LOD, OBL, PSI to spin vector wx, wy, wz
+ */
+int convert_spin_vectors_to_inertial(
+    double P,
+    double obl,
+    double psi,
+    double* wx,
+    double* wy,
+    double* wz
+) {
+    if (!wx || !wy || !wz)
+        return -1;
 
-        if(P == 0) {
-            *wx = 0.;
-            *wy = 0.;
-            *wz = 0.;
-        }
-        else {
-            double wmag = 2*M_PI/P;
+    if(P == 0) {
+        *wx = 0.0;
+        *wy = 0.0;
+        *wz = 0.0;
+    }
+    else if (P < 0) {
+        return -2;
+    }
+    else {
+        double wmag = 2*M_PI/P;
 
-            std::vector<double> w_vec(3);
-            w_vec[0] = 0;
-            w_vec[1] = 0;
-            w_vec[2] = wmag;
+        std::vector<double> w_vec(3);
+        w_vec[0] = 0;
+        w_vec[1] = 0;
+        w_vec[2] = wmag;
 
-            w_vec = init.rotZrotX(psi, obl, w_vec);
+        w_vec = init.rotZrotX(psi, obl, w_vec);
 
-            *wx = w_vec[0];
-            *wy = w_vec[1];
-            *wz = w_vec[2];
-        }
-    return 0;}
+        *wx = w_vec[0];
+        *wy = w_vec[1];
+        *wz = w_vec[2];
+    }
+    return 0;
+}
 
 int detect_collision(
     int* collision_flag,
