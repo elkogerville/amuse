@@ -167,7 +167,7 @@ class TestTidymessInterface(TestWithMPI):
         """
 
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
-
+        assert instance is not None
         result = instance.new_particle(
             1.0, 1.0, 1.0, 1.0,
             1.0, 1.0, 1.0,
@@ -204,27 +204,30 @@ class TestTidymessInterface(TestWithMPI):
         first = instance.get_index_of_first_particle()
         self.assertEqual(first['index_of_the_particle'], 0)
 
-        next = instance.get_index_of_next_particle(0)
+        next = instance.get_index_of_next_particle(
+            first['index_of_the_particle']
+        )
         self.assertEqual(next['index_of_the_next_particle'], 1)
 
         # delete particle
-        #instance.delete_particle(1)
+        instance.delete_particle(1)
 
-        # result = instance.get_number_of_particles()
-        # self.assertEqual(result['number_of_particles'], 1)
+        result = instance.get_number_of_particles()
+        self.assertEqual(result['number_of_particles'], 1)
 
-        # first = instance.get_index_of_first_particle()
-        # self.assertEqual(first['index_of_the_particle'], 0)
+        first = instance.get_index_of_first_particle()
+        self.assertEqual(first['index_of_the_particle'], 0)
 
-        # instance.stop()
+        instance.stop()
 
     def test4(self):
         """
         Test TidymessInterface evolve_model with an equal mass binary.
         """
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
-        self.assertEqual(0, instance.initialize_code())
+        assert instance is not None
 
+        self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
         self.assertEqual([0, 0], list(instance.new_particle(0.5,  0.5, 0, 0,  0, 0.5, 0).values()))
