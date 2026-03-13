@@ -28,7 +28,8 @@ method = { module = "version_helper", value = "get_amuse_version", module-dir = 
 skip-excluded-dirs = true
 
 [tool.hatch.build.targets.wheel]
-include = ["amuse_examples/**/*.py"]
+packages = ["amuse_examples/amuse_examples"]
+include = ["amuse_examples/amuse_examples/**/*.py"]
 exclude = [
     "amuse_examples/packages",
     "amuse_examples/support",
