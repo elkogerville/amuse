@@ -1,47 +1,65 @@
-""" Forward examples
-
-This does not use amuse.support.helpers.load_symbol, because we don't have an interface.py
-and because we want to have different error messages. We're not loading a code, in
-short.
 """
-from importlib import import_module
-from os import environ
+AMUSE examples module
+"""
+
+import inspect
+import importlib
+
+try:
+    from IPython.core.getipython import get_ipython
+    from IPython.terminal.interactiveshell import InteractiveShell
+except ImportError:
+
+    def get_ipython():
+        "N/A, so return None"
+        return None
 
 
-def _load_symbol(symbol):
+def get(example_name, prefix="amuse_examples"):
+    """
+    Retrieves an AMUSE example.
+    """
+    if prefix is not None:
+        if prefix[-1] != ".":
+            prefix += "."
+    return inspect.getsource(importlib.import_module(f"{prefix}{example_name}"))
+
+
+def to_cell(example_name, prefix="amuse_examples"):
+    """
+    Creates a Jupyter cell from an AMUSE example.
+    Works also for other modules, set prefix to None in that case.
+    """
+
+    contents = get(example_name, prefix=prefix)
+    shell = get_ipython()
+    shell.set_next_input(contents, replace=False)
+
+
+def show(example_name, prefix="amuse_examples"):
+    """
+    Prints the source code of an AMUSE example.
+    """
+    print(get(example_name, prefix=prefix))
+
+
+def run(example_name):
+    """
+    Runs an AMUSE example.
+    """
+    prefix = "amuse_examples."
     try:
-        module = import_module("amuse_examples")
+        example = importlib.import_module(f"{prefix}{example_name}")
+    except ImportError as exc:
+        raise ImportError("Could not find example") from exc
+    example.main()
+
+
+def shell_is_interactive():
+    """
+    Returns True if the shell is interactive and False otherwise.
+    """
+    try:
+        return isinstance(get_ipython(), InteractiveShell)
     except ImportError:
-        msg = f"Error: The examples are not installed."
-        if "CONDA_PREFIX" in environ:
-            env = environ["CONDA_DEFAULT_ENV"]
-            msg += (
-                    " To install the examples go to the terminal, make sure that"
-                    f" the '{env}' conda environment is active and that you are in the"
-                    " amuse source directory, then install them using './setup"
-                    " install amuse-examples' and restart your script or reload the"
-                    " kernel.")
-
-        if "VIRTUAL_ENV" in environ:
-            env = environ["VIRTUAL_ENV"]
-            msg += (
-                    " To install the examples, go to the terminal, make sure that"
-                    f" the '{env}' virtual environment is active and that you are in"
-                    " the amuse source directory, then install the code using './setup"
-                    " install amuse-examples' and restart your script or reload the"
-                    " kernel.")
-        raise ImportError(msg) from None
-
-    try:
-        return vars(module)[symbol]
-    except KeyError:
-        raise ImportError(
-                f"cannot import '{symbol}' from 'amuse_examples'"
-                ) from None
-
-
-get = _load_symbol("get")
-to_cell = _load_symbol("to_cell")
-show = _load_symbol("show")
-run = _load_symbol("run")
-shell_is_interactive = _load_symbol("shell_is_interactive")
+        return False

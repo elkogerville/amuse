@@ -45,7 +45,7 @@ fig, ax = pyplot.subplots(figsize=[16,10])
 ax.minorticks_on() # switch on the minor ticks
 ax.tick_params('both', length=15, width=2, which='major')
 ax.tick_params('both', length=6, width=1, which='minor')
-from distinct_colours import get_distinct
+from amuse.examples.distinct_colours import get_distinct
 colors = get_distinct(10)
 
 pyplot.scatter(R_young_stars, S_young_stars, s=100, marker='s', c=colors[6], lw=0)
