@@ -1,7 +1,7 @@
 import numpy
 from matplotlib import pyplot
 from amuse.lab import *
-from prepare_figure import single_frame
+from amuse.examples.prepare_figure import single_frame
 
 def make_e_map(sph,N=100,L=1):
 

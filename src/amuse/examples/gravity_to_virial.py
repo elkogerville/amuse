@@ -3,8 +3,8 @@
 """
 from amuse.lab import *
 from matplotlib import pyplot
-from prepare_figure import single_frame, figure_frame, set_tickmarks
-from distinct_colours import get_distinct
+from amuse.examples.prepare_figure import single_frame, figure_frame, set_tickmarks
+from amuse.examples.distinct_colours import get_distinct
 
 def virial_ratio_evolution(code, bodies, Q_init, t_end):
     dt = 0.06125 | t_end.unit

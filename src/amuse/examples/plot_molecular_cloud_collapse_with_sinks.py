@@ -1,4 +1,4 @@
-from cooling_class import SimplifiedThermalModel, SimplifiedThermalModelEvolver
+from amuse.examples.cooling_class import SimplifiedThermalModel, SimplifiedThermalModelEvolver
 
 import numpy
 import matplotlib.pyplot as plt

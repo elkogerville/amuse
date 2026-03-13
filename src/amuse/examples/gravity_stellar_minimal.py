@@ -166,13 +166,13 @@ def gravity_stellar_minimal_argument_parser():
     return result
 
 
-def main(args):
-    arguments = gravity_stellar_minimal_argument_parser().parse_args(args)
-    gravity_stellar_minimal(**arguments.__dict__)
+def main():
+    if shell_is_interactive():
+        gravity_stellar_minimal({})
+    else:
+        arguments = gravity_stellar_minimal_argument_parser().parse_args(sys.argv[1:])
+        gravity_stellar_minimal(**arguments.__dict__)
 
 
 if __name__ == "__main__":
-    if shell_is_interactive():
-        main([])
-    else:
-        main(sys.argv[1:])
+    main()

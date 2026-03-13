@@ -152,7 +152,12 @@ def new_option_parser():
                       help="end time of the simulation [%default]")
     return result
 
-if __name__ in ('__main__', '__plot__'):
+
+def  main():
     o, arguments  = new_option_parser().parse_args()
     numpy.random.seed(123)
     gravity_hydro_bridge(**o.__dict__)
+
+
+if __name__ in ('__main__', '__plot__'):
+    main()

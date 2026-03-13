@@ -73,7 +73,8 @@ def main():
         channel_from_star_to_framework.copy()
         channel_from_planet_to_framework.copy()
         channel_from_moon_to_framework.copy()
-        write_set_to_file(ss.savepoint(time), filename, 'hdf5', version='2')
+        write_set_to_file(
+                ss.savepoint(time), filename, 'hdf5', version='2', append_to_file=True)
 
         Ekin = gravity.kinetic_energy 
         Epot = gravity.potential_energy

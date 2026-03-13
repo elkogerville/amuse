@@ -8,7 +8,7 @@ from amuse.ext.sph_to_grid import convert_SPH_to_grid
 from amuse.community.capreole.interface import Capreole
 from amuse.units.generic_unit_converter import ConvertBetweenGenericAndSiUnits
 
-from prepare_figure import single_frame
+from amuse.examples.prepare_figure import single_frame
 
 def plot_grid(grid, time= 0.0|units.day):
 

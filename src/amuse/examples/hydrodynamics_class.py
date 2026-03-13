@@ -8,7 +8,7 @@ from amuse.datamodel import Particles
 from amuse.community.fi.interface import Fi
 from amuse.community.gadget2.interface import Gadget2
 
-from cooling_class import Cooling, SimplifiedThermalModelEvolver
+from amuse.examples.cooling_class import Cooling, SimplifiedThermalModelEvolver
 # from amuse.ext.sink import SinkParticles
 from amuse.ext.sink import new_sink_particles
 

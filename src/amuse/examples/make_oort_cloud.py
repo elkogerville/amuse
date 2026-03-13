@@ -393,7 +393,7 @@ def main():
     outfile = args.outfile
 
     if args.outfile is None:
-        outfile = f"sun_and_comets_N{args:01}.amuse"
+        outfile = f"sun_and_comets_N{args.n_comets:01}.amuse"
 
     bodies = read_set_from_file(args.filename, close_file=True)
     stars = bodies[bodies.type == "star"]

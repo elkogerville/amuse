@@ -66,7 +66,7 @@ def setup_sph_code(sph_code, N, L, rho, u):
     sph_code.commit_particles()
     return sph_code
     
-def main(stellar_mass, stellar_radius, core_mass, core_radius, t_end, dt, resolution):
+def supernova_grid(stellar_mass, stellar_radius, core_mass, core_radius, t_end, dt, resolution):
     grid_size = 10 * stellar_radius
     hydro = initialize_grid_code(resolution, grid_size)
     grid = initialize_grid(stellar_mass, stellar_radius, core_mass, core_radius, resolution, grid_size)
@@ -185,7 +185,11 @@ def new_option_parser():
                       help="Radius of the stellar core [%default]")
     return result
 
-if __name__ in ('__main__', '__plot__'):
-    o, arguments  = new_option_parser().parse_args()
-    main(**o.__dict__)
 
+def main():
+    o, arguments  = new_option_parser().parse_args()
+    supernova_grid(**o.__dict__)
+
+
+if __name__ in ('__main__', '__plot__'):
+    main()

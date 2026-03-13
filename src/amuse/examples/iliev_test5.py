@@ -344,11 +344,9 @@ def plots(i):
     aplot(i, 'mach', ((r/15, mach, 'r'),),
           xlim=(0., 1.), ylim=(1.e-5, 10.))
 
+
 # main example
-
-
-if __name__ == "__main__":
-
+def main():
     N = 10000
     Ns = 1
     L = 15. | units.kpc
@@ -361,3 +359,7 @@ if __name__ == "__main__":
     if IS_PLOT_AVAILABLE:
         plots(50)
         plots(100)
+
+
+if __name__ == "__main__":
+    main()

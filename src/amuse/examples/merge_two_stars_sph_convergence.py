@@ -4,8 +4,8 @@ from matplotlib import pyplot
 from amuse.lab import *
 from amuse.plot import plot
 from amuse.ext.sph_to_star import convert_SPH_to_stellar_model
-from prepare_figure import *
-from distinct_colours import get_distinct
+from amuse.examples.prepare_figure import *
+from amuse.examples.distinct_colours import get_distinct
 
 def return_evolved_star_hydro(mass, time, Nsph):
     star =  Particle(mass=mass)

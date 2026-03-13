@@ -152,7 +152,12 @@ def plot_grid(grid):
     plot.imshow(rho, origin = 'lower', cmap='jet')
     figure.savefig('kelvin_helmholtz.png')
     pyplot.show()
-    
-if __name__ == "__main__":
+
+
+def main():
     grids = simulate_kelvin_helmholtz_instability(1.0 | time)
     plot_grid(grids[0])
+
+
+if __name__ == "__main__":
+    main()

@@ -14,7 +14,7 @@ from amuse.ext.star_to_sph import convert_stellar_model_to_SPH
 from amuse.ext.relax_sph import relax
 
 def evolve_star(mass, age):
-    stellar = MESA()
+    stellar = stellar_evolution_code()
     stellar.parameters.metallicity = 0.02
     star = stellar.particles.add_particle(Particle(mass=mass))
     stellar.evolve_model(age)
@@ -109,7 +109,8 @@ def new_option_parser():
                       help="stellar age [%default]")
     return result
 
-if __name__ == "__main__":
+
+def main():
     o, arguments = new_option_parser().parse_args()
     stellar = evolve_star(o.mass, o.age)
     star, core, age = evolve_star_and_convert_to_sph(stellar, o.omega, o.Nsph)
@@ -120,3 +121,7 @@ if __name__ == "__main__":
     print(filename)
 
     write_set_to_file(star, filename, format='hdf5', append_to_file=False)
+
+
+if __name__ == "__main__":
+    main()

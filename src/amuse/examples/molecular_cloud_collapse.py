@@ -15,8 +15,8 @@ from amuse.lab import *
 from amuse.ext.molecular_cloud import molecular_cloud
 from amuse.ext.evrard_test import body_centered_grid_unit_cube
 
-from prepare_figure import single_frame, figure_frame, set_tickmarks
-from distinct_colours import get_distinct
+from amuse.examples.prepare_figure import single_frame, figure_frame, set_tickmarks
+from amuse.examples.distinct_colours import get_distinct
 
 def make_map(sph, N=100, L=1):
 

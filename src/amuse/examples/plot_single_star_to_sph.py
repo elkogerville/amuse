@@ -15,11 +15,11 @@ def plot_single_star_to_sph():
         r1MSun = np.load(f)
         rho1MSun = np.load(f)
 
-    with open(datadir.joinpath("fig_star_in_sph_N10000M3.0MSun.npy", "rb") as f:
+    with open(datadir.joinpath("fig_star_in_sph_N10000M3.0MSun.npy"), "rb") as f:
         r3MSun = np.load(f)
         rho3MSun = np.load(f)
 
-    with open(datadir.joinpath("fig_star_in_sph_N10000M10.0MSun.npy", "rb") as f:
+    with open(datadir.joinpath("fig_star_in_sph_N10000M10.0MSun.npy"), "rb") as f:
         r10MSun = np.load(f)
         rho10MSun = np.load(f)
     

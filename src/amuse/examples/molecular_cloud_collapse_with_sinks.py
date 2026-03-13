@@ -5,7 +5,7 @@ from amuse.lab import *
 from amuse.ext.molecular_cloud import molecular_cloud
 from amuse.ext.evrard_test import body_centered_grid_unit_cube
 
-from cooling_class import SimplifiedThermalModel, SimplifiedThermalModelEvolver
+from amuse.examples.cooling_class import SimplifiedThermalModel, SimplifiedThermalModelEvolver
 from hydrodynamics_class import Hydro
 
 def run_molecular_cloud(N=100, Mcloud=100. | units.MSun,

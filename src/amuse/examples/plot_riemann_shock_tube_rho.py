@@ -1,8 +1,8 @@
 from amuse.lab import *
 from amuse.plot import *
 
-from prepare_figure import *
-from distinct_colours import get_distinct
+from amuse.examples.prepare_figure import *
+from amuse.examples.distinct_colours import get_distinct
 
 import csv
 

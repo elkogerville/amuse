@@ -172,8 +172,8 @@ def new_option_parser():
                       help="stellar age [%default]")
     result.add_option("-o", unit=units.day**-1,
                       dest="omega", type="float",
-                      # default=(24.47 | units.day)**-1,
-                      default=(0 | units.day)**-1,
+                      # default=24.47 | units.day**-1,
+                      default=0 | units.day**-1,
                       help="stellar rotation [%default]")
     return result
 
