@@ -23,7 +23,7 @@ then
     # we assume that the conda metadata is correct, and that if it isn't there's
     # an expert packager who can fix things.
     AS_ECHO(["Conda package build detected, skipping checks for dependencies."])
-    ASSUME_FEATURES="c c++ fortran java python tar unzip gunzip bunzip2 unxz bison perl gmake cmake install download mpi openmp cuda opencl blas lapack gsl gmp mpfr fftw hdf5 netcdf4 sapporo_light"
+    ASSUME_FEATURES="c c++ fortran java python tar unzip gunzip bunzip2 unxz bison perl gmake cmake install download mpi openmp cuda opencl blas lapack gsl gmp mpfr fftw hdf5 libz netcdf4 sapporo_light"
 
 else
     if test "x" != "x$CONDA_DEFAULT_ENV"
@@ -219,12 +219,12 @@ ENABLE_FEATURE_IF_DEFINED([cuda], [CUDA_TK])
 ENABLE_FEATURE_IF_EQUALS([opencl], [FOUND_OPENCL], [yes])
 ENABLE_FEATURE_IF_DEFINED([blas], [BLAS_LIBS])
 ENABLE_FEATURE_IF_DEFINED([lapack], [HAVE_LAPACK])
-ENABLE_FEATURE_IF_DEFINED([gsl], [FOUND_GSL])
+ENABLE_FEATURE_IF_EQUALS([gsl], [FOUND_GSL], [yes])
 ENABLE_FEATURE_IF_EQUALS([gmp], [FOUND_GMP], [yes])
 ENABLE_FEATURE_IF_EQUALS([mpfr], [FOUND_MPFR], [yes])
 ENABLE_FEATURE_IF_EQUALS([fftw], [FOUND_FFTW], [yes])
 ENABLE_FEATURE_IF_EQUALS([libz], [FOUND_LIBZ], [yes])
-ENABLE_FEATURE_IF_DEFINED([hdf5], [with_hdf5])
+ENABLE_FEATURE_IF_EQUALS([hdf5], [with_hdf5], [yes])
 ENABLE_FEATURE_IF_EQUALS([netcdf4], [FOUND_NETCDF], [yes])
 ENABLE_FEATURE_IF_EQUALS([qhull], [FOUND_QHULL], [yes])
 ENABLE_FEATURE_IF_EQUALS([healpix-cxx], [FOUND_HEALPIX_CXX], [yes])

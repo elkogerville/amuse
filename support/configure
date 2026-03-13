@@ -3119,7 +3119,7 @@ then
     # we assume that the conda metadata is correct, and that if it isn't there's
     # an expert packager who can fix things.
     printf "%s\n" "Conda package build detected, skipping checks for dependencies."
-    ASSUME_FEATURES="c c++ fortran java python tar unzip gunzip bunzip2 unxz bison perl gmake cmake install download mpi openmp cuda opencl blas lapack gsl gmp mpfr fftw hdf5 netcdf4 sapporo_light"
+    ASSUME_FEATURES="c c++ fortran java python tar unzip gunzip bunzip2 unxz bison perl gmake cmake install download mpi openmp cuda opencl blas lapack gsl gmp mpfr fftw hdf5 libz netcdf4 sapporo_light"
 
 else
     if test "x" != "x$CONDA_DEFAULT_ENV"
@@ -15584,7 +15584,7 @@ if test "x" != "x${HAVE_LAPACK}"
 then :
   FEATURES="${FEATURES} lapack"
 fi
-if test "x" != "x${FOUND_GSL}"
+if test "x${FOUND_GSL}" = "xyes"
 then :
   FEATURES="${FEATURES} gsl"
 fi
@@ -15604,7 +15604,7 @@ if test "x${FOUND_LIBZ}" = "xyes"
 then :
   FEATURES="${FEATURES} libz"
 fi
-if test "x" != "x${with_hdf5}"
+if test "x${with_hdf5}" = "xyes"
 then :
   FEATURES="${FEATURES} hdf5"
 fi
