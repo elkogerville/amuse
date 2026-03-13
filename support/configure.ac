@@ -4,6 +4,8 @@ AC_INIT([amuse], [1.0])
 
 AC_CANONICAL_TARGET
 
+AMUSE_LOG_ENVVARS()
+
 # If we have a Conda environment active, then we're going to do everything via Conda,
 # including the dependencies. So in this case, we'll detect installed Conda packages,
 # rather than searching the system for libraries in the usual way.
