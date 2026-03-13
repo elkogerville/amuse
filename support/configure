@@ -741,6 +741,8 @@ H5FC
 H5CC
 GREP
 SED
+LIBZ_LIBS
+LIBZ_CFLAGS
 FFTW_FLAGS
 FOUND_FFTW
 FFTW_LIBS
@@ -3117,7 +3119,7 @@ then
     # we assume that the conda metadata is correct, and that if it isn't there's
     # an expert packager who can fix things.
     printf "%s\n" "Conda package build detected, skipping checks for dependencies."
-    ASSUME_FEATURES="c c++ fortran java python tar unzip gunzip bunzip2 unxz bison perl gmake cmake install download mpi openmp cuda opencl blas lapack gsl gmp mpfr fftw hdf5 netcdf4 sapporo_light"
+    ASSUME_FEATURES="c c++ fortran java python tar unzip gunzip bunzip2 unxz bison perl gmake cmake install download mpi openmp cuda opencl blas lapack gsl gmp mpfr fftw hdf5 libz netcdf4 sapporo_light"
 
 else
     if test "x" != "x$CONDA_DEFAULT_ENV"
@@ -4500,6 +4502,27 @@ then :
         # FOUND_FFTW="$(AS_ECHO("$ax_conda_package_line") | tr -s ' ' | cut -f 2 -d ' ')"
 
             FOUND_FFTW="yes"
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+else $as_nop
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+fi
+
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for conda package zlib" >&5
+printf %s "checking for conda package zlib... " >&6; }
+    ax_conda_package_line="$(echo $amuse_conda_list | tr '^' '\n' | grep '^zlib ')"
+    if test "$?" = "0"
+then :
+
+        # FOUND_LIBZ="$(AS_ECHO("$ax_conda_package_line") | tr -s ' ' | cut -f 2 -d ' ')"
+
+            FOUND_LIBZ="yes"
 
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
@@ -13551,6 +13574,73 @@ fi
 
 
 
+
+    amuse_libz_save_libs="$LIBS"
+
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libz" >&5
+printf %s "checking for libz... " >&6; }
+
+    ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+    LIBS="-lz"
+
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+            #include <zlib.h>
+
+#ifdef F77_DUMMY_MAIN
+
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+
+#endif
+int
+main (void)
+{
+
+            z_stream strm;
+            deflateInit(&strm, 0);
+
+  ;
+  return 0;
+}
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+
+        FOUND_LIBZ="yes"
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+
+else $as_nop
+
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+
+    ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+
+
+
+
             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for a sed that does not truncate output" >&5
 printf %s "checking for a sed that does not truncate output... " >&6; }
 if test ${ac_cv_path_SED+y}
@@ -15494,7 +15584,7 @@ if test "x" != "x${HAVE_LAPACK}"
 then :
   FEATURES="${FEATURES} lapack"
 fi
-if test "x" != "x${FOUND_GSL}"
+if test "x${FOUND_GSL}" = "xyes"
 then :
   FEATURES="${FEATURES} gsl"
 fi
@@ -15510,7 +15600,11 @@ if test "x${FOUND_FFTW}" = "xyes"
 then :
   FEATURES="${FEATURES} fftw"
 fi
-if test "x" != "x${with_hdf5}"
+if test "x${FOUND_LIBZ}" = "xyes"
+then :
+  FEATURES="${FEATURES} libz"
+fi
+if test "x${with_hdf5}" = "xyes"
 then :
   FEATURES="${FEATURES} hdf5"
 fi
