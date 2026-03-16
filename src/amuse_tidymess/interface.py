@@ -6,7 +6,7 @@ from amuse.community.interface.stopping_conditions import StoppingConditions, St
 from amuse.rfi.core import CodeInterface, legacy_function, LegacyFunctionSpecification
 from amuse.support.interface import MethodWithUnitsDefinition
 from amuse.support.literature import LiteratureReferencesMixIn
-from amuse.units import generic_unit_system, nbody_system
+from amuse.units import units as u, generic_unit_system, nbody_system
 
 
 class TidymessInterface(
@@ -1159,54 +1159,54 @@ class TidymessInterface(
             description=''
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
+        function.result_doc = """"""
 
         return function
 
 
-    @legacy_function
-    def detect_collision():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'collision_flag',
-            dtype='int32',
-            direction=function.OUT,
-            description=''
-        )
-        function.addParameter(
-            'n_collisions',
-            dtype='int32',
-            direction=function.OUT,
-            description=''
-        )
-        function.addParameter(
-            'index1',
-            dtype='int32',
-            direction=function.OUT,
-            description=''
-        )
-        function.addParameter(
-            'index2',
-            dtype='int32',
-            direction=function.OUT,
-            description=''
-        )
-        #function.addParameter(
-        #    'indices_of_colliding_particles', dtype='int32', direction=function.OUT,
-        #    description="")
-        function.result_type = 'int32'
-        function.result_doc = ''''''
+    # @legacy_function
+    # def detect_collision():
+    #     '''
+    #     '''
+    #     function = LegacyFunctionSpecification()
+    #     function.addParameter(
+    #         'collision_flag',
+    #         dtype='int32',
+    #         direction=function.OUT,
+    #         description=''
+    #     )
+    #     function.addParameter(
+    #         'n_collisions',
+    #         dtype='int32',
+    #         direction=function.OUT,
+    #         description=''
+    #     )
+    #     function.addParameter(
+    #         'index1',
+    #         dtype='int32',
+    #         direction=function.OUT,
+    #         description=''
+    #     )
+    #     function.addParameter(
+    #         'index2',
+    #         dtype='int32',
+    #         direction=function.OUT,
+    #         description=''
+    #     )
+    #     #function.addParameter(
+    #     #    'indices_of_colliding_particles', dtype='int32', direction=function.OUT,
+    #     #    description="")
+    #     function.result_type = 'int32'
+    #     function.result_doc = ''''''
 
-        return function
+    #     return function
 
 
     @legacy_function
     def convert_spin_vectors_to_inertial():
         """
-        Function to convert a spin vector in the form of
-        LOD, OBL, PSI to {wx, wy, wz}
+        Convert spin vector {length of day, obliquity, spin precession angle}
+        to spin vector {wx, wy, wz}
         """
         function = LegacyFunctionSpecification()
         function.addParameter(
@@ -1254,26 +1254,6 @@ class TidymessInterface(
         -2 - ERROR
             Negative length of day detected
         """
-
-        return function
-
-
-    @legacy_function
-    def merge_collided_particles():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'number_of_particles',
-            dtype='int32',
-            direction=function.OUT,
-            description=(
-                'should be equivalent to collision '
-                'handling when collision_mode==3'
-            )
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
 
         return function
 
