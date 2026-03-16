@@ -939,10 +939,6 @@ int get_index_of_next_particle(
     return 0;
 }
 
-int synchronize_model() {
-    return 0;
-}
-
 int get_potential_at_point(
     double* eps,
     double* x,
@@ -980,7 +976,6 @@ int get_gravity_at_point(
     }
     return 0;
 }
-
 
 /**
  * Convert spin vector {length of day, obliquity, spin precession angle}
@@ -1023,6 +1018,11 @@ int convert_spin_vectors_to_inertial(
     return 0;
 }
 
+int synchronize_model() {
+    return 0;
+}
+
+// FIXME
 int detect_collision(
     int* collision_flag,
     int* n_collisions,
@@ -1042,30 +1042,5 @@ int detect_collision(
         *index2 = collided_index[1];
     }
 
-    return 0;
-}
-
-// int merge_collided_particles(int * number_of_particles) {
-//     vector<Body> bodies = tidymess.get_particles();
-//     vector< array<int, 2> > cindex = tidymess.get_collision_indices();
-//     collision.replace(bodies, cindex);
-
-//     tidymess.set_particles(bodies);
-//     tidymess.commit_particles();
-
-//     *number_of_particles = bodies.size();
-//     return 0;
-// }
-int merge_collided_particles(int* number_of_particles) {
-    if (!number_of_particles) return -1;
-
-    std::vector<Body>& bodies = tidymess.bodies;
-    std::vector< array<int, 2> > cindex = tidymess.get_collision_indices();
-
-    collision.replace(bodies, cindex);
-    //tidymess.set_particles(bodies);
-    tidymess.commit_particles();
-
-    *number_of_particles = bodies.size();
     return 0;
 }
