@@ -518,129 +518,127 @@ class TestTidymess(TestWithMPI):
 
         spin = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
 
-        self.assertAlmostEquals(spin[0], 0 | 1 / u.s)
-        self.assertAlmostEquals(spin[1], -1.26280518349e-5 | 1 / u.s)
-        self.assertAlmostEquals(spin[2], 7.16172407885e-5 | 1 / u.s)
+        self.assertAlmostEquals(spin[0], 0 | 1/u.s)
+        self.assertAlmostEquals(spin[1], -1.26280518349e-5 | 1/u.s)
+        self.assertAlmostEquals(spin[2], 7.16172407885e-5 | 1/u.s)
 
         instance.stop()
 
     def test4(self):
         """
-        Evolve a system of Particles
+        Evolve a system of Particles without tides
         """
-        system = self.earth_moon_system()
+        end_time = 1 | u.yr
+        dt_diag = 1e-4 | u.yr
 
+        system = self.earth_moon_system()
         converter = nbody_system.nbody_to_si(
-            system.mass.sum(), system[0].position.length()
+            system.mass.sum(), end_time
         )
+
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         assert instance is not None
 
         instance.parameters.tidal_model = 0
         instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.0625
         instance.commit_parameters()
 
         instance.particles.add_particles(system)
-
-        ratio = instance.get_total_mass() / system.mass.sum()
-        self.assertAlmostEquals(ratio, 1)
-
-        end_time = 1.1
-        dt = 0.1
-        times = np.arange(0, end_time, dt) | u.yr
-
-        planet_positions = np.zeros((times.shape[0], 3))
-        moon_positions = np.zeros_like(planet_positions)
         channel = instance.particles.new_channel_to(system)
 
-        for i, t in enumerate(times):
+        times = [] | u.yr
+        times.append(0.0 | u.yr)
+        particles = [system.copy()]
 
-            instance.evolve_model(t)
+        while instance.model_time < end_time:
+            time = instance.model_time + dt_diag
+            instance.evolve_model(time)
             channel.copy()
 
-            planet_positions[i] = system[0].position.number
-            moon_positions[i] = system[1].position.number
+            particles.append(system.copy())
+            times.append(instance.model_time)
 
-        evol_time = instance.get_time()
-        year = u.yr.in_(u.s)
-
-        self.assertAlmostEquals(evol_time, year)
-        self.assertNotEqual(planet_positions[0,0], planet_positions[-1,0])
-        self.assertNotEqual(moon_positions[0,0], moon_positions[-1,0])
+        self.assertAlmostEquals(
+            particles[-1].position[0],
+            VectorQuantity([3554487.97163, -3026275.21595, 0.0], u.m),
+            places=5
+        )
+        self.assertAlmostEquals(
+            particles[-1].position[1],
+            VectorQuantity([-289132566.932, 246166178.762, 0.0], u.m),
+            places=3
+        )
+        self.assertAlmostEquals(
+            particles[-1].velocity[0],
+            VectorQuantity([8.06599003995, 9.47384574385, 0.0], u.ms),
+            places=4
+        )
+        self.assertAlmostEquals(
+            particles[-1].velocity[1],
+            VectorQuantity([-656.111491645, -770.630639491, 0.0], u.ms),
+            places=4
+        )
+        self.assertAlmostRelativeEqual(times[-1], end_time, places=3)
 
         instance.stop()
 
     def test5(self):
         """
-        Evolve a system.
+        Evolve the HD80606b exoplanet system with tides
         """
+        end_time = 2e3 | u.yr
+        dt_diag = 1 | u.yr
 
-        converter = nbody_system.nbody_to_si(1|u.MEarth, 1|u.REarth)
+        system = self.HD80606b_system()
+        converter = nbody_system.nbody_to_si(
+            system.mass.sum(), end_time
+        )
+
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         assert instance is not None
 
-        index_earth = instance.new_particle(
-            1.0 | u.MEarth,
-            -4.6706380895356489e+06 | u.m,
-            0.0000000000000000e+00 | u.m,
-            0.0000000000000000e+00 | u.m,
-            0.0000000000000000e+00 | u.m / u.s,
-            -1.2449006368729913e+01 | u.m / u.s,
-            0.0000000000000000e+00 | u.m / u.s,
+        instance.parameters.tidal_model = 4
+        instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.0625
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system)
+        channel = instance.particles.new_channel_to(system)
+
+        times = [] | u.yr
+        times.append(0.0 | u.yr)
+        particles = [system.copy()]
+
+        while instance.model_time < end_time:
+            time = instance.model_time + dt_diag
+            instance.evolve_model(time)
+            channel.copy()
+
+            particles.append(system.copy())
+            times.append(instance.model_time)
+
+        # check that the last snapshot is correct
+        self.assertAlmostEquals(
+            particles[-1].position[0],
+            VectorQuantity([137405.552133, -84398.2017397, 0.0], u.km),
+            places=5
         )
-        self.assertEquals(index_earth, 0)
-
-        index_moon = instance.new_particle(
-            7.3460000000000003e+22 | u.kg,
-            3.7972936191046441e+08 | u.m,
-            0.0000000000000000e+00 | u.m,
-            0.0000000000000000e+00 | u.m,
-            0.0000000000000000e+00 | u.m / u.s,
-            1.0121215033569634e+03 | u.m / u.s,
-            0.0000000000000000e+00 | u.m / u.s,
+        self.assertAlmostEquals(
+            particles[-1].position[1],
+            VectorQuantity([-35634334.1197, 21887570.4121, 0.0], u.km),
+            places=4
         )
-        self.assertEquals(index_moon, 1)
-        appendix = "dt_sgn changed (>=)"
-
-        tidal_model = 0
-        instance.set_tidal_model(tidal_model)
-        dt_mode = 2
-        instance.set_dt_mode(dt_mode)
-
-        # Empty lists for properties to track
-        star_positions = []
-        planet_positions = []
-        moon_positions = []
-
-        # Running gravity code
-        end_time = 0.1
-        dt = 0.01
-        times = np.arange(0, end_time, dt) | u.yr
-
-        planet_pos = instance.get_position(0)
-        moon_pos = instance.get_position(1)
-
-        for t in times:
-
-            instance.evolve_model(t)
-
-            planet_pos = instance.get_position(0)
-            moon_pos = instance.get_position(1)
-
-            planet_positions.append([planet_pos[0].number, planet_pos[1].number, planet_pos[2].number])
-            moon_positions.append([moon_pos[0].number, moon_pos[1].number, moon_pos[2].number])
-
-        planet_positions = np.asarray(planet_positions)
-        moon_positions = np.asarray(moon_positions)
-
-        #plt.plot(planet_positions[:,0], planet_positions[:,1], marker='.')
-        #plt.plot(moon_positions[:,0], moon_positions[:,1], marker='.')
-        #plt.axis("equal")
-        #plt.title("tidal_model="+str(tidal_model)+", dt_mode="+str(dt_mode)+", dt="+str(dt)+", end_time="+str(end_time)+"\n"+appendix)
-        #plt.savefig("figures/tidal_model="+str(tidal_model)+", dt_mode="+str(dt_mode)+", dt="+str(dt)+", end_time="+str(end_time)+", "+appendix+".png")
-        #plt.show()
-
-        self.assertNotEqual(planet_positions[0,0],planet_positions[-1,0])
-        self.assertNotEqual(planet_positions[0,1],planet_positions[-1,1])
+        self.assertAlmostEquals(
+            particles[-1].velocity[0],
+            VectorQuantity([0.249251771924, -0.0361309584992, 0.0], u.kms),
+            places=4
+        )
+        self.assertAlmostEquals(
+            particles[-1].velocity[1],
+            VectorQuantity([-64.6401899292, 9.37009194233, 0.0], u.kms),
+            places=4
+        )
+        self.assertAlmostRelativeEqual(times[-1], end_time, places=3)
 
         instance.stop()
