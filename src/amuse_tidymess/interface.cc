@@ -714,11 +714,11 @@ int initialize_code(){
     return 0;}
 
 int cleanup_code() {
-    // """
+    // FIXME
     // Run the cleanup for the code, called
     // just before stopping the code. No functions
     // should be called after this code.
-    // """
+    //
     return 0;
 }
 
@@ -777,6 +777,9 @@ int get_kinetic_energy(double* kinetic_energy) {
     return 0;
 }
 
+/**
+ * Get potential energy
+ */
 int get_potential_energy(double* potential_energy) {
     if (!potential_energy) return -1;
     *potential_energy = tidymess.get_potential_energy();
@@ -980,7 +983,9 @@ int get_gravity_at_point(
 
 
 /**
- * Convert spin LOD, OBL, PSI to spin vector wx, wy, wz
+ * Convert spin vector {length of day, obliquity, spin precession angle}
+ * to spin vector {wx, wy, wz}. Logic copied from Tidymess
+ * Initializer::convert_spin_vectors_to_inertial()
  */
 int convert_spin_vectors_to_inertial(
     double P,
