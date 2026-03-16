@@ -1323,17 +1323,18 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 generic_unit_system.speed,
                 generic_unit_system.speed,
                 generic_unit_system.speed,
-                generic_unit_system.length,   # radius
-                handler.NO_UNIT,              # xi, moment of inertia factor
-                handler.NO_UNIT,              # kf, fluid Love number for potential
-                generic_unit_system.time,     # tau, fluid relaxation time
-                1 / generic_unit_system.time, # wx
-                1 / generic_unit_system.time, # wy
-                1 / generic_unit_system.time, # wz
-                handler.NO_UNIT,              # a_mb, magnetic braking coefficient
+                generic_unit_system.length,
+                handler.NO_UNIT,
+                handler.NO_UNIT,
+                generic_unit_system.time,
+                1 / generic_unit_system.time,
+                1 / generic_unit_system.time,
+                1 / generic_unit_system.time,
+                handler.NO_UNIT,
                 handler.ERROR_CODE,
             )
         )
+
         handler.add_method(
             'set_state',
             (
@@ -1345,14 +1346,14 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 generic_unit_system.speed,
                 generic_unit_system.speed,
                 generic_unit_system.speed,
-                generic_unit_system.length,   # radius
-                handler.NO_UNIT,              # xi, moment of inertia factor
-                handler.NO_UNIT,              # kf, fluid Love number for potential
-                generic_unit_system.time,     # tau, fluid relaxation time
-                1 / generic_unit_system.time, # wx
-                1 / generic_unit_system.time, # wy
-                1 / generic_unit_system.time, # wz
-                handler.NO_UNIT,              # a_mb, magnetic braking coefficient
+                generic_unit_system.length,
+                handler.NO_UNIT,
+                handler.NO_UNIT,
+                generic_unit_system.time,
+                1 / generic_unit_system.time,
+                1 / generic_unit_system.time,
+                1 / generic_unit_system.time,
+                handler.NO_UNIT,
             ),
             (handler.ERROR_CODE,)
         )
@@ -1362,6 +1363,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             (handler.INDEX,),
             (handler.NO_UNIT, handler.ERROR_CODE,)
         )
+
         handler.add_method(
             'set_xi',
             (handler.INDEX, handler.NO_UNIT),
@@ -1373,6 +1375,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             (handler.INDEX,),
             (handler.NO_UNIT, handler.ERROR_CODE,)
         )
+
         handler.add_method(
             'set_kf',
             (handler.INDEX, handler.NO_UNIT),
@@ -1384,14 +1387,16 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             (handler.INDEX,),
             (generic_unit_system.time, handler.ERROR_CODE,)
         )
+
         handler.add_method(
             'set_tau',
             (handler.INDEX, generic_unit_system.time),
             (handler.ERROR_CODE,)
         )
+
         handler.add_method(
             'get_spin',
-            (handler.NO_UNIT),
+            (handler.INDEX,),
             (
                 1/nbody_system.time,
                 1/nbody_system.time,
@@ -1399,10 +1404,11 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 handler.ERROR_CODE
             )
         )
+
         handler.add_method(
             'set_spin',
             (
-                handler.NO_UNIT,
+                handler.INDEX,
                 1/nbody_system.time,
                 1/nbody_system.time,
                 1/nbody_system.time,
@@ -1415,29 +1421,18 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             (),
             (handler.INDEX, handler.ERROR_CODE)
         )
-        handler.add_method(
-            'detect_collision',
-            (),
-            (
-                handler.INDEX,
-                handler.INDEX,
-                handler.INDEX,
-                handler.INDEX,
-                handler.ERROR_CODE
-            )
-        )
 
         handler.add_method(
             'convert_spin_vectors_to_inertial',
             (
                 nbody_system.time,
-                handler.NO_UNIT,
-                handler.NO_UNIT,
+                u.rad,
+                u.rad,
             ),
             (
-                1/nbody_system.time, # wx
-                1/nbody_system.time, # wy
-                1/nbody_system.time, # wz
+                1/nbody_system.time,
+                1/nbody_system.time,
+                1/nbody_system.time,
                 handler.ERROR_CODE
             )
         )
