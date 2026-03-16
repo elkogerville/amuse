@@ -1,15 +1,21 @@
 """
-   Simple routine for running a gravity code
+Simple routine for running a gravity code
 """
-from amuse.lab import *
-from matplotlib import pyplot
-from amuse.examples.prepare_figure import single_frame, figure_frame, set_tickmarks
-from amuse.examples.distinct_colours import get_distinct
+
+import argparse
+import matplotlib.pyplot as plt
+from amuse.units import nbody_system
+from amuse.ic.plummer import new_plummer_model
+from amuse.community.bhtree import Bhtree
+from amuse.community.huayno import Huayno
+from amuse.community.kepler import Kepler
+from amuse.community.ph4 import Ph4
+
 
 def virial_ratio_evolution(code, bodies, Q_init, t_end):
     dt = 0.06125 | t_end.unit
     bodies.scale_to_standard(virial_ratio=Q_init)
-    bodies.radius = 0 |  nbody_system.length
+    bodies.radius = 0 | nbody_system.length
     gravity = code()
     gravity.particles.add_particles(bodies)
 
@@ -19,52 +25,62 @@ def virial_ratio_evolution(code, bodies, Q_init, t_end):
     time = [0.0] | t_end.unit
     Q = [Q_init]
     while time[-1] < t_end:
-        time.append(time[-1]+dt)
+        time.append(time[-1] + dt)
         gravity.evolve_model(time[-1])
         channel_from_gravity_to_framework.copy()
-        Ekin = gravity.kinetic_energy 
+        Ekin = gravity.kinetic_energy
         Epot = gravity.potential_energy
         Etot = Ekin + Epot
-        Q.append(-1*Ekin/Epot)
-        print("T=", time[-1], "Q= ", Q[-1], end=' ')
-        print("M=", bodies.mass.sum(), "E= ", Etot, end=' ')
-        print("dE=", (Etot_init-Etot)/Etot, "ddE=", (Etot_prev-Etot)/Etot) 
+        Q.append(-1 * Ekin / Epot)
+        print("T=", time[-1], "Q= ", Q[-1], end=" ")
+        print("M=", bodies.mass.sum(), "E= ", Etot, end=" ")
+        print("dE=", (Etot_init - Etot) / Etot, "ddE=", (Etot_prev - Etot) / Etot)
         Etot_prev = Etot
     gravity.stop()
     return time, Q
 
-def main(N, t_end):
-    t_end = t_end | nbody_system.time
+
+def gravity_to_virial(N, t_end):
     Q_init = 0.2
     particles = new_plummer_model(N)
-    codes = [ph4, Huayno, BHTree]
-    cols = get_distinct(3)
+    codes = [Ph4, Huayno, Bhtree]
     ci = 0
     x_label = "time [N-body units]"
-#    y_label = "$Q [\equiv -E_{\rm kin}/E_{\rm pot}]$"
+    # y_label = "$Q [\equiv -E_{\rm kin}/E_{\rm pot}]$"
     y_label = "virial ratio $Q$"
-    figure = single_frame(x_label, y_label, xsize=14, ysize=10)
-    ax1 = pyplot.gca()
+    figure = plt.figure(figsize=(14, 10))
+    ax1 = figure.add_subplot(1, 1, 1)
+    ax1.set_xlabel(x_label)
+    ax1.set_ylabel(y_label)
     ax1.set_xlim(0, t_end.value_in(t_end.unit))
     ax1.set_ylim(0, 0.65)
-    pyplot.plot([0, t_end.value_in(t_end.unit)], [0.5, 0.5], lw=1, ls='--', c='k')
+    plt.plot([0, t_end.value_in(t_end.unit)], [0.5, 0.5], lw=1, ls="--", c="k")
     for code in codes:
         time, Q = virial_ratio_evolution(code, particles, Q_init, t_end)
-        pyplot.plot(time.value_in(t_end.unit), Q, c=cols[ci])
-        ci+=1
-#    pyplot.show()
-    pyplot.savefig("gravity_to_virial")
-    
-def new_option_parser():
-    from optparse import OptionParser
-    result = OptionParser()
-    result.add_option("-N", dest="N", type="int",default = 1000,
-                      help="number of stars [10]")
-    result.add_option("-t", dest="t_end", type="float", default = 2,
-                      help="end time of the simulation [1] N-body units")
-    return result
+        plt.plot(time.value_in(t_end.unit), Q)
+        ci += 1
+    plt.savefig("gravity_to_virial")
 
-if __name__ in ('__main__', '__plot__'):
-    o, arguments  = new_option_parser().parse_args()
-    main(**o.__dict__)
 
+def new_argument_parser():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument("-N", type=int, default=1000, help="number of stars")
+    parser.add_argument(
+        "-t",
+        "--t_end",
+        type=nbody_system.time,
+        default=2 | nbody_system.time,
+        help="end time of the simulation",
+    )
+    return parser
+
+
+def main():
+    args = new_argument_parser().parse_args()
+    gravity_to_virial(**args.__dict__)
+
+
+if __name__ == "__main__":
+    main()
