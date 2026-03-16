@@ -756,6 +756,7 @@ int commit_particles() {
         tidymess.update_angular_momentum();
     }
 
+    tidymess.set_model_time(begin_time);
     tidymess.commit_parameters();
     return 0;
 }
@@ -795,14 +796,20 @@ int get_time(double* time) {
     return 0;
 }
 
-
+/**
+ * Get Tidymess simulation start time
+ */
 int get_begin_time(double* time) {
     if (!time) return -1;
     *time = begin_time;
     return 0;
 }
+/**
+ * Set Tidymess simulation start time
+ */
 int set_begin_time(double time) {
     begin_time = time;
+    tidymess.set_model_time(begin_time);
     return 0;
 }
 
@@ -1029,7 +1036,6 @@ int detect_collision(
     int* index1,
     int* index2
 ) {
-    // Collision handling
     *collision_flag = tidymess.get_collision_flag();
     std::vector< array<int, 2> > collided_indices = tidymess.get_collision_indices();
     *n_collisions = collided_indices.size();
