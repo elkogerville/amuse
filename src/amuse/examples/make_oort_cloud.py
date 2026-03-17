@@ -388,33 +388,45 @@ def new_argument_parser():
     return result
 
 
-def main():
-    args = new_argument_parser().parse_args()
-    outfile = args.outfile
+def make_oort_cloud(
+    outfile=None,
+    filename="starandplanets.amuse",
+    n_comets=100,
+    m_comets=0 | units.MEarth,
+    seed=None,
+    q_min=32 | units.au,
+    a_min=3000.0 | units.au,
+    a_max=100000.0 | units.au,
+    m_min=0.0 | units.MSun,
+    m_max=100.0 | units.MSun,
+):
+    if outfile is None:
+        outfile = f"sun_and_comets_N{n_comets:01}.amuse"
 
-    if args.outfile is None:
-        outfile = f"sun_and_comets_N{args.n_comets:01}.amuse"
-
-    bodies = read_set_from_file(args.filename, close_file=True)
+    bodies = read_set_from_file(filename, close_file=True)
     stars = bodies[bodies.type == "star"]
-    selected_stars = stars.select(lambda m: m > args.m_min, ["mass"])
-    selected_stars = selected_stars.select(lambda m: m <= args.m_max, ["mass"])
+    selected_stars = stars.select(lambda m: m > m_min, ["mass"])
+    selected_stars = selected_stars.select(lambda m: m <= m_max, ["mass"])
     print(f"Number of stars: {len(stars)} {len(selected_stars)}")
 
     for si in selected_stars:
-        m_comets = args.m_comets * si.mass.value_in(units.MSun)
-        n_comets = int(args.n_comets * si.mass.value_in(units.MSun))
+        m_comets = m_comets * si.mass.value_in(units.MSun)
+        n_comets = int(n_comets * si.mass.value_in(units.MSun))
         comets = add_comets(si, m_comets, n_comets,
-                            args.q_min, args.a_min, args.a_max, args.seed)
+                            q_min, a_min, a_max, seed)
         bodies.add_particles(comets)
     bodies.move_to_center()
     print(bodies)
 
-    index = 0
     time = 0 | units.Myr
     write_set_to_file(
         bodies, outfile, timestamp=time, append_to_file=False,
     )
+
+
+def main():
+    args = new_argument_parser().parse_args()
+    make_oort_cloud(**args.__dict__)
 
 
 if __name__ == "__main__":
