@@ -4,14 +4,14 @@ Runs AMUSE examples (or a selection thereof), and benchmarks them.
 import sys
 import time
 import os
+import argparse
+import platform
 import contextlib
 if sys.version_info < (3, 9):
     from importlib_resources import files
 else:
     from importlib.resources import files
 from datetime import datetime, timezone
-import argparse
-import platform
 import matplotlib.pyplot as plt
 from amuse.units import units
 import amuse.examples as ae
