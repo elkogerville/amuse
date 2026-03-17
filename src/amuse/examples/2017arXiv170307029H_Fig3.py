@@ -13,20 +13,20 @@ from amuse.io import read_set_from_file
 def plot_radial_distribution(gas, nbin, c, lw):
     X = []
     Ymean = []
-    # Ystd = [] 
+    # Ystd = []
     for gi in range(len(gas)-nbin):
         X.append(gas[gi: gi+nbin].r.value_in(units.parsec).mean())
-        S = (gas[gi+nbin].r**2-gas[gi].r**2)
+        S = gas[gi+nbin].r**2-gas[gi].r**2
         rho = gas[gi: gi+nbin].mass.sum()/S
         # if hasattr(gas, "rho"):
         # rho = gas[gi: gi+nbin].rho.max()*S.sqrt()
         Ymean.append(rho.value_in(units.MSun/units.parsec**2))
     plt.plot(X, Ymean, lw=lw)
 
-def plot_radial_density_distribution(gas, stars):
 
+def plot_radial_density_distribution(gas, stars):
     com = stars.center_of_mass()
-    
+
     gas.r = ((gas.x-com[0])**2 + (gas.y-com[1])**2).sqrt()
     gas = gas.sorted_by_attributes("r")
 
@@ -50,7 +50,7 @@ def plot_radial_density_distribution(gas, stars):
     plt.ylim(1, 1100)
     plt.semilogy()
     plt.xlabel("R [pc]")
-    plt.ylabel("$\Sigma$ [M$_\odot$ pc$^{-2}]$")
+    plt.ylabel(r"$\Sigma$ [M$_\odot$ pc$^{-2}]$")
     plt.savefig("2017arXiv170307029H_Fig3")
 
 
@@ -118,10 +118,17 @@ def reproduce_2017arXiv170307029H_Fig3(filename=None):
             elif "Star" in str(bi.name):
                 stars.add_particles(bi.copy())
 
-    print("Stellar masses:", stars.mass.min().in_(units.MSun), stars.mass.mean().in_(units.MSun), stars.mass.max().in_(units.MSun), stars.mass.median().in_(units.MSun))
+    print(
+        "Stellar masses:",
+        stars.mass.min().in_(units.MSun),
+        stars.mass.mean().in_(units.MSun),
+        stars.mass.max().in_(units.MSun),
+        stars.mass.median().in_(units.MSun),
+    )
 
     # plot_age_gasdensity(disk, stars)
     plot_radial_density_distribution(disk, stars)
+
 
 def new_argument_parser():
     parser = argparse.ArgumentParser(
