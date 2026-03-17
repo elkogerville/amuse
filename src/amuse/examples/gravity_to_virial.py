@@ -6,14 +6,13 @@ import argparse
 import matplotlib.pyplot as plt
 from amuse.units import nbody_system
 from amuse.ic.plummer import new_plummer_model
-from amuse.community.bhtree import Bhtree
 from amuse.community.huayno import Huayno
-from amuse.community.kepler import Kepler
 from amuse.community.ph4 import Ph4
+from amuse.community.bhtree import Bhtree
 
 
-def virial_ratio_evolution(code, bodies, Q_init, t_end):
-    dt = 0.06125 | t_end.unit
+def virial_ratio_evolution(code, bodies, Q_init, time_end):
+    dt = 0.06125 | time_end.unit
     bodies.scale_to_standard(virial_ratio=Q_init)
     bodies.radius = 0 | nbody_system.length
     gravity = code()
@@ -22,9 +21,9 @@ def virial_ratio_evolution(code, bodies, Q_init, t_end):
     channel_from_gravity_to_framework = gravity.particles.new_channel_to(bodies)
 
     Etot_prev = Etot_init = gravity.kinetic_energy + gravity.potential_energy
-    time = [0.0] | t_end.unit
+    time = [0.0] | time_end.unit
     Q = [Q_init]
-    while time[-1] < t_end:
+    while time[-1] < time_end:
         time.append(time[-1] + dt)
         gravity.evolve_model(time[-1])
         channel_from_gravity_to_framework.copy()
@@ -40,36 +39,45 @@ def virial_ratio_evolution(code, bodies, Q_init, t_end):
     return time, Q
 
 
-def gravity_to_virial(N, t_end):
+def gravity_to_virial(number_of_stars, time_end):
     Q_init = 0.2
-    particles = new_plummer_model(N)
+    particles = new_plummer_model(number_of_stars)
     codes = [Ph4, Huayno, Bhtree]
     ci = 0
     x_label = "time [N-body units]"
     # y_label = "$Q [\equiv -E_{\rm kin}/E_{\rm pot}]$"
     y_label = "virial ratio $Q$"
-    figure = plt.figure(figsize=(14, 10))
+    figure = plt.figure()
     ax1 = figure.add_subplot(1, 1, 1)
     ax1.set_xlabel(x_label)
     ax1.set_ylabel(y_label)
-    ax1.set_xlim(0, t_end.value_in(t_end.unit))
+    ax1.set_xlim(0, time_end.value_in(time_end.unit))
     ax1.set_ylim(0, 0.65)
-    plt.plot([0, t_end.value_in(t_end.unit)], [0.5, 0.5], lw=1, ls="--", c="k")
+    ax1.plot([0, time_end.value_in(time_end.unit)], [0.5, 0.5], lw=1, ls="--", c="k")
     for code in codes:
-        time, Q = virial_ratio_evolution(code, particles, Q_init, t_end)
-        plt.plot(time.value_in(t_end.unit), Q)
+        time, Q = virial_ratio_evolution(code, particles, Q_init, time_end)
+        ax1.plot(
+            time.value_in(time_end.unit),
+            Q,
+        )
         ci += 1
     plt.savefig("gravity_to_virial")
 
 
 def new_argument_parser():
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("-N", type=int, default=1000, help="number of stars")
+    parser.add_argument(
+        "-N",
+        "--number_of_stars",
+        type=int,
+        default=1000,
+        help="number of stars",
+    )
     parser.add_argument(
         "-t",
-        "--t_end",
+        "--time_end",
         type=nbody_system.time,
         default=2 | nbody_system.time,
         help="end time of the simulation",
