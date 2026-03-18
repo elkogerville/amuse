@@ -52,14 +52,11 @@ int get_body_index_by_id(int index_of_the_particle) {
  * in time. copied from tidymess.cpp
  */
 int determine_dt_sgn(double t_end) {
-    bool dt_pos;
-
-    if(t_end > tidymess.get_model_time()) {  // ** takes negative time step when evolving to 0, causes problems
-        dt_pos = true;
+    // ** takes negative time step when evolving to 0, causes problems
+    if(t_end > tidymess.get_model_time()) {
         dt_sign = 1;
     }
     else {
-        dt_pos = false;
         dt_sign = -1;
     }
     tidymess.set_dt_sgn(dt_sign);
