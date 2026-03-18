@@ -754,9 +754,7 @@ int commit_particles() {
         }
         tidymess.update_angular_momentum();
     }
-
-    tidymess.set_model_time(begin_time);
-    tidymess.commit_parameters();
+    tidymess.initialize();
     return 0;
 }
 
