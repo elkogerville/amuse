@@ -27,13 +27,11 @@ def make_king_model_cluster(nbodycode, N, W0, Mcluster,
     code.particles.add_particles(bodies)
     return code
 
-from prepare_figure import single_frame
-from distinct_colours import get_distinct
-from matplotlib.colors import LogNorm
 def  plot_galaxy_and_stars(galaxy, stars):
     
-    colors = get_distinct(3)
-    single_frame('X [pc]', 'Y [pc]')
+    pyplot.figure()
+    pyplot.xlabel("X [pc]")
+    pyplot.ylabel("Y [pc]")
     xlim = 60
     pyplot.xlim(-xlim, xlim)
     pyplot.ylim(-xlim, xlim)
@@ -52,9 +50,9 @@ def  plot_galaxy_and_stars(galaxy, stars):
     p = p.select(lambda y: y>-60|units.parsec,["y"])
     x = p.x.value_in(units.parsec)
     y = p.y.value_in(units.parsec)
-    sns.kdeplot(x, y, ax=ax)
+    sns.kdeplot(x=x, y=y, ax=ax)
     m = 100*numpy.sqrt(stars.mass/stars.mass.max())
-    pyplot.scatter(stars.x.value_in(units.parsec), stars.y.value_in(units.parsec), c=colors[0], s=m, lw=0)
+    pyplot.scatter(stars.x.value_in(units.parsec), stars.y.value_in(units.parsec), s=m, lw=0)
 #    pyplot.show()
     pyplot.savefig("Fujii_Comparison_Figure")
 

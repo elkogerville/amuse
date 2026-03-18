@@ -144,7 +144,7 @@ def main(filename):
             hydro_to_framework.copy()
             if time>t_snap:
                 t_snap += dt_snap
-                write_set_to_file(gas, filename, 'hdf5')
+                write_set_to_file(gas, filename, 'hdf5', append_to_file=True)
                 print("time=", hydro.model_time, "Ngas=", len(gas), \
                       mgas*len(gas))
                 print("T=", time, "M=", stars[0].mass, stars[1].mass)

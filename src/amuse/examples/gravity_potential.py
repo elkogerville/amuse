@@ -19,6 +19,12 @@ from amuse.community.gadget2.interface import Gadget2
 from matplotlib import pyplot as plt
 from amuse.ic.kingmodel import new_king_model
 
+"""
+Implements a code simulating the galactic center. As the center itself
+does not evolve we only need to define the 'get_gravity_at_point' and
+'get_potential_at_point'. Note that both functions get arrays of
+points.
+"""
 
 # #BOOKLISTSTART1# #
 class GalacticCenterGravityCode(object):
@@ -74,7 +80,7 @@ def plot_cluster(f, x, y, c):
     ax.scatter(x, y, c=c, s=50, lw=0, alpha=0.2)
 
     save_file = 'Arches.pdf'
-    plt.savefig("../figures/"+save_file)
+    plt.savefig(save_file)
     print('\nSaved figure in file', save_file, '\n')
 
 def evolve_cluster_in_galaxy(N, W0, Rinit, tend, timestep, M, R):

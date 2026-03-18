@@ -1,7 +1,7 @@
 import numpy
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
 from amuse.lab import *
-from amuse.examples.prepare_figure import single_frame
+
 
 def make_e_map(sph,N=100,L=1):
 
@@ -43,9 +43,9 @@ def setup_grid(N, L):
     return x, y, z, vx, vy, vz
 
 def make_hydromap_and_show_picture(sph_particles, N=100, L=10):
-    x_label = "x [R$_\odot$]"
-    y_label = "y [R$_\odot$]"
-    fig = single_frame(x_label, y_label, logx=False, logy=False, xsize=12, ysize=12)
+    fig = plt.figure()
+    plt.xlabel("x [R$_\odot$]")
+    plt.y_label("y [R$_\odot$]")
 
     hydro = Gadget2(converter)
     hydro.gas_particles.add_particles(sph_particles)
@@ -55,15 +55,15 @@ def make_hydromap_and_show_picture(sph_particles, N=100, L=10):
     rho_e=make_map(hydro,N=50,L=L)
     hydro.stop()
     print("extrema:", rho_e.value_in(units.erg/units.RSun**3).min(), rho_e.value_in(units.erg/units.RSun**3).max())
-    cax = pyplot.imshow(numpy.log10(rho_e.value_in(units.erg/units.RSun**3)), extent=[-L/2,L/2,-L/2,L/2],vmin=4,vmax=11)
+    cax = plt.imshow(numpy.log10(rho_e.value_in(units.erg/units.RSun**3)), extent=[-L/2,L/2,-L/2,L/2],vmin=4,vmax=11)
     cbar = fig.colorbar(cax, ticks=[4, 7.5, 11], orientation='vertical', fraction=0.045)
     cbar.ax.set_yticklabels(['Low', ' ', 'High'])  # horizontal colorbar
     cbar.set_label('mid-plane energy-density', rotation=270)
     
     t = int(0.5+gas.get_timestamp().value_in(units.s))
     filename = "supernova_sph_T"+str(t)+".pdf"
-    pyplot.savefig(filename)
-#    pyplot.show()
+    plt.savefig(filename)
+#    plt.show()
 
 def make_map(sph,N=100,L=1):
 
@@ -89,33 +89,32 @@ def make_map(sph,N=100,L=1):
     return rho
 
 def plot_e_sph(sph, time):
-#    pyplot.rcParams.update({'font.size': 30})
-#    figure = pyplot.figure(figsize=(12, 12))
+#    plt.rcParams.update({'font.size': 30})
+#    figure = plt.figure(figsize=(12, 12))
 
     L = 10
     max_dens = sph.gas_particles.rho.value_in(units.g/units.cm**3).max()
     print("Density extrema:", max_dens)
 
-    x_label = "X [R$_\odot$]"
-    y_label = "Y [R$_\odot$]"
-    figure = single_frame(x_label, y_label, logx=False, logy=False, xsize=12, ysize=12)
-
+    plt.figure()
+    plt.x_label("X [R$_\odot$]")
+    plt.y_label("Y [R$_\odot$]")
 
     rho_e=make_e_map(sph,N=20,L=L)
-    cax = pyplot.imshow(rho_e.value_in(units.erg/units.MSun**3), extent=[-L/2,L/2,-L/2,L/2], interpolation='bicubic', origin = 'lower', cmap="hot")
+    cax = plt.imshow(rho_e.value_in(units.erg/units.MSun**3), extent=[-L/2,L/2,-L/2,L/2], interpolation='bicubic', origin = 'lower', cmap="hot")
     cbar = figure.colorbar(cax, ticks=[1.e-8, 0.5*max_dens, max_dens], orientation='vertical', fraction=0.045)
     rmin = 0.0 
     rmid = "%.1f" % (0.5*max_dens)
     rmax = "%.1f" % (max_dens)
     cbar.ax.set_yticklabels([rmin, ' ', rmax])  # horizontal colorbar
     cbar.set_label('mid-plane density [$erg/M_\odot^3$]', rotation=270)
-    pyplot.xlabel("x [R$_\odot$]")
-    pyplot.ylabel("y [R$_\odot$]")
+    plt.xlabel("x [R$_\odot$]")
+    plt.ylabel("y [R$_\odot$]")
 
     t = int(0.5+time.value_in(units.s))
     filename = "supernova_sph_T"+str(t)+".pdf"
-    pyplot.savefig(filename)
-    pyplot.show()
+    plt.savefig(filename)
+    plt.show()
 
 def plot_sph(sph, time):
     L = 10
@@ -123,14 +122,14 @@ def plot_sph(sph, time):
     max_dens = sph.gas_particles.rho.value_in(unit).max()
     print("Density extrema:", max_dens)
 
-    x_label = "X [R$_\odot$]"
-    y_label = "Y [R$_\odot$]"
-    figure = single_frame(x_label, y_label, logx=False, logy=False, xsize=12, ysize=12)
+    figure = plt.figure()
+    plt.xlabel("X [R$_\odot$]")
+    plt.ylabel("Y [R$_\odot$]")
 
     rho_e=make_map(sph,N=50,L=L)
     max_dens = rho_e.value_in(unit).max()
     print("extrema:", rho_e.value_in(unit).min(), max_dens)
-    cax = pyplot.imshow(rho_e.value_in(unit), extent=[-L/2,L/2,-L/2,L/2], interpolation='bicubic', origin='lower', cmap="hot", vmin=0.0, vmax=max_dens)    
+    cax = plt.imshow(rho_e.value_in(unit), extent=[-L/2,L/2,-L/2,L/2], interpolation='bicubic', origin='lower', cmap="hot", vmin=0.0, vmax=max_dens)    
 #    cbar = figure.colorbar(cax, ticks=[-0.4*max_dens, 0.0*max_dens, 0.5*max_dens], orientation='vertical', fraction=0.045)
     cbar = figure.colorbar(cax, ticks=[0.0, 0.5*max_dens, 0.99*max_dens], orientation='vertical', fraction=0.045)
 
@@ -141,13 +140,13 @@ def plot_sph(sph, time):
     cbar.ax.set_yticklabels([rmin, ' ', rmax])  # horizontal colorbar
 #    cbar.ax.set_yticklabels(['a', 'b', 'c'])  # horizontal colorbar
     cbar.set_label('mid-plane density [$g/cm^3$]', rotation=270)
-    pyplot.xlabel("x [R$_\odot$]")
-    pyplot.ylabel("y [R$_\odot$]")
+    plt.xlabel("x [R$_\odot$]")
+    plt.ylabel("y [R$_\odot$]")
 
     t = int(0.5+time.value_in(units.s))
     filename = "supernova_sph_T"+str(t)+".pdf"
-    pyplot.savefig(filename)
-    pyplot.show()
+    plt.savefig(filename)
+    plt.show()
     
 def new_option_parser():
     from amuse.units.optparse import OptionParser
@@ -156,7 +155,7 @@ def new_option_parser():
                       dest="tplot", type="float", default = 300|units.s,
                       help="plotting time [%default]")
     result.add_option("-f", 
-                      dest="filename", default = "supernova_sph_gadget.amuse",
+                      dest="filename", default = "supernova_sph.amuse",
                       help="input filename [%default]")
     return result
     

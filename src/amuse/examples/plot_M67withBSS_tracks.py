@@ -3,10 +3,8 @@
 """
 from amuse.lab import *
 from matplotlib import pyplot 
-import plot_M67Data 
+from amuse.examples import plot_M67Data 
 
-from prepare_figure import single_frame, figure_frame, set_tickmarks
-from distinct_colours import get_distinct
 
 TBSS = [6170, 6820, 6675, 7050, 6650]
 LBSS = [12.259, 11.078, 12.127, 11.226, 12.892]
@@ -53,25 +51,26 @@ def new_option_parser():
 if __name__ in ('__main__', '__plot__'):
     o, arguments  = new_option_parser().parse_args()
 
-    x_label = "T [$K$]"
-    y_label = "L [$L_\odot$]"
-    figure = single_frame(x_label, y_label, logx=False, logy=True,
-                          xsize=14, ysize=10)
-    color = get_distinct(6)
+    pyplot.figure()
+    pyplot.xlabel("T [$K$]")
+    pyplot.ylabel("L [$L_\odot$]")
+    axes = pyplot.gca()
+    axes.set_yscale('log')
+    axes.tick_params(pad=7)
 
     L, T = single_star_evolution(M=1.4|units.MSun, z=0.04,
                                  model_time=4|units.Gyr)
-    pyplot.plot(T.value_in(units.K),L.value_in(units.LSun), c=color[0])
+    pyplot.plot(T.value_in(units.K),L.value_in(units.LSun))
 
     L, T = single_star_evolution(**o.__dict__)
-    pyplot.plot(T.value_in(units.K),L.value_in(units.LSun), c=color[4])
+    pyplot.plot(T.value_in(units.K),L.value_in(units.LSun))
 
     m67 = plot_M67Data.Cluster()
     m67.read()
-    pyplot.scatter(m67.Teff, m67.L, c=color[1], lw=0, s=100)
+    pyplot.scatter(m67.Teff, m67.L, lw=0, s=100)
 
-    pyplot.scatter(TBSS, LBSS, c=color[3], lw=0, s=250)
-    pyplot.scatter(TBSS[3], LBSS[3], c=color[2], lw=0, s=250)
+    pyplot.scatter(TBSS, LBSS, lw=0, s=250)
+    pyplot.scatter(TBSS[3], LBSS[3], lw=0, s=250)
     pyplot.xlim(9000, 4000)
     pyplot.ylim(1, 50)
 

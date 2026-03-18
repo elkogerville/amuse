@@ -15,8 +15,6 @@ from amuse.lab import *
 from amuse.ext.molecular_cloud import molecular_cloud
 from amuse.ext.evrard_test import body_centered_grid_unit_cube
 
-from amuse.examples.prepare_figure import single_frame, figure_frame, set_tickmarks
-from amuse.examples.distinct_colours import get_distinct
 
 def make_map(sph, N=100, L=1):
 
@@ -54,10 +52,9 @@ def write_output(filename, parts, conv):
     return 0
 
 def plot_hydro(time, sph, i, L=10):
-    x_label = "x [pc]"
-    y_label = "y [pc]"
-    fig = single_frame(x_label, y_label, logx=False, logy=False,
-                       xsize=12, ysize=12)
+    fig = pyplot.figure()
+    pyplot.xlabel("x [pc]")
+    pyplot.ylabel("y [pc]")
     rho = make_map(sph,N=200,L=L)
     cax = pyplot.imshow(numpy.log10(1.e-5+rho.value_in(units.amu/units.cm**3)),
                         cmap="jet",

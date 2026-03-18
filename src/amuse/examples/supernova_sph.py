@@ -8,7 +8,6 @@ from amuse.ext.sph_to_grid import convert_SPH_to_grid
 from amuse.community.capreole.interface import Capreole
 from amuse.units.generic_unit_converter import ConvertBetweenGenericAndSiUnits
 
-from amuse.examples.prepare_figure import single_frame
 
 def plot_grid(grid, time= 0.0|units.day):
 
@@ -85,9 +84,9 @@ def make_e_map(sph,N=100,L=1):
 def plot_sph(time, sph, gas, i=1, L=10):
     max_dens = sph.rho.max()
 
-    x_label = "X [R$_\odot$]"
-    y_label = "Y [R$_\odot$]"
-    fig = single_frame(x_label, y_label, logx=False, logy=False, xsize=12, ysize=12)
+    fig = pyplot.figure()
+    pyplot.x_label("X [R$_\odot$]")
+    pyplot.y_label("Y [R$_\odot$]")
 
 #    rho=make_map(sph,N=200,L=L)
     rho_e=make_e_map(sph,N=200,L=L)
@@ -313,7 +312,8 @@ def run_sph_code(hydro, particles, t_end, dt):
         channel.copy_attributes(["x", "y", "z", "rho", "u"])
         #plot_sph(particles, hydro.model_time)
         #plot_sph(hydro.model_time, hydro, particles, index)
-        write_set_to_file(particles.savepoint(hydro.model_time), "supernova_sph.amuse", "amuse")
+        write_set_to_file(particles.savepoint(hydro.model_time), "supernova_sph.amuse",
+                          "amuse", append_to_file=True)
     hydro.stop()
     
 def new_option_parser():

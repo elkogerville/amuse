@@ -8,7 +8,6 @@ from amuse.units import quantities
 from amuse.community.galaxia.interface import BarAndSpirals3D
 from amuse.ext.composition_methods import *
 from matplotlib import pyplot
-from prepare_figure import figure_frame, get_distinct
 
 class drift_without_gravity(object):
 
@@ -148,17 +147,21 @@ class MilkyWay_galaxy(object):
         return
 
 def plot(stars, GMCs):
-    figure = figure_frame("X [kpc]", "Y [kpc]", xsize=8, ysize=8)
-    colors = get_distinct(2)
+    figure = pyplot.figure()
+    pyplot.minorticks_on()
+    pyplot.locator_params(nbins=3)
+
+    pyplot.xlabel("X [kpc]")
+    pyplot.ylabel("Y [kpc]")
 
     print(numpy.mean(stars.mass.value_in(units.MSun)))
     print(numpy.mean(GMCs.mass.value_in(units.MSun)))
     size = stars.mass/(0.1 |units.MSun)
     pyplot.scatter(stars.x.value_in(units.kpc), stars.y.value_in(units.kpc),
-                   s=size, c=colors[0])
+                   s=size)
     size = numpy.sqrt(GMCs.mass/(100 |units.MSun))
     pyplot.scatter(GMCs.x.value_in(units.kpc), GMCs.y.value_in(units.kpc),
-                   s=size, alpha =  0.5, lw=0, c=colors[1])
+                   s=size, alpha =  0.5, lw=0)
 
     pyplot.scatter([0], [0], marker="+", s=300, c='r')
     pyplot.scatter([-8.4], [0], marker="o", s=100, c='g')    
@@ -178,7 +181,8 @@ def evolve_cluster_in_potential(gravity, t_end, dt,
     if filename:
         write_set_to_file(sun, filename, "hdf5", timestamp = time,
                           append_to_file=False)
-        write_set_to_file(GMCs, filename, "hdf5", timestamp = time)
+        write_set_to_file(GMCs, filename, "hdf5", timestamp = time,
+                          append_to_file=True)
 
     x = []
     y = []
@@ -189,8 +193,10 @@ def evolve_cluster_in_potential(gravity, t_end, dt,
         for ch in channels_to_framework:
             ch.copy()
         if filename:
-            write_set_to_file(sun, filename, "hdf5", timestamp = time)
-            write_set_to_file(GMCs, filename, "hdf5", timestamp = time)
+            write_set_to_file(sun, filename, "hdf5", timestamp = time,
+                              append_to_file=True)
+            write_set_to_file(GMCs, filename, "hdf5", timestamp = time,
+                              append_to_file=True)
         
         x.append(gravity.particles[0].x.value_in(units.kpc))
         y.append(gravity.particles[0].y.value_in(units.kpc))

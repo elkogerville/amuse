@@ -15,13 +15,12 @@ def main(t_end, mass, z, Tstar, Lstar):
     label = ["SeBa", "SSE", "MESA", "EVtwin"]
     marker = ["o", "v", "<", ">"]
 
-    x_label = "$(T-T_\odot)/T_\odot)$"
-    y_label = "$(L-L_\odot)/L_\odot)$"
-    figure = single_frame(x_label, y_label, logy=False, xsize=14, ysize=10)
+    pyplot.figure()
+    pyplot.xlabel("$(T-T_\odot)/T_\odot)$")
+    pyplot.ylabel("$(L-L_\odot)/L_\odot)$")
     pyplot.xlim(-0.006, 0.004)
     pyplot.ylim(-0.1, 0.1)    
-    color = get_distinct(6)
-    pyplot.scatter([0], [0], marker="o", c=color[3], label="Sun", s=200, lw=0)
+    pyplot.scatter([0], [0], marker="o", label="Sun", s=200, lw=0)
 
     for si in range(len(stellar_evolution_codes)):
         stellar = stellar_evolution_codes[si]
@@ -74,13 +73,13 @@ def main(t_end, mass, z, Tstar, Lstar):
                     eta = star[0].age
         print(eta)
         if si==3: 
-            pyplot.plot(T, L,ls='-', marker=marker[si], color=color[5], markersize=10)
+            pyplot.plot(T, L,ls='-', marker=marker[si], markersize=10)
             pyplot.scatter(T_sim_sun, L_sim_sun, marker=marker[si],
-                           color=color[5], label=label[si], s=300, lw=1)
+                           label=label[si], s=300, lw=1)
         else:
-            pyplot.plot(T, L,ls='-', marker=marker[si], color=color[si], markersize=10)
+            pyplot.plot(T, L,ls='-', marker=marker[si], markersize=10)
             pyplot.scatter(T_sim_sun, L_sim_sun, marker=marker[si],
-                           color=color[si], label=label[si], s=300, lw=1)
+                           label=label[si], s=300, lw=1)
 
     pyplot.legend(scatterpoints=1, loc='best')
 

@@ -1,10 +1,11 @@
-from amuse.lab import *
-from amuse.plot import *
-
-from amuse.examples.prepare_figure import *
-from amuse.examples.distinct_colours import get_distinct
+from matplotlib import pyplot as plt
+from pathlib import Path
 
 import csv
+
+
+data_dir = Path(__file__).parent
+
 
 def read_csv(filename):
     ifile  = open(filename, "r")
@@ -33,23 +34,22 @@ def read_csv(filename):
 
 def plot_riemann_shock_tube_rho():
 
-    x_label = "[length]"
-    y_label = "[mass/length$^3$]"
-    figure = single_frame(x_label, y_label, logx=False, logy=False, xsize=14, ysize=10)
-    color = get_distinct(3)
+    figure = plt.figure()
+    plt.xlabel("[length]")
+    plt.ylabel("[mass/length$^3$]")
         
-    x, rho = read_csv("riemann_shock_tube_problem_exact.csv")
-    pyplot.plot(x,rho, c=color[0])
-    x, rho = read_csv("riemann_shock_tube_rho_fiN7.csv")
-    pyplot.scatter(x, rho, c=color[1], s=100, marker="o", lw=0)
-    x, rho = read_csv("riemann_shock_tube_problem_athenaN2.csv")
-    pyplot.scatter(x, rho, c=color[2], s=100, marker="s", lw=0)
+    x, rho = read_csv(data_dir / "riemann_shock_tube_problem_exact.csv")
+    plt.plot(x,rho)
+    # x, rho = read_csv(data_dir / "riemann_shock_tube_rho_fiN7.csv")
+    # plt.scatter(x, rho, s=100, marker="o", lw=0)
+    x, rho = read_csv(data_dir / "riemann_shock_tube_problem_athenaN2.csv")
+    plt.scatter(x, rho, s=100, marker="s", lw=0)
 
-    pyplot.xlim(0.2,0.8)
+    plt.xlim(0.2,0.8)
 
 #        pyplot.savefig("riemann_shock_tube_rho_"+model.name_of_the_code+".png")
-    pyplot.savefig("riemann_shock_tube_rho")
-    pyplot.show()
+    plt.savefig("riemann_shock_tube_rho")
+    plt.show()
 
 
 if __name__ == "__main__":

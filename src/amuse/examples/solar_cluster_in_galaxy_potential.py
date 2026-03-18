@@ -9,9 +9,6 @@ from amuse.community.galaxia.interface import BarAndSpirals3D
 from amuse.ext.composition_methods import *
 from matplotlib import pyplot
 
-from prepare_figure import single_frame
-from distinct_colours import get_distinct
-
 
 class drift_without_gravity(object):
 
@@ -175,7 +172,6 @@ def main(N, W0, t_end, n_steps, filename, Mtot, Rvir, rgc, vgc):
     pyplot.axis('equal')
     pyplot.xlabel("X [kpc]")
     pyplot.ylabel("Y [kpc]")
-    colors = get_distinct(6)
 
     MWG = MilkyWay_galaxy()    
     vc = MWG.vel_circ(sun.position.length())
@@ -187,7 +183,7 @@ def main(N, W0, t_end, n_steps, filename, Mtot, Rvir, rgc, vgc):
 
     print("\nFinding birth location of the Sun...")
     x, y = integrate_single_particle_in_potential(sun, t_end, dt, converter)
-    pyplot.plot(x, y, lw=4, alpha=0.2, c=colors[1])
+    pyplot.plot(x, y, lw=4, alpha=0.2)
 
     print("Initial Sun:")
     print(sun)
@@ -206,17 +202,17 @@ def main(N, W0, t_end, n_steps, filename, Mtot, Rvir, rgc, vgc):
     
     pyplot.scatter(cluster.x.value_in(units.kpc),
                    cluster.y.value_in(units.kpc),
-                   s=10, c=colors[3])
+                   s=10)
     print('\nTracking', N, 'siblings')
     x, y = integrate_single_particle_in_potential(cluster, t_end, dt,
                                                   converter)
     size = cluster.mass/(0.1 |units.MSun)
     pyplot.scatter(cluster.x.value_in(units.kpc),
                    cluster.y.value_in(units.kpc),
-                   c=colors[0], alpha=1.0, lw=0, s=size)
+                   alpha=1.0, lw=0, s=size)
     pyplot.scatter(sun.x.value_in(units.kpc),
                    sun.y.value_in(units.kpc),
-                   marker='+', s=100, c=colors[2])
+                   marker='+', s=100)
 
     pyplot.scatter([0], [0], marker="+", s=300, c='r')
     pyplot.scatter([-8.4], [0], marker="o", s=100, c='g')

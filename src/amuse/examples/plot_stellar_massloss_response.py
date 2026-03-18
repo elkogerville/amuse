@@ -6,8 +6,6 @@ import sys
 import numpy
 from matplotlib import pyplot
 
-from prepare_figure import single_frame, figure_frame, set_tickmarks
-from distinct_colours import get_distinct
 
 #filenames = ["Zeta_M1MSun_dmdt.out", "Zeta_M2MSun_dmdt.out"]
 filenames = ["Zeta_M1MSun_dmdt.data"]
@@ -36,10 +34,9 @@ def process_file(filename, mdot):
     return t, z, tms
 
 def main():
-    x_label = "$log_{10}[(t_{end}-t)/t_{MS}]$"
-    y_label = "$\zeta$"
-    figure = single_frame(x_label, y_label, logx=False, logy=False, xsize=14, ysize=10)
-    color = get_distinct(12)
+    pyplot.figure()
+    pyplot.xlabel("$log_{10}[(t_{end}-t)/t_{MS}]$")
+    pyplot.ylabel("$\zeta$")
 
     pyplot.text(-2.2, 0.8, "giant branch")
     pyplot.text(-0.1, 0.8, "main sequence")
@@ -60,7 +57,7 @@ def main():
                 for i in range(len(t)):
                     t[i] = numpy.log10((t[-1]-t[i])/tms)
                 #            pyplot.scatter(t, z)
-                pyplot.plot(t[ti:], z[ti:], c=color[fii], ls=ls[fii], lw=lw[fii])
+                pyplot.plot(t[ti:], z[ti:], ls=ls[fii], lw=lw[fii])
             f.close()
         fii += 1
     pyplot.show()

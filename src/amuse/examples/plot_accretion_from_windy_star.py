@@ -7,8 +7,6 @@ import numpy
 from matplotlib import pyplot
 from amuse.lab import *
 
-from prepare_figure import single_frame
-from distinct_colours import get_distinct
 
 def Bondi_Hoyle_Littleton_accretion_rate(Mb, vs, a0, Mdot_donor):
     a = (3.e-7 | units.MSun/units.yr)
@@ -34,14 +32,14 @@ def read_accretion_rate(filename):
             m.append(float(l[6])|units.MSun)
     return t, n, m
     
-def plot_accretion_from_wind(filename, color):
+def plot_accretion_from_wind(filename):
     t, dn, dm = read_accretion_rate(filename)
     m = numpy.cumsum(dm)
     #MMoon = 3.69145063653e-08 | units.MSun
     #m /= MMoon
     m /= (1.e-9|units.MSun)
 
-    pyplot.plot(t.value_in(units.yr), m, c=color)
+    pyplot.plot(t.value_in(units.yr), m)
 #    pyplot.show()
 
 def v_terminal_teff(temperature):
@@ -88,20 +86,18 @@ def main():
     mdot = Mdot*t 
     t += 4.2 | units.yr
 
-    c = get_distinct(3)
-
-    x_label = 't [yr]'
-    y_label = 'M [$10^{-9}$M$_{\odot}$]'
-    figure = single_frame(x_label, y_label, logy=False, xsize=14, ysize=10)
+    pyplot.figure()
+    pyplot.xlabel('t [yr]')
+    pyplot.ylabel('M [$10^{-9}$M$_{\odot}$]')
     filename = "hydro_give_or_take.data"
 
     print(t, mdot.value_in(units.MSun))
     mdot /= (1.e-9|units.MSun)
-    pyplot.plot(t.value_in(units.yr), mdot, c=c[2])
+    pyplot.plot(t.value_in(units.yr), mdot)
 
-    plot_accretion_from_wind(filename, c[0])
+    plot_accretion_from_wind(filename)
     filename = "hydro_give_or_take_gravity_NoG.data"
-    plot_accretion_from_wind(filename, c[1])
+    plot_accretion_from_wind(filename)
 
     pyplot.savefig("hydro_accretion_from_windy_star")
 #    pyplot.show()

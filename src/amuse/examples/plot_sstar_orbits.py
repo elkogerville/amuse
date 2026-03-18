@@ -10,8 +10,6 @@ from initialize_sstars import *
 from amuse.community.adaptb.interface import Adaptb
 from gravity_class import Gravity
 
-#from prepare_figure import single_frame, figure_frame, set_tickmarks
-#from distinct_colours import get_distinct
 
 def _plot_orbits(x, y, z):
     from matplotlib import pyplot, rc

@@ -143,13 +143,11 @@ def plot_single_image(planets, debris, disk, shell, figfile=None):
         yz.scatter(debris.z.value_in(units.AU), debris.y.value_in(units.AU), s=m, c=c, lw=0) 
 
     if len(planets)>0:
-        from distinct_colours import get_distinct
-        c = get_distinct(len(planets))
         m = 1000 * planets.mass/planets.mass.max()
         m[0] = min(10*m[1:].max(), 30)
-        xy.scatter(planets.x.value_in(units.AU), planets.y.value_in(units.AU), s=m, c=c, lw=0) 
-        xz.scatter(planets.x.value_in(units.AU), planets.z.value_in(units.AU), s=m, c=c, lw=0) 
-        yz.scatter(planets.z.value_in(units.AU), planets.y.value_in(units.AU), s=m, c=c, lw=0) 
+        xy.scatter(planets.x.value_in(units.AU), planets.y.value_in(units.AU), s=m, lw=0) 
+        xz.scatter(planets.x.value_in(units.AU), planets.z.value_in(units.AU), s=m, lw=0) 
+        yz.scatter(planets.z.value_in(units.AU), planets.y.value_in(units.AU), s=m, lw=0) 
 
     filename = "planetary_system.png"
     fig.savefig(filename)
@@ -207,8 +205,6 @@ def Xplot_density_view(ax_xy, x, y, z, xlim, ylim, levels=5):
     return cset
 
 def plot_temperature_image(planets, debris, disk, shell, figfile="fig_disk_top_view_temperature.pdf"):
-    from prepare_figure import single_frame, figure_frame, set_tickmarks
-
     disk.temperature = mu() / constants.kB * disk.u
 
     x = disk.x.value_in(units.AU)
@@ -295,8 +291,6 @@ def fmt(x, pos):
     return r'${} \times 10^{{{}}}$'.format(a, b)
 
 def plot_projected_density_image(planets, debris, disk, shell, figfile):
-    from prepare_figure import single_frame, figure_frame, set_tickmarks
-
     disk.temperature = mu() / constants.kB * disk.u
 
     x = disk.x.value_in(units.AU)

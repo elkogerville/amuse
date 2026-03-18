@@ -2,7 +2,7 @@ import numpy
 from amuse.lab import *
 from amuse.ext.protodisk import ProtoPlanetaryDisk
 from matplotlib import pyplot
-from supernova_IIp_Lightcurve import Supernova_IIp
+from amuse.examples.supernova_IIp_Lightcurve import Supernova_IIp
     
 def mu(X = None, Y = 0.25, Z = 0.02, x_ion = 0.1):
     """
@@ -55,7 +55,7 @@ def print_diagnostics(time, supernova, disk):
 def main(Ndisk, Mstar, Mdisk, Rin, Rout, t_end, Nray, x, y, z):
 
     time = 0 | units.Myr
-    supernova_IIp = Supernova_IIp(10|units.day)
+    supernova_IIp = Supernova_IIp("10a", 10|units.day)
     
     efficiency_factor = 0.1
     Rsn = efficiency_factor * (x**2 + y**2 + z**2)**0.5
@@ -212,9 +212,6 @@ def main(Ndisk, Mstar, Mdisk, Rin, Rout, t_end, Nray, x, y, z):
     radiative.stop()
     plot_temperature(t, Tmin, Tmean, Tmax)
 
-#~ from prepare_figure import single_frame, figure_frame
-#~ from distinct_colours import get_distinct
-
 def plot_temperature(t, tmin, tmean, tmax):
 
     x_label = "t [day]"
@@ -241,7 +238,7 @@ def plot_ionization_fraction(pos, xion):
     y_label = r'$\xi_{\rm ion}$'
     figure = single_frame(x_label, y_label, logx=False, logy=False,
                           xsize=14, ysize=8)
-    pyplot.scatter(r, x, c=get_distinct(1), lw=0, s=100)
+    pyplot.scatter(r, x, lw=0, s=100)
 #    pyplot.xlim(-1, 1)
 #    pyplot.ylim(-0.04, 1.19)
     #pyplot.savefig("fig_ionization_of_GMC")

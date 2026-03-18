@@ -2,8 +2,6 @@ from amuse.lab import *
 #from amuse.plot import sph_particles_plot
 from amuse.plot import *
 
-from amuse.examples.prepare_figure import *
-#from amuse.examples.distinct_colours import get_distinct
 
 def get_zones(stars):
     stars.move_to_center()
