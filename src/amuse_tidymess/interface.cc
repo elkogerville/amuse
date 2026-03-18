@@ -694,7 +694,7 @@ int get_num_integration_step(int* num_integration_step) {
     return 0;
 }
 
-int initialize_code(){
+int initialize_code() {
     //
     // Run the initialization for the code, called before
     // any other call on the code (so before any parameters
@@ -708,7 +708,8 @@ int initialize_code(){
     // reset id counter?
     //particle_id_counter = 0;
 
-    return 0;}
+    return 0;
+}
 
 int cleanup_code() {
     // FIXME
@@ -725,16 +726,17 @@ int cleanup_code() {
  * have been set or updated.
  */
 int commit_parameters() {
-    //tidymess.commit_parameters();
+    tidymess.set_model_time(begin_time);
+    tidymess.set_encounter_mode();
+    tidymess.set_pointers();
+    tidymess.upload_parameters();
     return 0;
 }
 
 int recommit_parameters() {
-    // """
-    // Perform initialization actions after parameters
-    // have been updated (after commit_parameters and
-    // particles have been loaded).
-    // """
+    tidymess.set_encounter_mode();
+    tidymess.set_pointers();
+    tidymess.upload_parameters();
     return 0;
 }
 
