@@ -443,32 +443,8 @@ int set_spin(
     return 0;
 }
 
-/**
- * FIXME
- */
-int get_acceleration(
-    int index_of_the_particle,
-    double* ax,
-    double* ay,
-    double* az
-) {
-    if (!ax || !ay || !az) return -1;
-    return 0;
-}
-
-/**
- * FIXME
- */
-int get_potential(int index_of_the_particle, double* potential) {
-    if (!potential) return -1;
-    return 0;
-}
-
 int evolve_model(double time) {
-    // Evolve the model until the given time, or until a stopping condition is set.
 
-     // has to be called sometime before evolving
-    //tidymess.set_dt_sgn(dt_sign);
     determine_dt_sgn(time);
 
     tidymess.evolve_model(time);
@@ -943,44 +919,6 @@ int get_index_of_next_particle(
     return 0;
 }
 
-int get_potential_at_point(
-    double* eps,
-    double* x,
-    double* y,
-    double* z,
-    double* phi,
-    int npoints
-) {
-    /***
-     * FIX
-     */
-    for (int i = 0; i < npoints; i++) {
-        phi[i] = 0.0;
-    }
-    return 0;
-}
-
-int get_gravity_at_point(
-    double* eps,
-    double* x,
-    double* y,
-    double* z,
-    double* ax,
-    double* ay,
-    double* az,
-    int npoints
-) {
-    /***
-     * FIX
-     */
-    for (int i = 0; i < npoints; i++) {
-        ax[i] = 0.0;
-        ay[i] = 0.0;
-        az[i] = 0.0;
-    }
-    return 0;
-}
-
 /**
  * Convert spin vector {length of day, obliquity, spin precession angle}
  * to spin vector {wx, wy, wz}. Logic copied from Tidymess
@@ -1022,10 +960,6 @@ int convert_spin_vectors_to_inertial(
     return 0;
 }
 
-int synchronize_model() {
-    return 0;
-}
-
 // FIXME
 int detect_collision(
     int* collision_flag,
@@ -1045,5 +979,76 @@ int detect_collision(
         *index2 = collided_index[1];
     }
 
+    return 0;
+}
+
+/**
+ * Needed to compile the interface;
+ * not implemented yet
+ */
+int get_acceleration(
+    int index_of_the_particle,
+    double* ax,
+    double* ay,
+    double* az
+) {
+    if (!ax || !ay || !az) return -1;
+    return 0;
+}
+
+/**
+ * Needed to compile the interface;
+ * not implemented yet
+ */
+int get_potential(int index_of_the_particle, double* potential) {
+    if (!potential) return -1;
+    return 0;
+}
+
+/**
+ * Needed to compile the interface;
+ * not implemented yet
+ */
+int get_potential_at_point(
+    double* eps,
+    double* x,
+    double* y,
+    double* z,
+    double* phi,
+    int npoints
+) {
+    // for (int i = 0; i < npoints; i++) {
+    //     phi[i] = 0.0;
+    // }
+    return 0;
+}
+
+/**
+ * Needed to compile the interface;
+ * not implemented yet
+ */
+int get_gravity_at_point(
+    double* eps,
+    double* x,
+    double* y,
+    double* z,
+    double* ax,
+    double* ay,
+    double* az,
+    int npoints
+) {
+    // for (int i = 0; i < npoints; i++) {
+    //     ax[i] = 0.0;
+    //     ay[i] = 0.0;
+    //     az[i] = 0.0;
+    // }
+    return 0;
+}
+
+/**
+ * Needed to compile the interface;
+ * not implemented yet
+ */
+int synchronize_model() {
     return 0;
 }
