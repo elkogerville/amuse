@@ -1,5 +1,8 @@
-import numpy as np
-import matplotlib.pyplot as plt
+"""
+Date Created : December 10, 2025
+Last Updated : March 19, 2026
+Test Routine for Tidymess and TidymessInterface
+"""
 
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse.units.quantities import VectorQuantity
@@ -8,7 +11,8 @@ from amuse.units import units as u
 from amuse.units import constants as c
 from amuse.units import nbody_system
 from amuse.datamodel import Particles
-from amuse.ext.orbital_elements import generate_binaries, new_binary_from_orbital_elements
+from amuse.ext.orbital_elements import generate_binaries
+import numpy as np
 
 
 class TestTidymessInterface(TestWithMPI):
@@ -525,6 +529,40 @@ class TestTidymess(TestWithMPI):
         instance.stop()
 
     def test4(self):
+        """
+        Test that setting a begin time correctly creates a time offset
+        """
+        dt = 5 | u.yr
+        begin_time = (50 | u.yr).as_quantity_in(u.s)
+        end_time = begin_time + dt
+
+        system = self.earth_moon_system()
+        converter = nbody_system.nbody_to_si(
+            system.mass.sum(), 1 | u.au
+        )
+        instance = self.new_instance_of_an_optional_code(Tidymess, converter)
+        assert instance is not None
+
+        self.assertEquals(instance.get_begin_time(), instance.model_time)
+        self.assertEquals(instance.get_begin_time(), 0 | u.s)
+
+        instance.parameters.tidal_model = 0
+        instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.0625
+        instance.set_begin_time(begin_time)
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system)
+        channel = instance.particles.new_channel_to(system)
+
+        instance.evolve_model(instance.model_time + dt)
+
+        self.assertEquals(instance.get_begin_time(), begin_time)
+        self.assertAlmostEquals(instance.model_time, end_time)
+
+        instance.stop()
+
+    def test5(self):
         """
         Evolve a system of Particles without tides
         """
