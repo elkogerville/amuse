@@ -1,14 +1,10 @@
 import os
-import numpy
-from amuse.lab import *
+import matplotlib.pyplot as plt
 
-from prepare_figure import single_frame
-from distinct_colours import get_distinct
-from matplotlib import pyplot
 
 def read_triple_data(filename):
-    t = [] 
-    ain = [] 
+    t = []
+    ain = []
     aout = []
     ein = []
     eout = []
@@ -25,33 +21,35 @@ def read_triple_data(filename):
                 e0out = float(l[18])
             if ti >= 4:
                 t.append(float(l[3]))
-                ain.append(float(l[10])/a0in)
-                ein.append(float(l[12])/e0in)
-                aout.append(float(l[16])/a0out)
-                eout.append(float(l[18])/e0out)
+                ain.append(float(l[10]) / a0in)
+                ein.append(float(l[12]) / e0in)
+                aout.append(float(l[16]) / a0out)
+                eout.append(float(l[18]) / e0out)
     return t, ain, ein, aout, eout
 
+
 try:
-    amusedir = os.environ['AMUSE_DIR']
-    dir = amusedir+'/examples/textbook/'
+    amusedir = os.environ["AMUSE_DIR"]
+    path = amusedir + "/examples/textbook/"
 except:
-    print('Environment variable AMUSE_DIR not set')
-    dir = './'
-filename = dir+'evolve_triple_with_wind.data'
+    print("Environment variable AMUSE_DIR not set")
+    path = "./"
+filename = path + "evolve_triple_with_wind.data"
 
 t, ain, ein, aout, eout = read_triple_data(filename)
 
 x_label = "$a/a_{0}$"
 y_label = "$e/e_{0}$"
-fig = single_frame(x_label, y_label, logx=False, logy=False,
-                   xsize=10, ysize=8)
-color = get_distinct(2)
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1)
+ax.set_xlabel(x_label)
+ax.set_ylabel(y_label)
 
-pyplot.plot(ain, ein, c=color[0], label= 'inner')
-pyplot.plot(aout, eout, c=color[1], label= 'outer')
-pyplot.legend(loc='best', ncol=1, shadow=False, fontsize=20)
+ax.plot(ain, ein, label="inner")
+ax.plot(aout, eout, label="outer")
+ax.legend(loc="best", ncol=1, shadow=False, fontsize=20)
 
-save_file = 'evolve_triple_with_wind.png'
-pyplot.savefig(save_file)
-print('\nSaved figure in file', save_file,'\n')
-pyplot.show()
+save_file = "evolve_triple_with_wind.png"
+plt.savefig(save_file)
+print("\nSaved figure in file", save_file, "\n")
+plt.show()
