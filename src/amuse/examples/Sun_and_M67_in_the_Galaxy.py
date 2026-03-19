@@ -303,7 +303,6 @@ def Sun_and_M67_in_the_Galaxy():
     print("---")
     print("time after backward integration:", time)
 
-    plt.style.use("../lib/matplotlibrc")
     figure = plt.figure()# figsize=(16, 12))
     ax = plt.gca()
     ax.minorticks_on()  # switch on the minor ticks

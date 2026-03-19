@@ -9,8 +9,6 @@ print(f"N={len(bodies)}, {len(stars)}, {len(systems)}, {len(planets)}, {len(debr
 
 from matplotlib import pyplot as plt
 
-plt.style.use('../lib/matplotlibrc')
-
 figure = plt.figure(figsize=(6, 6))
 ax = plt.gca()
 ax.minorticks_on() # switch on the minor ticks

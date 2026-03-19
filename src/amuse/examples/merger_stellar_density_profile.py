@@ -12,8 +12,6 @@ from amuse.community.mesa import Mesa
 from amuse.community.mmams import Mmams
 from amuse.community.evtwin import Evtwin
 
-plt.style.use("../lib/matplotlibrc")
-
 
 def merge_two_stars(Mprim, Msec, t_coll):
     print("Merge two stars.")

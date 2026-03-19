@@ -1,11 +1,10 @@
 from amuse.lab import * 
 import numpy
+import matplotlib.pyplot as plt
 import time
 import pickle
 from amuse.community.hermite_grx.interface import HermiteGRX
 
-from matplotlib import pyplot as plt
-plt.style.use('../lib/matplotlibrc')
 
 def energy_error_of_integrated_Nbody_system(code, particles, end_time, precision):
 

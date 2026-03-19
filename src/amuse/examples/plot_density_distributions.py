@@ -17,8 +17,6 @@ from amuse.ext.protodisk import ProtoPlanetaryDisk
 
 from amuse_examples.make_oort_cloud import add_comets
 
-plt.style.use("amuse.examples.book_v2")
-
 
 def plot_projected_density(
     model,

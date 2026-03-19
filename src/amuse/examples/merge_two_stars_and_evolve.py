@@ -9,7 +9,6 @@ from amuse.couple.collision_handler import CollisionHandler
 from amuse.support.console import set_printing_strategy
 
 from matplotlib import pyplot as plt
-plt.style.use('../lib/matplotlibrc')
 
 DEFAULT_OPTIONS = {
     "redirection": "none",

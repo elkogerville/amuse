@@ -168,7 +168,4 @@ def main():
 
 
 if __name__ == "__main__":
-    plt.style.use("seaborn-colorblind")
-    plt.style.use("amuse-book.mplstyle")
-
     main()

@@ -27,7 +27,6 @@ from amuse.community.hermite.interface import Hermite	# not symplectic
 from amuse.community.seba.interface import SeBa
 from amuse.community.sse.interface import SSE
 
-plt.style.use('../lib/matplotlibrc')
 
 def orbital_period(a, Mtot):
     return 2*numpy.pi*(a**3/(constants.G*Mtot)).sqrt()

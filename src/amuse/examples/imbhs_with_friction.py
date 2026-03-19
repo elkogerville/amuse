@@ -7,7 +7,6 @@ from plummer_potential import Plummer_potential
 #from hermite.interface import Hermite
 
 from matplotlib import pyplot as plt
-plt.style.use('../lib/matplotlibrc')
 
 # #BOOKLISTSTART1# #
 class CodeWithFriction(bridge.GravityCodeInField):
