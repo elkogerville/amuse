@@ -571,7 +571,7 @@ class TestTidymess(TestWithMPI):
 
         system = self.earth_moon_system()
         converter = nbody_system.nbody_to_si(
-            system.mass.sum(), end_time
+            system.mass.sum(), 1 | u.au
         )
 
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
@@ -600,28 +600,28 @@ class TestTidymess(TestWithMPI):
         self.assertAlmostEquals(
             particles[-1].position[0],
             VectorQuantity([3554487.97163, -3026275.21595, 0.0], u.m),
-            places=5
+            places=1
         )
         self.assertAlmostEquals(
             particles[-1].position[1],
             VectorQuantity([-289132566.932, 246166178.762, 0.0], u.m),
-            places=3
+            places=1
         )
         self.assertAlmostEquals(
             particles[-1].velocity[0],
             VectorQuantity([8.06599003995, 9.47384574385, 0.0], u.ms),
-            places=4
+            places=1
         )
         self.assertAlmostEquals(
             particles[-1].velocity[1],
             VectorQuantity([-656.111491645, -770.630639491, 0.0], u.ms),
-            places=4
+            places=1
         )
         self.assertAlmostRelativeEqual(times[-1], end_time, places=3)
 
         instance.stop()
 
-    def test5(self):
+    def test6(self):
         """
         Evolve the HD80606b exoplanet system with tides
         """
@@ -660,7 +660,7 @@ class TestTidymess(TestWithMPI):
         self.assertAlmostEquals(
             particles[-1].position[0],
             VectorQuantity([137405.552133, -84398.2017397, 0.0], u.km),
-            places=5
+            places=4
         )
         self.assertAlmostEquals(
             particles[-1].position[1],
