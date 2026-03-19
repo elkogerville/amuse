@@ -1,32 +1,38 @@
 """
-   Evolve a population of N stars.
-   initial mass function between Mmin and Mmax and with stellar evolution with
-   metalicity z.
+Evolve a population of N stars.
+initial mass function between Mmin and Mmax and with stellar evolution with
+metalicity z.
 """
-import sys
+
 import numpy
-from amuse.lab import *
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
 
-#from amuse.community.seba.interface import SeBa
+from amuse.units import units
+from amuse.datamodel import Particles
+from amuse.community.seba import Seba
+from amuse.community.sse import Sse
+from amuse.community.mesa_r2208 import Mesa
+from amuse.io import write_set_to_file, read_set_from_file
 
-from prepare_figure import single_frame, figure_frame, set_tickmarks
-from distinct_colours import get_distinct
+# from amuse.community.seba.interface import SeBa
 
-def _get_stellar_temperature_and_luminosity(stars, C, z=0.02, t_end=100|units.Myr, write=False):
 
-    if C.find("SeBa")>=0 :
-        stellar = SeBa()
-        filename = "Stellar_SeBa.h5"
-    if C.find("SSE")>=0 :
-        stellar = SSE()
-        filename = "Stellar_SSE.h5"
-    if C.find("MESA")>=0 :
-        stellar = MESA()
-        filename = "Stellar_MESA.h5"
-    if C.find("EVtwin")>=0 :
-        stellar = SeBa()
-        filename = "Stellar_EVtwin.h5"
+def _get_stellar_temperature_and_luminosity(
+    stars, C, z=0.02, t_end=100 | units.Myr, write=False
+):
+
+    if C.find("SeBa") >= 0:
+        stellar = Seba()
+        filename = "Stellar_SeBa.amuse"
+    if C.find("SSE") >= 0:
+        stellar = Sse()
+        filename = "Stellar_SSE.amuse"
+    if C.find("MESA") >= 0:
+        stellar = Mesa()
+        filename = "Stellar_MESA.amuse"
+    if C.find("EVtwin") >= 0:
+        stellar = Seba()
+        filename = "Stellar_EVtwin.amuse"
 
     stellar.parameters.metallicity = z
     stellar.particles.add_particles(stars)
@@ -35,18 +41,21 @@ def _get_stellar_temperature_and_luminosity(stars, C, z=0.02, t_end=100|units.My
         try:
             si.evolve_for(t_end)
         except:
-            print "Failed to evolve star: m=", si.mass.in_(units.MSun)
-            #stellar.evolve_model(t_end)
+            print("Failed to evolve star: m=", si.mass.in_(units.MSun))
+            # stellar.evolve_model(t_end)
     if write:
-        #write_set_to_file(stellar.particles.savepoint(t_end), filename, 'h5')
-        write_set_to_file(stellar.particles, filename, 'hdf5')
+        # write_set_to_file(stellar.particles.savepoint(t_end), filename, 'amuse')
+        write_set_to_file(stellar.particles, filename)
     stellar.stop()
 
-def get_stellar_temperature_and_luminosity(stars, C, z=0.02, t_end=100|units.Myr, write=False):
 
-    if C.find("SeBa")>=0 :
-        filename = "Stellar_SeBa.h5"
-        stellar = SeBa()
+def get_stellar_temperature_and_luminosity(
+    stars, C, z=0.02, t_end=100 | units.Myr, write=False
+):
+
+    if C.find("SeBa") >= 0:
+        filename = "Stellar_SeBa.amuse"
+        stellar = Seba()
         stellar.parameters.metallicity = z
         stellar.particles.add_particles(stars)
         channel_to_framework = stellar.particles.new_channel_to(stars)
@@ -54,50 +63,58 @@ def get_stellar_temperature_and_luminosity(stars, C, z=0.02, t_end=100|units.Myr
         channel_to_framework.copy_attributes(["radius", "temperature", "luminosity"])
         stellar.stop()
     else:
-        if C.find("MESA")>=0 :
-            filename = "Stellar_MESA.h5"
-        if C.find("EVtwin")>=0 :
-            filename = "Stellar_EVtwin.h5"
+        if C.find("MESA") >= 0:
+            filename = "Stellar_MESA.amuse"
+        if C.find("EVtwin") >= 0:
+            filename = "Stellar_EVtwin.amuse"
 
         for si in stars:
-            stellar = MESA()
+            stellar = Mesa()
             stellar.parameters.metallicity = z
             stellar.particles.add_particle(si)
-            #stellar.commit_particles()
+            # stellar.commit_particles()
             channel_to_framework = stellar.particles.new_channel_to(stars)
             try:
                 stellar.evolve_model(t_end)
-                channel_to_framework.copy_attributes(["radius", "temperature", "luminosity"])
-                print "Successvolly evolved star: m=", si.mass.in_(units.MSun)
+                channel_to_framework.copy_attributes(
+                    ["radius", "temperature", "luminosity"]
+                )
+                print("Successvolly evolved star: m=", si.mass.in_(units.MSun))
             except:
-                print "Failed to evolve star: m=", si.mass.in_(units.MSun)
-                #stellar.evolve_model(t_end)
+                print("Failed to evolve star: m=", si.mass.in_(units.MSun))
+                # stellar.evolve_model(t_end)
             stellar.stop()
     if write:
-        write_set_to_file(stars, filename, 'hdf5')
-        
-def plot_HRD(filename, color):
-        stars = read_set_from_file(filename, 'hdf5')
-        T = stars.temperature.value_in(units.K)
-        L = stars.luminosity.value_in(units.LSun)
-        R = stars.radius.value_in(units.RSun)
-        
-        R = 80*numpy.sqrt(R)
-        pyplot.scatter(T, L, c=color, lw=0, s=R)
+        write_set_to_file(stars, filename)
 
-def main(N, t_end, z, C="SeBa", plot=False):
+
+def plot_hrd(filename, ax):
+    stars = read_set_from_file(filename)
+    T = stars.temperature.value_in(units.K)
+    L = stars.luminosity.value_in(units.LSun)
+    R = stars.radius.value_in(units.RSun)
+
+    R = 80 * numpy.sqrt(R)
+    ax.scatter(T, L, lw=0, s=R)
+
+
+def stellar_isochrone(N, t_end, z, C="SeBa", plot=False):
     if "SeBa" not in C:
         x_label = "T [K]"
         y_label = "L [L$_\odot$]"
-        figure = single_frame(x_label, y_label, logx=True, logy=True, xsize=14, ysize=10)
-        color = get_distinct(4)
-        pyplot.xlim(1.e+5, 1.e+3)
-        pyplot.ylim(1.e-4, 1.e+4)
-        filename = "Stellar_"+"SeBa"+".h5"
-        plot_HRD(filename, color[0])
-        filename = "Stellar_"+C+".h5"
-        plot_HRD(filename, color[1])
-        pyplot.savefig("HRD_N3000at4500Myr")
+        figure = plt.figure()
+        ax = figure.add_subplot(1, 1, 1)
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+        ax.set_xlim(1.0e5, 1.0e3)
+        ax.set_ylim(1.0e-4, 1.0e4)
+        filename = "Stellar_" + "SeBa" + ".amuse"
+        plot_hrd(filename, ax)
+        filename = "Stellar_" + C + ".amuse"
+        plot_hrd(filename, ax)
+        plt.savefig("HRD_N3000at4500Myr")
     elif not plot:
         numpy.random.seed(1)
         masses = new_salpeter_mass_distribution(N)
@@ -106,33 +123,49 @@ def main(N, t_end, z, C="SeBa", plot=False):
     else:
         x_label = "T [K]"
         y_label = "L [L$_\odot$]"
-        figure = single_frame(x_label, y_label, logx=True, logy=True, xsize=14, ysize=10)
-        color = get_distinct(4)
-        pyplot.xlim(1.e+5, 1.e+3)
-        pyplot.ylim(1.e-4, 1.e+4)
-        filename = "Stellar_"+C+".h5"
-        plot_HRD(filename, color[0])
-#        pyplot.show()
-        pyplot.savefig("HRD_N3000at4500Myr")
-    
-def new_option_parser():
-    from amuse.units.optparse import OptionParser
-    result = OptionParser()
-    result.add_option("-C", dest="C", default = "SeBa",
-                      help="stellar evolution code [SeBa]")
-    result.add_option("-N", dest="N", type="int",default = 3000,
-                      help="number of stars [10]")
-    result.add_option("-t", dest="t_end", unit=units.Myr,
-                      type="float", default = 4500.0|units.Myr,
-                      help="end time of the simulation [100] Myr")
-    result.add_option("-z", dest="z", type="float", default = 0.02,
-                      help="metalicity [0.02]")
-    result.add_option("-p", dest="plot", action="store_true", default = False,
-                      help="plot")
-    return result
+        figure = plt.figure()
+        ax = figure.add_subplot(1, 1, 1)
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+        ax.set_xlim(1.0e5, 1.0e3)
+        ax.set_ylim(1.0e-4, 1.0e4)
+        filename = "Stellar_" + C + ".amuse"
+        plot_hrd(filename, ax)
+        plt.savefig("HRD_N3000at4500Myr.pdf")
 
-if __name__ in ('__main__', '__plot__'):
-    o, arguments  = new_option_parser().parse_args()
-    main(**o.__dict__)
 
-                  
+def new_argument_parser():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        "-C", default="SeBa", help="stellar evolution code"
+    )
+    parser.add_argument(
+        "-N", type=int, default=3000, help="number of stars"
+    )
+    parser.add_argument(
+        "-t",
+        "--time_end",
+        type=units.Myr,
+        default=4500.0 | units.Myr,
+        help="end time of the simulation",
+    )
+    parser.add_argument(
+        "-z", type=float, default=0.02, help="metalicity"
+    )
+    parser.add_argument(
+        "-p", "--plot", action="store_true", default=False, help="plot"
+    )
+    return parser
+
+
+def main()
+    args = new_argument_parser().parse_args()
+    stellar_isochrone(**args.__dict__)
+
+
+if __name__ == "__main__":
+    main()
