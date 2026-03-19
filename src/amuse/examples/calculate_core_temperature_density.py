@@ -20,9 +20,8 @@ def stellar_remnant(stellar):
     return remnant
 
 
-def stellar_core_temperature_and_density(M, z=0.02):
-
-    filename = f"stellar_M{M.value_in(units.MSun)}MSun_core_temperature_and_density.pkl"
+def stellar_core_temperature_and_density(mass, metallicity=0.02):
+    filename = f"stellar_M{mass.value_in(units.MSun)}MSun_core_temperature_and_density.pkl"
 
     time = [] | units.Myr
     rho_core = [] | units.g / units.cm**3
@@ -32,8 +31,8 @@ def stellar_core_temperature_and_density(M, z=0.02):
     ncheck = 100
 
     stellar = Mesa(version="15140")
-    stellar.parameters.metallicity = z
-    star = stellar.particles.add_particle(Particle(mass=M))
+    stellar.parameters.metallicity = metallicity
+    star = stellar.particles.add_particle(Particle(mass=mass))
 
     # #BOOKLISTSTART1# #
     while not stellar_remnant(stellar):
@@ -91,19 +90,19 @@ def new_argument_parser():
     )
     parser.add_argument(
         "-Z",
-        "--metalicity",
+        "--metallicity",
         default=0.02,
-        help="Stellar metalicity",
+        help="Stellar metallicity",
     )
     return parser
 
 
-def calculate_core_temperature_density(mass=1 | units.MSun, Z=0.02):
+def calculate_core_temperature_density(mass=1 | units.MSun, metallicity=0.02):
     filename = (
         f"stellar_M{mass.value_in(units.MSun)}MSun_core_temperature_and_density.pkl"
     )
 
-    time, rhoc, Tc, stp = stellar_core_temperature_and_density(mass, Z)
+    time, rhoc, Tc, stp = stellar_core_temperature_and_density(mass, metallicity)
     with open(filename, "wb") as file:
         pickle.dump([time, rhoc, Tc, stp], file)
 
