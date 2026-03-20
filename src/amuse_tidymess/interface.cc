@@ -27,6 +27,15 @@ static double begin_time = 0;
 static int init_shape = 0;
 static int dt_sign = 1;
 
+
+/**
+ * Check that begin time is an offset
+ * rn begin time is set in commit parameters but maybe can be moved
+ * test if u can evolve backwards in time (first w no tides, and if with tides use tidal model 1)
+ * test that dtconst requires units
+ *
+ */
+
 // TIDYMESS HELPER FUNCTIONS
 
 /**
@@ -624,31 +633,25 @@ int set_initial_shape(int initial_shape) {
 int get_collision_mode(int* collision_mode) {
     if (!collision_mode) return -1;
 
-    if (tidymess.get_collision_mode() != collision.collision_mode)
-        return -1;
-
     *collision_mode = tidymess.get_collision_mode();
-
-    // maybe check if Tidy and Collision have the same value set
     return 0;
 }
+
 int set_collision_mode(int collision_mode) {
     tidymess.set_collision_mode(collision_mode);
-    collision.set_collision_mode(collision_mode);
-    collision.setup();
     return 0;
 }
 
 int get_roche_mode(int* roche_mode) {
     if (!roche_mode) return -1;
 
-    *roche_mode = collision.roche_mode; // doesn't appear in Tidy
+    *roche_mode = tidymess.roche_mode; // doesn't appear in Tidy
     return 0;
 }
 int set_roche_mode(int roche_mode) {
     tidymess.set_roche_mode(roche_mode);
-    collision.set_roche_mode(roche_mode); // doesn't appear in Tidy
-    collision.setup();
+    // collision.set_roche_mode(roche_mode); // doesn't appear in Tidy
+    // collision.setup();
     return 0;
 }
 

@@ -1509,7 +1509,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'set_dt_const',
             'dt_const',
             (
-                'constant time step in units given by time_unit, ' # FIX
+                'constant time step in units given by time_unit, ' # FIXME
                 'default=0.015625 (only used if dt_mode=0)'
             ),
             default_value=0.015625,
