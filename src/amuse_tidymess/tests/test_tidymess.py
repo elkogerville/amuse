@@ -164,6 +164,10 @@ class TestTidymessInterface(TestWithMPI):
         self.assertEquals(result['num_integration_step'], 0)
 
         self.assertEqual(0, instance.cleanup_code())
+
+        result = instance.get_number_of_particles()
+        self.assertEquals(result['number_of_particles'], 0)
+
         instance.stop()
 
     def test3(self):
