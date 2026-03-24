@@ -13,19 +13,20 @@ class TidymessInterface(
     CodeInterface,
     LiteratureReferencesMixIn,
     GravitationalDynamicsInterface,
+    GravityFieldInterface,
     StoppingConditionInterface,
-    GravityFieldInterface
 ):
     """
+    Tidymess is a N-Body code with tides
 
+    .. [#] Boekholt & Correia (MNRAS 2023, vol. 522, pp. 2885–2900)
     """
 
     include_headers = ['tidymess_worker.h', 'stopcond.h']
 
-
-    def __init__(self, **options):
+    def __init__(self, **kwargs):
         CodeInterface.__init__(
-            self, name_of_the_worker='tidymess_worker', **options
+            self, name_of_the_worker='tidymess_worker', **kwargs
         )
         LiteratureReferencesMixIn.__init__(self)
 
@@ -1581,22 +1582,6 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
 
 
     def define_particle_sets(self, handler):
-        handler.define_set('particles', 'index_of_the_particle')
-        handler.set_new('particles', 'new_particle')
-        handler.set_delete('particles', 'delete_particle')
-        handler.add_setter('particles', 'set_state')
-        handler.add_getter('particles', 'get_state')
-        handler.add_setter('particles', 'set_mass')
-        handler.add_getter('particles', 'get_mass', names=('mass',))
-        handler.add_setter('particles', 'set_position')
-        handler.add_getter('particles', 'get_position')
-        handler.add_setter('particles', 'set_velocity')
-        handler.add_getter('particles', 'get_velocity')
-        handler.add_setter('particles', 'set_spin')
-        handler.add_getter('particles', 'get_spin')
-        handler.add_setter('particles', 'set_radius')
-        handler.add_getter('particles', 'get_radius')
-        handler.add_query(
-            'particles', 'get_indices_of_colliding_particles',
-            public_name='select_colliding_particles'
-        )
+        GravitationalDynamics.define_particle_sets(self, handler)
+
+        self.stopping_conditions.define_particle_set(handler)
