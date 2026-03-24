@@ -106,8 +106,7 @@ int new_particle(
 
     newbody.set_id(particle_id_counter);
 
-    *index_of_the_particle = particle_id_counter;
-    particle_id_counter++;
+    *index_of_the_particle = particle_id_counter++;
 
     bodies.push_back(newbody);
     return 0;
@@ -690,14 +689,17 @@ int initialize_code() {
     return 0;
 }
 
+
+/**
+ * Deallocate Tidymess bodies
+ */
 int cleanup_code() {
-    // FIXME
-    // Run the cleanup for the code, called
-    // just before stopping the code. No functions
-    // should be called after this code.
-    //
+    std::vector<Body>& bodies = tidymess.bodies;
+    tidymess.bodies.clear();
+
     return 0;
 }
+
 
 /**
  * Perform initialization in the code dependent on the
