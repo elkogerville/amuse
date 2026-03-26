@@ -65,7 +65,8 @@ void sapporo::send_j_particles_to_device(int ignore) {
     dev_struct &dev = device;
     
     int nj = address_j.size();
-    if (nj >= nj_max) {
+
+    if (nj > nj_max) {
       fprintf(stdout, "ERROR: nj = %d exceeds GPU capacity nj_max = %d\n", nj, nj_max);
       abort;
     }
