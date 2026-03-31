@@ -114,6 +114,7 @@ src/bin/fpx3_deps: | src/fpx3_deps
 
 $(MESA_DIR)/utils/makedepf90-2.8.8: | $(MESA_DIR)
 	cd $(MESA_DIR)/utils && tar xzf makedepf90-2.8.8.tar.gz -m
+    touch $(MESA_DIR)/utils/makedepf90-2.8.8/configure
 
 src/bin/makedepf90: | $(MESA_DIR)/utils/makedepf90-2.8.8 src/bin
 	cd $(MESA_DIR)/utils/makedepf90-2.8.8 && ./configure
