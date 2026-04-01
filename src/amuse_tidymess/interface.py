@@ -890,7 +890,8 @@ class TidymessInterface(
             'dt_const',
             dtype='float64',
             direction=function.OUT,
-            description=''
+            description='',
+            unit=generic_unit_system.time
         )
         function.result_type = 'int32'
         function.result_doc = """\
@@ -911,7 +912,8 @@ class TidymessInterface(
             'dt_const',
             dtype='float64',
             direction=function.IN,
-            description=''
+            description='',
+            unit=generic_unit_system.time
         )
         function.result_type = 'int32'
         function.result_doc = """\
@@ -1455,6 +1457,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
         Users should not use:
             Tidymess.set_param_name(value)
         """
+        GravitationalDynamics.define_parameters(self, handler)
         handler.add_method_parameter(
             'get_tidal_model',
             'set_tidal_model',
@@ -1513,7 +1516,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 'constant time step in units given by time_unit, ' # FIXME
                 'default=0.015625 (only used if dt_mode=0)'
             ),
-            default_value=0.015625,
+            default_value=0.015625 | generic_unit_system.time,
             is_vector=False,
             must_set_before_get=False,
         )
