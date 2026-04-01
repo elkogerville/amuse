@@ -335,7 +335,6 @@ class TsunamiInterface(
             dtype='float64',
             direction=function.IN,
             description='The new radius of the particle',
-            default=0,
         )
         function.addParameter(
             'wx',

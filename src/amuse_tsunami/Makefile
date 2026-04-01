@@ -80,10 +80,10 @@ $(CODELIB): | src
 
 # Building the workers
 tsunami_worker.h: interface.py
-	amusifier --type=h interface.py tsunamiInterface -o $@
+	amusifier --type=h interface.py TsunamiInterface -o $@
 
 tsunami_worker.cc: interface.py
-	amusifier --type=c interface.py tsunamiInterface -o $@
+	amusifier --type=c interface.py TsunamiInterface -o $@
 
 tsunami_worker.o: tsunami_worker.cc tsunami_worker.h
 	$(MPICXX) -c -o $@ $(CFLAGS) $<
