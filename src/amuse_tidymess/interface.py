@@ -1166,6 +1166,18 @@ class TidymessInterface(
 
         return function
 
+    @legacy_function
+    def print_particles():
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'print_wtides',
+            dtype='bool',
+            direction=function.IN
+        )
+        function.result_type = 'int32'
+
+        return function
+
 
     # @legacy_function
     # def detect_collision():
@@ -1292,6 +1304,12 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
         """
 
         GravitationalDynamics.define_methods(self, handler)
+
+        handler.add_method(
+            'print_particles',
+            (handler.NO_UNIT,),
+            (handler.ERROR_CODE)
+        )
 
         handler.add_method(
             'new_particle',
