@@ -1,18 +1,28 @@
 from enum import IntEnum
 import numpy as np
 from amuse.support.interface import InCodeComponentImplementation
-from amuse.community.interface.gd import GravitationalDynamics
-from amuse.community.interface.gd import GravitationalDynamicsInterface
-from amuse.community.interface.gd import GravityFieldInterface
-from amuse.community.interface.gd import GravityFieldCode
-from amuse.community.interface.stopping_conditions import StoppingConditions, StoppingConditionInterface
-from amuse.rfi.core import CodeInterface, legacy_function, LegacyFunctionSpecification
+from amuse.community.interface.gd import (
+    GravitationalDynamics,
+    GravitationalDynamicsInterface,
+    GravityFieldCode,
+    GravityFieldInterface
+)
+from amuse.community.interface.stopping_conditions import (
+    StoppingConditions,
+    StoppingConditionInterface
+)
+from amuse.rfi.core import (
+    CodeInterface,
+    LegacyFunctionSpecification,
+    legacy_function
+)
 from amuse.support.interface import MethodWithUnitsDefinition
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import generic_unit_system, nbody_system
 
 
 class TsunamiPtype(IntEnum):
+    """This feature seems to be still in active development"""
     LOW_MASS_MS = 0
     HIGH_MASS_MS = 1
     HGAP = 2
