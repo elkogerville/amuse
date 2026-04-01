@@ -1,5 +1,7 @@
 #include "tidymess_worker.h"
+#include <cmath>
 #include <cstddef>
+#include <cstdlib>
 #include <iostream>
 
 // AMUSE STOPPING CONDITIONS SUPPORT
@@ -26,6 +28,7 @@ static int particle_id_counter = 0;
 static double begin_time = 0;
 static int init_shape = 0;
 static int dt_sign = 1;
+static bool print_info = false;
 
 
 /**
@@ -109,6 +112,12 @@ int new_particle(
     *index_of_the_particle = particle_id_counter++;
 
     bodies.push_back(newbody);
+    if (print_info) {
+        cerr<<"printing particle in new_particle"<<endl;
+        tidymess.print_particles(false);
+        cerr<<"end print "<<endl;
+    }
+
     return 0;
 }
 
@@ -672,7 +681,85 @@ int get_num_integration_step(int* num_integration_step) {
     return 0;
 }
 
+int normalize_initial_conditions() {
+
+    double Cm = 0.0;
+    double Cr = 0.0;
+    double Cv = 1.0;
+    double Ct = 1.0;
+
+    std::vector<Body>& bodies = tidymess.bodies;
+
+    int N = static_cast<int>(bodies.size());
+
+
+    for(int i = 0; i < N; i++) {
+        Cm += bodies[i].m;
+    }
+
+    if(Cm == 0) {
+        std::cerr<<"The cumulative mass of the N-body system is zero! Please include a non-zero mass body."<<endl;
+        std::exit(1);
+    }
+
+    int cnt = 0;
+    for(int i=0; i<N-1; i++) {
+        for(int j=i+1; j<N; j++) {
+            double dx = bodies[i].r[0] - bodies[j].r[0];
+            double dy = bodies[i].r[1] - bodies[j].r[1];
+            double dz = bodies[i].r[2] - bodies[j].r[2];
+            double dr2 = dx*dx + dy*dy + dz*dz;
+            double dr1 = std::sqrt(dr2);
+            Cr += dr1;
+            cnt++;
+        }
+    }
+
+    Cr /= cnt;
+    Cv = std::sqrt(Cm / Cr);
+    Ct = Cr / Cv;
+
+    tidymess.set_model_time(tidymess.get_model_time() / Ct);
+    tidymess.set_dt_const(tidymess.get_dt_const() / Ct);
+    tidymess.set_speed_of_light(tidymess.get_speed_of_light() / Cv);
+
+    std::cerr<<"model_time= "<<tidymess.get_model_time()<<endl;
+    std::cerr<<"dtconst= "<<tidymess.get_dt_const()<<endl;
+    cerr<<"Cv= "<<Cv<<" Ct= "<<Ct<<" Cm= "<<Cm<<" Cr= "<<Cr<<endl;
+
+    for(int i = 0; i < N; i++) {
+        // mass
+        bodies[i].m /= Cm;
+
+        // position
+        bodies[i].r[0] /= Cr;
+        bodies[i].r[1] /= Cr;
+        bodies[i].r[2] /= Cr;
+
+        // velocity
+        bodies[i].v[0] /= Cv;
+        bodies[i].v[1] /= Cv;
+        bodies[i].v[2] /= Cv;
+
+        // radius
+        bodies[i].R /= Cr;
+
+        // spin
+        bodies[i].w[0] *= Ct;
+        bodies[i].w[1] *= Ct;
+        bodies[i].w[2] *= Ct;
+
+        // tau
+        bodies[i].tau /= Ct;
+
+        // a_mb
+        bodies[i].a_mb /= Ct;
+    }
+    return 0;
+}
+
 int initialize_code() {
+    std::cerr<<"PLEASE"<<endl;
     //
     // Run the initialization for the code, called before
     // any other call on the code (so before any parameters
@@ -707,8 +794,8 @@ int cleanup_code() {
  * have been set or updated.
  */
 int commit_parameters() {
-    tidymess.set_model_time(begin_time);
     tidymess.set_encounter_mode();
+    std::cerr<<"SET_POINTERS NOW!!!!"<<endl;
     tidymess.set_pointers();
     tidymess.upload_parameters();
     return 0;
@@ -722,6 +809,8 @@ int recommit_parameters() {
 }
 
 int commit_particles() {
+    tidymess.set_model_time(begin_time);
+    normalize_initial_conditions();
     if (tidymess.get_tidal_model() > 0) {
         switch(init_shape) {
             case 0:
@@ -734,8 +823,31 @@ int commit_particles() {
                 return -1;
         }
         tidymess.update_angular_momentum();
+        cerr<<"printing particles after update_angular_momentum"<<endl;
+        tidymess.print_particles(true);
     }
+    tidymess.commit_parameters();
     tidymess.initialize();
+
+
+    const Body& body0 = tidymess.bodies[0];
+    const Body& body1 = tidymess.bodies[1];
+
+    double dx = body1.r[0] - body0.r[0];
+    double dy = body1.r[1] - body0.r[1];
+    double dz = body1.r[2] - body0.r[2];
+    double r = sqrt(dx*dx + dy*dy + dz*dz);
+
+    cerr << "SEPARATION r = " << r << endl;
+    cerr << "EXPECTED POT = " << -(body0.m * body1.m) / r << endl;
+
+    const array<double, 3> pcom = tidymess.get_center_of_mass();
+    const array<double, 3> pvel = tidymess.get_center_of_mass_velocity();
+    const double pot = tidymess.get_potential_energy();
+    cerr<<"COM "<<pcom[0] <<pcom[1] <<pcom[2] <<endl;
+    cerr<<"COMVEL "<<pvel[0] <<pvel[1] <<pvel[2] <<endl;
+    cerr<<"POT "<<pot <<endl;
+
     return 0;
 }
 
@@ -1055,5 +1167,10 @@ int get_gravity_at_point(
  * not implemented yet
  */
 int synchronize_model() {
+    return 0;
+}
+
+int print_particles(bool print_wtides) {
+    tidymess.print_particles(print_wtides);
     return 0;
 }
