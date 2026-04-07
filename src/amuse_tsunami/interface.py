@@ -63,9 +63,9 @@ class TsunamiInterface(
 
     include_headers = ['tsunami_worker.h', 'stopcond.h']
 
-    def __init__(self, **keyword_arguments):
+    def __init__(self, **kwargs):
         CodeInterface.__init__(
-            self, name_of_the_worker='tsunami_worker', **keyword_arguments
+            self, name_of_the_worker='tsunami_worker', **kwargs
         )
         LiteratureReferencesMixIn.__init__(self)
 
