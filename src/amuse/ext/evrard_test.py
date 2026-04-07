@@ -1,15 +1,15 @@
 import warnings
 from amuse.ic.evrard_test import (
-    uniform_random_unit_cube,
-    sobol_unit_cube,
-    regular_grid_unit_cube,
-    body_centered_grid_unit_cube,
-    glass_unit_cube,
-    uniform_unit_cube,
-    uniform_unit_sphere,
     MakeEvrardTest,
     MakeEvrardModel,
-    new_evrard_gas_sphere
+    body_centered_grid_unit_cube,
+    glass_unit_cube,
+    new_evrard_gas_sphere,
+    regular_grid_unit_cube,
+    sobol_unit_cube,
+    uniform_random_unit_cube,
+    uniform_unit_cube,
+    uniform_unit_sphere
 )
 
 warnings.warn(

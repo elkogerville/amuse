@@ -1,11 +1,8 @@
 import numpy
-
+from amuse import datamodel
 from amuse.ic.evrard_test import uniform_unit_sphere
 from amuse.units import nbody_system
-from amuse.units import generic_unit_system
-from amuse.units import units
 
-from amuse import datamodel
 
 class bb79_cloud(object):
   """
