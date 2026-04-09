@@ -2,81 +2,69 @@ ifneq (,$(filter-out clean distclean, $(MAKECMDGOALS)))
 include support/config.mk
 endif
 
-
 # Detecting dependencies
 support/config.mk:
 	cd support && ./configure
 
-
-# Downloading the code
-##### Remove if not needed #####
-VERSION = VERSION
-
 tsunami.tar.gz:
-	##### Modify URL as needed #####
-	$(DOWNLOAD) https://github.com/tsunami/tsunami/archive/$(VERSION).tar.gz >$@
+	@echo "Add message here"
 
-PATCHES := $(shell cat patches/series)
+# PATCHES := $(shell cat patches/series)
 
-src/tsunami-$(VERSION): tsunami.tar.gz
+src/tsunami-master: | tsunami.tar.gz
 	##### Modify as needed #####
 	tar xf $<
-	mv tsunami-$(VERSION) src
-	##### Apply patches here, if needed #####
-	patch <patch.patch
-	for p in $(PATCHES) ; do patch -p1 <patches/$$p ; done
+	mv tsunami-master src/
+	# ##### Apply patches here, if needed #####
+	# patch <patch.patch
+	# for p in $(PATCHES) ; do patch -p1 <patches/$$p ; done
 
 
 # Building the code into a static library
-##### Remove anything not needed #####
-DEPFLAGS += $(STOPCOND_CFLAGS) $(STOPCONDMPI_CFLAGS) $(AMUSE_MPI_CFLAGS)
-DEPFLAGS += $(SIMPLE_HASH_CFLAGS) $(G6LIB_CFLAGS)
-DEPFLAGS += $(SAPPORO_LIGHT_CFLAGS)
+DEPFLAGS += $(STOPCOND_CFLAGS)
 
-##### Pick whichever language is applicable for the code #####
-DEPFLAGS += $(OPENMP_CFLAGS) $(OPENMP_FFLAGS) $(OPENMP_CXXFLAGS)
+# ##### Pick whichever language is applicable for the code #####
+# DEPFLAGS += $(OPENMP_CFLAGS) $(OPENMP_FFLAGS) $(OPENMP_CXXFLAGS)
 
-##### Remove anything not needed #####
-DEPFLAGS += $(CUDA_FLAGS)
-DEPFLAGS += $(CL_CFLAGS)
-##### LAPACK doesn't have flags, only libs... #####
-DEPFLAGS += $(GSL_FLAGS)
-DEPFLAGS += $(GMP_FLAGS)
-DEPFLAGS += $(MPFR_FLAGS)
-DEPFLAGS += $(FFTW_FLAGS)
-##### Pick whichever language is applicable for the code #####
-DEPFLAGS += $(HDF5_CFLAGS) $(HDF5_FFLAGS)
-##### Pick whichever language is applicable for the code #####
-DEPFLAGS += $(NETCDF4_CFLAGS) $(NETCDF4_FFLAGS)
+# ##### Remove anything not needed #####
+# DEPFLAGS += $(CUDA_FLAGS)
+# DEPFLAGS += $(CL_CFLAGS)
+# ##### LAPACK doesn't have flags, only libs... #####
+# DEPFLAGS += $(GSL_FLAGS)
+# DEPFLAGS += $(GMP_FLAGS)
+# DEPFLAGS += $(MPFR_FLAGS)
+# DEPFLAGS += $(FFTW_FLAGS)
+# ##### Pick whichever language is applicable for the code #####
+# DEPFLAGS += $(HDF5_CFLAGS) $(HDF5_FFLAGS)
+# ##### Pick whichever language is applicable for the code #####
+# DEPFLAGS += $(NETCDF4_CFLAGS) $(NETCDF4_FFLAGS)
 
-CFLAGS += $(DEPFLAGS)
-LDFLAGS += $(CUDA_LDFLAGS)
+# CFLAGS += $(DEPFLAGS)
+# LDFLAGS += $(CUDA_LDFLAGS)
 
-LDLIBS += -lm $(STOPCOND_LIBS) $(STOPCONDMPI_LIBS) $(AMUSE_MPI_LIBS)
-LDLIBS += $(SIMPLE_HASH_LIBS) $(G6LIB_LIBS)
-LDLIBS += $(SAPPORO_LIGHT_LIBS)
+LDLIBS += -lm $(STOPCOND_LIBS)
+# LDLIBS += $(SIMPLE_HASH_LIBS) $(G6LIB_LIBS)
+# LDLIBS += $(SAPPORO_LIGHT_LIBS)
 
 # TODO CUDA, anything else?
-LDLIBS += $(CL_LIBS)
-LDLIBS += $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS)
-LDLIBS += $(GSL_LIBS)
-LDLIBS += $(GMP_LIBS)
-LDLIBS += $(MPFR_LIBS)
-LDLIBS += $(FFTW_LIBS)
+# LDLIBS += $(CL_LIBS)
+# LDLIBS += $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS)
+# LDLIBS += $(GSL_LIBS)
+# LDLIBS += $(GMP_LIBS)
+# LDLIBS += $(MPFR_LIBS)
+# LDLIBS += $(FFTW_LIBS)
 ##### Pick whichever language is applicable for the code #####
-LDLIBS += $(HDF5_LIBS) $(HDF5_FLIBS)
-##### Pick whichever language is applicable for the code #####
-LDLIBS += $(NETCDF4_LIBS) $(NETCDF4_FLIBS)
+# LDLIBS += $(HDF5_LIBS) $(HDF5_FLIBS)
+# ##### Pick whichever language is applicable for the code #####
+# LDLIBS += $(NETCDF4_LIBS) $(NETCDF4_FLIBS)
 
-
-CODELIB = src/libtsunami.a
-
+CODELIB = src/tsunami-master/build/lib/libtsunamicore.a
 
 ##### Modify build command as needed #####
 .PHONY: $(CODELIB)
-$(CODELIB): | src
-	$(MAKE) -C src -j $(CPU_COUNT) all
-
+$(CODELIB): | src/tsunami-master
+	cd src/tsunami-master/build && cmake .. -Dcpp=on -DCMAKE_OSX_ARCHITECTURES=arm64
+	$(MAKE) -C src/tsunami-master/build -j $(CPU_COUNT)
 
 # Building the workers
 tsunami_worker.h: interface.py
@@ -88,9 +76,10 @@ tsunami_worker.cc: interface.py
 tsunami_worker.o: tsunami_worker.cc tsunami_worker.h
 	$(MPICXX) -c -o $@ $(CFLAGS) $<
 
-tsunami_worker: interface.o tsunami_worker.o $(CODELIB)
-	$(MPICXX) -o $@ $(LDFLAGS) $^ $(LDLIBS)
+# tsunami_worker: interface.o tsunami_worker.o $(CODELIB)
+# 	$(MPICXX) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
+tsunami_worker: $(CODELIB)
 
 interface.o: interface.cc tsunami_worker.h
 	$(MPICXX) -o $@ -c $(CFLAGS) $<
@@ -122,7 +111,7 @@ test-%:
 # Cleaning up
 .PHONY: clean
 clean:
-	$(MAKE) -C src clean
+	rm -rf src/tsunami-master/build/*
 	rm -rf *.o *.mod *worker*
 
 .PHONY: distclean
