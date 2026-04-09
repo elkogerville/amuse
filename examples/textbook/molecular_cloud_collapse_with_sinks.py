@@ -1,9 +1,9 @@
 import numpy
-from matplotlib import pyplot 
+from matplotlib import pyplot
 
 from amuse.lab import *
 from amuse.ext.molecular_cloud import molecular_cloud
-from amuse.ext.evrard_test import body_centered_grid_unit_cube
+from amuse.ic.evrard_test import body_centered_grid_unit_cube
 
 from cooling_class import SimplifiedThermalModel, SimplifiedThermalModelEvolver
 from hydrodynamics_class import Hydro
@@ -56,7 +56,7 @@ def run_molecular_cloud(N=100, Mcloud=100. | units.MSun,
                     + hydro.star_particles.mass.sum()
         else:
             print("Mass conservation: local:", time.in_(units.Myr), \
-                  hydro.gas_particles.mass.sum().in_(units.MSun)) 
+                  hydro.gas_particles.mass.sum().in_(units.MSun))
             print("Mass conservation: hydro:", time.in_(units.Myr), \
                   hydro.code.gas_particles.mass.sum().in_(units.MSun))
             Mtot = hydro.gas_particles.mass.sum()
@@ -85,11 +85,8 @@ def run_molecular_cloud(N=100, Mcloud=100. | units.MSun,
 
     hydro.stop()
     return gas
-  
+
 if __name__ in ("__main__","__plot__"):
     numpy.random.seed(3141)
     parts = run_molecular_cloud(10000, Mcloud=1000. | units.MSun,
                                 Rcloud=3.0 | units.parsec)
-
-
-    

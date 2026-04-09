@@ -3,17 +3,17 @@
   and gravity evolution
 
   Initial condition is a smooth spherical cloud with random velocities
-  as in Bonnell et al. (2003)  
-  
-"""  
+  as in Bonnell et al. (2003)
+
+"""
 
 import numpy
-  
-from matplotlib import pyplot 
+
+from matplotlib import pyplot
 
 from amuse.lab import *
 from amuse.ext.molecular_cloud import molecular_cloud
-from amuse.ext.evrard_test import body_centered_grid_unit_cube
+from amuse.ic.evrard_test import body_centered_grid_unit_cube
 
 from prepare_figure import single_frame, figure_frame, set_tickmarks
 from distinct_colours import get_distinct
@@ -82,7 +82,7 @@ def plot_hydro(time, sph, i, L=10):
     cbar.ax.set_yticklabels([low, mid, mx])  # horizontal colorbar
     cbar.set_label('projected density [$amu/cm^3$]', rotation=270)
     """
-    
+
     pyplot.savefig("GMC_"+str(i)+".png")
 
 def run_molecular_cloud(N=100, Mcloud=100. | units.MSun,
@@ -108,7 +108,7 @@ def run_molecular_cloud(N=100, Mcloud=100. | units.MSun,
     sph.parameters.gamma = 1
     sph.parameters.isothermal_flag = True
     sph.parameters.integrate_entropy_flag = False
-    sph.parameters.timestep = dt  
+    sph.parameters.timestep = dt
     sph.parameters.verbosity = 0
     sph.parameters.eps_is_h_flag = False    # h_smooth is constant
     eps = 0.1 | units.parsec
@@ -129,7 +129,7 @@ def run_molecular_cloud(N=100, Mcloud=100. | units.MSun,
 
     channel_from_sph_to_parts= sph.gas_particles.new_channel_to(parts)
     channel_from_parts_to_sph= parts.new_channel_to(sph.gas_particles)
-    
+
     i = 0
     L = 6
     E0 = 0.0
@@ -155,7 +155,7 @@ def run_molecular_cloud(N=100, Mcloud=100. | units.MSun,
 
     sph.stop()
     return parts
-  
+
 if __name__ in ("__main__","__plot__"):
 
     parts = run_molecular_cloud(

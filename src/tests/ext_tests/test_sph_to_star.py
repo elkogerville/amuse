@@ -22,7 +22,7 @@ from amuse.units.generic_unit_converter import ConvertBetweenGenericAndSiUnits
 from amuse.datamodel import Particle, Particles, ParticlesSuperset
 
 
-from amuse.ext.evrard_test import new_evrard_gas_sphere
+from amuse.ic.evrard_test import new_evrard_gas_sphere
 from amuse.ext.star_to_sph import convert_stellar_model_to_SPH
 
 from amuse.ext.sph_to_star import SPH2StellarModel, convert_SPH_to_stellar_model

@@ -1,10 +1,10 @@
 import numpy
 from amuse.lab import *
 from amuse import datamodel
-from amuse.ext.evrard_test import uniform_unit_sphere
+from amuse.ic.evrard_test import uniform_unit_sphere
 
-set_printing_strategy("custom", #nbody_converter = converter, 
-                      preferred_units = [units.MSun, units.AU, units.Myr], 
+set_printing_strategy("custom", #nbody_converter = converter,
+                      preferred_units = [units.MSun, units.AU, units.Myr],
                       precision = 5, prefix = "", separator = " [", suffix = "]"
 )
 
@@ -13,7 +13,7 @@ def new_sph_particles_from_stellar_wind(stars, mgas):
     for si in stars:
         Ngas = int(-si.Mwind/mgas)
         if Ngas==0:
-            continue 
+            continue
         Mgas = mgas*Ngas
         si.Mwind += Mgas
         add=datamodel.Particles(Ngas)
@@ -32,7 +32,7 @@ def new_sph_particles_from_stellar_wind(stars, mgas):
             add.vx=si.vx + r[0]*si.terminal_wind_velocity
             add.vy=si.vy + r[1]*si.terminal_wind_velocity
             add.vz=si.vz + r[2]*si.terminal_wind_velocity
-        new_sph.add_particles(add)  
+        new_sph.add_particles(add)
     return new_sph
 
 def v_terminal_teff(star):
@@ -69,7 +69,7 @@ def main():
     bodies.mass = mgas
     bodies.position = (0,0,0)|units.AU
     bodies.velocity = (0,0,0)|units.kms
-    bodies.u = 0 | units.m**2 * units.s**-2 
+    bodies.u = 0 | units.m**2 * units.s**-2
     bodies.h_smooth= 0.01*a
 
     hydro = Fi(converter, redirection="none")
@@ -87,7 +87,7 @@ def main():
         stars.Mwind += stars.dmdt*dt
         new_sph = new_sph_particles_from_stellar_wind(stars, mgas)
 
-        if len(new_sph)>0: 
+        if len(new_sph)>0:
             bodies.add_particles(new_sph)
             bodies.synchronize_to(hydro.gas_particles)
         print("time=", hydro.model_time, "Ngas=", len(bodies), mgas*len(bodies))
@@ -101,4 +101,3 @@ def main():
 
 if __name__ in ('__main__', '__plot__'):
     main()
-

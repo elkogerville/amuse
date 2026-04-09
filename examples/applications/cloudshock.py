@@ -6,7 +6,7 @@ except ImportError:
     IS_PLOT_AVAILABLE = False
 
 
-from amuse.ext import cloud
+from amuse.ic import cloud
 from amuse.units import generic_unit_system
 from amuse.community.capreole.interface import Capreole
 from amuse import io
@@ -165,15 +165,15 @@ class CalculateCloudShock(object):
             step = 1
             while t <= time:
                 instance.evolve_model(t)
-                
+
                 print("time : ", t)
-                
+
                 #self.store_grids(instance.itergrids(), step)
-                    
+
                 t += dt
                 step += 1
-        
-        print("sampling results")   
+
+        print("sampling results")
         sample = datamodel.Grid.create(
             (1000, 4000),
             (10.0, 40) | generic_unit_system.length
@@ -205,9 +205,9 @@ def main():
     result = model.get_solution_at_time(0.75 * model.get_tau())
 
     rho = result.rho.value_in(generic_unit_system.density)
-    
+
     print("done")
-    
+
     if not IS_PLOT_AVAILABLE:
         return
 

@@ -5,7 +5,7 @@ import time
 from amuse.support.testing.amusetest import TestWithMPI
 
 from amuse_fi.interface import FiInterface, Fi
-from amuse.ext.evrard_test import new_evrard_gas_sphere, MakeEvrardTest
+from amuse.ic.evrard_test import new_evrard_gas_sphere, MakeEvrardTest
 from amuse.ext.spherical_model import new_uniform_spherical_particle_distribution
 from amuse.units import nbody_system
 from amuse.units import units, constants

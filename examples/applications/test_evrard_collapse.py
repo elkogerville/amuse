@@ -14,7 +14,7 @@ from amuse.units import units
 from amuse.units import constants
 from amuse.units import nbody_system
 from amuse.units.generic_unit_converter import ConvertBetweenGenericAndSiUnits
-from amuse.ext.evrard_test import new_evrard_gas_sphere
+from amuse.ic.evrard_test import new_evrard_gas_sphere
 from amuse.community.gadget2.interface import Gadget2
 from amuse.community.fi.interface import Fi
 

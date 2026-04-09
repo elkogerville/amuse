@@ -5,7 +5,7 @@ import numpy
 from amuse.support.testing import amusetest
 
 
-from amuse.ext import cloud
+from amuse.ic import cloud
 
 from amuse.units import units
 from amuse.units import generic_unit_system

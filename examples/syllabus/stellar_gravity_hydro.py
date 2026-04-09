@@ -6,7 +6,7 @@ import numpy
 from amuse.lab import *
 from amuse.couple import bridge
 from amuse import datamodel
-from amuse.ext.evrard_test import uniform_unit_sphere
+from amuse.ic.evrard_test import uniform_unit_sphere
 
 def new_sph_particles_from_stellar_wind(stars, mgas):
 
@@ -17,17 +17,17 @@ def new_sph_particles_from_stellar_wind(stars, mgas):
         Ngas = int(-si.Mwind/mgas)
         print("new Ngas=", si.mass, Ngas, end=' ')
         if Ngas==0:
-          continue 
+          continue
         Mgas = mgas*Ngas
         si.Mwind += Mgas
 #        Ngas = 10
-#        mgas = Mgas/10. 
+#        mgas = Mgas/10.
         print("new Ngas=", Ngas, mgas)
         add=datamodel.Particles(Ngas)
         add.mass = mgas
         add.h_smooth=0. | units.parsec
         dx,dy,dz=uniform_unit_sphere(Ngas).make_xyz()
-        
+
         add.x=si.x+(dx * si.radius)
         add.y=si.y+(dy * si.radius)
         add.z=si.z+(dz * si.radius)
@@ -40,7 +40,7 @@ def new_sph_particles_from_stellar_wind(stars, mgas):
           add.vx=v.x + r[0]*v_wind
           add.vy=v.y + r[1]*v_wind
           add.vz=v.z + r[2]*v_wind
-        new_sph.add_particles(add)  
+        new_sph.add_particles(add)
     return new_sph
 
 def v_terminal_teff(star):
@@ -84,13 +84,13 @@ def gravity_hydro_bridge(a, ecc, t_end, n_steps, Rgas, Mgas, Ngas):
     stars[0].position = (0,0,0) | units.AU
     stars[0].velocity = (0,0,0) | units.kms
     vc = (constants.G*stars[:2].mass.sum()/(a*(1+ecc))).sqrt()
-    vc *= numpy.sqrt((1-ecc)/(1+ecc)) 
+    vc *= numpy.sqrt((1-ecc)/(1+ecc))
     stars[1].position = (a.value_in(units.AU),0,0) | units.AU
     stars[1].velocity = (0,vc.value_in(units.kms),0) | units.kms
     stars[:2].move_to_center()
     ecc = 0.2
     vc = (constants.G*stars.mass.sum()/(10*a*(1+ecc))).sqrt()
-    vc *= numpy.sqrt((1-ecc)/(1+ecc)) 
+    vc *= numpy.sqrt((1-ecc)/(1+ecc))
     stars[2].position = (10*a.value_in(units.AU),0,0) | units.AU
     stars[2].velocity = (0,vc.value_in(units.kms),0) | units.kms
     stars.move_to_center()
@@ -115,7 +115,7 @@ def gravity_hydro_bridge(a, ecc, t_end, n_steps, Rgas, Mgas, Ngas):
     ism.mass = mgas
     ism.position = (0,0,0)|units.AU
     ism.velocity = (0,0,0)|units.kms
-    ism.u = 0 | units.m**2 * units.s**-2 
+    ism.u = 0 | units.m**2 * units.s**-2
     ism.h_smooth= 0.01*a
 
     hydro = Fi(converter, redirection="none")
@@ -151,13 +151,13 @@ def gravity_hydro_bridge(a, ecc, t_end, n_steps, Rgas, Mgas, Ngas):
     istep = 0
     while model_time < t_end:
         model_time += dt
-        a, e = get_kepler_elements(gravity.model_time, stars[0], stars[1], converter) 
+        a, e = get_kepler_elements(gravity.model_time, stars[0], stars[1], converter)
         print("AB: time=", model_time, a, e)
         com_star = Particles(1)
         com_star.mass = stars[:2].mass.sum()
         com_star.position = stars[:2].center_of_mass()
         com_star.velocity = stars[:2].center_of_mass_velocity()
-        a, e = get_kepler_elements(gravity.model_time, com_star[0], stars[2], converter) 
+        a, e = get_kepler_elements(gravity.model_time, com_star[0], stars[2], converter)
         print("(AB)C: time=", model_time, a, e)
 
         stars.Mwind += stars.dmdt*dt
@@ -205,7 +205,7 @@ def new_option_parser():
                       help="initial orbital separation [%default]")
     result.add_option("-e", dest="ecc", type="float", default = 0.0,
                       help="initial orbital eccentricity [%default]")
-    result.add_option("-t", unit=units.yr, 
+    result.add_option("-t", unit=units.yr,
                       dest="t_end", type="float", default = 10|units.yr,
                       help="end time of the simulation [%default]")
     return result

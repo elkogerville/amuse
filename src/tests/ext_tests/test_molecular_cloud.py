@@ -5,7 +5,7 @@ import numpy.random
 from amuse.support.testing import amusetest
 from amuse.units import units, nbody_system
 from amuse.ext.molecular_cloud import molecular_cloud, ism_cube
-from amuse.ext.evrard_test import sobol_unit_cube
+from amuse.ic.evrard_test import sobol_unit_cube
 
 numpy.random.seed(1234567)
 
