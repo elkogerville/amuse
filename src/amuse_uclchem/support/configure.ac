@@ -21,53 +21,17 @@ AS_IF([test $AR = ":"], [AC_MSG_ERROR([ar command not found.])])
 AC_PROG_RANLIB()
 AS_IF([test $RANLIB = ":"], [AC_MSG_ERROR([ranlib command not found.])])
 
-
 # Find tools to download and unpack with
-# AMUSE_DOWNLOAD()
-# AC_CHECK_TOOL(TAR, tar)
-# AC_CHECK_TOOL(UNZIP, unzip)
-# AC_CHECK_TOOL(GUNZIP, gunzip)
-# AC_CHECK_TOOL(BUNZIP2, bunzip2)
-# AC_CHECK_TOOL(UNXZ, unxz)
-# AC_CHECK_TOOL(PERL, perl)
-
+AMUSE_DOWNLOAD()
+AC_CHECK_TOOL(TAR, tar)
 
 # Find AMUSE libraries
-# AMUSE_LIB_STOPCOND()
-# AMUSE_LIB_STOPCONDMPI()
-# AMUSE_LIB_AMUSE_MPI()
-AMUSE_LIB_FORSOCKETS()
-# AMUSE_LIB_SIMPLE_HASH()
-# AMUSE_LIB_G6LIB()
-# AMUSE_LIB_SAPPORO_LIGHT()
-
+AMUSE_LIB_STOPCOND()
 
 # Find external dependencies
 AC_LANG_PUSH([Fortran])
-
-##### MPI is always needed to build the worker #####
 AX_MPI()
-
-##### Remove anything not needed by the code #####
-
-# AC_OPENMP()
-# AC_SUBST(OPENMP_FCFLAGS)
-
-# AMUSE_CUDA()
-# AMUSE_OPENCL()
-
-# AX_LAPACK()     # calls AX_BLAS automatically
-# AX_PATH_GSL(1.0, [FOUND_GSL=yes])
-# AX_GMP()
-# AX_MPFR()
-# AX_FFTW()
-# AX_LIB_HDF5()
-# AX_LIB_NETCDF4()
-
-##### End remove anything not needed by the code #####
-
 AC_LANG_POP([Fortran])
-
 
 # Generate output
 AC_CONFIG_FILES([config.mk])
