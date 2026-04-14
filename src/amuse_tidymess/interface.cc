@@ -19,16 +19,17 @@
 #include "Collision.h"
 #include "Breakup.h"
 
-static Tidy tidymess;
-static Initializer init;
-static Collision collision;
-static Breakup breakup;
+std::unique_ptr<Tidy> tidymess;
 
-static int particle_id_counter = 0;
-static double begin_time = 0;
-static int init_shape = 0;
-static int dt_sign = 1;
-static bool print_info = false;
+Initializer init;
+Collision collision;
+Breakup breakup;
+
+int particle_id_counter = 0;
+double begin_time = 0;
+int init_shape = 0;
+int dt_sign = 1;
+bool print_info = false;
 
 
 /**
@@ -65,13 +66,13 @@ int get_body_index_by_id(int index_of_the_particle) {
  */
 int determine_dt_sgn(double t_end) {
     // ** takes negative time step when evolving to 0, causes problems
-    if(t_end > tidymess.get_model_time()) {
+    if(t_end > tidymess->get_model_time()) {
         dt_sign = 1;
     }
     else {
         dt_sign = -1;
     }
-    tidymess.set_dt_sgn(dt_sign);
+    tidymess->set_dt_sgn(dt_sign);
     return 0;
 }
 
@@ -759,7 +760,8 @@ int normalize_initial_conditions() {
 }
 
 int initialize_code() {
-    std::cerr<<"PLEASE"<<endl;
+    tidymess = std::make_unique<Tidy> ();
+    //std::cerr<<"PLEASE"<<endl;
     //
     // Run the initialization for the code, called before
     // any other call on the code (so before any parameters
@@ -781,8 +783,9 @@ int initialize_code() {
  * Deallocate Tidymess bodies
  */
 int cleanup_code() {
-    std::vector<Body>& bodies = tidymess.bodies;
-    tidymess.bodies.clear();
+    std::vector<Body>& bodies = tidymess->bodies;
+    tidymess.reset(); // reset to point to Null
+    // tidymess.bodies.clear();
 
     return 0;
 }
