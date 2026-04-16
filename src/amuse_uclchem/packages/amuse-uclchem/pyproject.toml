@@ -6,7 +6,7 @@ version = "0.0.1"
 # dynamic = ["version"]
 requires-python = ">=3.7"
 dependencies = [
-    "amuse-framework==2025.9.1.dev3+gce21df1cc"
+    "amuse-framework"
 ]
 
 [build-system]
@@ -44,4 +44,3 @@ artifacts = ["amuse_uclchem/uclchem_worker"]
 pythonpath = ["amuse_uclchem/tests/"]
 
 testpaths = ["amuse_uclchem/tests"]
-
