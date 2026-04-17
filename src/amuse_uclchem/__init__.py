@@ -1,1 +1,1 @@
-from amuse.community.uclchem.interface import uclchem
+from amuse.community.uclchem.interface import Uclchem
