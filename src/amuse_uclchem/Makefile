@@ -8,10 +8,12 @@ support/config.mk:
 	cd support && ./configure
 
 # Downloading the code
-VERSION = 4.0.0-rc4
+#VERSION = 4.0.0-rc4
+VERSION = 17bc9d90a9f21e7fd8c395e118f14f1ca83e0864
 
 uclchem.tar.gz:
-	$(DOWNLOAD) https://github.com/uclchem/uclchem/archive/refs/tags/v$(VERSION).tar.gz >$@
+	$(DOWNLOAD) https://github.com/uclchem/UCLCHEM/archive/$(VERSION).tar.gz >$@
+	#$(DOWNLOAD) https://github.com/uclchem/uclchem/archive/refs/tags/v$(VERSION).tar.gz >$@
 
 
 src/UCLCHEM-$(VERSION): uclchem.tar.gz
@@ -24,9 +26,9 @@ src/UCLCHEM-$(VERSION): uclchem.tar.gz
 .PHONY: install_uclchem
 install_uclchem: | src/UCLCHEM-$(VERSION)
 ifneq ($(CONDA_PREFIX),)
-	conda install --yes --channel conda-forge --override-channels pandas numpy pyyaml charset_normalizer matplotlib seaborn scipy tqdm joblib
+	conda install --yes --channel conda-forge --override-channels pandas numpy pyyaml charset-normalizer matplotlib seaborn scipy tqdm joblib
 endif
-	pip install src
+	pip install src/UCLCHEM-$(VERSION)
 
 
 uclchem_worker: interface.py
@@ -36,11 +38,11 @@ amuse-uclchem_contains: uclchem_worker
 
 
 # Building and installing packages
-develop-%: %_contains
+develop-%: %_contains install_uclchem
 	support/shared/uninstall.sh $*
 	python -m pip install -e packages/$*
 
-install-%: %_contains
+install-%: %_contains install_uclchem
 	support/shared/uninstall.sh $*
 	python -m pip install packages/$*
 
@@ -55,6 +57,7 @@ test-%:
 .PHONY: clean
 clean:
 	rm -rf *worker*
+	rm -rf src/UCLCHEM-*
 
 .PHONY: distclean
 distclean: clean
