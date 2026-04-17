@@ -3,10 +3,11 @@ name = "amuse-uclchem"
 version = "0.0.1"
 # use the line below instead of the version above if this code is inside the AMUSE
 # repository
-# dynamic = ["version"]
+#dynamic = ["version"]
 requires-python = ">=3.7"
 dependencies = [
-    "amuse-framework"
+    "amuse-framework",
+    "amuse_uclchem"
 ]
 
 [build-system]
@@ -25,12 +26,14 @@ dirty = "{base_version}+d{build_date:%Y%m%d}"
 distance-dirty = "{next_version}.dev{distance}+{vcs}{rev}.d{build_date:%Y%m%d}"
 
 [tool.versioningit.vcs]
+# method = { module = "version_helper", value = "get_amuse_version", module-dir = "../../../support/shared" }
 method = { module = "version_helper", value = "get_amuse_version", module-dir = "amuse_uclchem/support/shared" }
 
 [tool.hatch.build]
 skip-excluded-dirs = true
 
 [tool.hatch.build.targets.wheel]
+#include = ["amuse/community/uclchem/**/*.py"] # FIXME
 include = ["amuse_uclchem/**/*.py"]
 exclude = [
     "amuse_uclchem/packages",
@@ -44,3 +47,5 @@ artifacts = ["amuse_uclchem/uclchem_worker"]
 pythonpath = ["amuse_uclchem/tests/"]
 
 testpaths = ["amuse_uclchem/tests"]
+
+addopts = "--import-mode=append" # FIXME
