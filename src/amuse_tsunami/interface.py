@@ -190,6 +190,79 @@ class TsunamiImplementation(object):
 
         return 0
 
+    def set_units(self, Mscale, Lscale) -> int:
+        """
+        Set the mass and length units for Tsunami.
+
+        Used for changing the unit system of
+        Tsunami after initialization.
+        """
+        self.tsunami.set_units(Mscale, Lscale)
+
+        return 0
+
+    def get_mscale(self, Mscale) -> int:
+        """
+        Get mass unit of Tsunami in MSun.
+        """
+        Mscale = self.tsunami.Mscale
+
+        return 0
+
+    def set_mscale(self, Mscale) -> int:
+        """
+        Set mass unit of Tsunami in MSun.
+
+        Used for changing the length unit of
+        Tsunami after initialization.
+        """
+        self.tsunami.set_units(Mscale, self.tsunami.Lscale)
+
+        return 0
+
+    def get_lscale(self, Lscale) -> int:
+        """
+        Get length unit of Tsunami in AU.
+        """
+        Lscale = self.tsunami.Lscale
+
+        return 0
+
+    def set_lscale(self, Lscale) -> int:
+        """
+        Set length unit of Tsunami in AU.
+
+        Used for changing the length unit of
+        Tsunami after initialization.
+        """
+        self.tsunami.set_units(self.tsunami.Mscale, Lscale)
+
+        return 0
+
+    def get_tscale(self, Tscale) -> int:
+        """
+        Get time unit of Tsunami in years.
+        Derived from Mscale, Lscale, and G=1.
+
+        This value is read only; to set it change
+        Mscale and Lscale.
+        """
+        Tscale = self.tsunami.Tscale
+
+        return 0
+
+    def get_vscale(self, Vscale) -> int:
+        """
+        Get velocity unit of Tsunami in km/s.
+        Derived from Mscale, Lscale, and G=1.
+
+        This value is read only; to set it change
+        Mscale and Lscale.
+        """
+        Vscale = self.tsunami.Vscale
+
+        return 0
+
 
 
 class TsunamiInterface(
