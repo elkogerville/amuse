@@ -1,5 +1,6 @@
-from enum import IntEnum
 import numpy as np
+from numpy.typing import NDArray
+
 from amuse.support.interface import InCodeComponentImplementation
 from amuse.community.interface.gd import (
     GravitationalDynamics,
@@ -25,21 +26,23 @@ class TsunamiImplementation(object):
 
     def __init__(self):
         import tsunami
-        self.tsunami = tsunami
-        self._pos: list[list[float]] = []
-        self._vel: list[list[float]] = []
-        self._spin: list[list[float]] = []
-        self._mass: list[float] = []
-        self._radius: list[float] = []
-        self._stype: list[int] = []
+        self.tsunami = tsunami.Tsunami()
 
-    def _clear_buffers(self) -> None:
-        self._pos.clear()
-        self._vel.clear()
-        self._spin.clear()
-        self._mass.clear()
-        self._radius.clear()
-        self._stype.clear()
+        # temporary buffers for staging particles
+        self._pos_list: list[list[float]] = []
+        self._vel_list: list[list[float]] = []
+        self._spin_list: list[list[float]] = []
+        self._mass_list: list[float] = []
+        self._radius_list: list[float] = []
+        self._stype_list: list[int] = []
+
+        # commited particles
+        self._pos: NDArray = np.empty((0, 3), dtype=np.float64)
+        self._vel: NDArray = np.empty((0, 3), dtype=np.float64)
+        self._spin: NDArray = np.empty((0, 3), dtype=np.float64)
+        self._mass: NDArray = np.empty(0, dtype=np.float64)
+        self._radius: NDArray = np.empty(0, dtype=np.float64)
+        self._stype: NDArray = np.empty(0, dtype=np.int64)
 
     def initialize_code(self) -> int:
         return 0
