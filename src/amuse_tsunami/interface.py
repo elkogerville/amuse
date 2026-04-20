@@ -50,6 +50,11 @@ class TsunamiImplementation(object):
     def cleanup_code(self) -> int:
         return 0
 
+    def commit_parameters(self) -> int:
+        self.tsunami.commit_parameters()
+
+        return 0
+
     def commit_particles(self) -> int:
         """
         Add all particles stored in the particle buffers
