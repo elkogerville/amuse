@@ -103,9 +103,7 @@ extern "C"
 {
   int  get_device_count();
   cudaError_t host_evaluate_gravity(sapporo_multi_struct);
-#ifdef __cplusplus
   int g6_get_nj_max_();
-#endif
 }
 
 class sapporo {
