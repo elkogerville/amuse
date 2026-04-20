@@ -263,6 +263,30 @@ class TsunamiImplementation(object):
 
         return 0
 
+    def get_time(self, time) -> int:
+        """
+        Get current model time.
+
+        tsunami.time returns time in N-body units.
+        """
+        time = self.tsunami.time
+
+        return 0
+
+    def get_potential_energy(self, potential_energy) -> int:
+        potential_energy = self.tsunami.pot
+
+        return 0
+
+    def get_kinetic_energy(self, kinetic_energy) -> int:
+        kinetic_energy = self.tsunami.kin
+
+        return 0
+
+    def get_total_energy(self, total_energy) -> int:
+        total_energy = self.tsunami.energy
+
+        return 0
 
 
 class TsunamiInterface(
