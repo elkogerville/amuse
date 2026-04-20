@@ -62,28 +62,83 @@ class TsunamiImplementation(object):
         adding individual particles and instead requires
         preallocated np.ndarrays of particles.
 
-        This method formats all the particles stored in
-        the buffer and adds them as a particle set to Tsunami
-        before clearing all the buffers.
+        This method grabs all pre-existing particles in Tsunami
+        as well as any particles inside the temporary buffers
+        and formats them as a particle set to be read by Tsunami.
+
+        Returns
+        -------
+        0 : If particles were added to Tsunami succesfully or if no
+            new particles are available to be added
+        -1 : If less than 2 particles between the pre-existing particles
+            and the particles in the buffer, or if the shapes of the
+            particleset arrays dont match.
         """
-        if len(self._pos) == 0:
+        N_existing: int = self._pos.shape[0]
+        N_new: int = len(self._pos_list)
+        N_total: int = N_existing + N_new
+
+        if N_new == 0:
             return 0
 
-        pos = np.asarray(self._pos, dtype=np.float64).reshape(-1, 3)
-        vel = np.asarray(self._vel, dtype=np.float64).reshape(-1, 3)
-        spin = np.asarray(self._spin, dtype=np.float64).reshape(-1, 3)
-        mass = np.asarray(self._mass, dtype=np.float64)
-        radius = np.asarray(self._radius, dtype=np.float64)
-        stype = np.asarray(self._radius, dtype=np.int64)
+        if N_total < 2:
+            return -1
 
-        self.tsunami.add_particle_set(
-            pos=pos, vel=vel, mass=mass, rad=radius, stype=stype, spin=spin
-        )
+        if not (
+            len(self._vel_list) == N_new and
+            len(self._spin_list) == N_new and
+            len(self._mass_list) == N_new and
+            len(self._radius_list) == N_new and
+            len(self._stype_list) == N_new
+        ):
+            return -1
 
-        self._clear_buffers()
+        # preallocate particleset for Tsunami
+        pos = np.empty((N_total, 3), dtype=np.float64)
+        vel = np.empty((N_total, 3), dtype=np.float64)
+        spin = np.empty((N_total, 3), dtype=np.float64)
+        mass = np.empty(N_total, dtype=np.float64)
+        radius = np.empty(N_total, dtype=np.float64)
+        stype = np.empty(N_total, dtype=np.int64)
+
+        # add any existing Tsunami particles
+        if N_existing != 0:
+            pos[:N_existing, :] = self._pos
+            vel[:N_existing, :] = self._vel
+            spin[:N_existing, :] = self._spin
+            mass[:N_existing] = self._mass
+            radius[:N_existing] = self._radius
+            stype[:N_existing] = self._stype
+
+        # add new particles
+        pos[N_existing:, :] = np.asarray(self._pos_list, dtype=np.float64).reshape(-1, 3)
+        vel[N_existing:, :] = np.asarray(self._vel_list, dtype=np.float64).reshape(-1, 3)
+        spin[N_existing:, :] = np.asarray(self._spin_list, dtype=np.float64).reshape(-1, 3)
+        mass[N_existing:] = np.asarray(self._mass_list, dtype=np.float64)
+        radius[N_existing:] = np.asarray(self._radius_list, dtype=np.float64)
+        stype[N_existing:] = np.asarray(self._stype_list, dtype=np.int64)
+
+        self.tsunami.add_particle_set(pos, vel, mass, radius, stype, spin)
+
+        self._pos = pos
+        self._vel = vel
+        self._spin = spin
+        self._mass = mass
+        self._radius = radius
+        self._stype = stype
+        self._clear_temporary_particle_buffers()
 
         return 0
 
+    def recommit_parameters(self) -> int:
+        self.tsunami.commit_parameters()
+
+        return 0
+
+    def recommit_particles(self) -> int:
+        self.commit_particles()
+
+        return 0
 
     def new_particle(
         self,
