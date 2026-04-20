@@ -288,6 +288,14 @@ class TsunamiImplementation(object):
 
         return 0
 
+    def _clear_temporary_particle_buffers(self) -> None:
+        """Clear temporary particle buffers after commiting particles"""
+        self._pos_list.clear()
+        self._vel_list.clear()
+        self._spin_list.clear()
+        self._mass_list.clear()
+        self._radius_list.clear()
+        self._stype_list.clear()
 
 class TsunamiInterface(
     CodeInterface,
