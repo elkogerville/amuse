@@ -156,15 +156,16 @@ class TsunamiImplementation(object):
         wz: float,
         stype: int
     ) -> int:
-        self._pos.append([x, y, z])
-        self._vel.append([vx, vy, vz])
-        self._mass.append(mass)
-        self._radius.append(radius)
-        self._spin.append([wx, wy, wz])
-        self._stype.append(stype)
-        index_of_the_particle = len(self._pos)
+        self._pos_list.append([x, y, z])
+        self._vel_list.append([vx, vy, vz])
+        self._mass_list.append(mass)
+        self._radius_list.append(radius)
+        self._spin_list.append([wx, wy, wz])
+        self._stype_list.append(stype)
+        index_of_the_particle = len(self._pos_list) - 1
 
         return 0
+
 
 class TsunamiInterface(
     CodeInterface,
