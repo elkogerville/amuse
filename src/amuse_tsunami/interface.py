@@ -166,6 +166,31 @@ class TsunamiImplementation(object):
 
         return 0
 
+    def get_position(self, index_of_the_particle, x, y, z) -> int:
+        if self._pos.shape[0] == 0:
+            return -1
+
+        self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
+
+        x = self._pos[index_of_the_particle, 0]
+        y = self._pos[index_of_the_particle, 1]
+        z = self._pos[index_of_the_particle, 2]
+
+        return 0
+
+    def set_position(self, index_of_the_particle, x, y, z) -> int:
+
+        self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
+
+        self._pos[index_of_the_particle, 0] = x
+        self._pos[index_of_the_particle, 1] = y
+        self._pos[index_of_the_particle, 2] = z
+
+        self.tsunami.override_position_and_velocities(self._pos, self._vel)
+
+        return 0
+
+
 
 class TsunamiInterface(
     CodeInterface,
