@@ -21,28 +21,87 @@ from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import generic_unit_system, nbody_system
 
 
-class TsunamiPtype(IntEnum):
-    """This feature seems to be still in active development"""
-    LOW_MASS_MS = 0
-    HIGH_MASS_MS = 1
-    HGAP = 2
-    GIANT_BRANCH = 3
-    CORE_HE_BURN = 4
-    EARLY_AGBe = 5
-    TP_AGB = 6
-    NAKED_HE = 7
-    NAKED_HE_HGAP = 8
-    NAKED_HE_GIANT = 9
-    HE_WD = 10
-    CO_WD = 11
-    ONE_WD = 12
-    NS = 13
-    BH = 14
-    # planets
-    ROCKY = 100
-    GAS_GIANT = 101
-    # null
-    UNCLASSIFIED = -1
+class TsunamiImplementation(object):
+
+    def __init__(self):
+        import tsunami
+        self.tsunami = tsunami
+        self._pos: list[list[float]] = []
+        self._vel: list[list[float]] = []
+        self._spin: list[list[float]] = []
+        self._mass: list[float] = []
+        self._radius: list[float] = []
+        self._stype: list[int] = []
+
+    def _clear_buffers(self) -> None:
+        self._pos.clear()
+        self._vel.clear()
+        self._spin.clear()
+        self._mass.clear()
+        self._radius.clear()
+        self._stype.clear()
+
+    def initialize_code(self) -> int:
+        return 0
+
+    def cleanup_code(self) -> int:
+        return 0
+
+    def commit_particles(self) -> int:
+        """
+        Add all particles stored in the particle buffers
+        into the Tsunami code. Tsunami does not support
+        adding individual particles and instead requires
+        preallocated np.ndarrays of particles.
+
+        This method formats all the particles stored in
+        the buffer and adds them as a particle set to Tsunami
+        before clearing all the buffers.
+        """
+        if len(self._pos) == 0:
+            return 0
+
+        pos = np.asarray(self._pos, dtype=np.float64).reshape(-1, 3)
+        vel = np.asarray(self._vel, dtype=np.float64).reshape(-1, 3)
+        spin = np.asarray(self._spin, dtype=np.float64).reshape(-1, 3)
+        mass = np.asarray(self._mass, dtype=np.float64)
+        radius = np.asarray(self._radius, dtype=np.float64)
+        stype = np.asarray(self._radius, dtype=np.int64)
+
+        self.tsunami.add_particle_set(
+            pos=pos, vel=vel, mass=mass, rad=radius, stype=stype, spin=spin
+        )
+
+        self._clear_buffers()
+
+        return 0
+
+
+    def new_particle(
+        self,
+        index_of_the_particle: int,
+        mass: float,
+        x: float,
+        y: float,
+        z: float,
+        vx: float,
+        vy: float,
+        vz: float,
+        radius: float,
+        wx: float,
+        wy: float,
+        wz: float,
+        stype: int
+    ) -> int:
+        self._pos.append([x, y, z])
+        self._vel.append([vx, vy, vz])
+        self._mass.append(mass)
+        self._radius.append(radius)
+        self._spin.append([wx, wy, wz])
+        self._stype.append(stype)
+        index_of_the_particle = len(self._pos)
+
+        return 0
 
 class TsunamiInterface(
     CodeInterface,
