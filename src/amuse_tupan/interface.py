@@ -572,17 +572,17 @@ class Tupan(GravitationalDynamics, GravityFieldCode):
     def define_methods(self, handler):
         GravitationalDynamics.define_methods(self, handler)
 
-        handler.add_method(
-            "get_eta",
-            (),
-            (handler.NO_UNIT, handler.ERROR_CODE,)
-        )
+        # handler.add_method(
+        #     "get_eta",
+        #     (),
+        #     (handler.NO_UNIT, handler.ERROR_CODE,)
+        # )
 
-        handler.add_method(
-            "set_eta",
-            (handler.NO_UNIT,),
-            (handler.ERROR_CODE,)
-        )
+        # handler.add_method(
+        #     "set_eta",
+        #     (handler.NO_UNIT,),
+        #     (handler.ERROR_CODE,)
+        # )
 
         handler.add_method(
             "get_time",
