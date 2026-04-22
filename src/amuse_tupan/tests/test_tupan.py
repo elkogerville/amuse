@@ -10,7 +10,7 @@ try:
     from amuse_tupan.interface import TupanInterface, Tupan, MODULES_MISSING
 except ImportError:
     MODULES_MISSING = True
-
+print(MODULES_MISSING)
 
 class TestTupanInterface(TestWithMPI):
 
@@ -174,11 +174,12 @@ class TestTupan(TestWithMPI):
         instance.cleanup_code()
         instance.stop()
 
-    def xtest02(self):
+    def test02(self):
         if MODULES_MISSING:
             self.skip("Failed to import a module required for Tupan")
         print("Testing Tupan parameters")
-        instance = self.new_instance_of_an_optional_code(Tupan, self.default_converter)
+        instance = Tupan(converter=self.default_converter)
+        # instance = self.new_instance_of_an_optional_code(Tupan, self.default_converter)
         instance.initialize_code()
 
         self.assertEqual(instance.parameters.epsilon_squared,

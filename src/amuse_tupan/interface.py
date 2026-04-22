@@ -96,7 +96,9 @@ class TupanImplementation(object):
         ps.vy[0] = vy
         ps.vz[0] = vz
         self.particles.append(ps)
+        print('index', index_of_the_particle, index_of_the_particle.value, type(index_of_the_particle))
         index_of_the_particle.value = len(self.particles)-1
+        print(index_of_the_particle, index_of_the_particle.value)
         return 0
 
     def set_state(self, index_of_the_particle,
