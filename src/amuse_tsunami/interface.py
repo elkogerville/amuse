@@ -21,11 +21,20 @@ from amuse.support.interface import MethodWithUnitsDefinition
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import generic_unit_system, nbody_system
 
+import tsunami
+
 
 class TsunamiImplementation(object):
+    """
+    Notes:
+        what to do with spin? can be compiled with or without
+        what to do with import tsunami
+        what to do with setters
+
+    """
 
     def __init__(self):
-        import tsunami
+
         self.tsunami = tsunami.Tsunami()
 
         # temporary buffers for staging particles
