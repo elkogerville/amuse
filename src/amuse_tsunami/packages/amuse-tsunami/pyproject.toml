@@ -5,10 +5,8 @@ version = "0.0.1"
 # repository
 # dynamic = ["version"]
 requires-python = ">=3.7"
-# "amuse-framework==2025.9.1.dev23+g38aae9f45.d20251209" FIXME
 dependencies = [
-    "amuse-framework",
-    "amuse_tsunami"
+    "amuse-framework"
 ]
 
 [build-system]
