@@ -1,10 +1,10 @@
 
-from amuse.datamodel.particles import Particle, Particles
 from amuse.community import *
 from amuse.community.interface.gd import GravitationalDynamicsInterface
 from amuse.community.interface.gd import GravitationalDynamics
 from amuse.community.interface.gd import SinglePointGravityFieldInterface
 from amuse.community.interface.gd import GravityFieldCode
+from amuse.datamodel.particles import Particle, Particles
 from amuse.rfi.core import PythonCodeInterface
 
 import sys
@@ -62,7 +62,7 @@ class TupanImplementation(object):
     def commit_particles(self):
         ps = ParticleSystem(nstars=len(self.particles))
         for (i, p) in enumerate(self.particles):
-            ps.id[i] = i
+            ps.id[i] = p.id
             ps.mass[i] = p.mass
             ps.radius[i] = p.radius   # XXX: 'radius' is not yet used in Tupan.
             ps.eps2[i] = self.eps2/2
@@ -95,6 +95,7 @@ class TupanImplementation(object):
         vx, vy, vz,
     ):
         ps = Particle()
+        ps.id = len(self.particles)
         ps.mass = mass
         ps.radius = radius
         ps.x = x
@@ -103,7 +104,7 @@ class TupanImplementation(object):
         ps.vx = vx
         ps.vy = vy
         ps.vz = vz
-        index_of_the_particle.value = len(self.particles)
+        index_of_the_particle.value = ps.id
         self.particles.add_particle(ps)
 
         return 0
