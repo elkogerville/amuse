@@ -38,7 +38,7 @@ endif
 # tsunami_worker: interface.o tsunami_worker.o $(CODELIB)
 # 	$(MPICXX) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
-tsunami_worker: interface.py
+tsunami_worker: interface.py install_tsunami
 	PYTHONPATH=. amusifier --type=py --mode=mpi -x interface TsunamiInterface TsunamiImplementation -o $@
 
 # Which packages contain which workers?
@@ -46,11 +46,11 @@ amuse-tsunami_contains: tsunami_worker
 
 
 # Building and installing packages
-develop-%: %_contains install_tsunami # FIXME
+develop-%: %_contains
 	support/shared/uninstall.sh $*
 	python -m pip install -e packages/$*
 
-install-%: %_contains install_tsunami
+install-%: %_contains
 	support/shared/uninstall.sh $*
 	python -m pip install packages/$*
 
