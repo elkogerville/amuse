@@ -6,7 +6,7 @@ from amuse.community.interface.stopping_conditions import StoppingConditions, St
 from amuse.rfi.core import CodeInterface, legacy_function, LegacyFunctionSpecification
 from amuse.support.interface import MethodWithUnitsDefinition
 from amuse.support.literature import LiteratureReferencesMixIn
-from amuse.units import units as u, generic_unit_system, nbody_system
+from amuse.units import units as u, nbody_system
 
 
 class TidymessInterface(
@@ -891,7 +891,7 @@ class TidymessInterface(
             dtype='float64',
             direction=function.OUT,
             description='',
-            unit=generic_unit_system.time
+            unit=nbody_system.time
         )
         function.result_type = 'int32'
         function.result_doc = """\
@@ -913,7 +913,7 @@ class TidymessInterface(
             dtype='float64',
             direction=function.IN,
             description='',
-            unit=generic_unit_system.time
+            unit=nbody_system.time
         )
         function.result_type = 'int32'
         function.result_doc = """\
@@ -1166,19 +1166,6 @@ class TidymessInterface(
 
         return function
 
-    @legacy_function
-    def print_particles():
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'print_wtides',
-            dtype='bool',
-            direction=function.IN
-        )
-        function.result_type = 'int32'
-
-        return function
-
-
     # @legacy_function
     # def detect_collision():
     #     '''
@@ -1306,28 +1293,22 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
         GravitationalDynamics.define_methods(self, handler)
 
         handler.add_method(
-            'print_particles',
-            (handler.NO_UNIT,),
-            (handler.ERROR_CODE)
-        )
-
-        handler.add_method(
             'new_particle',
             (
-                generic_unit_system.mass,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.length,   # radius
+                nbody_system.mass,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.length,   # radius
                 handler.NO_UNIT,              # xi, moment of inertia factor
                 handler.NO_UNIT,              # kf, fluid Love number for potential
-                generic_unit_system.time,     # tau, fluid relaxation time
-                1 / generic_unit_system.time, # wx
-                1 / generic_unit_system.time, # wy
-                1 / generic_unit_system.time, # wz
+                nbody_system.time,     # tau, fluid relaxation time
+                1 / nbody_system.time, # wx
+                1 / nbody_system.time, # wy
+                1 / nbody_system.time, # wz
                 handler.NO_UNIT,              # a_mb, magnetic braking coefficient
             ),
             (handler.INDEX, handler.ERROR_CODE)
@@ -1337,20 +1318,20 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'get_state',
             (handler.INDEX),
             (
-                generic_unit_system.mass,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.length,
+                nbody_system.mass,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.length,
                 handler.NO_UNIT,
                 handler.NO_UNIT,
-                generic_unit_system.time,
-                1 / generic_unit_system.time,
-                1 / generic_unit_system.time,
-                1 / generic_unit_system.time,
+                nbody_system.time,
+                1 / nbody_system.time,
+                1 / nbody_system.time,
+                1 / nbody_system.time,
                 handler.NO_UNIT,
                 handler.ERROR_CODE,
             )
@@ -1360,20 +1341,20 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'set_state',
             (
                 handler.INDEX,
-                generic_unit_system.mass,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.length,
+                nbody_system.mass,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.length,
                 handler.NO_UNIT,
                 handler.NO_UNIT,
-                generic_unit_system.time,
-                1 / generic_unit_system.time,
-                1 / generic_unit_system.time,
-                1 / generic_unit_system.time,
+                nbody_system.time,
+                1 / nbody_system.time,
+                1 / nbody_system.time,
+                1 / nbody_system.time,
                 handler.NO_UNIT,
             ),
             (handler.ERROR_CODE,)
@@ -1406,12 +1387,12 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
         handler.add_method(
             'get_tau',
             (handler.INDEX,),
-            (generic_unit_system.time, handler.ERROR_CODE,)
+            (nbody_system.time, handler.ERROR_CODE,)
         )
 
         handler.add_method(
             'set_tau',
-            (handler.INDEX, generic_unit_system.time),
+            (handler.INDEX, nbody_system.time),
             (handler.ERROR_CODE,)
         )
 
@@ -1534,7 +1515,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 'constant time step in units given by time_unit, ' # FIXME
                 'default=0.015625 (only used if dt_mode=0)'
             ),
-            default_value=0.015625 | generic_unit_system.time,
+            default_value=0.015625 | nbody_system.time,
             is_vector=False,
             must_set_before_get=False,
         )
