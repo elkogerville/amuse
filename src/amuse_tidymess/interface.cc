@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 // AMUSE STOPPING CONDITIONS SUPPORT
 #include <stopcond.h>
@@ -20,10 +21,9 @@
 #include "Breakup.h"
 
 std::unique_ptr<Tidy> tidymess;
-
-Initializer init;
-Collision collision;
-Breakup breakup;
+std::unique_ptr<Initializer> init;
+std::unique_ptr<Collision> collision;
+std::unique_ptr<Breakup> breakup;
 
 int particle_id_counter = 0;
 double begin_time = 0;
