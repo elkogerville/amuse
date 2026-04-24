@@ -5,9 +5,6 @@ version = "0.0.1"
 # repository
 # dynamic = ["version"]
 requires-python = ">=3.7"
-#dependencies = [
-#    "amuse-framework==2025.9.1.dev14+g24542e9b4.d20251121"
-#]
 dependencies = [
     "amuse-framework"
 ]
