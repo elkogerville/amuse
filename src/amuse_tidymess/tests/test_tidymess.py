@@ -146,49 +146,32 @@ class TestTidymessInterface(TestWithMPI):
         result = instance.get_breakup_mode()
         self.assertEquals(result['breakup_mode'], 1)
 
-        result = instance.get_num_integration_step() # FIXME
+        result = instance.get_num_integration_step()
         self.assertEquals(result['num_integration_step'], 0)
 
-        self.assertEqual(0, instance.cleanup_code())
-
         result = instance.get_number_of_particles()
-        self.assertEquals(result['number_of_particles'], 0)
+        self.assertEquals(result['number_of_particles'], 1)
 
+        self.assertEqual(0, instance.cleanup_code())
         instance.stop()
 
     def test3(self):
         """
         Test TidymessInterface creating and deleting particles.
         """
-
+        print('Test creating and deleting particles')
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
-        result = instance.new_particle(
-            1.0, 1.0, 1.0, 1.0,
-            1.0, 1.0, 1.0,
-            1.0,  # radius
-            1.0,  # xi
-            1.0,  # kf
-            1.0,  # tau
-            1.0,  # wx
-            1.0,  # wy
-            1.0,  # wz
-            1.0,  # a_mb
-        )
+
+        self.assertEqual(0, instance.initialize_code())
+        self.assertEqual(0, instance.commit_parameters())
+
+        # initialize new particle with all attributes set to 1
+        result = instance.new_particle(*np.ones(15)*1)
         self.assertEqual(result['index_of_the_particle'], 0)
 
-        result = instance.new_particle(
-            1.1, 1.1, 1.1, 1.1,
-            1.1, 1.1, 1.1,
-            1.1,  # radius
-            1.1,  # xi
-            1.1,  # kf
-            1.1,  # tau
-            1.1,  # wx
-            1.1,  # wy
-            1.1,  # wz
-            1.1,  # a_mb
-        )
+        # initialize new particle with all attributes set to 1.1
+        result = instance.new_particle(*np.ones(15)*1.1)
         self.assertEqual(result['index_of_the_particle'], 1)
 
         # check number of particles
@@ -219,6 +202,7 @@ class TestTidymessInterface(TestWithMPI):
         """
         Test TidymessInterface evolve_model with an equal mass binary.
         """
+        print('Test evolve_model')
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
 
@@ -390,13 +374,66 @@ class TestTidymess(TestWithMPI):
 
         return HD80606
 
+    def figure8_system(self):
+        figure8 = Particles(3)
+        figure8[0].name = 'Star1'
+        figure8[0].mass = 1 | nbody_system.mass
+        figure8[0].radius = 5e-2 | nbody_system.length
+        figure8[0].x = 0 | nbody_system.length
+        figure8[0].y = 0 | nbody_system.length
+        figure8[0].z = 0 | nbody_system.length
+        figure8[0].vx = -0.93240737 | nbody_system.speed
+        figure8[0].vy = -0.86473146 | nbody_system.speed
+        figure8[0].vz = 0 | nbody_system.speed
+        figure8[0].xi = 0.07
+        figure8[0].kf = 0.02
+        figure8[0].tau = 1e-2 | nbody_system.time
+        figure8[0].wx = 0 | 1 / nbody_system.time
+        figure8[0].wy = 0 | 1 / nbody_system.time
+        figure8[0].wz = 0 | 1 / nbody_system.time
+
+        figure8[1].name = 'Star2'
+        figure8[1].mass = 1 | nbody_system.mass
+        figure8[1].radius = 5e-2 | nbody_system.length
+        figure8[1].x = 0.9700436 | nbody_system.length
+        figure8[1].y = -0.24308753 | nbody_system.length
+        figure8[1].z = 0 | nbody_system.length
+        figure8[1].vx = 0.466203685 | nbody_system.speed
+        figure8[1].vy = 0.43236573 | nbody_system.speed
+        figure8[1].vz = 0 | nbody_system.speed
+        figure8[1].xi = 0.07
+        figure8[1].kf = 0.02
+        figure8[1].tau = 1e-2 | nbody_system.time
+        figure8[1].wx = 0 | 1 / nbody_system.time
+        figure8[1].wy = 0 | 1 / nbody_system.time
+        figure8[1].wz = 0 | 1 / nbody_system.time
+
+        figure8[2].name = 'Star3'
+        figure8[2].mass = 1 | nbody_system.mass
+        figure8[2].radius = 5e-2 | nbody_system.length
+        figure8[2].x = -0.9700436 | nbody_system.length
+        figure8[2].y = 0.24308753 | nbody_system.length
+        figure8[2].z = 0 | nbody_system.length
+        figure8[2].vx = 0.466203685 | nbody_system.speed
+        figure8[2].vy = 0.43236573 | nbody_system.speed
+        figure8[2].vz = 0 | nbody_system.speed
+        figure8[2].xi = 0.07
+        figure8[2].kf = 0.02
+        figure8[2].tau = 1e-2 | nbody_system.time
+        figure8[2].wx = 0 | 1 / nbody_system.time
+        figure8[2].wy = 0 | 1 / nbody_system.time
+        figure8[2].wz = 0 | 1 / nbody_system.time
+
+        return figure8
+
     def test1(self):
         """
         Test Tidymess parameters attribute and their defaults
         """
+        print('Test parameters and their default values')
         system = self.earth_moon_system()
         converter = nbody_system.nbody_to_si(
-            system.mass.sum(), system[0].position.length()
+            1 | u.MEarth, 1 | u.AU
         )
         instance = self.new_instance_of_an_optional_code(
             Tidymess, converter
