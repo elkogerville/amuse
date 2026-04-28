@@ -33,15 +33,6 @@ bool print_info = false;
 
 
 /**
- * Check that begin time is an offset
- * rn begin time is set in commit parameters but maybe can be moved
- * test if u can evolve backwards in time (first w no tides, and if with tides use tidal model 1)
- * test that dtconst requires units
- *
- */
-
-
-/**
  * Given an AMUSE particle index, find the corresponding
  * index of that particle within Tidymess. This is a helper
  * function used by setters and getters.
@@ -79,10 +70,9 @@ int initialize_code() {
 }
 
 /**
- * Deallocate Tidymess objects and data
+ * Deallocate Tidymess by setting pointers to null
  */
 int cleanup_code() {
-    // assign pointers to null
     tidymess.reset();
     init.reset();
     breakup.reset();
@@ -126,25 +116,6 @@ int commit_particles() {
     }
     tidymess->commit_parameters();
     tidymess->initialize();
-
-
-    const Body& body0 = tidymess->bodies[0];
-    const Body& body1 = tidymess->bodies[1];
-
-    double dx = body1.r[0] - body0.r[0];
-    double dy = body1.r[1] - body0.r[1];
-    double dz = body1.r[2] - body0.r[2];
-    double r = sqrt(dx*dx + dy*dy + dz*dz);
-
-    cerr << "SEPARATION r = " << r << endl;
-    cerr << "EXPECTED POT = " << -(body0.m * body1.m) / r << endl;
-
-    const array<double, 3> pcom = tidymess->get_center_of_mass();
-    const array<double, 3> pvel = tidymess->get_center_of_mass_velocity();
-    const double pot = tidymess->get_potential_energy();
-    cerr<<"COM "<<pcom[0] <<pcom[1] <<pcom[2] <<endl;
-    cerr<<"COMVEL "<<pvel[0] <<pvel[1] <<pvel[2] <<endl;
-    cerr<<"POT "<<pot <<endl;
 
     return 0;
 }
