@@ -375,6 +375,14 @@ class TestTidymess(TestWithMPI):
         return HD80606
 
     def figure8_system(self):
+        """
+        Generate initial conditions for a triple system
+        in a figure 8 configuration.
+
+        This is one of the solutions to the 3-body problem.
+        The units are in dimensionless N-Body units.
+        Initial conditions courtesy of Dr. Tjarda Boekholt.
+        """
         figure8 = Particles(3)
         figure8[0].name = 'Star1'
         figure8[0].mass = 1 | nbody_system.mass
@@ -428,7 +436,13 @@ class TestTidymess(TestWithMPI):
 
     def test1(self):
         """
-        Test Tidymess parameters attribute and their defaults
+        Test Tidymess parameters attribute and their defaults.
+
+        Although the default values are technically defined under
+        parameters in the Tidymess interface.py, in practice these
+        defaults are overridden by the defaults set in the Tidymess
+        source code. The defaults in the interface.py were chosen to
+        match the defaults set in the Tidymess standalone package.
         """
         print('Test parameters and their default values')
         system = self.earth_moon_system()
@@ -460,9 +474,10 @@ class TestTidymess(TestWithMPI):
         instance.parameters.dt_mode = 2
         self.assertEquals(instance.parameters.dt_mode, 2)
 
-        self.assertEquals(instance.parameters.dt_const, 0.015625)
-        instance.parameters.dt_const = 0.025625
-        self.assertEquals(instance.parameters.dt_const, 0.025625)
+        dt_const = instance.unit_converter.to_si(0.015625 | nbody_system.time)
+        self.assertAlmostEquals(instance.parameters.dt_const, dt_const, 3)
+        instance.parameters.dt_const = 0.025625 | u.s
+        self.assertAlmostEquals(instance.parameters.dt_const, 0.025625 | u.s, 3)
 
         self.assertEquals(instance.parameters.eta, 0.0625)
         instance.parameters.eta = 0.0726
@@ -499,7 +514,7 @@ class TestTidymess(TestWithMPI):
         self.assertEquals(instance.parameters.magnetic_braking, 1)
         self.assertEquals(instance.parameters.speed_of_light, 2e100)
         self.assertEquals(instance.parameters.dt_mode, 2)
-        self.assertEquals(instance.parameters.dt_const, 0.025625)
+        self.assertAlmostEquals(instance.parameters.dt_const, 0.025625 | u.s, 3)
         self.assertEquals(instance.parameters.eta, 0.0726)
         self.assertEquals(instance.parameters.n_iter, 2)
         self.assertEquals(instance.parameters.collision_mode, 1)
@@ -537,7 +552,7 @@ class TestTidymess(TestWithMPI):
 
     def test3(self):
         """
-        Test the function for converting spin vectors
+        Test the function for converting spin vectors.
         """
         print('Test converting spin vectors')
         converter = nbody_system.nbody_to_si(1 | u.MEarth, 1 | u.REarth)
