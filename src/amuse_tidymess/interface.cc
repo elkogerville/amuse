@@ -57,20 +57,105 @@ int get_body_index_by_id(int index_of_the_particle) {
     return -1;
 }
 
+
 /**
- * Determine sign of dt value
- * for integrating foward or backwards
- * in time. copied from tidymess.cpp
+ * Run the initialization for the code, called before
+ / parameters and particles are set or before any other
+ / call on the code
  */
-int determine_dt_sgn(double t_end) {
-    // ** takes negative time step when evolving to 0, causes problems
-    if(t_end > tidymess->get_model_time()) {
-        dt_sign = 1;
+int initialize_code() {
+    tidymess = std::make_unique<Tidy>();
+    init = std::make_unique<Initializer>();
+    collision = std::make_unique<Collision>();
+    breakup = std::make_unique<Breakup>();
+
+    //initialize_stopping_conditions();
+
+    // AMUSE STOPPING CONDITIONS SUPPORT
+    //set_support_for_condition(COLLISION_DETECTION);
+    // reset id counter?
+    //particle_id_counter = 0;
+
+    return 0;
+}
+
+/**
+ * Deallocate Tidymess objects and data
+ */
+int cleanup_code() {
+    // assign pointers to null
+    tidymess.reset();
+    init.reset();
+    breakup.reset();
+    collision.reset();
+
+    return 0;
+}
+
+/**
+ * Perform initialization in the code dependent on the
+ * values of the parameters.Called after the parameters
+ * have been set or updated.
+ */
+int commit_parameters() {
+    tidymess->set_encounter_mode();
+    tidymess->set_pointers();
+    tidymess->upload_parameters();
+    return 0;
+}
+
+/**
+ * Commit particles to Tidymess and compute
+ * tidal tensors based on particle initial conditions
+ */
+int commit_particles() {
+    tidymess->set_model_time(begin_time);
+
+    if (tidymess->get_tidal_model() > 0) {
+        switch(init_shape) {
+            case 0:
+                tidymess->set_to_spherical_shape();
+                break;
+            case 1:
+                tidymess->set_to_equilibrium_shape();
+                break;
+            default:
+                return -1;
+        }
+        tidymess->update_angular_momentum();
+
     }
-    else {
-        dt_sign = -1;
-    }
-    tidymess->set_dt_sgn(dt_sign);
+    tidymess->commit_parameters();
+    tidymess->initialize();
+
+
+    const Body& body0 = tidymess->bodies[0];
+    const Body& body1 = tidymess->bodies[1];
+
+    double dx = body1.r[0] - body0.r[0];
+    double dy = body1.r[1] - body0.r[1];
+    double dz = body1.r[2] - body0.r[2];
+    double r = sqrt(dx*dx + dy*dy + dz*dz);
+
+    cerr << "SEPARATION r = " << r << endl;
+    cerr << "EXPECTED POT = " << -(body0.m * body1.m) / r << endl;
+
+    const array<double, 3> pcom = tidymess->get_center_of_mass();
+    const array<double, 3> pvel = tidymess->get_center_of_mass_velocity();
+    const double pot = tidymess->get_potential_energy();
+    cerr<<"COM "<<pcom[0] <<pcom[1] <<pcom[2] <<endl;
+    cerr<<"COMVEL "<<pvel[0] <<pvel[1] <<pvel[2] <<endl;
+    cerr<<"POT "<<pot <<endl;
+
+    return 0;
+}
+
+int recommit_parameters() {
+    commit_parameters();
+    return 0;
+}
+
+int recommit_particles() {
     return 0;
 }
 
@@ -134,6 +219,26 @@ int delete_particle(int index_of_the_particle) {
 
     return 0;
 }
+
+
+/**
+ * Determine sign of dt value
+ * for integrating foward or backwards
+ * in time. copied from tidymess.cpp
+ */
+int determine_dt_sgn(double t_end) {
+    // ** takes negative time step when evolving to 0, causes problems
+    if(t_end > tidymess->get_model_time()) {
+        dt_sign = 1;
+    }
+    else {
+        dt_sign = -1;
+    }
+    tidymess->set_dt_sgn(dt_sign);
+    return 0;
+}
+
+
 
 // Tidymess setters and getters
 
@@ -719,12 +824,12 @@ int normalize_initial_conditions() {
     Cv = std::sqrt(Cm / Cr);
     Ct = Cr / Cv;
 
-    tidymess.set_model_time(tidymess.get_model_time() / Ct);
-    tidymess.set_dt_const(tidymess.get_dt_const() / Ct);
-    tidymess.set_speed_of_light(tidymess.get_speed_of_light() / Cv);
+    tidymess->set_model_time(tidymess->get_model_time() / Ct);
+    tidymess->set_dt_const(tidymess->get_dt_const() / Ct);
+    tidymess->set_speed_of_light(tidymess->get_speed_of_light() / Cv);
 
-    std::cerr<<"model_time= "<<tidymess.get_model_time()<<endl;
-    std::cerr<<"dtconst= "<<tidymess.get_dt_const()<<endl;
+    std::cerr<<"model_time= "<<tidymess->get_model_time()<<endl;
+    std::cerr<<"dtconst= "<<tidymess->get_dt_const()<<endl;
     cerr<<"Cv= "<<Cv<<" Ct= "<<Ct<<" Cm= "<<Cm<<" Cr= "<<Cr<<endl;
 
     for(int i = 0; i < N; i++) {
@@ -758,104 +863,6 @@ int normalize_initial_conditions() {
     return 0;
 }
 
-int initialize_code() {
-    tidymess = std::make_unique<Tidy> ();
-    //std::cerr<<"PLEASE"<<endl;
-    //
-    // Run the initialization for the code, called before
-    // any other call on the code (so before any parameters
-    // are set or particles are defined in the code).
-    // """
-
-    //initialize_stopping_conditions();
-
-    // AMUSE STOPPING CONDITIONS SUPPORT
-    //set_support_for_condition(COLLISION_DETECTION);
-    // reset id counter?
-    //particle_id_counter = 0;
-
-    return 0;
-}
-
-
-/**
- * Deallocate Tidymess bodies
- */
-int cleanup_code() {
-    std::vector<Body>& bodies = tidymess->bodies;
-    tidymess.reset(); // reset to point to Null
-    // tidymess.bodies.clear();
-
-    return 0;
-}
-
-
-/**
- * Perform initialization in the code dependent on the
- * values of the parameters.Called after the parameters
- * have been set or updated.
- */
-int commit_parameters() {
-    tidymess.set_encounter_mode();
-    std::cerr<<"SET_POINTERS NOW!!!!"<<endl;
-    tidymess.set_pointers();
-    tidymess.upload_parameters();
-    return 0;
-}
-
-int recommit_parameters() {
-    tidymess.set_encounter_mode();
-    tidymess.set_pointers();
-    tidymess.upload_parameters();
-    return 0;
-}
-
-int commit_particles() {
-    tidymess.set_model_time(begin_time);
-    normalize_initial_conditions();
-    if (tidymess.get_tidal_model() > 0) {
-        switch(init_shape) {
-            case 0:
-                tidymess.set_to_spherical_shape();
-                break;
-            case 1:
-                tidymess.set_to_equilibrium_shape();
-                break;
-            default:
-                return -1;
-        }
-        tidymess.update_angular_momentum();
-        cerr<<"printing particles after update_angular_momentum"<<endl;
-        tidymess.print_particles(true);
-    }
-    tidymess.commit_parameters();
-    tidymess.initialize();
-
-
-    const Body& body0 = tidymess.bodies[0];
-    const Body& body1 = tidymess.bodies[1];
-
-    double dx = body1.r[0] - body0.r[0];
-    double dy = body1.r[1] - body0.r[1];
-    double dz = body1.r[2] - body0.r[2];
-    double r = sqrt(dx*dx + dy*dy + dz*dz);
-
-    cerr << "SEPARATION r = " << r << endl;
-    cerr << "EXPECTED POT = " << -(body0.m * body1.m) / r << endl;
-
-    const array<double, 3> pcom = tidymess.get_center_of_mass();
-    const array<double, 3> pvel = tidymess.get_center_of_mass_velocity();
-    const double pot = tidymess.get_potential_energy();
-    cerr<<"COM "<<pcom[0] <<pcom[1] <<pcom[2] <<endl;
-    cerr<<"COMVEL "<<pvel[0] <<pvel[1] <<pvel[2] <<endl;
-    cerr<<"POT "<<pot <<endl;
-
-    return 0;
-}
-
-int recommit_particles() {
-    return 0;
-}
 
 int get_eps2(double* epsilon_squared) {
     if (!epsilon_squared) return -1;
