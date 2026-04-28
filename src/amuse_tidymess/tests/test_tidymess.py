@@ -24,6 +24,7 @@ class TestTidymessInterface(TestWithMPI):
         print('Test initialization')
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
+
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
         self.assertEqual(0, instance.cleanup_code())
@@ -567,7 +568,7 @@ class TestTidymess(TestWithMPI):
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
 
-        instance.parameters.tidal_model = 0
+        instance.parameters.tidal_model = 1
         instance.parameters.dt_mode = 2
         instance.parameters.eta = 0.015625
         instance.commit_parameters()
@@ -588,7 +589,7 @@ class TestTidymess(TestWithMPI):
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
 
-        instance.parameters.tidal_model = 0
+        instance.parameters.tidal_model = 1
         instance.parameters.dt_mode = 2
         instance.parameters.eta = 0.015625
         instance.commit_parameters()
