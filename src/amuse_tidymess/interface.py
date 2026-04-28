@@ -1596,6 +1596,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
 
     def define_properties(self, handler):
         """Define read only properties of Tidymess"""
+        GravitationalDynamics.define_properties(self, handler)
         handler.add_property('get_total_energy', public_name='total_energy')
 
     def define_particle_sets(self, handler):
