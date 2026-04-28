@@ -884,8 +884,9 @@ int set_eps2(double epsilon_squared) {
 /**
  * Get total energy
  */
-int get_energy(double* total_energy) {
+int get_total_energy(double* total_energy) {
     if (!total_energy) return -1;
+
     *total_energy = tidymess->get_energy();
     return 0;
 }
