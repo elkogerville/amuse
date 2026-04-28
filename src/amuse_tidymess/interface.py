@@ -4,7 +4,6 @@ from amuse.community.interface.gd import GravityFieldInterface
 from amuse.community.interface.gd import GravityFieldCode
 from amuse.community.interface.stopping_conditions import StoppingConditions, StoppingConditionInterface
 from amuse.rfi.core import CodeInterface, legacy_function, LegacyFunctionSpecification
-from amuse.support.interface import MethodWithUnitsDefinition
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import units as u, nbody_system
 

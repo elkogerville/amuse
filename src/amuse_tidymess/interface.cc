@@ -200,10 +200,9 @@ int determine_dt_sgn(double t_end) {
  * Evolve the model to a specified time
  */
 int evolve_model(double time) {
-
     determine_dt_sgn(time);
-
     tidymess->evolve_model(time);
+
     return 0;
 }
 
@@ -764,84 +763,6 @@ int get_num_integration_step(int* num_integration_step) {
     return 0;
 }
 
-// int normalize_initial_conditions() {
-
-//     double Cm = 0.0;
-//     double Cr = 0.0;
-//     double Cv = 1.0;
-//     double Ct = 1.0;
-
-//     std::vector<Body>& bodies = tidymess->bodies;
-
-//     int N = static_cast<int>(bodies.size());
-
-
-//     for(int i = 0; i < N; i++) {
-//         Cm += bodies[i].m;
-//     }
-
-//     if(Cm == 0) {
-//         std::cerr<<"The cumulative mass of the N-body system is zero! Please include a non-zero mass body."<<endl;
-//         std::exit(1);
-//     }
-
-//     int cnt = 0;
-//     for(int i=0; i<N-1; i++) {
-//         for(int j=i+1; j<N; j++) {
-//             double dx = bodies[i].r[0] - bodies[j].r[0];
-//             double dy = bodies[i].r[1] - bodies[j].r[1];
-//             double dz = bodies[i].r[2] - bodies[j].r[2];
-//             double dr2 = dx*dx + dy*dy + dz*dz;
-//             double dr1 = std::sqrt(dr2);
-//             Cr += dr1;
-//             cnt++;
-//         }
-//     }
-
-//     Cr /= cnt;
-//     Cv = std::sqrt(Cm / Cr);
-//     Ct = Cr / Cv;
-
-//     tidymess->set_model_time(tidymess->get_model_time() / Ct);
-//     tidymess->set_dt_const(tidymess->get_dt_const() / Ct);
-//     tidymess->set_speed_of_light(tidymess->get_speed_of_light() / Cv);
-
-//     std::cerr<<"model_time= "<<tidymess->get_model_time()<<endl;
-//     std::cerr<<"dtconst= "<<tidymess->get_dt_const()<<endl;
-//     cerr<<"Cv= "<<Cv<<" Ct= "<<Ct<<" Cm= "<<Cm<<" Cr= "<<Cr<<endl;
-
-//     for(int i = 0; i < N; i++) {
-//         // mass
-//         bodies[i].m /= Cm;
-
-//         // position
-//         bodies[i].r[0] /= Cr;
-//         bodies[i].r[1] /= Cr;
-//         bodies[i].r[2] /= Cr;
-
-//         // velocity
-//         bodies[i].v[0] /= Cv;
-//         bodies[i].v[1] /= Cv;
-//         bodies[i].v[2] /= Cv;
-
-//         // radius
-//         bodies[i].R /= Cr;
-
-//         // spin
-//         bodies[i].w[0] *= Ct;
-//         bodies[i].w[1] *= Ct;
-//         bodies[i].w[2] *= Ct;
-
-//         // tau
-//         bodies[i].tau /= Ct;
-
-//         // a_mb
-//         bodies[i].a_mb /= Ct;
-//     }
-//     return 0;
-// }
-
-
 int get_eps2(double* epsilon_squared) {
     if (!epsilon_squared) return -1;
     return 0;
@@ -856,7 +777,6 @@ int set_eps2(double epsilon_squared) {
  */
 int get_total_energy(double* total_energy) {
     if (!total_energy) return -1;
-
     *total_energy = tidymess->get_energy();
     return 0;
 }
