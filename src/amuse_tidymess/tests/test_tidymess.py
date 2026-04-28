@@ -1,7 +1,9 @@
 """
 Date Created : December 10, 2025
-Last Updated : April 24, 2026
+Last Updated : April 28, 2026
 Tests for Tidymess and TidymessInterface
+
+For questions about the tests, contact elkogerville@gmail.com
 """
 
 from amuse.datamodel import Particles
@@ -266,68 +268,6 @@ class TestTidymess(TestWithMPI):
 
         return system
 
-    def jupiter_io_system(self):
-        """
-        Ephemeris Pasadena, USA, Horizons
-
-        Jupiter and Io Ephemeris at A.D. 2026-Jan-01 00:00:00.0000
-
-        Jupiter:
-        kf from: Dong Lai 2021 Planet. Sci. J. 2 122 DOI 10.3847/PSJ/ac013b
-        xi from: https://doi.org/10.1016/j.icarus.2011.09.016
-        spin vector from: https://radiojove.gsfc.nasa.gov/education/jupiter/basics/jfacts.htm
-
-        Io:
-        kf from https://doi.org/10.1016/j.icarus.2025.116567
-        xi from Schubert et al. 2004
-        spin vector from https://doi.org/10.1016/j.icarus.2012.05.020 and ephemeris
-
-        spin vectors were calculated from LOD, OBL, PSI using
-        the ``Tidymess.convert_spin_vectors_to_inertial()`` method.
-
-        tau values are arbitrary for both bodies.
-        """
-        system = Particles(2)
-
-        system[0].name = 'Jupiter'
-        system[0].mass = 1898.6e24 | u.kg
-        system[0].radius = 6371.01 | u.km
-        system[0].x = -2.538781102425539e8 | u.km
-        system[0].y = 7.365225847926259e8 | u.km
-        system[0].z = 2.626628058868796e6 | u.km
-        system[0].vx = -1.250707427525374e1 | u.kms
-        system[0].vy = -3.638417682823274 | u.kms
-        system[0].vz = 2.949797151579847e-1 | u.kms
-        system[0].kf = 0.565
-        system[0].xi = 0.2629
-        system[0].tau = 0 | u.s
-        system[0].wx = 0.0 | 1 / u.s
-        system[0].wy = -9.60092648806e-6 | 1 / u.s
-        system[0].wz = 0.000175573560178 | 1 / u.s
-        system[0].a_mb = 0
-
-        system[1].name = 'Io'
-        system[1].mass = 893193797311089e8 | u.kg
-        system[1].radius = 1821.6 | u.km
-        system[1].x = -2.535070263728397e8 | u.km
-        system[1].y = 7.363212379813337e8 | u.km
-        system[1].z = 2.624656018151939e6 | u.km
-        system[1].vx = -4.195592326222561 | u.kms
-        system[1].vy = 1.153726914561471e1 | u.kms
-        system[1].vz = 9.564081722803852e-1 | u.kms
-        system[1].kf = 0.125
-        system[1].xi = 0.378
-        system[1].tau = 0 | u.s
-        system[1].wx = 0.0 | 1 / u.s
-        system[1].wy = -1.43416864277e-9 | 1 / u.s
-        system[1].wz = 4.10859051537e-5 | 1 / u.s
-        system[1].a_mb = 0
-
-        system.move_to_center()
-
-        return system
-
-
     def HD80606b_system(self):
         """
         Initial conditions for the exoplanet system
@@ -573,14 +513,14 @@ class TestTidymess(TestWithMPI):
 
     def test4(self):
         """
-        Test that setting a begin time correctly creates a time offset.
+        Test that setting begin_time correctly creates a time offset.
         """
         print('Test setting begin_time')
         dt = 5 | u.yr
         begin_time = (50 | u.yr).as_quantity_in(u.s)
         end_time = begin_time + dt
 
-        system = self.earth_moon_system()
+        system = self.HD80606b_system()
         converter = nbody_system.nbody_to_si(
             1 | u.MEarth, 1 | u.au
         )
@@ -682,71 +622,97 @@ class TestTidymess(TestWithMPI):
 
     def test6(self):
         """
-        Evolve a system of Particles without tides
-        """
-        end_time = 1 | u.yr
-        dt_diag = 1e-4 | u.yr
+        Evolve a system with tidal effects in physical units.
 
-        system = self.earth_moon_system()
+        The reference values used in this test were generated
+        using the standalone Tidymess code. Because Tidymess
+        applies slightly different unit conversion factors in
+        physical-unit mode, the initial conditions were first
+        converted to N-body units before running the simulation
+        in Tidymess. The resulting outputs were then converted
+        back to physical units for comparison with the AMUSE results.
+        """
+        print('Test evolve model with physical units')
+        system = self.HD80606b_system()
         converter = nbody_system.nbody_to_si(
-            system.mass.sum(), 1 | u.au
+            system.mass.sum(), system.position[1].length()
         )
 
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         assert instance is not None
 
-        instance.parameters.tidal_model = 0
+        instance.parameters.tidal_model = 4
         instance.parameters.dt_mode = 2
         instance.parameters.eta = 0.015625
+        instance.parameters.initial_shape = 0
         instance.commit_parameters()
 
         instance.particles.add_particles(system)
         channel = instance.particles.new_channel_to(system)
 
-        times = [] | u.yr
-        times.append(0.0 | u.yr)
-        particles = [system.copy()]
+        instance.evolve_model(converter.to_si(1e3 | nbody_system.time))
+        channel.copy()
 
-        while instance.model_time < end_time:
-            time = instance.model_time + dt_diag
-            instance.evolve_model(time)
-            channel.copy()
+        expected_position = [
+            (9.2110173492271311e-2, 1.5422660672122340e-2, 0.0),
+            (-2.3887569837471958e1, -3.9996654911555614, 0.0)
+        ]
 
-            particles.append(system.copy())
-            times.append(instance.model_time)
+        for particle, (ex, ey, ez) in zip(instance.particles, expected_position):
+            self.assertAlmostRelativeEqual(
+                particle.x, converter.to_si(ex | nbody_system.length), places=4
+            )
+            self.assertAlmostRelativeEqual(
+                particle.y, converter.to_si(ey | nbody_system.length), places=4
+            )
+            self.assertAlmostRelativeEqual(
+                particle.z, converter.to_si(ez | nbody_system.length), places=4
+            )
 
-        self.assertAlmostEquals(
-            particles[-1].position[0],
-            VectorQuantity([3554487.97163, -3026275.21595, 0.0], u.m),
-            places=1
-        )
-        self.assertAlmostEquals(
-            particles[-1].position[1],
-            VectorQuantity([-289132566.932, 246166178.762, 0.0], u.m),
-            places=1
-        )
-        self.assertAlmostEquals(
-            particles[-1].velocity[0],
-            VectorQuantity([8.06599003995, 9.47384574385, 0.0], u.ms),
-            places=1
-        )
-        self.assertAlmostEquals(
-            particles[-1].velocity[1],
-            VectorQuantity([-656.111491645, -770.630639491, 0.0], u.ms),
-            places=1
-        )
-        self.assertAlmostRelativeEqual(times[-1], end_time, places=3)
+        expected_velocity = [
+            (-4.5536563347452620e-4, 1.4689234497039288e-4, 0.0),
+            (1.1809312651138797e-1, -3.8094610122321661e-2, 0.0)
+        ]
+
+        for particle, (evx, evy, evz) in zip(instance.particles, expected_velocity):
+            self.assertAlmostRelativeEqual(
+                particle.vx, converter.to_si(evx | nbody_system.speed), places=4
+            )
+            self.assertAlmostRelativeEqual(
+                particle.vy, converter.to_si(evy | nbody_system.speed), places=4
+            )
+            self.assertAlmostRelativeEqual(
+                particle.vz, converter.to_si(evz | nbody_system.speed), places=4
+            )
+
+        expected_spin = [
+            (0.0, 0.0, 7.8439567544949240e-02),
+            (0.0, 0.0, 3.8166572048686174e+00)
+        ]
+
+        for particle, (ewx, ewy, ewz) in zip(instance.particles, expected_spin):
+            self.assertAlmostEqual(
+                particle.wx, converter.to_si(ewx | 1/nbody_system.time), places=7
+            )
+            self.assertAlmostEqual(
+                particle.wy, converter.to_si(ewy | 1/nbody_system.time), places=7
+            )
+            self.assertAlmostEqual(
+                particle.wz, converter.to_si(ewz | 1/nbody_system.time), places=7
+            )
 
         instance.stop()
 
-
     def test7(self):
         """
-        Evolve a figure 8 system in N-Body units with tides
+        Evolve a figure 8 system in N-Body units with tides.
+
+        For the expected values used to compare in this test,
+        an identical simulation was ran in the Tidymess standalone
+        package.
         """
         print('Test figure 8 system in N-Body units with tidal model 4')
         end_time = 2e3 | nbody_system.time
-        dt_diag = 1 | nbody_system.time
         system = self.figure8_system()
 
         instance = self.new_instance_of_an_optional_code(Tidymess)
