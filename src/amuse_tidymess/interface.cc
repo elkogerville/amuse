@@ -215,7 +215,6 @@ int delete_particle(int index_of_the_particle) {
  * in time. copied from tidymess.cpp
  */
 int determine_dt_sgn(double t_end) {
-    // ** takes negative time step when evolving to 0, causes problems
     if(t_end > tidymess->get_model_time()) {
         dt_sign = 1;
     }
@@ -223,6 +222,17 @@ int determine_dt_sgn(double t_end) {
         dt_sign = -1;
     }
     tidymess->set_dt_sgn(dt_sign);
+    return 0;
+}
+
+/**
+ * Evolve the model to a specified time
+ */
+int evolve_model(double time) {
+
+    determine_dt_sgn(time);
+
+    tidymess->evolve_model(time);
     return 0;
 }
 
@@ -558,17 +568,6 @@ int set_spin(
 
     body.w = {wx, wy, wz};
 
-    return 0;
-}
-
-/**
- * Evolve the model to a specified time
- */
-int evolve_model(double time) {
-
-    determine_dt_sgn(time);
-
-    tidymess->evolve_model(time);
     return 0;
 }
 
