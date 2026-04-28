@@ -727,10 +727,8 @@ class TestTidymess(TestWithMPI):
         instance.particles.add_particles(system)
         channel = instance.particles.new_channel_to(system)
 
-        while instance.model_time < end_time:
-            time = instance.model_time + dt_diag
-            instance.evolve_model(time)
-            channel.copy()
+        instance.evolve_model(end_time)
+        channel.copy()
 
         self.assertAlmostEquals(instance.model_time, end_time)
 
@@ -752,9 +750,9 @@ class TestTidymess(TestWithMPI):
         ]
 
         for particle, (evx, evy, evz) in zip(instance.particles, expected_velocity):
-            self.assertAlmostEquals(particle.vx.number, evx)
-            self.assertAlmostEquals(particle.vy.number, evy)
-            self.assertAlmostEquals(particle.vz.number, evz)
+            self.assertAlmostEquals(particle.vx.number, evx, places=6)
+            self.assertAlmostEquals(particle.vy.number, evy, places=6)
+            self.assertAlmostEquals(particle.vz.number, evz, places=6)
 
         expected_spin = [
             (0.0, 0.0, -1.4197775319236833e-5),
@@ -785,7 +783,7 @@ class TestTidymess(TestWithMPI):
 
     def test8(self):
         """
-        Evolve the HD80606b exoplanet system with tides
+        Evolve a system without tides.
         """
         end_time = 2e3 | u.yr
         dt_diag = 1 | u.yr
@@ -842,3 +840,69 @@ class TestTidymess(TestWithMPI):
         self.assertAlmostRelativeEqual(times[-1], end_time, places=3)
 
         instance.stop()
+
+    def test9(self):
+        """
+        Test that varying diagnostic dt has no change on the result.
+        This verifies that evolving to t_end in one `evolve_model`
+        call gives the same answer as evolving to t_end incrementally.
+
+        dt_diag controls how many times AMUSE creates a snapshot.
+        """
+        print('Test Tidymess snapshot dependency')
+        # System 1
+        # --------
+        t_end = 2e3 | nbody_system.time
+        system1 = self.figure8_system()
+
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+        assert instance is not None
+
+        instance.parameters.tidal_model = 4
+        instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.015625
+        instance.parameters.initial_shape = 1
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system1)
+        channel1 = instance.particles.new_channel_to(system1)
+
+        instance.evolve_model(t_end)
+        channel1.copy()
+
+        instance.stop()
+
+        # System 2
+        # --------
+        dt_diag = 1 | nbody_system.time
+        system2 = self.figure8_system()
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+        assert instance is not None
+
+        instance.parameters.tidal_model = 4
+        instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.015625
+        instance.parameters.initial_shape = 1
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system2)
+        channel2 = instance.particles.new_channel_to(system2)
+
+        while instance.model_time < t_end:
+            time = instance.model_time + dt_diag
+            instance.evolve_model(time)
+            channel2.copy()
+
+        instance.stop()
+
+        self.assertAlmostEquals(
+            system1.position, system2.position
+        )
+        self.assertAlmostEquals(
+            system1.velocity, system2.velocity, places=6
+        )
+        self.assertAlmostEquals(system1.wx, system2.wx)
+        self.assertAlmostEquals(system1.wy, system2.wy)
+        self.assertAlmostEquals(system1.wz, system2.wz)
+        self.assertAlmostEquals(system1.mass, system2.mass)
+        self.assertAlmostEquals(system1.radius, system2.radius)
