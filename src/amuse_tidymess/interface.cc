@@ -57,7 +57,6 @@ int get_body_index_by_id(int index_of_the_particle) {
     return -1;
 }
 
-
 /**
  * Run the initialization for the code, called before
  / parameters and particles are set or before any other
@@ -185,41 +184,30 @@ int new_particle(
     if (!index_of_the_particle) return -1;
 
     std::vector<Body>& bodies = tidymess->bodies;
-
     Body newbody(
         mass, radius, xi, kf, tau, a_mb,
         wx, wy, wz, x, y, z, vx, vy, vz
     );
-
     newbody.set_id(particle_id_counter);
+    bodies.push_back(newbody);
 
     *index_of_the_particle = particle_id_counter++;
 
-    bodies.push_back(newbody);
-    if (print_info) {
-        cerr<<"printing particle in new_particle"<<endl;
-        // tidymess->print_particles(false);
-        cerr<<"end print "<<endl;
-    }
-
     return 0;
 }
-
 
 /**
  * Delete a particle inside Tidymess
  */
 int delete_particle(int index_of_the_particle) {
-    std::vector<Body>& bodies = tidymess->bodies;
     int i = get_body_index_by_id(index_of_the_particle);
-
     if (i < 0) return -1;
 
+    std::vector<Body>& bodies = tidymess->bodies;
     bodies.erase(bodies.begin() + i);
 
     return 0;
 }
-
 
 /**
  * Determine sign of dt value
@@ -238,9 +226,8 @@ int determine_dt_sgn(double t_end) {
     return 0;
 }
 
-
-
-// Tidymess setters and getters
+// Setters and Getters
+// -------------------
 
 /**
  * Get state of a particle
@@ -293,6 +280,7 @@ int get_state(
 
     return 0;
 }
+
 /**
  * Set state of a particle
  */
@@ -344,6 +332,7 @@ int get_mass(int index_of_the_particle, double* mass) {
     *mass = tidymess->bodies[i].m;
     return 0;
 }
+
 /**
  * Set mass of a particle
  */
@@ -367,6 +356,7 @@ int get_radius(int index_of_the_particle, double* radius ) {
     *radius = tidymess->bodies[i].R;
     return 0;
 }
+
 /**
  * Set radius of a particle
  */
@@ -399,6 +389,7 @@ int get_position(
     *z = body.r[2];
     return 0;
 }
+
 /**
  * Set position of a particle
  */
@@ -438,6 +429,7 @@ int get_velocity(
     *vz = body.v[2];
     return 0;
 }
+
 /**
  * Set velocity of a particle
  */
@@ -468,6 +460,7 @@ int get_xi(int index_of_the_particle, double* xi) {
     *xi = tidymess->bodies[i].xi;
     return 0;
 }
+
 /**
  * Set moment of inertia of a particle
  */
@@ -491,6 +484,7 @@ int get_kf(int index_of_the_particle, double* kf) {
     *kf = tidymess->bodies[i].kf;
     return 0;
 }
+
 /**
  * Set fluid love number of a particle
  */
@@ -514,6 +508,7 @@ int get_tau(int index_of_the_particle, double* tau) {
     *tau = tidymess->bodies[i].tau;
     return 0;
 }
+
 /**
  * Set fluid relaxation time of a particle
  */
@@ -546,6 +541,7 @@ int get_spin(
     *wz = body.w[2];
     return 0;
 }
+
 /**
  * Set spin of a particle
  */
@@ -565,6 +561,9 @@ int set_spin(
     return 0;
 }
 
+/**
+ * Evolve the model to a specified time
+ */
 int evolve_model(double time) {
 
     determine_dt_sgn(time);
@@ -582,6 +581,7 @@ int get_tidal_model(int* tidal_model) {
     *tidal_model = tidymess->get_tidal_model();
     return 0;
 }
+
 /**
  * Set Tidymess tidal model parameter
  */
@@ -599,6 +599,7 @@ int get_pn_order(int* pn_order) {
     *pn_order = tidymess->get_pn_order();
     return 0;
 }
+
 /**
  * Set Tidymess pn order parameter
  */
@@ -616,6 +617,7 @@ int get_magnetic_braking(int* magnetic_braking) {
     *magnetic_braking = tidymess->get_magnetic_braking();
     return 0;
 }
+
 /**
  * Set Tidymess magnetic braking parameter
  */
@@ -633,6 +635,7 @@ int get_speed_of_light(double* speed_of_light) {
     *speed_of_light = tidymess->get_speed_of_light();
     return 0;
 }
+
 /**
  * Set Tidymess speed of light parameter
  */
@@ -650,6 +653,7 @@ int get_dt_mode(int* dt_mode) {
     *dt_mode = tidymess->get_dt_mode();
     return 0;
 }
+
 /**
  * Set Tidymess dt mode parameter
  */
@@ -667,6 +671,7 @@ int get_dt_const(double* dt_const) {
     *dt_const = tidymess->get_dt_const();
     return 0;
 }
+
 /**
  * Set Tidymess constant dt parameter
  */
@@ -700,6 +705,7 @@ int get_eta(double* eta) {
     *eta = tidymess->get_eta();
     return 0;
 }
+
 /**
  * Set Tidymess eta (accuracy parameter)
  */
@@ -717,6 +723,7 @@ int get_n_iter(int* n_iter) {
     *n_iter = tidymess->n_iter;
     return 0;
 }
+
 /**
  * Set Tidymess n iter parameter
  */
@@ -734,6 +741,7 @@ int get_initial_shape(int* initial_shape) {
     *initial_shape = init_shape;
     return 0;
 }
+
 /**
  * Set Tidymess initial shape parameter
  */
@@ -786,89 +794,99 @@ int get_num_integration_step(int* num_integration_step) {
     return 0;
 }
 
-int normalize_initial_conditions() {
+// int normalize_initial_conditions() {
 
-    double Cm = 0.0;
-    double Cr = 0.0;
-    double Cv = 1.0;
-    double Ct = 1.0;
+//     double Cm = 0.0;
+//     double Cr = 0.0;
+//     double Cv = 1.0;
+//     double Ct = 1.0;
 
-    std::vector<Body>& bodies = tidymess->bodies;
+//     std::vector<Body>& bodies = tidymess->bodies;
 
-    int N = static_cast<int>(bodies.size());
+//     int N = static_cast<int>(bodies.size());
 
 
-    for(int i = 0; i < N; i++) {
-        Cm += bodies[i].m;
-    }
+//     for(int i = 0; i < N; i++) {
+//         Cm += bodies[i].m;
+//     }
 
-    if(Cm == 0) {
-        std::cerr<<"The cumulative mass of the N-body system is zero! Please include a non-zero mass body."<<endl;
-        std::exit(1);
-    }
+//     if(Cm == 0) {
+//         std::cerr<<"The cumulative mass of the N-body system is zero! Please include a non-zero mass body."<<endl;
+//         std::exit(1);
+//     }
 
-    int cnt = 0;
-    for(int i=0; i<N-1; i++) {
-        for(int j=i+1; j<N; j++) {
-            double dx = bodies[i].r[0] - bodies[j].r[0];
-            double dy = bodies[i].r[1] - bodies[j].r[1];
-            double dz = bodies[i].r[2] - bodies[j].r[2];
-            double dr2 = dx*dx + dy*dy + dz*dz;
-            double dr1 = std::sqrt(dr2);
-            Cr += dr1;
-            cnt++;
-        }
-    }
+//     int cnt = 0;
+//     for(int i=0; i<N-1; i++) {
+//         for(int j=i+1; j<N; j++) {
+//             double dx = bodies[i].r[0] - bodies[j].r[0];
+//             double dy = bodies[i].r[1] - bodies[j].r[1];
+//             double dz = bodies[i].r[2] - bodies[j].r[2];
+//             double dr2 = dx*dx + dy*dy + dz*dz;
+//             double dr1 = std::sqrt(dr2);
+//             Cr += dr1;
+//             cnt++;
+//         }
+//     }
 
-    Cr /= cnt;
-    Cv = std::sqrt(Cm / Cr);
-    Ct = Cr / Cv;
+//     Cr /= cnt;
+//     Cv = std::sqrt(Cm / Cr);
+//     Ct = Cr / Cv;
 
-    tidymess->set_model_time(tidymess->get_model_time() / Ct);
-    tidymess->set_dt_const(tidymess->get_dt_const() / Ct);
-    tidymess->set_speed_of_light(tidymess->get_speed_of_light() / Cv);
+//     tidymess->set_model_time(tidymess->get_model_time() / Ct);
+//     tidymess->set_dt_const(tidymess->get_dt_const() / Ct);
+//     tidymess->set_speed_of_light(tidymess->get_speed_of_light() / Cv);
 
-    std::cerr<<"model_time= "<<tidymess->get_model_time()<<endl;
-    std::cerr<<"dtconst= "<<tidymess->get_dt_const()<<endl;
-    cerr<<"Cv= "<<Cv<<" Ct= "<<Ct<<" Cm= "<<Cm<<" Cr= "<<Cr<<endl;
+//     std::cerr<<"model_time= "<<tidymess->get_model_time()<<endl;
+//     std::cerr<<"dtconst= "<<tidymess->get_dt_const()<<endl;
+//     cerr<<"Cv= "<<Cv<<" Ct= "<<Ct<<" Cm= "<<Cm<<" Cr= "<<Cr<<endl;
 
-    for(int i = 0; i < N; i++) {
-        // mass
-        bodies[i].m /= Cm;
+//     for(int i = 0; i < N; i++) {
+//         // mass
+//         bodies[i].m /= Cm;
 
-        // position
-        bodies[i].r[0] /= Cr;
-        bodies[i].r[1] /= Cr;
-        bodies[i].r[2] /= Cr;
+//         // position
+//         bodies[i].r[0] /= Cr;
+//         bodies[i].r[1] /= Cr;
+//         bodies[i].r[2] /= Cr;
 
-        // velocity
-        bodies[i].v[0] /= Cv;
-        bodies[i].v[1] /= Cv;
-        bodies[i].v[2] /= Cv;
+//         // velocity
+//         bodies[i].v[0] /= Cv;
+//         bodies[i].v[1] /= Cv;
+//         bodies[i].v[2] /= Cv;
 
-        // radius
-        bodies[i].R /= Cr;
+//         // radius
+//         bodies[i].R /= Cr;
 
-        // spin
-        bodies[i].w[0] *= Ct;
-        bodies[i].w[1] *= Ct;
-        bodies[i].w[2] *= Ct;
+//         // spin
+//         bodies[i].w[0] *= Ct;
+//         bodies[i].w[1] *= Ct;
+//         bodies[i].w[2] *= Ct;
 
-        // tau
-        bodies[i].tau /= Ct;
+//         // tau
+//         bodies[i].tau /= Ct;
 
-        // a_mb
-        bodies[i].a_mb /= Ct;
-    }
-    return 0;
-}
+//         // a_mb
+//         bodies[i].a_mb /= Ct;
+//     }
+//     return 0;
+// }
 
 
 int get_eps2(double* epsilon_squared) {
     if (!epsilon_squared) return -1;
     return 0;
 }
+
 int set_eps2(double epsilon_squared) {
+    return 0;
+}
+
+/**
+ * Get total energy
+ */
+int get_energy(double* total_energy) {
+    if (!total_energy) return -1;
+    *total_energy = tidymess->get_energy();
     return 0;
 }
 
@@ -903,6 +921,7 @@ int get_begin_time(double* time) {
     *time = begin_time;
     return 0;
 }
+
 /**
  * Set Tidymess simulation start time
  */
@@ -983,9 +1002,8 @@ int get_total_radius(double* radius) {
     if (get_center_of_mass_position(&xcom, &ycom, &zcom) != 0)
         return -1;
 
+    // compute distance between particle and COM
     for (size_t i = 0; i < bodies.size(); i++) {
-        // compute distance between particle and COM
-
         const Body& body = bodies[i];
 
         double dx = body.r[0] - xcom;
@@ -1008,8 +1026,8 @@ int get_number_of_particles(int* number_of_particles) {
     if (!number_of_particles) return -1;
 
     const std::vector<Body>& bodies = tidymess->bodies;
-
     *number_of_particles = static_cast<int>(bodies.size());
+
     return 0;
 }
 
