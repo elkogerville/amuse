@@ -1,17 +1,15 @@
 """
 Date Created : December 10, 2025
-Last Updated : March 19, 2026
-Test Routine for Tidymess and TidymessInterface
+Last Updated : April 24, 2026
+Tests for Tidymess and TidymessInterface
 """
 
-from amuse.support.testing.amusetest import TestWithMPI
-from amuse.units.quantities import VectorQuantity
-from amuse_tidymess.interface import Tidymess, TidymessInterface
-from amuse.units import units as u
-from amuse.units import constants as c
-from amuse.units import nbody_system
 from amuse.datamodel import Particles
 from amuse.ext.orbital_elements import generate_binaries
+from amuse.support.testing.amusetest import TestWithMPI
+from amuse.units import constants as c, nbody_system, units as u
+from amuse.units.quantities import VectorQuantity
+from amuse_tidymess.interface import Tidymess, TidymessInterface
 import numpy as np
 
 
@@ -21,7 +19,7 @@ class TestTidymessInterface(TestWithMPI):
         """
         Test Tidymess initialization.
         """
-
+        print('Test initialization')
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
         self.assertEqual(0, instance.initialize_code())
@@ -33,29 +31,18 @@ class TestTidymessInterface(TestWithMPI):
         """
         Test TidymessInterface setters and getters.
         """
-
+        print('Test setters and getters')
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
+
+        self.assertEqual(0, instance.initialize_code())
+        self.assertEqual(0, instance.commit_parameters())
+
         result = instance.get_number_of_particles()
         self.assertEquals(result['number_of_particles'], 0)
 
-        result = instance.new_particle(
-            1.0,   # mass
-            2.0,   # x
-            3.0,   # y
-            4.0,   # z
-            5.0,   # vz
-            6.0,   # vy
-            7.0,   # vz
-            8.0,   # radius
-            9.0,   # xi
-            10.0,  # kf
-            11.0,  # tau
-            12.0,  # wx
-            13.0,  # wy
-            14.0,  # wz
-            15.0   # a_mb
-        )
+        result = instance.new_particle(*np.arange(1, 16))
+
         self.assertEquals(result['index_of_the_particle'], 0.0)
 
         result = instance.get_state(0)
@@ -78,7 +65,6 @@ class TestTidymessInterface(TestWithMPI):
         instance.set_mass(0, 1.5)
         self.assertEquals(instance.get_mass(0)['mass'], 1.5)
 
-        result = instance.get_position(0)
         instance.set_position(0, 2.5, 3.5, 4.5)
         result = instance.get_position(0)
         self.assertEquals(result['x'], 2.5)
@@ -137,8 +123,8 @@ class TestTidymessInterface(TestWithMPI):
         result = instance.get_dt_const()
         self.assertEquals(result['dt_const'], 0.025625)
 
-        # result = instance.get_time_step()
-        # self.assertEquals(result['time_step'], 0)
+        result = instance.get_time_step()
+        self.assertEquals(result['time_step'], 0)
 
         instance.set_eta(0.625)
         result = instance.get_eta()
