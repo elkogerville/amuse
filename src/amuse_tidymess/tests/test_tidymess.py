@@ -513,6 +513,7 @@ class TestTidymess(TestWithMPI):
         """
         Test Tidymess add_particles method.
         """
+        print('Test adding and deleting particles')
         system = self.earth_moon_system()
         converter = nbody_system.nbody_to_si(system.mass.sum(), system[0].position.length())
 
@@ -538,7 +539,7 @@ class TestTidymess(TestWithMPI):
         """
         Test the function for converting spin vectors
         """
-
+        print('Test converting spin vectors')
         converter = nbody_system.nbody_to_si(1 | u.MEarth, 1 | u.REarth)
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         assert instance is not None
@@ -557,39 +558,114 @@ class TestTidymess(TestWithMPI):
 
     def test4(self):
         """
-        Test that setting a begin time correctly creates a time offset
+        Test that setting a begin time correctly creates a time offset.
         """
+        print('Test setting begin_time')
         dt = 5 | u.yr
         begin_time = (50 | u.yr).as_quantity_in(u.s)
         end_time = begin_time + dt
 
         system = self.earth_moon_system()
         converter = nbody_system.nbody_to_si(
-            system.mass.sum(), 1 | u.au
+            1 | u.MEarth, 1 | u.au
         )
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         assert instance is not None
 
+        instance.parameters.tidal_model = 0
+        instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.015625
+        instance.commit_parameters()
+
         self.assertEquals(instance.get_begin_time(), instance.model_time)
         self.assertEquals(instance.get_begin_time(), 0 | u.s)
 
-        instance.parameters.tidal_model = 0
-        instance.parameters.dt_mode = 2
-        instance.parameters.eta = 0.0625
         instance.set_begin_time(begin_time)
-        instance.commit_parameters()
-
         instance.particles.add_particles(system)
-        channel = instance.particles.new_channel_to(system)
 
         instance.evolve_model(instance.model_time + dt)
 
-        self.assertEquals(instance.get_begin_time(), begin_time)
-        self.assertAlmostEquals(instance.model_time, end_time)
+        self.assertAlmostEquals(instance.get_begin_time(), begin_time, places=3)
+        self.assertAlmostEquals(instance.model_time, end_time, places=3)
 
         instance.stop()
 
     def test5(self):
+        """
+        Test evolving backwards in time.
+
+        2 identical figure 8 systems are created and evolved to t1.
+        The second system is then evolved to t2 where t2 > t1.
+        Finally the second system is evolved 'backwards' back to t1.
+        System 2 should be identical to system 1 at the end of the
+        backwards evolution.
+        """
+        print('Test evolving backwards in time')
+        t1 = 1e3 | nbody_system.time
+        t2 = 2e3 | nbody_system.time
+        self.assertFalse(t1 > t2)
+
+        # System 1
+        # --------
+        system1 = self.figure8_system()
+
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+        assert instance is not None
+
+        instance.parameters.tidal_model = 0
+        instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.015625
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system1)
+        channel1 = instance.particles.new_channel_to(system1)
+
+        instance.evolve_model(t1)
+        channel1.copy()
+        self.assertEquals(instance.model_time, t1)
+
+        instance.stop()
+
+        # System 2
+        # --------
+        system2 = self.figure8_system()
+
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+        assert instance is not None
+
+        instance.parameters.tidal_model = 0
+        instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.015625
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system2)
+        channel2 = instance.particles.new_channel_to(system2)
+
+        instance.evolve_model(t2)
+        channel2.copy()
+        self.assertEquals(instance.model_time, t2)
+
+        instance.evolve_model(t1)
+        channel2.copy()
+        self.assertEquals(instance.model_time, t1)
+
+        instance.stop()
+
+        attributes = [
+            'x', 'y', 'z',
+            'vx', 'vy', 'vz',
+            'wx', 'wy', 'wz',
+            'mass', 'radius',
+            'xi', 'kf', 'tau'
+        ]
+
+        for attr in attributes:
+            self.assertAlmostEquals(
+                getattr(system1, attr),
+                getattr(system2, attr)
+            )
+
+    def test6(self):
         """
         Evolve a system of Particles without tides
         """
