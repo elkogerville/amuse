@@ -1062,8 +1062,8 @@ class TidymessInterface(
 
     @legacy_function
     def get_roche_mode():
-        '''
-        '''
+        """
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'roche_mode',
@@ -1079,8 +1079,8 @@ class TidymessInterface(
 
     @legacy_function
     def set_breakup_mode():
-        '''
-        '''
+        """
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'breakup_mode',
@@ -1099,8 +1099,8 @@ class TidymessInterface(
 
     @legacy_function
     def get_breakup_mode():
-        '''
-        '''
+        """
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'breakup_mode',
@@ -1152,14 +1152,29 @@ class TidymessInterface(
 
     @legacy_function
     def get_num_integration_step():
-        '''
-        '''
+        """
+        """
         function = LegacyFunctionSpecification()
         function.addParameter(
             'num_integration_step',
             dtype='int32',
             direction=function.OUT,
             description=''
+        )
+        function.result_type = 'int32'
+        function.result_doc = """"""
+
+        return function
+
+    @legacy_function
+    def get_total_energy():
+        """Get total energy from system"""
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'total_energy',
+            dtype='float64',
+            direction=function.OUT,
+            description='Total energy of the system'
         )
         function.result_type = 'int32'
         function.result_doc = """"""
@@ -1511,10 +1526,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'get_dt_const',
             'set_dt_const',
             'dt_const',
-            (
-                'constant time step in units given by time_unit, ' # FIXME
-                'default=0.015625 (only used if dt_mode=0)'
-            ),
+            'constant time step',
             default_value=0.015625 | nbody_system.time,
             is_vector=False,
             must_set_before_get=False,
@@ -1582,6 +1594,9 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
 
         self.stopping_conditions.define_parameters(handler)
 
+    def define_properties(self, handler):
+        """Define read only properties of Tidymess"""
+        handler.add_property('get_total_energy', public_name='total_energy')
 
     def define_particle_sets(self, handler):
         GravitationalDynamics.define_particle_sets(self, handler)
