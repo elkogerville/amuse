@@ -31,18 +31,18 @@ endif
 	pip install src/UCLCHEM-$(VERSION)
 
 
-uclchem_worker: interface.py
+uclchem_worker: interface.py install_uclchem
 	PYTHONPATH=. amusifier --type=py --mode=mpi -x interface UclchemInterface UclchemImplementation -o $@
 
 amuse-uclchem_contains: uclchem_worker
 
 
 # Building and installing packages
-develop-%: %_contains install_uclchem
+develop-%: %_contains
 	support/shared/uninstall.sh $*
 	python -m pip install -e packages/$*
 
-install-%: %_contains install_uclchem
+install-%: %_contains
 	support/shared/uninstall.sh $*
 	python -m pip install packages/$*
 
