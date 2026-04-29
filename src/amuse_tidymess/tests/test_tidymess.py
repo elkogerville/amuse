@@ -25,9 +25,9 @@ class TestTidymessInterface(TestWithMPI):
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
 
-        self.assertEqual(0, instance.initialize_code())
-        self.assertEqual(0, instance.commit_parameters())
-        self.assertEqual(0, instance.cleanup_code())
+        self.assertEquals(0, instance.initialize_code())
+        self.assertEquals(0, instance.commit_parameters())
+        self.assertEquals(0, instance.cleanup_code())
         instance.stop()
 
     def test2(self):
@@ -38,8 +38,8 @@ class TestTidymessInterface(TestWithMPI):
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
 
-        self.assertEqual(0, instance.initialize_code())
-        self.assertEqual(0, instance.commit_parameters())
+        self.assertEquals(0, instance.initialize_code())
+        self.assertEquals(0, instance.commit_parameters())
 
         result = instance.get_number_of_particles()
         self.assertEquals(result['number_of_particles'], 0)
@@ -155,7 +155,7 @@ class TestTidymessInterface(TestWithMPI):
         result = instance.get_number_of_particles()
         self.assertEquals(result['number_of_particles'], 1)
 
-        self.assertEqual(0, instance.cleanup_code())
+        self.assertEquals(0, instance.cleanup_code())
         instance.stop()
 
     def test3(self):
@@ -166,38 +166,38 @@ class TestTidymessInterface(TestWithMPI):
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
 
-        self.assertEqual(0, instance.initialize_code())
-        self.assertEqual(0, instance.commit_parameters())
+        self.assertEquals(0, instance.initialize_code())
+        self.assertEquals(0, instance.commit_parameters())
 
         # initialize new particle with all attributes set to 1
         result = instance.new_particle(*np.ones(15)*1)
-        self.assertEqual(result['index_of_the_particle'], 0)
+        self.assertEquals(result['index_of_the_particle'], 0)
 
         # initialize new particle with all attributes set to 1.1
         result = instance.new_particle(*np.ones(15)*1.1)
-        self.assertEqual(result['index_of_the_particle'], 1)
+        self.assertEquals(result['index_of_the_particle'], 1)
 
         # check number of particles
         result = instance.get_number_of_particles()
-        self.assertEqual(result['number_of_particles'], 2)
+        self.assertEquals(result['number_of_particles'], 2)
 
         # check that indexes are correct
         first = instance.get_index_of_first_particle()
-        self.assertEqual(first['index_of_the_particle'], 0)
+        self.assertEquals(first['index_of_the_particle'], 0)
 
         next = instance.get_index_of_next_particle(
             first['index_of_the_particle']
         )
-        self.assertEqual(next['index_of_the_next_particle'], 1)
+        self.assertEquals(next['index_of_the_next_particle'], 1)
 
         # delete particle
         instance.delete_particle(1)
 
         result = instance.get_number_of_particles()
-        self.assertEqual(result['number_of_particles'], 1)
+        self.assertEquals(result['number_of_particles'], 1)
 
         first = instance.get_index_of_first_particle()
-        self.assertEqual(first['index_of_the_particle'], 0)
+        self.assertEquals(first['index_of_the_particle'], 0)
 
         instance.stop()
 
@@ -209,70 +209,32 @@ class TestTidymessInterface(TestWithMPI):
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
 
-        self.assertEqual(0, instance.initialize_code())
-        self.assertEqual(0, instance.commit_parameters())
+        self.assertEquals(0, instance.initialize_code())
+        self.assertEquals(0, instance.commit_parameters())
 
-        self.assertEqual([0, 0], list(instance.new_particle(0.5,  0.5, 0, 0,  0, 0.5, 0).values()))
-        self.assertEqual([1, 0], list(instance.new_particle(0.5, -0.5, 0, 0,  0, -0.5, 0).values()))
-        self.assertEqual(0, instance.commit_particles())
+        self.assertEquals([0, 0], list(instance.new_particle(0.5,  0.5, 0, 0,  0, 0.5, 0).values()))
+        self.assertEquals([1, 0], list(instance.new_particle(0.5, -0.5, 0, 0,  0, -0.5, 0).values()))
+        self.assertEquals(0, instance.commit_particles())
 
-        self.assertEqual(0, instance.evolve_model(np.pi))  # half an orbit
+        self.assertEquals(0, instance.evolve_model(np.pi))  # half an orbit
         for result, expected in zip(instance.get_position(0).values(), [-0.5, 0.0, 0.0, 0]):
-            self.assertAlmostEqual(result, expected, 5)
+            self.assertAlmostEquals(result, expected, 5)
 
-        self.assertEqual(0, instance.evolve_model(2 * np.pi))  # full orbit
+        self.assertEquals(0, instance.evolve_model(2 * np.pi))  # full orbit
         for result, expected in zip(instance.get_position(0).values(), [0.5, 0.0, 0.0, 0]):
-            self.assertAlmostEqual(result, expected, 5)
+            self.assertAlmostEquals(result, expected, 5)
 
-        self.assertEqual(0, instance.cleanup_code())
+        self.assertEquals(0, instance.cleanup_code())
         instance.stop()
 
 
 class TestTidymess(TestWithMPI):
 
-    def earth_moon_system(self):
-        """
-        Generate a Earth - moon system.
-
-        Returns
-        -------
-        planet, moon : amuse.datamodel.particles.Particles
-            Particle objects of the system.
-        """
-        system = Particles()
-
-        planet, moon = generate_binaries(
-            1 | u.MEarth,
-            7.342e22 | u.kg,
-            384399e3 | u.m,
-            G=c.G
-        )
-
-        planet.radius = 6371. | u.km
-        planet.xi = 0.3308
-        planet.kf = 0.933
-        planet.tau = 180 | u.s
-        planet.wx = 0.0 | 1/u.yr
-        planet.wy = 2.3e3 | 1/u.yr
-        planet.wz = -4.7e6 | 1/u.yr
-        moon.radius = 1737.4 | u.km
-        moon.xi = 0.394
-        moon.kf = 0
-        moon.kf = 0
-        moon.wx = 0.0 | 1/u.yr
-        moon.wy = 8.4e1 | 1/u.yr
-        moon.wz = 3.8e8 | 1/u.yr
-
-        system.add_particles(planet)
-        system.add_particles(moon)
-        system.move_to_center()
-
-        return system
-
-    def HD80606b_system(self):
+    def generate_HD80606b_system(self):
         """
         Initial conditions for the exoplanet system
-        HD80606b. Initial conditions from Tidymess.
+        HD80606b. Initial conditions courtesy of
+        Dr. Tjarda Boekholt.
         """
         HD80606 = Particles(2)
         star, planet = generate_binaries(
@@ -315,7 +277,7 @@ class TestTidymess(TestWithMPI):
 
         return HD80606
 
-    def figure8_system(self):
+    def generate_figure8_system(self):
         """
         Generate initial conditions for a triple system
         in a figure 8 configuration.
@@ -386,9 +348,9 @@ class TestTidymess(TestWithMPI):
         match the defaults set in the Tidymess standalone package.
         """
         print('Test parameters and their default values')
-        system = self.earth_moon_system()
+        system = self.generate_HD80606b_system()
         converter = nbody_system.nbody_to_si(
-            1 | u.MEarth, 1 | u.AU
+            system.mass.sum(), system[1].position.length()
         )
         instance = self.new_instance_of_an_optional_code(
             Tidymess, converter
@@ -470,8 +432,10 @@ class TestTidymess(TestWithMPI):
         Test Tidymess add_particles method.
         """
         print('Test adding and deleting particles')
-        system = self.earth_moon_system()
-        converter = nbody_system.nbody_to_si(system.mass.sum(), system[0].position.length())
+        system = self.generate_HD80606b_system()
+        converter = nbody_system.nbody_to_si(
+            system.mass.sum(), system[1].position.length()
+        )
 
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         assert instance is not None
@@ -482,12 +446,18 @@ class TestTidymess(TestWithMPI):
         self.assertEquals(instance.get_number_of_particles(), 2)
 
         self.assertEquals(instance.model_time, 0 | u.s)
-        self.assertAlmostEquals(instance.get_total_mass(), system[0].mass + system[1].mass)
-        self.assertAlmostEquals(instance.get_total_radius(), 379730731.968 | u.m, 3)
+        self.assertAlmostRelativeEquals(
+            instance.get_total_mass(),
+            system[0].mass + system[1].mass,
+            places=6
+        )
+        self.assertAlmostRelativeEquals(
+            instance.get_total_radius(), system[1].position.length()
+        )
 
         instance.delete_particle(1)
         self.assertEquals(instance.get_number_of_particles(), 1)
-        self.assertAlmostEquals(instance.get_total_mass(), system[0].mass)
+        self.assertAlmostRelativeEquals(instance.get_total_mass(), system[0].mass)
 
         instance.stop()
 
@@ -506,7 +476,7 @@ class TestTidymess(TestWithMPI):
 
         spin = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
 
-        self.assertAlmostEquals(spin[0], 0 | 1/u.s)
+        self.assertEquals(spin[0], 0 | 1/u.s)
         self.assertAlmostEquals(spin[1], -1.26280518349e-5 | 1/u.s)
         self.assertAlmostEquals(spin[2], 7.16172407885e-5 | 1/u.s)
 
@@ -521,9 +491,9 @@ class TestTidymess(TestWithMPI):
         begin_time = (50 | u.yr).as_quantity_in(u.s)
         end_time = begin_time + dt
 
-        system = self.HD80606b_system()
+        system = self.generate_HD80606b_system()
         converter = nbody_system.nbody_to_si(
-            1 | u.MEarth, 1 | u.au
+            system.mass.sum(), system[1].position.length()
         )
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         assert instance is not None
@@ -563,7 +533,7 @@ class TestTidymess(TestWithMPI):
 
         # System 1
         # --------
-        system1 = self.figure8_system()
+        system1 = self.generate_figure8_system()
 
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
@@ -584,7 +554,7 @@ class TestTidymess(TestWithMPI):
 
         # System 2
         # --------
-        system2 = self.figure8_system()
+        system2 = self.generate_figure8_system()
 
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
@@ -634,7 +604,7 @@ class TestTidymess(TestWithMPI):
         back to physical units for comparison with the AMUSE results.
         """
         print('Test evolve model with physical units')
-        system = self.HD80606b_system()
+        system = self.generate_HD80606b_system()
         converter = nbody_system.nbody_to_si(
             system.mass.sum(), system.position[1].length()
         )
@@ -660,13 +630,13 @@ class TestTidymess(TestWithMPI):
         ]
 
         for particle, (ex, ey, ez) in zip(instance.particles, expected_position):
-            self.assertAlmostRelativeEqual(
+            self.assertAlmostRelativeEquals(
                 particle.x, converter.to_si(ex | nbody_system.length), places=4
             )
-            self.assertAlmostRelativeEqual(
+            self.assertAlmostRelativeEquals(
                 particle.y, converter.to_si(ey | nbody_system.length), places=4
             )
-            self.assertAlmostRelativeEqual(
+            self.assertAlmostRelativeEquals(
                 particle.z, converter.to_si(ez | nbody_system.length), places=4
             )
 
@@ -676,13 +646,13 @@ class TestTidymess(TestWithMPI):
         ]
 
         for particle, (evx, evy, evz) in zip(instance.particles, expected_velocity):
-            self.assertAlmostRelativeEqual(
+            self.assertAlmostRelativeEquals(
                 particle.vx, converter.to_si(evx | nbody_system.speed), places=4
             )
-            self.assertAlmostRelativeEqual(
+            self.assertAlmostRelativeEquals(
                 particle.vy, converter.to_si(evy | nbody_system.speed), places=4
             )
-            self.assertAlmostRelativeEqual(
+            self.assertAlmostRelativeEquals(
                 particle.vz, converter.to_si(evz | nbody_system.speed), places=4
             )
 
@@ -692,13 +662,13 @@ class TestTidymess(TestWithMPI):
         ]
 
         for particle, (ewx, ewy, ewz) in zip(instance.particles, expected_spin):
-            self.assertAlmostEqual(
+            self.assertAlmostRelativeEquals(
                 particle.wx, converter.to_si(ewx | 1/nbody_system.time), places=7
             )
-            self.assertAlmostEqual(
+            self.assertAlmostRelativeEquals(
                 particle.wy, converter.to_si(ewy | 1/nbody_system.time), places=7
             )
-            self.assertAlmostEqual(
+            self.assertAlmostRelativeEquals(
                 particle.wz, converter.to_si(ewz | 1/nbody_system.time), places=7
             )
 
@@ -714,7 +684,7 @@ class TestTidymess(TestWithMPI):
         """
         print('Test figure 8 system in N-Body units with tidal model 4')
         end_time = 2e3 | nbody_system.time
-        system = self.figure8_system()
+        system = self.generate_figure8_system()
 
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
@@ -740,9 +710,9 @@ class TestTidymess(TestWithMPI):
         ]
 
         for particle, (ex, ey, ez) in zip(instance.particles, expected_position):
-            self.assertAlmostEquals(particle.x.number, ex)
-            self.assertAlmostEquals(particle.y.number, ey)
-            self.assertAlmostEquals(particle.z.number, ez)
+            self.assertAlmostRelativeEquals(particle.x.number, ex, places=6)
+            self.assertAlmostRelativeEquals(particle.y.number, ey, places=6)
+            self.assertAlmostRelativeEquals(particle.z.number, ez, places=6)
 
         expected_velocity = [
             (-7.7344778284882154e-1, 2.9006761692492700e-1, 0.0),
@@ -751,9 +721,9 @@ class TestTidymess(TestWithMPI):
         ]
 
         for particle, (evx, evy, evz) in zip(instance.particles, expected_velocity):
-            self.assertAlmostEquals(particle.vx.number, evx, places=6)
-            self.assertAlmostEquals(particle.vy.number, evy, places=6)
-            self.assertAlmostEquals(particle.vz.number, evz, places=6)
+            self.assertAlmostRelativeEquals(particle.vx.number, evx, places=6)
+            self.assertAlmostRelativeEquals(particle.vy.number, evy, places=6)
+            self.assertAlmostRelativeEquals(particle.vz.number, evz, places=6)
 
         expected_spin = [
             (0.0, 0.0, -1.4197775319236833e-5),
@@ -762,9 +732,9 @@ class TestTidymess(TestWithMPI):
         ]
 
         for particle, (ewx, ewy, ewz) in zip(instance.particles, expected_spin):
-            self.assertAlmostEquals(particle.wx.number, ewx)
-            self.assertAlmostEquals(particle.wy.number, ewy)
-            self.assertAlmostEquals(particle.wz.number, ewz)
+            self.assertAlmostRelativeEquals(particle.wx.number, ewx, places=5)
+            self.assertAlmostRelativeEquals(particle.wy.number, ewy, places=5)
+            self.assertAlmostRelativeEquals(particle.wz.number, ewz, places=5)
 
         # mass, radius, xi, kf, tau
         expected_attributes = [
@@ -789,7 +759,7 @@ class TestTidymess(TestWithMPI):
         end_time = 2e3 | u.yr
         dt_diag = 1 | u.yr
 
-        system = self.HD80606b_system()
+        system = self.generate_HD80606b_system()
         converter = nbody_system.nbody_to_si(
             system.mass.sum(), end_time
         )
@@ -838,7 +808,7 @@ class TestTidymess(TestWithMPI):
             VectorQuantity([-64.6401899292, 9.37009194233, 0.0], u.kms),
             places=4
         )
-        self.assertAlmostRelativeEqual(times[-1], end_time, places=3)
+        self.assertAlmostRelativeEquals(times[-1], end_time, places=3)
 
         instance.stop()
 
@@ -854,7 +824,7 @@ class TestTidymess(TestWithMPI):
         # System 1
         # --------
         t_end = 2e3 | nbody_system.time
-        system1 = self.figure8_system()
+        system1 = self.generate_figure8_system()
 
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
@@ -876,7 +846,7 @@ class TestTidymess(TestWithMPI):
         # System 2
         # --------
         dt_diag = 1 | nbody_system.time
-        system2 = self.figure8_system()
+        system2 = self.generate_figure8_system()
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
 
