@@ -17,11 +17,10 @@ import numpy as np
 
 class TestTidymessInterface(TestWithMPI):
 
-    def test1(self):
+    def test_initialization(self):
         """
         Test Tidymess initialization.
         """
-        print('Test initialization')
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
 
@@ -30,11 +29,10 @@ class TestTidymessInterface(TestWithMPI):
         self.assertEquals(0, instance.cleanup_code())
         instance.stop()
 
-    def test2(self):
+    def test_setters_and_getters(self):
         """
         Test TidymessInterface setters and getters.
         """
-        print('Test setters and getters')
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
 
@@ -158,11 +156,10 @@ class TestTidymessInterface(TestWithMPI):
         self.assertEquals(0, instance.cleanup_code())
         instance.stop()
 
-    def test3(self):
+    def test_adding_and_deleting_particles(self):
         """
         Test TidymessInterface creating and deleting particles.
         """
-        print('Test creating and deleting particles')
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
 
@@ -201,11 +198,10 @@ class TestTidymessInterface(TestWithMPI):
 
         instance.stop()
 
-    def test4(self):
+    def test_evolve_model(self):
         """
         Test TidymessInterface evolve_model with an equal mass binary.
         """
-        print('Test evolve_model')
         instance = self.new_instance_of_an_optional_code(TidymessInterface)
         assert instance is not None
 
@@ -337,7 +333,7 @@ class TestTidymess(TestWithMPI):
 
         return figure8
 
-    def test1(self):
+    def test_parameters_and_defaults(self):
         """
         Test Tidymess parameters attribute and their defaults.
 
@@ -347,7 +343,6 @@ class TestTidymess(TestWithMPI):
         source code. The defaults in the interface.py were chosen to
         match the defaults set in the Tidymess standalone package.
         """
-        print('Test parameters and their default values')
         system = self.generate_HD80606b_system()
         converter = nbody_system.nbody_to_si(
             system.mass.sum(), system[1].position.length()
@@ -427,11 +422,10 @@ class TestTidymess(TestWithMPI):
 
         instance.stop()
 
-    def test2(self):
+    def test_adding_and_deleting_particles(self):
         """
         Test Tidymess add_particles method.
         """
-        print('Test adding and deleting particles')
         system = self.generate_HD80606b_system()
         converter = nbody_system.nbody_to_si(
             system.mass.sum(), system[1].position.length()
@@ -461,11 +455,10 @@ class TestTidymess(TestWithMPI):
 
         instance.stop()
 
-    def test3(self):
+    def test_converting_spin_vectors(self):
         """
         Test the function for converting spin vectors.
         """
-        print('Test converting spin vectors')
         converter = nbody_system.nbody_to_si(1 | u.MEarth, 1 | u.REarth)
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         assert instance is not None
@@ -482,11 +475,10 @@ class TestTidymess(TestWithMPI):
 
         instance.stop()
 
-    def test4(self):
+    def test_begin_time(self):
         """
         Test that setting begin_time correctly creates a time offset.
         """
-        print('Test setting begin_time')
         dt = 5 | u.yr
         begin_time = (50 | u.yr).as_quantity_in(u.s)
         end_time = begin_time + dt
@@ -516,7 +508,7 @@ class TestTidymess(TestWithMPI):
 
         instance.stop()
 
-    def test5(self):
+    def test_evolving_backwards_in_time(self):
         """
         Test evolving backwards in time.
 
@@ -526,7 +518,6 @@ class TestTidymess(TestWithMPI):
         System 2 should be identical to system 1 at the end of the
         backwards evolution.
         """
-        print('Test evolving backwards in time')
         t1 = 1e3 | nbody_system.time
         t2 = 2e3 | nbody_system.time
         self.assertFalse(t1 > t2)
@@ -591,7 +582,7 @@ class TestTidymess(TestWithMPI):
                 getattr(system2, attr)
             )
 
-    def test6(self):
+    def test_physical_units(self):
         """
         Evolve a system with tidal effects in physical units.
 
@@ -603,7 +594,6 @@ class TestTidymess(TestWithMPI):
         in Tidymess. The resulting outputs were then converted
         back to physical units for comparison with the AMUSE results.
         """
-        print('Test evolve model with physical units')
         system = self.generate_HD80606b_system()
         converter = nbody_system.nbody_to_si(
             system.mass.sum(), system.position[1].length()
@@ -674,7 +664,7 @@ class TestTidymess(TestWithMPI):
 
         instance.stop()
 
-    def test7(self):
+    def test_nbody_units(self):
         """
         Evolve a figure 8 system in N-Body units with tides.
 
@@ -682,7 +672,6 @@ class TestTidymess(TestWithMPI):
         an identical simulation was ran in the Tidymess standalone
         package.
         """
-        print('Test figure 8 system in N-Body units with tidal model 4')
         end_time = 2e3 | nbody_system.time
         system = self.generate_figure8_system()
 
@@ -752,11 +741,10 @@ class TestTidymess(TestWithMPI):
 
         instance.stop()
 
-    def test8(self):
+    def test_tidal_model_1(self):
         """
         Evolve a system with tidal model 1.
         """
-        print('Test tidal model 1')
         end_time = 2e3 | nbody_system.time
         system = self.generate_figure8_system()
 
@@ -826,7 +814,220 @@ class TestTidymess(TestWithMPI):
 
         instance.stop()
 
-    def test9(self):
+    def test_tidal_model_2(self):
+        """
+        Evolve a system with tidal model 2.
+        """
+        end_time = 2e3 | nbody_system.time
+        system = self.generate_figure8_system()
+
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+        assert instance is not None
+
+        instance.parameters.tidal_model = 2
+        instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.015625
+        instance.parameters.initial_shape = 1
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system)
+        channel = instance.particles.new_channel_to(system)
+
+        instance.evolve_model(end_time)
+        channel.copy()
+
+        self.assertAlmostEquals(instance.model_time, end_time)
+
+        expected_position = [
+            (-8.3176224044049363e-1, -3.2766008362493232e-1, 0.0),
+            (1.0472496444319142, 1.4126335057475434e-1, 0.0),
+            (-2.1548740392829080e-1, 1.8639673306541499e-1, 0.0)
+        ]
+
+        for particle, (ex, ey, ez) in zip(instance.particles, expected_position):
+            self.assertAlmostRelativeEquals(particle.x.number, ex, places=6)
+            self.assertAlmostRelativeEquals(particle.y.number, ey, places=6)
+            self.assertAlmostRelativeEquals(particle.z.number, ez, places=6)
+
+        expected_velocity = [
+            (-7.7311529372059096e-1, 2.9031053101895304e-1, 0.0),
+            (-2.3256699425097455e-1, 4.6473080258147820e-1, 0.0),
+            (1.0056822879716858, -7.5504133360041215e-1, 0.0)
+        ]
+
+        for particle, (evx, evy, evz) in zip(instance.particles, expected_velocity):
+            self.assertAlmostRelativeEquals(particle.vx.number, evx, places=6)
+            self.assertAlmostRelativeEquals(particle.vy.number, evy, places=6)
+            self.assertAlmostRelativeEquals(particle.vz.number, evz, places=6)
+
+        expected_spin = [
+            (0.0, 0.0, -1.4343682408248869e-5),
+            (0.0, 0.0, 2.2588894429400000e-7),
+            (0.0, 0.0, -1.4232806418627201e-5)
+        ]
+
+        for particle, (ewx, ewy, ewz) in zip(instance.particles, expected_spin):
+            self.assertAlmostRelativeEquals(particle.wx.number, ewx, places=5)
+            self.assertAlmostRelativeEquals(particle.wy.number, ewy, places=5)
+            self.assertAlmostEquals(particle.wz.number, ewz)
+
+        # mass, radius, xi, kf, tau
+        expected_attributes = [
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2),
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2),
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2)
+        ]
+
+        for particle, (m, r, xi, kf, tau) in zip(instance.particles, expected_attributes):
+            self.assertAlmostEquals(particle.mass.number, m)
+            self.assertAlmostEquals(particle.radius.number, r)
+            self.assertAlmostEquals(particle.xi, xi)
+            self.assertAlmostEquals(particle.kf, kf)
+            self.assertAlmostEquals(particle.tau.number, tau)
+
+        instance.stop()
+
+    def test_tidal_model_3(self):
+        """
+        Evolve a system with tidal model 3.
+        """
+        end_time = 2e3 | nbody_system.time
+        system = self.generate_figure8_system()
+
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+        assert instance is not None
+
+        instance.parameters.tidal_model = 3
+        instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.015625
+        instance.parameters.initial_shape = 1
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system)
+        channel = instance.particles.new_channel_to(system)
+
+        instance.evolve_model(end_time)
+        channel.copy()
+
+        self.assertAlmostEquals(instance.model_time, end_time)
+
+        expected_position = [
+            (-8.3158556071967982e-1, -3.2772652689780574e-1, 0.0),
+            (1.0473029428899883, 1.4115718838003757e-1, 0.0),
+            (-2.1571738128945700e-1, 1.8656933843546966e-1, 0.0)
+        ]
+
+        for particle, (ex, ey, ez) in zip(instance.particles, expected_position):
+            self.assertAlmostRelativeEquals(particle.x.number, ex, places=6)
+            self.assertAlmostRelativeEquals(particle.y.number, ey, places=6)
+            self.assertAlmostRelativeEquals(particle.z.number, ez, places=6)
+
+        expected_velocity = [
+            (-7.7344697876688617e-1, 2.9006820552525181e-1, 0.0),
+            (-2.3236478600092694e-1, 4.6474038388935018e-1, 0.0),
+            (1.0058117647681448, -7.5480858941484674e-1, 0.0)
+        ]
+
+        for particle, (evx, evy, evz) in zip(instance.particles, expected_velocity):
+            self.assertAlmostRelativeEquals(particle.vx.number, evx, places=6)
+            self.assertAlmostRelativeEquals(particle.vy.number, evy, places=6)
+            self.assertAlmostRelativeEquals(particle.vz.number, evz, places=6)
+
+        expected_spin = [
+            (0.0, 0.0, -1.4197809112719105e-5),
+            (0.0, 0.0, 2.1862269039698131e-7),
+            (0.0, 0.0, -1.4059672461331786e-5)
+        ]
+
+        for particle, (ewx, ewy, ewz) in zip(instance.particles, expected_spin):
+            self.assertAlmostRelativeEquals(particle.wx.number, ewx, places=5)
+            self.assertAlmostRelativeEquals(particle.wy.number, ewy, places=5)
+            self.assertAlmostEquals(particle.wz.number, ewz)
+
+        # mass, radius, xi, kf, tau
+        expected_attributes = [
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2),
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2),
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2)
+        ]
+
+        for particle, (m, r, xi, kf, tau) in zip(instance.particles, expected_attributes):
+            self.assertAlmostEquals(particle.mass.number, m)
+            self.assertAlmostEquals(particle.radius.number, r)
+            self.assertAlmostEquals(particle.xi, xi)
+            self.assertAlmostEquals(particle.kf, kf)
+            self.assertAlmostEquals(particle.tau.number, tau)
+
+        instance.stop()
+
+    def test_tidal_model_0(self):
+        """
+        Evolve a system with tidal model 0.
+        """
+        end_time = 2e3 | nbody_system.time
+        system = self.generate_figure8_system()
+
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+        assert instance is not None
+
+        instance.parameters.tidal_model = 0
+        instance.parameters.dt_mode = 2
+        instance.parameters.eta = 0.015625
+        instance.parameters.initial_shape = 1
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system)
+        channel = instance.particles.new_channel_to(system)
+
+        instance.evolve_model(end_time)
+        channel.copy()
+
+        self.assertAlmostEquals(instance.model_time, end_time)
+
+        expected_position = [
+            (-7.9971116777386553e-1, -3.3839146769012957e-1, 0.0),
+            (1.0558794343776374, 1.2267200440402883e-1, 0.0),
+            (-2.5616826675029120e-1, 2.1571946325892974e-1, 0.0)
+        ]
+
+        for particle, (ex, ey, ez) in zip(instance.particles, expected_position):
+            self.assertAlmostRelativeEquals(particle.x.number, ex, places=6)
+            self.assertAlmostRelativeEquals(particle.y.number, ey, places=6)
+            self.assertAlmostRelativeEquals(particle.z.number, ez, places=6)
+
+        expected_velocity = [
+            (-8.3077006303527656e-1, 2.4415103199669067e-1, 0.0),
+            (-1.9807071425059053e-1, 4.6604655407076018e-1, 0.0),
+            (1.0288407772857484, -7.1019758606749461e-1, 0.0)
+        ]
+
+        for particle, (evx, evy, evz) in zip(instance.particles, expected_velocity):
+            self.assertAlmostRelativeEquals(particle.vx.number, evx, places=6)
+            self.assertAlmostRelativeEquals(particle.vy.number, evy, places=6)
+            self.assertAlmostRelativeEquals(particle.vz.number, evz, places=6)
+
+        for particle in instance.particles:
+            self.assertEquals(particle.wx.number, 0.0)
+            self.assertEquals(particle.wy.number, 0.0)
+            self.assertEquals(particle.wz.number, 0.0)
+
+        # mass, radius, xi, kf, tau
+        expected_attributes = [
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2),
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2),
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2)
+        ]
+
+        for particle, (m, r, xi, kf, tau) in zip(instance.particles, expected_attributes):
+            self.assertAlmostEquals(particle.mass.number, m)
+            self.assertAlmostEquals(particle.radius.number, r)
+            self.assertAlmostEquals(particle.xi, xi)
+            self.assertAlmostEquals(particle.kf, kf)
+            self.assertAlmostEquals(particle.tau.number, tau)
+
+        instance.stop()
+
+    def test_snapshot_dependency(self):
         """
         Test that varying diagnostic dt has no change on the result.
         This verifies that evolving to t_end in one `evolve_model`
@@ -834,7 +1035,6 @@ class TestTidymess(TestWithMPI):
 
         dt_diag controls how many times AMUSE creates a snapshot.
         """
-        print('Test Tidymess snapshot dependency')
         # System 1
         # --------
         t_end = 2e3 | nbody_system.time
