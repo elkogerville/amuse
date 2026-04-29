@@ -754,61 +754,75 @@ class TestTidymess(TestWithMPI):
 
     def test8(self):
         """
-        Evolve a system without tides.
+        Evolve a system with tidal model 1.
         """
-        end_time = 2e3 | u.yr
-        dt_diag = 1 | u.yr
+        print('Test tidal model 1')
+        end_time = 2e3 | nbody_system.time
+        system = self.generate_figure8_system()
 
-        system = self.generate_HD80606b_system()
-        converter = nbody_system.nbody_to_si(
-            system.mass.sum(), end_time
-        )
-
-        instance = self.new_instance_of_an_optional_code(Tidymess, converter)
+        instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
 
-        instance.parameters.tidal_model = 4
+        instance.parameters.tidal_model = 1
         instance.parameters.dt_mode = 2
-        instance.parameters.eta = 0.0625
+        instance.parameters.eta = 0.015625
+        instance.parameters.initial_shape = 1
         instance.commit_parameters()
 
         instance.particles.add_particles(system)
         channel = instance.particles.new_channel_to(system)
 
-        times = [] | u.yr
-        times.append(0.0 | u.yr)
-        particles = [system.copy()]
+        instance.evolve_model(end_time)
+        channel.copy()
 
-        while instance.model_time < end_time:
-            time = instance.model_time + dt_diag
-            instance.evolve_model(time)
-            channel.copy()
+        self.assertAlmostEquals(instance.model_time, end_time)
 
-            particles.append(system.copy())
-            times.append(instance.model_time)
+        expected_position = [
+            (-7.9995265821190509e-1, -3.3831974552195199e-1, 0.0),
+            (1.0558216558327167, 1.2280654135281620e-1, 0.0),
+            (-2.5586899764154514e-1, 2.1551320418599396e-1, 0.0)
+        ]
 
-        # check that the last snapshot is correct
-        self.assertAlmostEquals(
-            particles[-1].position[0],
-            VectorQuantity([137405.552133, -84398.2017397, 0.0], u.km),
-            places=4
-        )
-        self.assertAlmostEquals(
-            particles[-1].position[1],
-            VectorQuantity([-35634334.1197, 21887570.4121, 0.0], u.km),
-            places=4
-        )
-        self.assertAlmostEquals(
-            particles[-1].velocity[0],
-            VectorQuantity([0.249251771924, -0.0361309584992, 0.0], u.kms),
-            places=4
-        )
-        self.assertAlmostEquals(
-            particles[-1].velocity[1],
-            VectorQuantity([-64.6401899292, 9.37009194233, 0.0], u.kms),
-            places=4
-        )
-        self.assertAlmostRelativeEquals(times[-1], end_time, places=3)
+        for particle, (ex, ey, ez) in zip(instance.particles, expected_position):
+            self.assertAlmostRelativeEquals(particle.x.number, ex, places=6)
+            self.assertAlmostRelativeEquals(particle.y.number, ey, places=6)
+            self.assertAlmostRelativeEquals(particle.z.number, ez, places=6)
+
+        expected_velocity = [
+            (-8.3035491348610513e-1, 2.4451495581394561e-1, 0.0),
+            (-1.9831541938121078e-1, 4.6603950585752918e-1, 0.0),
+            (1.0286703328671680, -7.1055446167146374e-1, 0.0)
+        ]
+
+        for particle, (evx, evy, evz) in zip(instance.particles, expected_velocity):
+            self.assertAlmostRelativeEquals(particle.vx.number, evx, places=6)
+            self.assertAlmostRelativeEquals(particle.vy.number, evy, places=6)
+            self.assertAlmostRelativeEquals(particle.vz.number, evz, places=6)
+
+        expected_spin = [
+            (0.0, 0.0, -5.6414636818972019e-16),
+            (0.0, 0.0, 7.1678405859281773e-16),
+            (0.0, 0.0, -2.8946120618110779e-16)
+        ]
+
+        for particle, (ewx, ewy, ewz) in zip(instance.particles, expected_spin):
+            self.assertAlmostRelativeEquals(particle.wx.number, ewx, places=5)
+            self.assertAlmostRelativeEquals(particle.wy.number, ewy, places=5)
+            self.assertAlmostEquals(particle.wz.number, ewz)
+
+        # mass, radius, xi, kf, tau
+        expected_attributes = [
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2),
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2),
+            (1.0, 5e-2, 7e-2, 2e-2, 1e-2)
+        ]
+
+        for particle, (m, r, xi, kf, tau) in zip(instance.particles, expected_attributes):
+            self.assertAlmostEquals(particle.mass.number, m)
+            self.assertAlmostEquals(particle.radius.number, r)
+            self.assertAlmostEquals(particle.xi, xi)
+            self.assertAlmostEquals(particle.kf, kf)
+            self.assertAlmostEquals(particle.tau.number, tau)
 
         instance.stop()
 
