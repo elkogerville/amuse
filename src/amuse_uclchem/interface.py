@@ -69,7 +69,7 @@ class UclchemImplementation(object):
 
 
 
-class UclchemInterface(PythonCodeInterface):
+class UclchemInterface(PythonCodeInterface, LiteratureReferencesMixIn):
     """
     UCLCHEM: A Gas-Grain Chemical Code for astrochemical modelling
 
@@ -82,7 +82,7 @@ class UclchemInterface(PythonCodeInterface):
             'uclchem_worker',
             **options
         )
-
+        LiteratureReferencesMixIn.__init__(self)
 
 class Uclchem:
     pass
