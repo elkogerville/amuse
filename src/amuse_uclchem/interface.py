@@ -23,6 +23,14 @@ class UclchemImplementation(object):
         self.current_time: float = 0
         self.model: Literal['cloud', 'collapse', 'cshock', 'hot_core', 'jshock'] = 'cloud'
         self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
+        self.MODEL_MAP = {
+            'cloud': uclchem.model.cloud,
+            'collapse': uclchem.model.collapse,
+            'cshock': uclchem.model.cshock,
+            'hot_core': uclchem.model.hot_core,
+            'jshock': uclchem.model.jshock,
+        }
+        self.param_dict: dict = {}
 
     def initialize_code(self):
         self.parameters = uclchem.advanced.GeneralSettings()
@@ -45,6 +53,14 @@ class UclchemImplementation(object):
         return 0
 
     def synchronize_model(self):
+        return 0
+
+    def evolve_model(self, time) -> int:
+        model = self.MODEL_MAP.get(self.model, None)
+        if model is None:
+            return -1
+        model(param_dict=self.param_dict, return_array=True)
+
         return 0
 
     def get_state(
