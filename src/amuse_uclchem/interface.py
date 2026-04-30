@@ -94,7 +94,17 @@ class UclchemImplementation(object):
         temperature,
         ionrate,
         radfield
-    ):
+    ) -> int:
+        i = index_of_the_particle
+
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        p = self.particles[i]
+        number_density.value = p.number_density
+        temperature.value = p.temperature
+        ionrate.value = p.ionrate
+        radfield.value = p.radfield
         return 0
 
     def set_state(
@@ -104,12 +114,26 @@ class UclchemImplementation(object):
         temperature,
         ionrate,
         radfield
-    ):
+    ) -> int:
+        i = index_of_the_particle
+
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        p = self.particles
+        p[i].number_density = number_density
+        p[i].temperature = temperature
+        p[i].ionrate = ionrate
+        p[i].radfield = radfield
         return 0
 
+    def _is_valid_particle_index(self, i):
+        if i < 0 or i >= len(self.particles):
+            return False
+        return True
 
 
-class UclchemInterface(PythonCodeInterface, LiteratureReferencesMixIn):
+class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureReferencesMixIn):
     """
     UCLCHEM: A Gas-Grain Chemical Code for astrochemical modelling
 
