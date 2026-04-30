@@ -27,15 +27,15 @@ class UclchemImplementation(object):
 
     def __init__(self):
         self.current_time: float = 0
-        self.model: Literal['cloud', 'collapse', 'cshock', 'hot_core', 'jshock'] = 'cloud'
+        self.model: Literal['cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'] = 'cloud'
         self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
-        # self.MODEL_MAP: dict = {
-        #     'cloud': uclchem.model.Cloud,
-        #     'collapse': uclchem.model.collapse,
-        #     'cshock': uclchem.model.cshock,
-        #     'hot_core': uclchem.model.hot_core,
-        #     'jshock': uclchem.model.jshock,
-        # }
+        self.MODEL_MAP: dict = {
+            'cloud': uclchem.model.Cloud,
+            'collapse': uclchem.model.Collapse,
+            'cshock': uclchem.model.CShock,
+            'prestellarcore': uclchem.model.PrestellarCore,
+            'jshock': uclchem.model.JShock,
+        }
         self.param_dict: dict = {}
         self.particles = Particles()
 
@@ -96,7 +96,6 @@ class UclchemImplementation(object):
         radfield
     ) -> int:
         i = index_of_the_particle
-
         if not self._is_valid_particle_index(i):
             return -1
 
@@ -116,15 +115,32 @@ class UclchemImplementation(object):
         radfield
     ) -> int:
         i = index_of_the_particle
-
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles
-        p[i].number_density = number_density
-        p[i].temperature = temperature
-        p[i].ionrate = ionrate
-        p[i].radfield = radfield
+        p = self.particles[i]
+        p.number_density = number_density
+        p.temperature = temperature
+        p.ionrate = ionrate
+        p.radfield = radfield
+        return 0
+
+    def get_number_density(self, index_of_the_particle, number_density):
+        i = index_of_the_particle
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        p = self.particles[i]
+        number_density.value = p.number_density
+        return 0
+
+    def set_number_density(self, index_of_the_particle, number_density):
+        i = index_of_the_particle
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        p = self.particles[i]
+        p.number_density = number_density
         return 0
 
     def _is_valid_particle_index(self, i):
