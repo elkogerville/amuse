@@ -143,10 +143,26 @@ class UclchemImplementation(object):
         p.number_density = number_density
         return 0
 
-    def _is_valid_particle_index(self, i):
-        if i < 0 or i >= len(self.particles):
-            return False
-        return True
+    def get_temperature(self, index_of_the_particle, temperature):
+        i = index_of_the_particle
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        p = self.particles[i]
+        temperature.value = p.temperature
+        return 0
+
+    def set_temperature(self, index_of_the_particle, temperature):
+        i = index_of_the_particle
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        p = self.particles[i]
+        p.temperature = temperature
+        return 0
+
+    def _is_valid_particle_index(self, i: int) -> bool:
+        return 0 <= i < len(self.particles)
 
 
 class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureReferencesMixIn):
@@ -234,6 +250,24 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         return function
 
     @legacy_function
+    def get_temperature():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('temperature', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_temperature():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('temperature', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
     def get_abundance():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
@@ -317,6 +351,18 @@ class Uclchem(CommonCode):
         handler.add_method(
             'set_number_density',
             (handler.INDEX, u.cm**-3,),
+            (handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'get_temperature',
+            (handler.INDEX,),
+            (u.K, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'set_temperature',
+            (handler.INDEX, u.K,),
             (handler.ERROR_CODE,),
         )
 
