@@ -6,9 +6,29 @@ from amuse_uclchem.interface import UclchemInterface, Uclchem, habing
 
 class TestUclchemInterface(TestWithMPI):
 
-    def test_echo_int(self):
-        instance = UclchemInterface()
-        print(instance.current_time)
+    def test_getters_and_setters(self):
+        instance = self.new_instance_of_an_optional_code(UclchemInterface, redirection='none')
+        assert instance is not None
+
+        instance.new_particle(1, 2, 3, 4)
+        result = instance.get_state(0)
+        self.assertEquals(result['number_density'], 1)
+        self.assertEquals(result['temperature'], 2)
+        self.assertEquals(result['ionrate'], 3)
+        self.assertEquals(result['radfield'], 4)
+
+        instance.set_state(0, 5, 6, 7, 8)
+        result = instance.get_state(0)
+        self.assertEquals(result['number_density'], 5)
+        self.assertEquals(result['temperature'], 6)
+        self.assertEquals(result['ionrate'], 7)
+        self.assertEquals(result['radfield'], 8)
+
+        instance.set_number_density(0, 10)
+        result = instance.get_number_density(0)
+        self.assertEquals(result['number_density'], 10)
+
+        instance.stop()
 
 class TestUclchem(TestWithMPI):
 
