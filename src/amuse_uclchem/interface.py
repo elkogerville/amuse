@@ -4,18 +4,24 @@ propagates the abundances of chemical species through a network
 of user-defined reactions according to the physical conditions of the gas.
 
 Date Created:  April 01, 2026
-Date Modified: April 29, 2026
+Date Modified: April 30, 2026
 """
 
 from typing import Literal
-from amuse.community.interface.common import CommonCode
+from amuse.community.interface.common import CommonCode, CommonCodeInterface
 from amuse.community import (
     LiteratureReferencesMixIn,
     legacy_function,
     LegacyFunctionSpecification,
 )
+from amuse.datamodel import Particle, Particles
 from amuse.rfi.core import PythonCodeInterface
+from amuse.support.interface import InCodeComponentImplementation
+from amuse.units import units as u
 import uclchem
+
+
+habing = u.named('habing', 'hab', 1.6e-3 * u.erg * u.cm**-2 * u.s**-1)
 
 class UclchemImplementation(object):
 
@@ -23,24 +29,24 @@ class UclchemImplementation(object):
         self.current_time: float = 0
         self.model: Literal['cloud', 'collapse', 'cshock', 'hot_core', 'jshock'] = 'cloud'
         self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
-        self.MODEL_MAP = {
-            'cloud': uclchem.model.cloud,
-            'collapse': uclchem.model.collapse,
-            'cshock': uclchem.model.cshock,
-            'hot_core': uclchem.model.hot_core,
-            'jshock': uclchem.model.jshock,
-        }
+        # self.MODEL_MAP: dict = {
+        #     'cloud': uclchem.model.Cloud,
+        #     'collapse': uclchem.model.collapse,
+        #     'cshock': uclchem.model.cshock,
+        #     'hot_core': uclchem.model.hot_core,
+        #     'jshock': uclchem.model.jshock,
+        # }
         self.param_dict: dict = {}
+        self.particles = Particles()
 
     def initialize_code(self):
-        self.parameters = uclchem.advanced.GeneralSettings()
+        # self.parameters = uclchem.advanced.GeneralSettings()
         return 0
 
     def cleanup_code(self):
         return 0
 
     def commit_parameters(self):
-
         return 0
 
     def commit_particles(self):
@@ -52,14 +58,32 @@ class UclchemImplementation(object):
     def recommit_particles(self):
         return 0
 
-    def synchronize_model(self):
-        return 0
+    # def synchronize_model(self):
+    #     return 0
 
-    def evolve_model(self, time) -> int:
-        model = self.MODEL_MAP.get(self.model, None)
-        if model is None:
-            return -1
-        model(param_dict=self.param_dict, return_array=True)
+    # def evolve_model(self, time) -> int:
+    #     model = self.MODEL_MAP.get(self.model, None)
+    #     if model is None:
+    #         return -1
+    #     model(param_dict=self.param_dict, return_array=True)
+
+    #     return 0
+
+    def new_particle(
+        self,
+        index_of_the_particle,
+        number_density,
+        temperature,
+        ionrate,
+        radfield
+    ) -> int:
+        p = Particle()
+        p.number_density = number_density
+        p.temperature = temperature
+        p.ionrate = ionrate
+        p.radfield = radfield
+        index_of_the_particle.value = len(self.particles)
+        self.particles.add_particle(p)
 
         return 0
 
