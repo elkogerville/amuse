@@ -216,6 +216,24 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         return function
 
     @legacy_function
+    def get_number_density():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('number_density', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_number_density():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('number_density', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
     def get_abundance():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
@@ -291,9 +309,21 @@ class Uclchem(CommonCode):
         )
 
         handler.add_method(
+            'get_number_density',
+            (handler.INDEX,),
+            (u.cm**-3, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'set_number_density',
+            (handler.INDEX, u.cm**-3,),
+            (handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
             'get_abundance',
-            (handler.INDEX, handler.INDEX),
-            (handler.NO_UNIT, handler.ERROR_CODE),
+            (handler.INDEX, handler.INDEX,),
+            (handler.NO_UNIT, handler.ERROR_CODE,),
         )
 
         handler.add_method(
