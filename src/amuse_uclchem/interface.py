@@ -84,6 +84,16 @@ class UclchemImplementation(object):
         p.radfield = radfield
         index_of_the_particle.value = len(self.particles)
         self.particles.add_particle(p)
+        return 0
+
+    def delete_particle(self, index_of_the_particle) -> int:
+        i = index_of_the_particle
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        print('delete_particle', self.particles)
+        self.particles.remove_particles(self.particles[i].as_set())
+        print('now', self.particles)
 
         return 0
 
