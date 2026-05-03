@@ -27,7 +27,7 @@ class UclchemImplementation(object):
 
     def __init__(self):
         self.current_time: float = 0
-        self.model: Literal['cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'] = 'cloud'
+        self.chem_model: Literal['cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'] = 'cloud'
         self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
         self.MODEL_MAP: dict = {
             'cloud': uclchem.model.Cloud,
@@ -125,7 +125,7 @@ class UclchemImplementation(object):
         p.radfield = radfield
         return 0
 
-    def get_number_density(self, index_of_the_particle, number_density):
+    def get_number_density(self, index_of_the_particle, number_density) -> int:
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -134,7 +134,7 @@ class UclchemImplementation(object):
         number_density.value = p.number_density
         return 0
 
-    def set_number_density(self, index_of_the_particle, number_density):
+    def set_number_density(self, index_of_the_particle, number_density) -> int:
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -143,7 +143,7 @@ class UclchemImplementation(object):
         p.number_density = number_density
         return 0
 
-    def get_temperature(self, index_of_the_particle, temperature):
+    def get_temperature(self, index_of_the_particle, temperature) -> int:
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -152,13 +152,63 @@ class UclchemImplementation(object):
         temperature.value = p.temperature
         return 0
 
-    def set_temperature(self, index_of_the_particle, temperature):
+    def set_temperature(self, index_of_the_particle, temperature) -> int:
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
 
         p = self.particles[i]
         p.temperature = temperature
+        return 0
+
+    def get_ionrate(self, index_of_the_particle, ionrate) -> int:
+        i = index_of_the_particle
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        p = self.particles[i]
+        ionrate.value = p.ionrate
+        return 0
+
+    def set_ionrate(self, index_of_the_particle, ionrate) -> int:
+        i = index_of_the_particle
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        p = self.particles[i]
+        p.ionrate = ionrate
+        return 0
+
+    def get_radfield(self, index_of_the_particle, radfield) -> int:
+        i = index_of_the_particle
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        p = self.particles[i]
+        radfield.value = p.radfield
+        return 0
+
+    def set_radfield(self, index_of_the_particle, radfield) -> int:
+        i = index_of_the_particle
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        p = self.particles[i]
+        p.radfield = radfield
+        return 0
+
+    def get_chemical_model(self, chem_model) -> int:
+        chem_model.value = self.chem_model
+        return 0
+
+    def set_chemical_model(self, chem_model) -> int:
+        chem_model = str(chem_model).lower()
+        if chem_model not in {'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'}:
+            raise ValueError(
+                'chem_model must be one of the following options: '
+                "'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'"
+            )
+        self.chem_model = chem_model
         return 0
 
     def _is_valid_particle_index(self, i: int) -> bool:
@@ -193,6 +243,12 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         return function
 
     @legacy_function
+    def recommit_particles():
+        function = LegacyFunctionSpecification()
+        function.result_type = "i"
+        return function
+
+    @legacy_function
     def new_particle():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
@@ -204,7 +260,6 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
 
     @legacy_function
     def delete_particle():
-        # Standard function
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
@@ -264,6 +319,58 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
         function.addParameter('temperature', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_ionrate():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('ionrate', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_ionrate():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('ionrate', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_radfield():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('radfield', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_radfield():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('radfield', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_chemical_model():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('chem_model', dtype='string', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def set_chemical_model():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('chem_model', dtype='string', direction=function.IN)
         function.result_type = 'int32'
         return function
 
@@ -367,6 +474,30 @@ class Uclchem(CommonCode):
         )
 
         handler.add_method(
+            'get_ionrate',
+            (handler.INDEX,),
+            (u.s**-1, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'set_ionrate',
+            (handler.INDEX, u.s**-1,),
+            (handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'get_radfield',
+            (handler.INDEX,),
+            (habing, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'set_radfield',
+            (handler.INDEX, habing,),
+            (handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
             'get_abundance',
             (handler.INDEX, handler.INDEX,),
             (handler.NO_UNIT, handler.ERROR_CODE,),
@@ -384,16 +515,23 @@ class Uclchem(CommonCode):
 
 
     def define_parameters(self, handler):
+        handler.add_method_parameter(
+            'get_chemical_model',
+            'set_chemical_model',
+            'chem_model',
+            "'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'",
+            default_value='cloud'
+        )
         handler.add_interface_parameter(
-            "out_species", "Array of molecules to use", default_value=["H", "H2"]
+            'out_species', 'Array of molecules to use', default_value=['H', 'H2']
         )
 
     def define_particle_sets(self, handler):
-        handler.define_set("particles", "index_of_the_particle")
-        handler.set_new("particles", "new_particle")
-        handler.set_delete("particles", "delete_particle")
-        handler.add_setter("particles", "set_state")
-        handler.add_getter("particles", "get_state")
+        handler.define_set('particles', 'index_of_the_particle')
+        handler.set_new('particles', 'new_particle')
+        handler.set_delete('particles', 'delete_particle')
+        handler.add_setter('particles', 'set_state')
+        handler.add_getter('particles', 'get_state')
         # handler.add_gridded_getter(
         #     "particles",
         #     "get_abundance",
@@ -415,7 +553,7 @@ class Uclchem(CommonCode):
         handler.add_transition("PARAMETER_CHANGE_A", "RUN", "recommit_parameters")
         handler.add_transition("PARAMETER_CHANGE_B", "EDIT", "recommit_parameters")
         handler.add_method("EDIT", "new_particle")
-        handler.add_method("EDIT", "delete_particle")
+        handler.add_method('EDIT', 'delete_particle')
         handler.add_transition("EDIT", "RUN", "commit_particles")
         handler.add_transition("RUN", "UPDATE", "new_particle", False)
         handler.add_transition("RUN", "UPDATE", "delete_particle", False)
