@@ -77,6 +77,27 @@ class UclchemImplementation(object):
         ionrate,
         radfield
     ) -> int:
+        """
+        Add a new particle to Uclchem.
+
+        Parameters
+        ----------
+        index_of_the_particle : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the index of the new particle.
+        number_density : float
+            Number density of the particle in units of cm**-3.
+        temperature : float
+            Temperature of the particle in units of K.
+        ionrate : float
+            Ionization rate of the particle in units of s**-1.
+        radfield : float
+            Radiation field of the particle in units of habing.
+
+        Returns
+        -------
+        int :
+            0 on success
+        """
         p = Particle()
         p.number_density = number_density
         p.temperature = temperature
@@ -105,6 +126,31 @@ class UclchemImplementation(object):
         ionrate,
         radfield
     ) -> int:
+        """
+        Retrieve the state of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Index of the particle as returned by `new_particle`.
+        number_density : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the number density
+            of the particle in units of cm**-3.
+        temperature : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the temperature
+            of the particle in units of K.
+        ionrate : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the ionization
+            rate of the particle in units of s**-1.
+        radfield : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the radiation
+            field of the particle in units of habing.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -124,6 +170,27 @@ class UclchemImplementation(object):
         ionrate,
         radfield
     ) -> int:
+        """
+        Set the state of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Index of the particle as returned by `new_particle`.
+        number_density : float
+            Number density of the particle in units of cm**-3.
+        temperature : float
+            Temperature of the particle in units of K.
+        ionrate : float
+            Ionization rate of the particle in units of s**-1.
+        radfield : float
+            Radiation field of the particle in units of habing.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -136,6 +203,22 @@ class UclchemImplementation(object):
         return 0
 
     def get_number_density(self, index_of_the_particle, number_density) -> int:
+        """
+        Retrieve the number density of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Index of the particle as returned by `new_particle`.
+        number_density : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the number density
+            of the particle in units of cm**-3.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
