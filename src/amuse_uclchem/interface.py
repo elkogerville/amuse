@@ -351,6 +351,21 @@ class UclchemImplementation(object):
         return 0
 
     def set_ionrate(self, index_of_the_particle, ionrate) -> int:
+        """
+        Retrieve the ionization rate of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle: int
+            Index of the particle as returned by `new_particle`.
+        ionrate : float
+            Ionization rate of the particle in units of s**-1.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -360,6 +375,22 @@ class UclchemImplementation(object):
         return 0
 
     def get_radfield(self, index_of_the_particle, radfield) -> int:
+        """
+        Retrieve the radiation field of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle: int
+            Index of the particle as returned by `new_particle`.
+        ionrate : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the radiation
+            field of the particle in units of habing.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -369,6 +400,21 @@ class UclchemImplementation(object):
         return 0
 
     def set_radfield(self, index_of_the_particle, radfield) -> int:
+        """
+        Set the radiation field of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle: int
+            Index of the particle as returned by `new_particle`.
+        ionrate : float
+            Radiation field of the particle in units of habing.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -378,11 +424,52 @@ class UclchemImplementation(object):
         return 0
 
     def get_chemical_model(self, chem_model) -> int:
+        """
+        Retrieve the chemical model type used by UCLCHEM.
+        This is the physics model used internally by UCLCHEM
+        to evolve the chemistry.
+
+        Possible values are `'cloud'`, `'collapse'`, `'cshock'`,
+        `'jshock'`, and `'prestellarcore'`.
+
+        Parameters
+        ----------
+        chem_model : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the current
+            model type.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
         chem_model.value = self.chem_model
         return 0
 
     def set_chemical_model(self, chem_model) -> int:
-        chem_model = str(chem_model).lower()
+        """
+        Set the chemical model used by UCLCHEM. This is
+        the physics model used internally by UCLCHEM to
+        evolve the chemistry.
+
+        Possible values are `'cloud'`, `'collapse'`, `'cshock'`,
+        `'jshock'`, and `'prestellarcore'`.
+
+        Parameters
+        ----------
+        chem_model : {'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'}
+            Chemical model specifying the chemistry physics when evolving the particles.
+
+        Returns
+        -------
+        int :
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `chem_model` is not one of the allowed models.
+        """
         if chem_model not in {'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'}:
             raise ValueError(
                 'chem_model must be one of the following options: '
@@ -391,8 +478,48 @@ class UclchemImplementation(object):
         self.chem_model = chem_model
         return 0
 
+    def get_time(self, time) -> int:
+        time.value = self.current_time
+        return 0
+
     def _is_valid_particle_index(self, i: int) -> bool:
+        """
+        Verify that the index of a particle is a valid reference
+        to a particle stored in the UclchemImplementation class.
+
+        Parameters
+        ----------
+        i : int
+            Index of a particle as returned by `new_particle`.
+
+        Returns
+        -------
+        bool :
+            True if `i` is a valid index to a particle.
+        """
         return 0 <= i < len(self.particles)
+
+    def _particle_to_dict(self, particle: Particle) -> dict:
+        """
+        Format an AMUSE Particle into a parameter dictionary
+        readable by UCLCHEM.
+
+        Unlike AMUSE, UCLCHEM does not work with particles but
+        rather a dictionary of parameters. This is a helper function
+        to be called before evolving a particle with UCLCHEM.
+
+        Parameters
+        ----------
+        particle : amuse.datamodel.Particle
+            Particle to evolve by UCLCHEM.
+        """
+        param_dict = {
+            'initialDens': float(particle.number_density),
+            'initialTemp': float(particle.temperature),
+        }
+        return param_dict
+
+
 
 
 class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureReferencesMixIn):
@@ -426,6 +553,13 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
     def recommit_particles():
         function = LegacyFunctionSpecification()
         function.result_type = "i"
+        return function
+
+    @legacy_function
+    def evolve_model():
+        function = LegacyFunctionSpecification()
+        function.addParameter('time', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
         return function
 
     @legacy_function
@@ -574,6 +708,22 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         function.result_type = 'int32'
         return function
 
+    @legacy_function
+    def get_time():
+        """
+        Retrieve the model time. This time should be close to the end time
+        specified in the evolve code. Or, when a collision was detected, it
+        will be the model time of the collision.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter('time', dtype='float64', direction=function.OUT)
+        function.result_type = 'int32'
+        function.result_doc = """
+        0 - OK
+            Current value of the time was retrieved
+        """
+        return function
+
 
 class Uclchem(CommonCode):
     def __init__(self, unit_converter=None, **options):
@@ -590,6 +740,12 @@ class Uclchem(CommonCode):
 
     def define_methods(self, handler):
         CommonCode.define_methods(self, handler)
+        handler.add_method(
+            'evolve_model',
+            (u.yr,),
+            (handler.ERROR_CODE,)
+        )
+
         handler.add_method(
             'new_particle',
             (u.cm**-3, u.K, u.s**-1, habing),
@@ -693,6 +849,12 @@ class Uclchem(CommonCode):
             (handler.ERROR_CODE,),
         )
 
+        handler.add_method(
+            'get_time',
+            (),
+            (u.yr, handler.ERROR_CODE,)
+        )
+
 
     def define_parameters(self, handler):
         handler.add_method_parameter(
@@ -705,6 +867,9 @@ class Uclchem(CommonCode):
         handler.add_interface_parameter(
             'out_species', 'Array of molecules to use', default_value=['H', 'H2']
         )
+
+    def define_properties(self, handler):
+        handler.add_property('get_time', public_name='model_time')
 
     def define_particle_sets(self, handler):
         handler.define_set('particles', 'index_of_the_particle')
