@@ -228,6 +228,21 @@ class UclchemImplementation(object):
         return 0
 
     def set_number_density(self, index_of_the_particle, number_density) -> int:
+        """
+        Set the number density of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle: int
+            Index of the particle as returned by `new_particle`.
+        number_density: float
+            Number density of the particle in units of cm**-3.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -237,6 +252,22 @@ class UclchemImplementation(object):
         return 0
 
     def get_temperature(self, index_of_the_particle, temperature) -> int:
+        """
+        Retrieve the temperature of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle: int
+            Index of the particle as returned by `new_particle`.
+        temperature : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the temperature
+            of the particle in units of K.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -246,6 +277,21 @@ class UclchemImplementation(object):
         return 0
 
     def set_temperature(self, index_of_the_particle, temperature) -> int:
+        """
+        Set the temperature of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle: int
+            Index of the particle as returned by `new_particle`.
+        temperature : float
+            Temperature of the particle in units of K.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
@@ -255,6 +301,22 @@ class UclchemImplementation(object):
         return 0
 
     def get_ionrate(self, index_of_the_particle, ionrate) -> int:
+        """
+        Retrieve the ionization rate of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle: int
+            Index of the particle as returned by `new_particle`.
+        ionrate : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the ionization
+            rate of the particle in units of s**-1.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
