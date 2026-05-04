@@ -38,6 +38,7 @@ class UclchemImplementation(object):
         }
         self.param_dict: dict = {}
         self.particles = Particles()
+        self.output_models: list = []
 
     def initialize_code(self):
         # self.parameters = uclchem.advanced.GeneralSettings()
@@ -61,13 +62,37 @@ class UclchemImplementation(object):
     # def synchronize_model(self):
     #     return 0
 
-    # def evolve_model(self, time) -> int:
-    #     model = self.MODEL_MAP.get(self.model, None)
-    #     if model is None:
-    #         return -1
-    #     model(param_dict=self.param_dict, return_array=True)
+    def evolve_model(self, time) -> int:
+        model = self.MODEL_MAP.get(self.chem_model, None)
+        if model is None:
+            raise ValueError(
+                'chem_model must be one of the following options: '
+                "'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'"
+            )
 
-    #     return 0
+        dt = float(time - self.current_time)
+
+        for i, particle in enumerate(self.particles):
+            params = self._particle_to_dict(particle)
+            params['finalTime'] = dt
+
+            if i < len(self.output_models):
+                prev_model = self.output_models[i]
+            else:
+                prev_model = None
+
+            new_model = model(param_dict=params, previous_model=prev_model)
+
+            if i < len(self.output_models):
+                self.output_models[i] = new_model
+            else:
+                self.output_models.append(new_model)
+
+            print('\n')
+            print(self.output_models[i].get_dataframes())
+
+        self.current_time = float(time)
+        return 0
 
     def new_particle(
         self,
