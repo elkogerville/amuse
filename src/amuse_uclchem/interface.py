@@ -426,6 +426,15 @@ class UclchemImplementation(object):
         p.radfield = radfield
         return 0
 
+    def get_abundance(self, index_of_the_particle, abundance_index, abundance) -> int:
+        i = index_of_the_particle
+        if not (0 <= i < len(self.output_models)):
+            return -1
+
+        abundances = self.output_models[i].chemical_abun_array
+        abundance.value = abundances[-1, 0, abundance_index]
+        return 0
+
     def get_chemical_model(self, chem_model) -> int:
         """
         Retrieve the chemical model type used by UCLCHEM.
@@ -479,6 +488,25 @@ class UclchemImplementation(object):
                 "'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'"
             )
         self.chem_model = chem_model
+        return 0
+
+    def get_species_name(self, i, name) -> int:
+        species_names = get_species_names()
+        if not 0 <= i < len(species_names):
+            return -1
+
+        name.value = species_names[i]
+        return 0
+
+    def get_species_index(self, name, i) -> int:
+        species_names = get_species_names()
+
+        try:
+            idx = species_names.index(name)
+        except ValueError:
+            return -1
+
+        i.value = idx
         return 0
 
     def get_time(self, time) -> int:
@@ -696,7 +724,7 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('aid', dtype='int32', direction=function.IN)
+        function.addParameter('abundance_index', dtype='int32', direction=function.IN)
         function.addParameter('abundance', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         return function
@@ -706,8 +734,24 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('aid', dtype='int32', direction=function.IN)
+        function.addParameter('abundance_index', dtype='int32', direction=function.IN)
         function.addParameter('abundance', dtype='float64', direction=function.IN)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_species_name():
+        function = LegacyFunctionSpecification()
+        function.addParameter('i', dtype='int32', direction=function.IN)
+        function.addParameter('name', dtype='string', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
+    def get_species_index():
+        function = LegacyFunctionSpecification()
+        function.addParameter('name', dtype='string', direction=function.IN)
+        function.addParameter('i', dtype='int32', direction=function.OUT)
         function.result_type = 'int32'
         return function
 
@@ -850,6 +894,18 @@ class Uclchem(CommonCode):
                 handler.NO_UNIT,
             ),
             (handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'get_species_name',
+            (handler.INDEX,),
+            (handler.NO_UNIT, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'get_species_index',
+            (handler.NO_UNIT,),
+            (handler.INDEX, handler.ERROR_CODE,),
         )
 
         handler.add_method(
