@@ -4,7 +4,7 @@ propagates the abundances of chemical species through a network
 of user-defined reactions according to the physical conditions of the gas.
 
 Date Created:  April 01, 2026
-Date Modified: April 30, 2026
+Date Modified: May 06, 2026
 """
 
 from typing import Literal
@@ -19,6 +19,7 @@ from amuse.rfi.core import PythonCodeInterface
 from amuse.support.interface import InCodeComponentImplementation
 from amuse.units import units as u
 import uclchem
+from uclchem.model import get_species_names
 
 
 habing = u.named('habing', 'hab', 1.6e-3 * u.erg * u.cm**-2 * u.s**-1)
@@ -40,23 +41,25 @@ class UclchemImplementation(object):
         self.particles = Particles()
         self.output_models: list = []
 
-    def initialize_code(self):
+    def initialize_code(self) -> int:
         # self.parameters = uclchem.advanced.GeneralSettings()
         return 0
 
-    def cleanup_code(self):
+    def cleanup_code(self) -> int:
+        self.particles.remove_particles(self.particles)
         return 0
 
-    def commit_parameters(self):
+    def commit_parameters(self) -> int:
         return 0
 
-    def commit_particles(self):
+    def commit_particles(self) -> int:
+        self.particles.add_vector_attribute('abundance', ('H', 'H2'))
         return 0
 
-    def recommit_parameters(self):
+    def recommit_parameters(self) -> int:
         return 0
 
-    def recommit_particles(self):
+    def recommit_particles(self) -> int:
         return 0
 
     # def synchronize_model(self):
