@@ -50,23 +50,59 @@ class UclchemImplementation(object):
         return 0
 
     def cleanup_code(self) -> int:
+        """Remove all the particles stored in UCLCHEM."""
         self.particles.remove_particles(self.particles)
         return 0
 
     def commit_parameters(self) -> int:
+        """
+        Convert the chemical model name to its corresponding AbstractModel class.
+
+        Validates that the chemical model specified by the user maps to a valid
+        UCLCHEM model class.
+
+        Returns
+        -------
+        int
+            0 on success.
+
+        Raises
+        ------
+        ValueError
+            If `chem_model` is not a valid model name.
+        """
         model = self.MODEL_MAP.get(self.chem_model, None)
         self.model_class = self._validate_chemical_model(model)
         return 0
 
     def commit_particles(self) -> int:
+        """
+        Initializes the abundances for all particles to an array of zeros
+        as a `Particles` vector attribute.
+        """
         species = tuple(get_species_names())
         self.particles.add_vector_attribute('abundance', species)
         self.particles.abundance = np.zeros(len(species))
         return 0
 
     def recommit_parameters(self) -> int:
-        model = self.MODEL_MAP.get(self.chem_model, None)
-        self.model_class = self._validate_chemical_model(model)
+        """
+        Convert the chemical model name to its corresponding AbstractModel class.
+
+        Validates that the chemical model specified by the user maps to a valid
+        UCLCHEM model class.
+
+        Returns
+        -------
+        int
+            0 on success.
+
+        Raises
+        ------
+        ValueError
+            If `chem_model` is not a valid model name.
+        """
+        self.commit_parameters()
         return 0
 
     def recommit_particles(self) -> int:
@@ -108,7 +144,7 @@ class UclchemImplementation(object):
         radfield
     ) -> int:
         """
-        Add a new particle to Uclchem.
+        Add a new particle to UCLCHEM.
 
         Parameters
         ----------
@@ -138,14 +174,24 @@ class UclchemImplementation(object):
         return 0
 
     def delete_particle(self, index_of_the_particle) -> int:
+        """
+        Delete a particle in UCLCHEM.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            index of the particle to delete, as returned by 'new_particle`.
+
+        Returns
+        -------
+        int :
+            0 if particle was deleted, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
 
-        print('delete_particle', self.particles)
         self.particles.remove_particles(self.particles[i].as_set())
-        print('now', self.particles)
-
         return 0
 
     def get_state(
