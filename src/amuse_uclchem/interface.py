@@ -8,6 +8,10 @@ Date Modified: May 06, 2026
 """
 
 from typing import Literal
+import numpy as np
+import uclchem
+from uclchem.model import get_species_names, AbstractModel
+
 from amuse.community.interface.common import CommonCode, CommonCodeInterface
 from amuse.community import (
     LiteratureReferencesMixIn,
@@ -18,8 +22,6 @@ from amuse.datamodel import Particle, Particles
 from amuse.rfi.core import PythonCodeInterface
 from amuse.support.interface import InCodeComponentImplementation
 from amuse.units import units as u
-import uclchem
-from uclchem.model import get_species_names
 
 
 habing = u.named('habing', 'hab', 1.6e-3 * u.erg * u.cm**-2 * u.s**-1)
@@ -29,17 +31,19 @@ class UclchemImplementation(object):
     def __init__(self):
         self.current_time: float = 0
         self.chem_model: Literal['cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'] = 'cloud'
-        self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
-        self.MODEL_MAP: dict = {
+        self.MODEL_MAP: dict[str, type[AbstractModel]] = {
             'cloud': uclchem.model.Cloud,
             'collapse': uclchem.model.Collapse,
             'cshock': uclchem.model.CShock,
             'prestellarcore': uclchem.model.PrestellarCore,
             'jshock': uclchem.model.JShock,
         }
+        self.model_class: type[AbstractModel] = self._validate_chemical_model(
+            self.MODEL_MAP[self.chem_model]
+        )
+        self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
         self.param_dict: dict = {}
         self.particles = Particles()
-        self.output_models: list = []
 
     def initialize_code(self) -> int:
         # self.parameters = uclchem.advanced.GeneralSettings()
