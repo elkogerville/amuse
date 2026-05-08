@@ -429,12 +429,32 @@ class UclchemImplementation(object):
         return 0
 
     def get_abundance(self, index_of_the_particle, abundance_index, abundance) -> int:
+        """
+        Retrieve the chemical abundance of a species by index for a given particle.
+
+        The `abundance_index` can be queried for using the methods `get_species_index`
+        and `get_species_name`.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Index of the particle as returned by `new_particle`.
+        abundance_index : int
+            Index of the abundance in the abundance array of the particle.
+            The `abundance_index` can be calculated using `get_species_index`.
+        abundance : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the abundance of a particle.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
         i = index_of_the_particle
-        if not (0 <= i < len(self.output_models)):
+        if not self._is_valid_particle_index(i):
             return -1
 
-        abundances = self.output_models[i].chemical_abun_array
-        abundance.value = abundances[-1, 0, abundance_index]
+        abundance.value = self.particles[i].abundance[abundance_index]
         return 0
 
     def get_chemical_model(self, chem_model) -> int:
@@ -490,15 +510,35 @@ class UclchemImplementation(object):
         )
         return 0
 
-    def get_species_name(self, i, name) -> int:
-        species_names = get_species_names()
-        if not 0 <= i < len(species_names):
-            return -1
-
-        name.value = species_names[i]
-        return 0
-
     def get_species_index(self, name, i) -> int:
+        """
+        Given the name of a chemical species in the
+        chemical abundance array, retrieve its index.
+
+        Chemical abundances for each particle are stored
+        as a 1D array, where each element corresponds to
+        the abundance of a particular species.
+
+        Parameters
+        ----------
+        name : str
+            Name of chemical species. Must be one of the
+            species tracked by UCLCHEM.
+        i : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the index
+            of the species.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the species does not exist.
+
+        Examples
+        --------
+        >>> chem = Uclchem()
+        >>> chem.get_species_index('H2O')
+        31
+        """
         species_names = get_species_names()
 
         try:
@@ -509,6 +549,36 @@ class UclchemImplementation(object):
         i.value = idx
         return 0
 
+    def get_species_name(self, i, name) -> int:
+        """
+        Given the index of a chemical species in the
+        chemical abundance array, retrieve its name.
+
+        Chemical abundances for each particle are stored
+        as a 1D array, where each element corresponds to
+        the abundance of a particular species.
+
+        Parameters
+        ----------
+        i : int
+            Index of the chemical species in the abundance array.
+        name : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the name of
+            the chemical species.
+
+        Examples
+        --------
+        >>> chem = Uclchem()
+        >>> chem.get_species_name(31)
+        'H2O'
+        """
+        species_names = get_species_names()
+        if not 0 <= i < len(species_names):
+            return -1
+
+        name.value = species_names[i]
+        return 0
+
     def get_time(self, time) -> int:
         """
         Retrieve current model time in years.
@@ -516,7 +586,8 @@ class UclchemImplementation(object):
         Parameters
         ----------
         time : amuse.rfi.python_code.ValueHolder
-            Mutable container used to return the current time.
+            Mutable container used to return the
+            current time in units of years.
 
         Returns
         -------
