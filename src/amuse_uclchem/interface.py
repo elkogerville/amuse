@@ -112,10 +112,27 @@ class UclchemImplementation(object):
     #     return 0
 
     def evolve_model(self, time) -> int:
+        """
+        Evolve the current model to a specified end time in years.
+        The chemistry physics can be changed by calling
+        `set_chemical_model`.
 
+        Parameters
+        ----------
+        time : float
+            Time to evolve the chemistry to in years.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if `time` is less than or equal
+            to the current simulation time.
+        """
         dt = float(time - self.current_time)
+        if dt <= 0:
+            return -1
 
-        for i, particle in enumerate(self.particles):
+        for particle in self.particles:
             params = self._particle_to_dict(particle)
             params['finalTime'] = dt
 
