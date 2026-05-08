@@ -83,20 +83,18 @@ class UclchemImplementation(object):
             params = self._particle_to_dict(particle)
             params['finalTime'] = dt
 
-            if i < len(self.output_models):
-                prev_model = self.output_models[i]
-            else:
-                prev_model = None
-
-            new_model = model(param_dict=params, previous_model=prev_model)
-
-            if i < len(self.output_models):
-                self.output_models[i] = new_model
-            else:
-                self.output_models.append(new_model)
-
-            print('\n')
-            print(self.output_models[i].get_dataframes())
+            starting_chem = (
+                particle.abundance[np.newaxis, :] if
+                np.any(particle.abundance) else None
+            )
+            new_model = self.model_class(
+                param_dict=params,
+                starting_chemistry=starting_chem
+            )
+            physics = new_model.physics_array
+            particle.number_density = physics[-1, 0, 1]
+            particle.temperature = physics[-1, 0, 2]
+            particle.abundance = new_model.next_starting_chemistry_array[0, :]
 
         self.current_time = float(time)
         return 0
