@@ -54,28 +54,28 @@ class UclchemImplementation(object):
         return 0
 
     def commit_parameters(self) -> int:
+        model = self.MODEL_MAP.get(self.chem_model, None)
+        self.model_class = self._validate_chemical_model(model)
         return 0
 
     def commit_particles(self) -> int:
-        self.particles.add_vector_attribute('abundance', ('H', 'H2'))
+        species = tuple(get_species_names())
+        self.particles.add_vector_attribute('abundance', species)
+        self.particles.abundance = np.zeros(len(species))
         return 0
 
     def recommit_parameters(self) -> int:
+        model = self.MODEL_MAP.get(self.chem_model, None)
+        self.model_class = self._validate_chemical_model(model)
         return 0
 
     def recommit_particles(self) -> int:
         return 0
 
-    # def synchronize_model(self):
+    # def synchronize_model(self) -> int:
     #     return 0
 
     def evolve_model(self, time) -> int:
-        model = self.MODEL_MAP.get(self.chem_model, None)
-        if model is None:
-            raise ValueError(
-                'chem_model must be one of the following options: '
-                "'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'"
-            )
 
         dt = float(time - self.current_time)
 
