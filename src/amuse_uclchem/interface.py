@@ -520,6 +520,35 @@ class UclchemImplementation(object):
         abundance.value = self.particles[i].abundance[abundance_index]
         return 0
 
+    def set_abundance(self, index_of_the_particle, abundance_index, abundance) -> int:
+        """
+        Set the chemical abundance of a species by index for a given particle.
+
+        The `abundance_index` can be queried for using the methods `get_species_index`
+        and `get_species_name`.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Index of the particle as returned by `new_particle`.
+        abundance_index : int
+            Index of the abundance in the abundance array of the particle.
+            The `abundance_index` can be calculated using `get_species_index`.
+        abundance : float
+            Abundance of the chemical species of the particle.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the particle index is invalid.
+        """
+        i = index_of_the_particle
+        if not self._is_valid_particle_index(i):
+            return -1
+
+        self.particles[i].abundance[abundance_index] = abundance
+        return 0
+
     def get_chemical_model(self, chem_model) -> int:
         """
         Retrieve the chemical model type used by UCLCHEM.
