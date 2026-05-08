@@ -924,6 +924,12 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
 
     @legacy_function
     def get_abundance():
+        """
+        Retrieve the chemical abundance of a species by index for a given particle.
+
+        The `abundance_index` can be queried for using the methods `get_species_index`
+        and `get_species_name`.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
@@ -934,6 +940,12 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
 
     @legacy_function
     def set_abundance():
+        """
+        Set the chemical abundance of a species by index for a given particle.
+
+        The `abundance_index` can be queried for using the methods `get_species_index`
+        and `get_species_name`.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
@@ -943,15 +955,15 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         return function
 
     @legacy_function
-    def get_species_name():
-        function = LegacyFunctionSpecification()
-        function.addParameter('i', dtype='int32', direction=function.IN)
-        function.addParameter('name', dtype='string', direction=function.OUT)
-        function.result_type = 'int32'
-        return function
-
-    @legacy_function
     def get_species_index():
+        """
+        Given the name of a chemical species in the
+        chemical abundance array, retrieve its index.
+
+        Chemical abundances for each particle are stored
+        as a 1D array, where each element corresponds to
+        the abundance of a particular species.
+        """
         function = LegacyFunctionSpecification()
         function.addParameter('name', dtype='string', direction=function.IN)
         function.addParameter('i', dtype='int32', direction=function.OUT)
@@ -959,11 +971,26 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         return function
 
     @legacy_function
+    def get_species_name():
+        """
+        Given the index of a chemical species in the
+        chemical abundance array, retrieve its name.
+
+        Chemical abundances for each particle are stored
+        as a 1D array, where each element corresponds to
+        the abundance of a particular species.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter('i', dtype='int32', direction=function.IN)
+        function.addParameter('name', dtype='string', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
     def get_time():
         """
         Retrieve the model time. This time should be close to the end time
-        specified in the evolve code. Or, when a collision was detected, it
-        will be the model time of the collision.
+        specified in the evolve code.
         """
         function = LegacyFunctionSpecification()
         function.addParameter('time', dtype='float64', direction=function.OUT)
@@ -1116,7 +1143,6 @@ class Uclchem(CommonCode):
             (),
             (u.yr, handler.ERROR_CODE,)
         )
-
 
     def define_parameters(self, handler):
         handler.add_method_parameter(
