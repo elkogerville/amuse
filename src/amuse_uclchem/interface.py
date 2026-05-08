@@ -39,7 +39,7 @@ class UclchemImplementation(object):
             'jshock': uclchem.model.JShock,
         }
         self.model_class: type[AbstractModel] = self._validate_chemical_model(
-            self.MODEL_MAP[self.chem_model]
+            self.MODEL_MAP.get(self.chem_model, None)
         )
         self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
         self.param_dict: dict = {}
@@ -486,12 +486,10 @@ class UclchemImplementation(object):
         ValueError :
             If `chem_model` is not one of the allowed models.
         """
-        if chem_model not in {'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'}:
-            raise ValueError(
-                'chem_model must be one of the following options: '
-                "'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'"
-            )
         self.chem_model = chem_model
+        self.model_class = self._validate_chemical_model(
+            self.MODEL_MAP.get(self.chem_model, None)
+        )
         return 0
 
     def get_species_name(self, i, name) -> int:
@@ -514,8 +512,48 @@ class UclchemImplementation(object):
         return 0
 
     def get_time(self, time) -> int:
+        """
+        Retrieve current model time in years.
+
+        Parameters
+        ----------
+        time : amuse.rfi.python_code.ValueHolder
+            Mutable container used to return the current time.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
         time.value = self.current_time
         return 0
+
+    def _validate_chemical_model(self, model: type[AbstractModel] | None) -> type[AbstractModel]:
+        """
+        Validate chemical model class.
+
+        Parameters
+        ----------
+        model : type[AbstractModel] | None
+            Model class to validate.
+
+        Returns
+        -------
+        type[AbstractModel]
+            Validated model class.
+
+        Raises
+        ------
+        ValueError
+            If model is None.
+        """
+        if model is None:
+            raise ValueError(
+                'chem_model must be one of the following options: '
+                "'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'! "
+                f'Got {self.chem_model}.'
+            )
+        return model
 
     def _is_valid_particle_index(self, i: int) -> bool:
         """
@@ -553,8 +591,6 @@ class UclchemImplementation(object):
             'initialTemp': float(particle.temperature),
         }
         return param_dict
-
-
 
 
 class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureReferencesMixIn):
