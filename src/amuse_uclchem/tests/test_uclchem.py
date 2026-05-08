@@ -3,11 +3,13 @@ from amuse.datamodel import Particle, Particles
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse.units import units as u
 from amuse_uclchem.interface import UclchemInterface, Uclchem, habing
+import matplotlib.pyplot as plt
+from uclchem.model import get_species_names
 
 class TestUclchemInterface(TestWithMPI):
 
     def test_getters_and_setters(self):
-        instance = self.new_instance_of_an_optional_code(UclchemInterface, redirection='none')
+        instance = self.new_instance_of_an_optional_code(UclchemInterface)
         assert instance is not None
 
         instance.new_particle(1, 2, 3, 4)
@@ -30,28 +32,53 @@ class TestUclchemInterface(TestWithMPI):
         result = instance.get_number_density(0)
         self.assertEquals(result['number_density'], 10)
 
+        instance.set_temperature(0, 20)
+        result = instance.get_temperature(0)
+        self.assertEquals(result['temperature'], 20)
+
+        instance.set_ionrate(0, 30)
+        result = instance.get_ionrate(0)
+        self.assertEquals(result['ionrate'], 30)
+
+        instance.set_radfield(0, 40)
+        result = instance.get_radfield(0)
+        self.assertEquals(result['radfield'], 40)
+
+        instance.set_chemical_model('prestellarcore')
+        result = instance.get_chemical_model()
+        self.assertEquals(result['chem_model'], 'prestellarcore')
+
+        H_index = get_species_names().index('H')
+        result = instance.get_species_name(H_index)
+        self.assertEquals(result['name'], 'H')
+        result = instance.get_species_index('H')
+        self.assertEquals(result['i'], H_index)
+
+        result = instance.get_time()
+        self.assertEquals(result['time'], 0)
+
         instance.stop()
 
 class TestUclchem(TestWithMPI):
 
     def generate_single_particle(self):
         p = Particle()
-        p.number_density = 1 | u.cm**-3
-        p.temperature = 2 | u.K
-        p.ionrate = 3 | u.s**-1
-        p.radfield = 4 | habing
+        p.number_density = 1e4 | u.cm**-3
+        p.temperature = 10 | u.K
+        p.ionrate = 1 | u.s**-1
+        p.radfield = 1 | habing
 
         return p
 
     def generate_two_particles(self):
         p = Particles(2)
-        p[0].number_density = 1 | u.cm**-3
-        p[0].temperature = 2 | u.K
+        p[0].number_density = 1e4 | u.cm**-3
+        p[0].temperature = 10 | u.K
         p[0].ionrate = 3 | u.s**-1
         p[0].radfield = 4 | habing
 
-        p[1].number_density = 5 | u.cm**-3
-        p[1].temperature = 6 | u.K
+        p[1].number_density = 1e5 | u.cm**-3
+        p[1].temperature = 20 | u.K
         p[1].ionrate = 7 | u.s**-1
         p[1].radfield = 8 | habing
 
