@@ -57,7 +57,6 @@ test-%:
 .PHONY: clean
 clean:
 	rm -rf *worker*
-	rm -rf src/UCLCHEM-*
 
 .PHONY: distclean
 distclean: clean
