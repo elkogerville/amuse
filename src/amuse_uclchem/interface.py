@@ -750,7 +750,7 @@ class UclchemImplementation(object):
         param_dict = {
             'initialDens': float(particle.number_density),
             'initialTemp': float(particle.temperature),
-            'zeta': float(particle.ionrate),
+            'zeta': float(particle.ionrate) / 1.3e-17,
             'radfield': float(particle.radfield),
         }
         return param_dict
