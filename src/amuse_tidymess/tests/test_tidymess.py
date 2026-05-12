@@ -458,20 +458,36 @@ class TestTidymess(TestWithMPI):
     def test_converting_spin_vectors(self):
         """
         Test the function for converting spin vectors.
+
+        The comparison results were computed from an identical
+        Tidymess standalone simulation.
         """
-        converter = nbody_system.nbody_to_si(1 | u.MEarth, 1 | u.REarth)
+        system = self.generate_HD80606b_system()
+        converter = nbody_system.nbody_to_si(
+            system.mass.sum(), system[1].position.length()
+        )
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         assert instance is not None
 
-        lod = 24 | u.hour
-        obl = 10 | u.deg
+        lod = 24.47 | u.day
+        obl = 0 | u.deg
         psi = 0 | u.deg
 
         spin = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
 
         self.assertEquals(spin[0], 0 | 1/u.s)
-        self.assertAlmostEquals(spin[1], -1.26280518349e-5 | 1/u.s)
-        self.assertAlmostEquals(spin[2], 7.16172407885e-5 | 1/u.s)
+        self.assertAlmostEquals(spin[1], 0 | 1/u.s)
+        self.assertAlmostEquals(spin[2], 2.9718860713702659e-06 | 1/u.s)
+
+        lod = 0.5 | u.day
+        obl = 0 | u.deg
+        psi = 0 | u.deg
+
+        spin = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
+
+        self.assertEquals(spin[0], 0 | 1/u.s)
+        self.assertAlmostEquals(spin[1], 0 | 1/u.s)
+        self.assertAlmostEquals(spin[2], 1.4544410433286076e-04 | 1/u.s)
 
         instance.stop()
 
