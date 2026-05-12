@@ -25,20 +25,36 @@ from amuse.units import units as u
 
 
 habing = u.named('habing', 'hab', 1.6e-3 * u.erg * u.cm**-2 * u.s**-1)
+# set run_type to 'external', model doesnt start immediately
 
 class UclchemImplementation(object):
 
     def __init__(self):
-        self.current_time: float = 0
-        self.chem_model: Literal['cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'] = 'cloud'
-        self.MODEL_MAP: dict[str, type[AbstractModel]] = {
+        """
+        Parameters
+        ----------
+        current_time : float
+            Current simulation time.
+        chem_model : {'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'}
+            UCLCHEM model for the chemistry evolution.
+        MODEL_MAP : dict[str, type[AbstractModel]]
+            Dictionary to map `chem_model` to a UCLCHEM AbstractModel class.
+            These are the actual models which compute the chemistry.
+        model_class : type[AbstractModel]
+            Current UCLCHEM AbstractModel class used when calling `evolve_model`.
+        particles : amuse.datamodel.Particles
+            Particles datamclass for storing UCLCHEM particles.
+        """
+        self.current_time = 0
+        self.chem_model = 'cloud'
+        self.MODEL_MAP = {
             'cloud': uclchem.model.Cloud,
             'collapse': uclchem.model.Collapse,
             'cshock': uclchem.model.CShock,
             'prestellarcore': uclchem.model.PrestellarCore,
             'jshock': uclchem.model.JShock,
         }
-        self.model_class: type[AbstractModel] = self._validate_chemical_model(
+        self.model_class = self._validate_chemical_model(
             self.MODEL_MAP.get(self.chem_model, None)
         )
         self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
