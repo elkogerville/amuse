@@ -1,0 +1,59 @@
+name: Test compatibility on macOS with venv/MacPorts
+
+on:
+  schedul:
+    - cron: "0 6 * * 0"
+  push:
+    branches:
+      - issue-1144-new-continuous-integration
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-14
+          - macos-15
+          - macos-latest
+
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo port install gcc12 python312 pkgconfig curl gpatch gnutar unzip gzip bzip2 xz perl5 gmake cmake mpich-gcc12 gsl fftw-3 gmp mpfr hdf5 netcdf netcdf-fortran qhull healpix-cxx openblas lapack zlib
+        sudo port select --set gcc mp-gcc12
+        sudo port select --set python3 python312
+        sudo port select --set mpi mpich-gcc12
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - name: Create virtualenv
+      run: python3 -m venv venv
+
+    - name: Build everything we can
+      run: . venv/bin/activate && ./setup install all
+
+    - name: Ensure we test only the installed packages
+      run: . venv/bin/activate && ./setup distclean
+
+    - name: Test all
+      run: . venv/bin/activate && ./setup test all
+
+    - name: Archive build logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ matrix.os }}
+        path: ${{ github.workspace }}/support/logs/
+        if-no-files-found: warn
