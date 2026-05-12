@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-mi6.yml
       - 'src/amuse_mi6/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-mi6.yml
       - 'src/amuse_mi6/**'

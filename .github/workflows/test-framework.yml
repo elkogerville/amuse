@@ -2,9 +2,13 @@ name: Test AMUSE framework
 
 on:
   push:
+    paths:
+      - .github/workflows/test-framework.yml
+      - 'src/amuse/**'
   pull_request:
-    branches:
-      - main
+    paths:
+      - .github/workflows/test-framework.yml
+      - 'src/amuse/**'
   workflow_dispatch:
 
 jobs:

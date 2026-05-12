@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-capreole.yml
       - 'src/amuse_capreole/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-capreole.yml
       - 'src/amuse_capreole/**'

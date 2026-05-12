@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-sakura.yml
       - 'src/amuse_sakura/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-sakura.yml
       - 'src/amuse_sakura/**'

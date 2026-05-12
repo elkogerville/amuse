@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-galaxia.yml
       - 'src/amuse_galaxia/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-galaxia.yml
       - 'src/amuse_galaxia/**'

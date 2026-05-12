@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-simplex.yml
       - 'src/amuse_simplex/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-simplex.yml
       - 'src/amuse_simplex/**'

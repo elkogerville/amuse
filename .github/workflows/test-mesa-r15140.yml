@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-mesa-r15140.yml
       - 'src/amuse_mesa_r15140/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-mesa-r15140.yml
       - 'src/amuse_mesa_r15140/**'

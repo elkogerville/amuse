@@ -6,9 +6,7 @@ on:
       - .github/workflows/test-seba.yml
       - 'src/amuse_seba/**'
   pull_request:
-    branches:
-      - main
-    paths:
+   paths:
       - .github/workflows/test-seba.yml
       - 'src/amuse_seba/**'
   workflow_dispatch:

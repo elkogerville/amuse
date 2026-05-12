@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-kepler-orbiters.yml
       - 'src/amuse_kepler_orbiters/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-kepler-orbiters.yml
       - 'src/amuse_kepler_orbiters/**'

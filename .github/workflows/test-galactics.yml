@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-galactics.yml
       - 'src/amuse_galactics/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-galactics.yml
       - 'src/amuse_galactics/**'

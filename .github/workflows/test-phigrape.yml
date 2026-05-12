@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-phigrape.yml
       - 'src/amuse_phigrape/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-phigrape.yml
       - 'src/amuse_phigrape/**'

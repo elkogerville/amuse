@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-mikkola.yml
       - 'src/amuse_mikkola/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-mikkola.yml
       - 'src/amuse_mikkola/**'

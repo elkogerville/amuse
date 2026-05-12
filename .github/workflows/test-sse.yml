@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-sse.yml
       - 'src/amuse_sse/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-sse.yml
       - 'src/amuse_sse/**'

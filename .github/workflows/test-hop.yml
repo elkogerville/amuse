@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-hop.yml
       - 'src/amuse_hop/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-hop.yml
       - 'src/amuse_hop/**'

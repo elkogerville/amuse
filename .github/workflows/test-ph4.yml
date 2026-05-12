@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-ph4.yml
       - 'src/amuse_ph4/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-ph4.yml
       - 'src/amuse_ph4/**'

@@ -6,9 +6,7 @@ on:
       - .github/workflows/test-secularmultiple.yml
       - 'src/amuse_secularmultiple/**'
   pull_request:
-    branches:
-      - main
-    paths:
+   paths:
       - .github/workflows/test-secularmultiple.yml
       - 'src/amuse_secularmultiple/**'
   workflow_dispatch:

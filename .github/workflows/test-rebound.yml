@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-rebound.yml
       - 'src/amuse_rebound/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-rebound.yml
       - 'src/amuse_rebound/**'

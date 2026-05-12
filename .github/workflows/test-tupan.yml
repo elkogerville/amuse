@@ -6,8 +6,6 @@ on:
       - .github/workflows/test-tupan.yml
       - 'src/amuse_tupan/**'
   pull_request:
-    branches:
-      - main
     paths:
       - .github/workflows/test-tupan.yml
       - 'src/amuse_tupan/**'
