@@ -65,7 +65,7 @@ class TestUclchem(TestWithMPI):
         p = Particle()
         p.number_density = 1e4 | u.cm**-3
         p.temperature = 10 | u.K
-        p.ionrate = 1 | u.s**-1
+        p.ionrate = 1.3e-17 | u.s**-1
         p.radfield = 1 | habing
 
         return p
@@ -74,12 +74,12 @@ class TestUclchem(TestWithMPI):
         p = Particles(2)
         p[0].number_density = 1e4 | u.cm**-3
         p[0].temperature = 10 | u.K
-        p[0].ionrate = 3 | u.s**-1
+        p[0].ionrate = 1.3e-17 | u.s**-1
         p[0].radfield = 4 | habing
 
         p[1].number_density = 1e5 | u.cm**-3
         p[1].temperature = 20 | u.K
-        p[1].ionrate = 7 | u.s**-1
+        p[1].ionrate = 1.3e-17 | u.s**-1
         p[1].radfield = 8 | habing
 
         return p
@@ -173,5 +173,29 @@ class TestUclchem(TestWithMPI):
 
         print('len', len(instance.particles))
         print(instance.particles)
+
+        instance.stop()
+
+    def test_get_abundances(self):
+        """Test evolving a cloud model and getting the abundances."""
+        p = self.generate_single_particle()
+        instance = self.new_instance_of_an_optional_code(Uclchem)
+        assert instance is not None
+
+        instance.set_chemical_model = 'cloud'
+        instance.commit_parameters()
+
+        instance.particles.add_particle(p)
+        instance.commit_particles()
+
+        instance.evolve_model(1e2 | u.yr)
+
+        abundances = instance.get_abundances(0, 'H')
+        self.assertAlmostEquals(abundances[0], 0.499372, places=5)
+
+        abundances = instance.get_abundances(0, ['H', 'H2', 'H2O', 'CO', 'CH3OH'])
+        expected = [0.499372, 0.250314, 3.540059e-10, 1.994706e-07, 2.242720e-14]
+        for abund, exp in zip(abundances, expected):
+            self.assertAlmostEquals(abund, exp, places=5)
 
         instance.stop()
