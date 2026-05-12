@@ -1,3 +1,12 @@
+"""
+TIdal DYnamics of Multi-body ExtraSolar Systems Interface
+Code Author : Tjarda Boekholt & Alexandre Correia (MNRAS 2023, vol. 522, pp. 2885–2900)
+Interface Author : Elko Gerville-Reache
+
+Date Created : Nov 25, 2025
+Last Updated : May 12, 2026
+"""
+
 from amuse.community.interface.gd import GravitationalDynamics
 from amuse.community.interface.gd import GravitationalDynamicsInterface
 from amuse.community.interface.gd import GravityFieldInterface
@@ -1316,14 +1325,14 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 nbody_system.speed,
                 nbody_system.speed,
                 nbody_system.speed,
-                nbody_system.length,   # radius
-                handler.NO_UNIT,              # xi, moment of inertia factor
-                handler.NO_UNIT,              # kf, fluid Love number for potential
-                nbody_system.time,     # tau, fluid relaxation time
-                1 / nbody_system.time, # wx
-                1 / nbody_system.time, # wy
-                1 / nbody_system.time, # wz
-                handler.NO_UNIT,              # a_mb, magnetic braking coefficient
+                nbody_system.length,
+                handler.NO_UNIT,
+                handler.NO_UNIT,
+                nbody_system.time,
+                1 / nbody_system.time,
+                1 / nbody_system.time,
+                1 / nbody_system.time,
+                handler.NO_UNIT,
             ),
             (handler.INDEX, handler.ERROR_CODE)
         )
@@ -1442,8 +1451,8 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'convert_spin_vectors_to_inertial',
             (
                 nbody_system.time,
-                u.rad,
-                u.rad,
+                u.deg,
+                u.deg,
             ),
             (
                 1/nbody_system.time,
