@@ -126,8 +126,10 @@ test_all() {
         printf '\nThe following packages failed their tests:\n'
         printf '%b\n\n' "${COLOR_RED}${FAILED_TESTS}${COLOR_END}"
         print_getting_help
+        return 1
     else
         printf '\n%b\n\n' "${COLOR_GREEN}All installed packages completed their tests successfully${COLOR_END}"
+        return 0
     fi
 }
 
