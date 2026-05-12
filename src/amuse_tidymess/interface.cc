@@ -1,4 +1,5 @@
 #include "tidymess_worker.h"
+#include <vector>
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>
@@ -887,7 +888,7 @@ int get_total_radius(double* radius) {
     if (!radius) return -1;
 
     const std::vector<Body>& bodies = tidymess->bodies;
-    double xcom, ycom, zcom;
+    double xcom = 0, ycom = 0, zcom = 0;
     double rsq_max = 0.0;
 
     if (get_center_of_mass_position(&xcom, &ycom, &zcom) != 0)
