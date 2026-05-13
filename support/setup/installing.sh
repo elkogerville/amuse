@@ -87,6 +87,15 @@ install_framework() {
         fi
     fi
 
+    # On macos, pip will install an mpi4py wheel by default that uses a binary
+    # distribution of openmpi or mpich that's been put on PyPI(!), but doesn't seem to
+    # get installed by default and anyway isn't the version our workers will use. So we
+    # pre-install it here explicitly from source, so that it'll link to the MPI from the
+    # environment.
+    if [ "a${ENV_TYPE}" = "avirtualenv" ] ; then
+        pip install --no-binary mpi4py mpi4py
+    fi
+
     ec_file="$(exit_code_file install amuse-framework)"
     log_file="$(log_file install amuse-framework)"
 
@@ -137,6 +146,30 @@ develop_framework() {
     support/shared/uninstall.sh amuse-framework
 
     announce_activity develop amuse-framework
+
+    # if we're in a conda env, install the dependencies using conda first rather than
+    # leaving it to pip.
+    if [ "a${ENV_TYPE}" = "aconda" ] ; then
+        to_install=''
+        for name_ver in ${FRAMEWORK_CONDA_DEPS}  ; do
+            name=$(echo "${name_ver}" | sed -e "s/'\([a-zA-Z0-9_-]*\).*/\1/")
+            if ! is_subset "$name" "${INSTALLED_PACKAGES}" ; then
+                to_install="${to_install} ${name_ver}"
+            fi
+        done
+        if [ -n "${to_install}" ] ; then
+            conda install -c conda-forge --override-channels -y ${to_install}
+        fi
+    fi
+
+    # On macos, pip will install an mpi4py wheel by default that uses a binary
+    # distribution of openmpi or mpich that's been put on PyPI(!), but doesn't seem to
+    # get installed by default and anyway isn't the version our workers will use. So we
+    # pre-install it here explicitly from source, so that it'll link to the MPI from the
+    # environment.
+    if [ "a${ENV_TYPE}" = "avirtualenv" ] ; then
+        pip install --no-binary mpi4py mpi4py
+    fi
 
     ec_file="$(exit_code_file install amuse-framework)"
     log_file="$(log_file install amuse-framework)"

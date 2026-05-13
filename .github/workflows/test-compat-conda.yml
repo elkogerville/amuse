@@ -3,6 +3,9 @@ name: Test Conda compatibility and regressions
 on:
   schedule:
     - cron: "0 2 * * 0"
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:

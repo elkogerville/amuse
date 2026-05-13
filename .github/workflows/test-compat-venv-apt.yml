@@ -3,9 +3,9 @@ name: Test compatibility on Ubuntu with venv/apt
 on:
   schedule:
     - cron: "0 3 * * 0"
-  push:
+  pull_request:
     branches:
-      - issue-1144-new-continuous-integration
+      - main
   workflow_dispatch:
 
 jobs:
@@ -28,7 +28,8 @@ jobs:
     steps:
     - name: Install dependencies
       run: |
-        apt-get install -y gcc g++ gfortran python3 python3-dev pkg-config curl patch tar unnzip gzip bzip2 xz-utils perl bison make cmake libopenmpi-dev openmpi-bin libgsl-dev libfftw3-dev libgmp3-dev libmpfr6 libmpfr-dev libhdf5-dev hdf5-tools libnetcdf-dev libqhull-dev libhealpix-cxx-dev liblapack-dev libblas-dev
+        sudo apt-get update
+        sudo apt-get install -y gcc g++ gfortran python3 python3-dev pkg-config curl patch tar unzip gzip bzip2 xz-utils perl bison make cmake libopenmpi-dev openmpi-bin libgsl-dev libfftw3-dev libgmp3-dev libmpfr6 libmpfr-dev libhdf5-dev hdf5-tools libnetcdf-dev libqhull-dev libhealpix-cxx-dev liblapack-dev libblas-dev
 
     - name: Checkout
       uses: actions/checkout@v4
@@ -37,7 +38,12 @@ jobs:
         fetch-tags: true
 
     - name: Create virtualenv
-      run: python3 -m venv venv
+      run: |
+        python3 -m venv venv
+        . venv/bin/activate && python3 -m pip install pip wheel pytest
+
+    - name: Check set-up
+      run: . venv/bin/activate && ./setup
 
     - name: Build everything we can
       run: . venv/bin/activate && ./setup install all
