@@ -1109,8 +1109,13 @@ class TestTidymess(TestWithMPI):
         self.assertAlmostEquals(system1.radius, system2.radius)
 
     def test_stopping_conditions(self):
-        """Test that collision detection works in Tidymess."""
-        p = Particles(2)
+        """
+        Test that collision detection works in Tidymess.
+
+        A triple star system is initialized, with the expectation
+        that stars 1 and 2 will collide.
+        """
+        p = Particles(3)
         p[0].name = 'Star 1'
         p[0].mass = 10 | nbody_system.mass
         p[0].radius = 1 | nbody_system.length
@@ -1143,6 +1148,22 @@ class TestTidymess(TestWithMPI):
         p[1].wy = 0.0 | (1 / nbody_system.time)
         p[1].wz = 0.0 | (1 / nbody_system.time)
 
+        p[2].name = 'Star 3'
+        p[2].mass = 10 | nbody_system.mass
+        p[2].radius = 1 | nbody_system.length
+        p[2].x = -500 | nbody_system.length
+        p[2].y = 0 | nbody_system.length
+        p[2].z = 0 | nbody_system.length
+        p[2].vx = 0 | nbody_system.speed
+        p[2].vy = 0 | nbody_system.speed
+        p[2].vz = 0 | nbody_system.speed
+        p[2].xi = 0.0
+        p[2].kf = 0.0
+        p[2].tau = 0.0 | nbody_system.time
+        p[2].wx = 0.0 | (1 / nbody_system.time)
+        p[2].wy = 0.0 | (1 / nbody_system.time)
+        p[2].wz = 0.0 | (1 / nbody_system.time)
+
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
 
@@ -1173,6 +1194,10 @@ class TestTidymess(TestWithMPI):
         assert collision_hit
         p0 = cd.particles(0)
         p1 = cd.particles(1)
+        assert cd.particles(2).is_empty()
+
+        assert p0[0] == p[0]
+        assert p1[0] == p[1]
 
         assert len(p0) > 0
         assert len(p1) > 0
