@@ -60,12 +60,11 @@ int initialize_code() {
     collision = std::make_unique<Collision>();
     breakup = std::make_unique<Breakup>();
 
-    //initialize_stopping_conditions();
+    particle_id_counter = 0;
 
     // AMUSE STOPPING CONDITIONS SUPPORT
-    //set_support_for_condition(COLLISION_DETECTION);
-    // reset id counter?
-    //particle_id_counter = 0;
+    initialize_stopping_conditions();
+    set_support_for_condition(COLLISION_DETECTION);
 
     return 0;
 }
