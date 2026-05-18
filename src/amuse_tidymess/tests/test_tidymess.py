@@ -166,10 +166,14 @@ class TestTidymessInterface(TestWithMPI):
         self.assertEquals(0, instance.initialize_code())
         self.assertEquals(0, instance.commit_parameters())
 
+        # FIRST PARTICLE
+        # --------------
         # initialize new particle with all attributes set to 1
         result = instance.new_particle(*np.ones(15)*1)
         self.assertEquals(result['index_of_the_particle'], 0)
 
+        # SECOND PARTICLE
+        # ---------------
         # initialize new particle with all attributes set to 1.1
         result = instance.new_particle(*np.ones(15)*1.1)
         self.assertEquals(result['index_of_the_particle'], 1)
@@ -187,7 +191,8 @@ class TestTidymessInterface(TestWithMPI):
         )
         self.assertEquals(next['index_of_the_next_particle'], 1)
 
-        # delete particle
+        # DELETE SECOND PARTICLE
+        # ----------------------
         instance.delete_particle(1)
 
         result = instance.get_number_of_particles()
@@ -195,6 +200,56 @@ class TestTidymessInterface(TestWithMPI):
 
         first = instance.get_index_of_first_particle()
         self.assertEquals(first['index_of_the_particle'], 0)
+
+        # THIRD PARTICLE
+        # --------------
+        result = instance.new_particle(*np.ones(15)*2)
+        self.assertEquals(result['index_of_the_particle'], 2)
+
+        result = instance.get_number_of_particles()
+        self.assertEquals(result['number_of_particles'], 2)
+
+        first = instance.get_index_of_first_particle()
+        self.assertEquals(first['index_of_the_particle'], 0)
+
+        next = instance.get_index_of_next_particle(
+            first['index_of_the_particle']
+        )
+        self.assertEquals(next['index_of_the_next_particle'], 2)
+
+        result = instance.get_state(0)
+        self.assertEquals(result['mass'], 1.0)
+        self.assertEquals(result['x'], 1.0)
+        self.assertEquals(result['y'], 1.0)
+        self.assertEquals(result['z'], 1.0)
+        self.assertEquals(result['vx'], 1.0)
+        self.assertEquals(result['vy'], 1.0)
+        self.assertEquals(result['vz'], 1.0)
+        self.assertEquals(result['radius'], 1.0)
+        self.assertEquals(result['xi'], 1.0)
+        self.assertEquals(result['kf'], 1.0)
+        self.assertEquals(result['tau'], 1.0)
+        self.assertEquals(result['wx'], 1.0)
+        self.assertEquals(result['wy'], 1.0)
+        self.assertEquals(result['wz'], 1.0)
+        self.assertEquals(result['a_mb'], 1.0)
+
+        result = instance.get_state(2)
+        self.assertEquals(result['mass'], 2.0)
+        self.assertEquals(result['x'], 2.0)
+        self.assertEquals(result['y'], 2.0)
+        self.assertEquals(result['z'], 2.0)
+        self.assertEquals(result['vx'], 2.0)
+        self.assertEquals(result['vy'], 2.0)
+        self.assertEquals(result['vz'], 2.0)
+        self.assertEquals(result['radius'], 2.0)
+        self.assertEquals(result['xi'], 2.0)
+        self.assertEquals(result['kf'], 2.0)
+        self.assertEquals(result['tau'], 2.0)
+        self.assertEquals(result['wx'], 2.0)
+        self.assertEquals(result['wy'], 2.0)
+        self.assertEquals(result['wz'], 2.0)
+        self.assertEquals(result['a_mb'], 2.0)
 
         instance.stop()
 
