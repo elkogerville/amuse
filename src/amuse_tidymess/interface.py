@@ -1189,44 +1189,6 @@ class TidymessInterface(
 
         return function
 
-    # @legacy_function
-    # def detect_collision():
-    #     '''
-    #     '''
-    #     function = LegacyFunctionSpecification()
-    #     function.addParameter(
-    #         'collision_flag',
-    #         dtype='int32',
-    #         direction=function.OUT,
-    #         description=''
-    #     )
-    #     function.addParameter(
-    #         'n_collisions',
-    #         dtype='int32',
-    #         direction=function.OUT,
-    #         description=''
-    #     )
-    #     function.addParameter(
-    #         'index1',
-    #         dtype='int32',
-    #         direction=function.OUT,
-    #         description=''
-    #     )
-    #     function.addParameter(
-    #         'index2',
-    #         dtype='int32',
-    #         direction=function.OUT,
-    #         description=''
-    #     )
-    #     #function.addParameter(
-    #     #    'indices_of_colliding_particles', dtype='int32', direction=function.OUT,
-    #     #    description="")
-    #     function.result_type = 'int32'
-    #     function.result_doc = ''''''
-
-    #     return function
-
-
     @legacy_function
     def convert_spin_vectors_to_inertial():
         """
