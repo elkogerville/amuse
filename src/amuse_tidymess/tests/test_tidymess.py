@@ -1177,6 +1177,9 @@ class TestTidymess(TestWithMPI):
 
         A triple star system is initialized, with the expectation
         that stars 1 and 2 will collide.
+
+        For the expected values, an identical standalone tidymess simulation
+        was calculated.
         """
         p = Particles(3)
         p[0].name = 'Star 1'
@@ -1245,6 +1248,7 @@ class TestTidymess(TestWithMPI):
         collision_hit = False
 
         dt_diag = 0.01 | nbody_system.time
+        col_time = []
         while instance.model_time < 10 | nbody_system.time:
             time = instance.model_time + dt_diag
             instance.evolve_model(time)
@@ -1252,6 +1256,7 @@ class TestTidymess(TestWithMPI):
 
             if cd.is_set():
                 collision_hit = True
+                col_time.append(time)
                 break
 
         assert collision_hit
@@ -1270,6 +1275,27 @@ class TestTidymess(TestWithMPI):
             dist2 = (dr * dr).sum()
             rsum = pi.radius + pj.radius
             assert dist2 <= rsum**2
+
+        # check that collision is expected from standalone tidymess
+        expected_pos = [
+            (-9.9264497812761021e-1, 0.0, 0.0),
+            (9.9037034987767159e-1, 0.0, 0.0)
+        ]
+        for p, ep in zip((col1, col2), expected_pos):
+            self.assertAlmostRelativeEquals(p.x[0].number, ep[0], places=7)
+            self.assertAlmostRelativeEquals(p.y[0].number, ep[1], places=7)
+            self.assertAlmostRelativeEquals(p.z[0].number, ep[2], places=7)
+
+        expected_vel = [
+            (2.0103752196648657, 0.0, 0.0),
+            (-2.0109785401057181, 0.0, 0.0)
+        ]
+        for p, ev in zip((col1, col2), expected_vel):
+            self.assertAlmostRelativeEquals(p.vx[0].number, ev[0], places=7)
+            self.assertAlmostRelativeEquals(p.vy[0].number, ev[1], places=7)
+            self.assertAlmostRelativeEquals(p.vz[0].number, ev[2], places=7)
+
+        self.assertAlmostRelativeEquals(col_time[0].number, 7.5399999999998837, places=7)
 
         cd.disable()
         assert not cd.is_enabled()
