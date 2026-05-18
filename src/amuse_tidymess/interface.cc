@@ -1,26 +1,21 @@
-#include "tidymess_worker.h"
-#include <stddef.h>
-#include <vector>
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <stddef.h>
+#include <unordered_map>
+#include <vector>
+
+#include "tidymess_worker.h"
+#include "Tidy.h"
+#include "Breakup.h"
+#include "Collision.h"
+#include "Initializer.h"
 
 // AMUSE STOPPING CONDITIONS SUPPORT
 #include <stopcond.h>
-#include <time.h>
 
-#include "Timer.h"
-#include "Banner.h"
-
-#include "Initializer.h"
-#include "Output.h"
-
-#include "Tidy.h"
-
-#include "Collision.h"
-#include "Breakup.h"
 
 std::unique_ptr<Tidy> tidymess;
 std::unique_ptr<Initializer> init;
@@ -28,10 +23,10 @@ std::unique_ptr<Collision> collision;
 std::unique_ptr<Breakup> breakup;
 
 int particle_id_counter = 0;
+// std::unordered_map<int, size_t> bodies_map;
 double begin_time = 0;
 int init_shape = 0;
 int dt_sign = 1;
-bool print_info = false;
 
 
 /**
@@ -52,8 +47,8 @@ int get_body_index_by_id(int index_of_the_particle) {
 
 /**
  * Run the initialization for the code, called before
- / parameters and particles are set or before any other
- / call on the code
+ * parameters and particles are set or before any other
+ * call on the code
  */
 int initialize_code() {
     tidymess = std::make_unique<Tidy>();
