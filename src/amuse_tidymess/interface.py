@@ -4,7 +4,7 @@ Code Author : Tjarda Boekholt & Alexandre Correia (MNRAS 2023, vol. 522, pp. 288
 Interface Author : Elko Gerville-Reache
 
 Date Created : Nov 25, 2025
-Last Updated : May 12, 2026
+Last Updated : May 13, 2026
 """
 
 from amuse.community.interface.gd import GravitationalDynamics
