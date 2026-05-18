@@ -1,4 +1,5 @@
 #include "tidymess_worker.h"
+#include <stddef.h>
 #include <vector>
 #include <cmath>
 #include <cstddef>
@@ -200,9 +201,25 @@ int determine_dt_sgn(double t_end) {
  * Evolve the model to a specified time
  */
 int evolve_model(double time) {
+    reset_stopping_conditions();
+
+    int is_collision_detection_enabled;
+    is_stopping_condition_enabled(
+        COLLISION_DETECTION,
+        &is_collision_detection_enabled
+    );
+
     determine_dt_sgn(time);
     tidymess->evolve_model(time);
 
+    if (is_collision_detection_enabled && tidymess->get_collision_flag()) {
+        for (const auto& [i, j] : tidymess->get_collision_indices()) {
+            int stopping_index  = next_index_for_stopping_condition();
+            set_stopping_condition_info(stopping_index, COLLISION_DETECTION);
+            set_stopping_condition_particle_index(stopping_index, 0, i);
+            set_stopping_condition_particle_index(stopping_index, 1, j);
+        }
+    }
     return 0;
 }
 
@@ -992,28 +1009,6 @@ int convert_spin_vectors_to_inertial(
         *wy = w_vec[1];
         *wz = w_vec[2];
     }
-    return 0;
-}
-
-// FIXME
-int detect_collision(
-    int* collision_flag,
-    int* n_collisions,
-    int* index1,
-    int* index2
-) {
-    *collision_flag = tidymess->get_collision_flag();
-    std::vector< array<int, 2> > collided_indices = tidymess->get_collision_indices();
-    *n_collisions = collided_indices.size();
-    *index1 = 0;
-    *index2 = 0;
-
-    if (collided_indices.size() > 0) {
-        array<int, 2> collided_index = collided_indices[0];
-        *index1 = collided_index[0];
-        *index2 = collided_index[1];
-    }
-
     return 0;
 }
 
