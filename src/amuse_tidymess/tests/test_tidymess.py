@@ -478,36 +478,44 @@ class TestTidymess(TestWithMPI):
         instance.stop()
 
     def test_adding_and_deleting_particles(self):
-        """
-        Test Tidymess add_particles method.
-        """
-        system = self.generate_HD80606b_system()
+        """Test adding and deleting particles in Tidymess."""
+        system1 = self.generate_HD80606b_system()
         converter = nbody_system.nbody_to_si(
-            system.mass.sum(), system[1].position.length()
+            system1.mass.sum(), system1[1].position.length()
         )
 
         instance = self.new_instance_of_an_optional_code(Tidymess, converter)
         assert instance is not None
 
         instance.parameters.tidal_model = 0
-        instance.particles.add_particles(system)
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system1)
 
         self.assertEquals(instance.get_number_of_particles(), 2)
 
         self.assertEquals(instance.model_time, 0 | u.s)
         self.assertAlmostRelativeEquals(
             instance.get_total_mass(),
-            system[0].mass + system[1].mass,
+            system1[0].mass + system1[1].mass,
             places=6
         )
         self.assertAlmostRelativeEquals(
-            instance.get_total_radius(), system[1].position.length()
+            instance.get_total_radius(), system1[1].position.length()
         )
 
-        instance.delete_particle(1)
+        instance.particles.remove_particle(system1[1])
         self.assertEquals(instance.get_number_of_particles(), 1)
-        self.assertAlmostRelativeEquals(instance.get_total_mass(), system[0].mass)
+        self.assertAlmostRelativeEquals(instance.get_total_mass(), system1[0].mass)
 
+        system2 = self.generate_HD80606b_system()
+        instance.particles.add_particles(system2)
+
+        self.assertEquals(instance.get_number_of_particles(), 3)
+
+        self.assertEquals(instance.particles[0], system1[0])
+        self.assertEquals(instance.particles[1], system2[0])
+        self.assertEquals(instance.particles[2], system2[1])
         instance.stop()
 
     def test_converting_spin_vectors(self):
