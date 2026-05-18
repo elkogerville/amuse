@@ -1107,3 +1107,84 @@ class TestTidymess(TestWithMPI):
         self.assertAlmostEquals(system1.wz, system2.wz)
         self.assertAlmostEquals(system1.mass, system2.mass)
         self.assertAlmostEquals(system1.radius, system2.radius)
+
+    def test_stopping_conditions(self):
+        """Test that collision detection works in Tidymess."""
+        p = Particles(2)
+        p[0].name = 'Star 1'
+        p[0].mass = 10 | nbody_system.mass
+        p[0].radius = 1 | nbody_system.length
+        p[0].x = -5 | nbody_system.length
+        p[0].y = 0 | nbody_system.length
+        p[0].z = 0 | nbody_system.length
+        p[0].vx = 0 | nbody_system.speed
+        p[0].vy = 0 | nbody_system.speed
+        p[0].vz = 0 | nbody_system.speed
+        p[0].xi = 0.0
+        p[0].kf = 0.0
+        p[0].tau = 0.0 | nbody_system.time
+        p[0].wx = 0.0 | (1 / nbody_system.time)
+        p[0].wy = 0.0 | (1 / nbody_system.time)
+        p[0].wz = 0.0 | (1 / nbody_system.time)
+
+        p[1].name = 'Star 2'
+        p[1].mass = 10 | nbody_system.mass
+        p[1].radius = 1 | nbody_system.length
+        p[1].x = 5 | nbody_system.length
+        p[1].y = 0 | nbody_system.length
+        p[1].z = 0 | nbody_system.length
+        p[1].vx = 0 | nbody_system.speed
+        p[1].vy = 0 | nbody_system.speed
+        p[1].vz = 0 | nbody_system.speed
+        p[1].xi = 0.0
+        p[1].kf = 0.0
+        p[1].tau = 0.0 | nbody_system.time
+        p[1].wx = 0.0 | (1 / nbody_system.time)
+        p[1].wy = 0.0 | (1 / nbody_system.time)
+        p[1].wz = 0.0 | (1 / nbody_system.time)
+
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+        assert instance is not None
+
+        cd = instance.stopping_conditions.collision_detection
+        cd.enable()
+        assert cd.is_supported() and cd.is_enabled()
+
+        instance.parameters.collision_mode = 1
+        instance.parameters.tidal_model = 0
+        instance.parameters.dt_mode = 0
+        instance.commit_parameters()
+
+        instance.particles.add_particles(p)
+        channel = instance.particles.new_channel_to(p)
+
+        collision_hit = False
+
+        dt_diag = 0.01 | nbody_system.time
+        while instance.model_time < 10 | nbody_system.time:
+            time = instance.model_time + dt_diag
+            instance.evolve_model(time)
+            channel.copy()
+
+            if cd.is_set():
+                collision_hit = True
+                break
+
+        assert collision_hit
+        p0 = cd.particles(0)
+        p1 = cd.particles(1)
+
+        assert len(p0) > 0
+        assert len(p1) > 0
+        assert len(p0) == len(p1)
+
+        # check collision is defined correctly
+        dr = p0.position - p1.position
+        dist2 = (dr * dr).sum()
+        rsum = p0.radius + p1.radius
+        assert dist2 <= rsum**2
+
+        cd.disable()
+        assert not cd.is_enabled()
+
+        instance.stop()
