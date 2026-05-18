@@ -1192,22 +1192,129 @@ class TestTidymess(TestWithMPI):
                 break
 
         assert collision_hit
-        p0 = cd.particles(0)
-        p1 = cd.particles(1)
-        assert cd.particles(2).is_empty()
+        col1 = cd.particles(0)
+        col2 = cd.particles(1)
 
-        assert p0[0] == p[0]
-        assert p1[0] == p[1]
+        assert col1[0] == p[0]
+        assert col2[0] == p[1]
 
-        assert len(p0) > 0
-        assert len(p1) > 0
-        assert len(p0) == len(p1)
+        assert len(col1) == 1
+        assert len(col1) == len(col2)
 
         # check collision is defined correctly
-        dr = p0.position - p1.position
-        dist2 = (dr * dr).sum()
-        rsum = p0.radius + p1.radius
-        assert dist2 <= rsum**2
+        for pi, pj in zip(col1, col2):
+            dr = pi.position - pj.position
+            dist2 = (dr * dr).sum()
+            rsum = pi.radius + pj.radius
+            assert dist2 <= rsum**2
+
+        cd.disable()
+        assert not cd.is_enabled()
+
+        instance.stop()
+
+    def test_triple_collision_stopping_conditions(self):
+        """
+        Initialize a triple star system on an equilateral triangle
+        with vertices defined as:
+            (0, 0, 0), (a, 0, 0), (a/2, a*sqrt(3)/2, 0)
+        """
+        a = 10 | nbody_system.length
+
+        p = Particles(3)
+        p[0].name = 'Star 1'
+        p[0].mass = 10 | nbody_system.mass
+        p[0].radius = 1 | nbody_system.length
+        p[0].x = 0 | nbody_system.length
+        p[0].y = 0 | nbody_system.length
+        p[0].z = 0 | nbody_system.length
+        p[0].vx = 0 | nbody_system.speed
+        p[0].vy = 0 | nbody_system.speed
+        p[0].vz = 0 | nbody_system.speed
+        p[0].xi = 0.0
+        p[0].kf = 0.0
+        p[0].tau = 0.0 | nbody_system.time
+        p[0].wx = 0.0 | (1 / nbody_system.time)
+        p[0].wy = 0.0 | (1 / nbody_system.time)
+        p[0].wz = 0.0 | (1 / nbody_system.time)
+        p[1].name = 'Star 2'
+        p[1].mass = 10 | nbody_system.mass
+        p[1].radius = 1 | nbody_system.length
+        p[1].x = a
+        p[1].y = 0 | nbody_system.length
+        p[1].z = 0 | nbody_system.length
+        p[1].vx = 0 | nbody_system.speed
+        p[1].vy = 0 | nbody_system.speed
+        p[1].vz = 0 | nbody_system.speed
+        p[1].xi = 0.0
+        p[1].kf = 0.0
+        p[1].tau = 0.0 | nbody_system.time
+        p[1].wx = 0.0 | (1 / nbody_system.time)
+        p[1].wy = 0.0 | (1 / nbody_system.time)
+        p[1].wz = 0.0 | (1 / nbody_system.time)
+        p[2].name = 'Star 3'
+        p[2].mass = 10 | nbody_system.mass
+        p[2].radius = 1 | nbody_system.length
+        p[2].x = (a / 2)
+        p[2].y = (a * (3**0.5) / 2)
+        p[2].z = 0 | nbody_system.length
+        p[2].vx = 0 | nbody_system.speed
+        p[2].vy = 0 | nbody_system.speed
+        p[2].vz = 0 | nbody_system.speed
+        p[2].xi = 0.0
+        p[2].kf = 0.0
+        p[2].tau = 0.0 | nbody_system.time
+        p[2].wx = 0.0 | (1 / nbody_system.time)
+        p[2].wy = 0.0 | (1 / nbody_system.time)
+        p[2].wz = 0.0 | (1 / nbody_system.time)
+
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+        assert instance is not None
+
+        cd = instance.stopping_conditions.collision_detection
+        cd.enable()
+        assert cd.is_supported() and cd.is_enabled()
+
+        instance.parameters.collision_mode = 1
+        instance.parameters.tidal_model = 0
+        instance.parameters.dt_mode = 0
+        instance.commit_parameters()
+
+        instance.particles.add_particles(p)
+        channel = instance.particles.new_channel_to(p)
+
+        collision_hit = False
+
+        dt_diag = 0.01 | nbody_system.time
+        while instance.model_time < 10 | nbody_system.time:
+            time = instance.model_time + dt_diag
+            instance.evolve_model(time)
+            channel.copy()
+
+            if cd.is_set():
+                collision_hit = True
+                break
+
+        assert collision_hit
+        col1 = cd.particles(0)
+        col2 = cd.particles(1)
+
+        assert col1[0] == p[0]
+        assert col1[1] == p[0]
+        assert col1[2] == p[1]
+        assert col2[0] == p[1]
+        assert col2[1] == p[2]
+        assert col2[2] == p[2]
+
+        assert len(col1) == 3
+        assert len(col2) == len(col1)
+
+        # check collision is defined correctly
+        for pi, pj in zip(col1, col2):
+            dr = pi.position - pj.position
+            dist2 = (dr * dr).sum()
+            rsum = pi.radius + pj.radius
+            assert dist2 <= rsum**2
 
         cd.disable()
         assert not cd.is_enabled()
