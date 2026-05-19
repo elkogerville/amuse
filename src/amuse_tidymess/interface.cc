@@ -149,16 +149,17 @@ int new_particle(
     double a_mb
 ) {
     if (!index_of_the_particle) return -1;
+    int id = particle_id_counter++;
 
     std::vector<Body>& bodies = tidymess->bodies;
     Body newbody(
         mass, radius, xi, kf, tau, a_mb,
         wx, wy, wz, x, y, z, vx, vy, vz
     );
-    newbody.set_id(particle_id_counter);
+    newbody.set_id(id);
     bodies.push_back(newbody);
 
-    *index_of_the_particle = particle_id_counter++;
+    *index_of_the_particle = id;
 
     return 0;
 }
@@ -218,8 +219,8 @@ int evolve_model(double time) {
     return 0;
 }
 
-// Setters and Getters
-// -------------------
+// PARTICLE GETTERS AND SETTERS
+// ----------------------------
 
 /**
  * Get state of a particle
@@ -553,6 +554,9 @@ int set_spin(
     return 0;
 }
 
+// PARAMETER GETTERS AND SETTERS
+// -----------------------------
+
 /**
  * Get Tidymess tidal model parameter
  */
@@ -590,7 +594,7 @@ int set_pn_order(int pn_order) {
 }
 
 /**
- * Get Tidymess magnetic braking paramter
+ * Get Tidymess magnetic braking parameter
  */
 int get_magnetic_braking(int* magnetic_braking) {
     if (!magnetic_braking) return -1;
