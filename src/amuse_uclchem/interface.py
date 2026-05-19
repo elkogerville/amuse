@@ -59,7 +59,7 @@ class UclchemImplementation(object):
         )
         self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
         self.param_dict: dict = {}
-        self.particles = Particles()
+        self.uclchem_particles = Particles()
 
     def initialize_code(self) -> int:
         # self.parameters = uclchem.advanced.GeneralSettings()
@@ -67,7 +67,7 @@ class UclchemImplementation(object):
 
     def cleanup_code(self) -> int:
         """Remove all the particles stored in UCLCHEM."""
-        self.particles.remove_particles(self.particles)
+        self.uclchem_particles.remove_particles(self.uclchem_particles)
         return 0
 
     def commit_parameters(self) -> int:
@@ -97,8 +97,8 @@ class UclchemImplementation(object):
         as a `Particles` vector attribute.
         """
         species = tuple(get_species_names())
-        self.particles.add_vector_attribute('abundance', species)
-        self.particles.abundance = np.zeros(len(species))
+        self.uclchem_particles.add_vector_attribute('abundance', species)
+        self.uclchem_particles.abundance = np.zeros(len(species))
         return 0
 
     def recommit_parameters(self) -> int:
@@ -148,7 +148,7 @@ class UclchemImplementation(object):
         if dt <= 0:
             return -1
 
-        for particle in self.particles:
+        for particle in self.uclchem_particles:
             params = self._particle_to_dict(particle)
             params['finalTime'] = dt
 
@@ -202,8 +202,8 @@ class UclchemImplementation(object):
         p.temperature = temperature
         p.ionrate = ionrate
         p.radfield = radfield
-        index_of_the_particle.value = len(self.particles)
-        self.particles.add_particle(p)
+        index_of_the_particle.value = len(self.uclchem_particles)
+        self.uclchem_particles.add_particle(p)
         return 0
 
     def delete_particle(self, index_of_the_particle) -> int:
@@ -224,7 +224,8 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        self.particles.remove_particles(self.particles[i].as_set())
+        self.uclchem_particles.remove_particles(self.uclchem_particles[i].as_set())
+
         return 0
 
     def get_state(
@@ -264,7 +265,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles[i]
+        p = self.uclchem_particles[i]
         number_density.value = p.number_density
         temperature.value = p.temperature
         ionrate.value = p.ionrate
@@ -304,7 +305,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles[i]
+        p = self.uclchem_particles[i]
         p.number_density = number_density
         p.temperature = temperature
         p.ionrate = ionrate
@@ -332,7 +333,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles[i]
+        p = self.uclchem_particles[i]
         number_density.value = p.number_density
         return 0
 
@@ -356,7 +357,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles[i]
+        p = self.uclchem_particles[i]
         p.number_density = number_density
         return 0
 
@@ -381,7 +382,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles[i]
+        p = self.uclchem_particles[i]
         temperature.value = p.temperature
         return 0
 
@@ -405,7 +406,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles[i]
+        p = self.uclchem_particles[i]
         p.temperature = temperature
         return 0
 
@@ -430,7 +431,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles[i]
+        p = self.uclchem_particles[i]
         ionrate.value = p.ionrate
         return 0
 
@@ -454,7 +455,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles[i]
+        p = self.uclchem_particles[i]
         p.ionrate = ionrate
         return 0
 
@@ -479,7 +480,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles[i]
+        p = self.uclchem_particles[i]
         radfield.value = p.radfield
         return 0
 
@@ -503,7 +504,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        p = self.particles[i]
+        p = self.uclchem_particles[i]
         p.radfield = radfield
         return 0
 
@@ -529,11 +530,15 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
+        if len(self.uclchem_particles) < 1:
+            raise ValueError(
+                'Uclchem has no particles!'
+            )
         i = index_of_the_particle
         if not self._is_valid_particle_index(i):
             return -1
 
-        abundance.value = self.particles[i].abundance[abundance_index]
+        abundance.value = self.uclchem_particles[i].abundance[abundance_index]
         return 0
 
     def set_abundance(self, index_of_the_particle, abundance_index, abundance) -> int:
@@ -562,7 +567,7 @@ class UclchemImplementation(object):
         if not self._is_valid_particle_index(i):
             return -1
 
-        self.particles[i].abundance[abundance_index] = abundance
+        self.uclchem_particles[i].abundance[abundance_index] = abundance
         return 0
 
     def get_chemical_model(self, chem_model) -> int:
@@ -747,7 +752,7 @@ class UclchemImplementation(object):
         bool :
             True if `i` is a valid index to a particle.
         """
-        return 0 <= i < len(self.particles)
+        return 0 <= i < len(self.uclchem_particles)
 
     def _particle_to_dict(self, particle: Particle) -> dict:
         """
