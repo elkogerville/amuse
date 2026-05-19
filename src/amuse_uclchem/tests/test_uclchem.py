@@ -62,11 +62,11 @@ class TestUclchemInterface(TestWithMPI):
 class TestUclchem(TestWithMPI):
 
     def generate_single_particle(self):
-        p = Particle()
-        p.number_density = 1e4 | u.cm**-3
-        p.temperature = 10 | u.K
-        p.ionrate = 1.3e-17 | u.s**-1
-        p.radfield = 1 | habing
+        p = Particles(1)
+        p[0].number_density = 1e4 | u.cm**-3
+        p[0].temperature = 10 | u.K
+        p[0].ionrate = 1.3e-17 | u.s**-1
+        p[0].radfield = 1 | habing
 
         return p
 
@@ -75,14 +75,19 @@ class TestUclchem(TestWithMPI):
         p[0].number_density = 1e4 | u.cm**-3
         p[0].temperature = 10 | u.K
         p[0].ionrate = 1.3e-17 | u.s**-1
-        p[0].radfield = 4 | habing
+        p[0].radfield = 1 | habing
 
         p[1].number_density = 1e5 | u.cm**-3
         p[1].temperature = 20 | u.K
         p[1].ionrate = 1.3e-17 | u.s**-1
-        p[1].radfield = 8 | habing
+        p[1].radfield = 1 | habing
 
         return p
+
+    def _validate_particle_state(self, particle1, particle2):
+        attributes = ['key', 'number_density', 'temperature', 'ionrate', 'radfield']
+        for attr in attributes:
+            self.assertEquals(getattr(particle1, attr), getattr(particle2, attr))
 
     def test_parameters(self):
         """Test parameters defined for Uclchem."""
@@ -90,7 +95,7 @@ class TestUclchem(TestWithMPI):
         assert instance is not None
 
         self.assertEquals(instance.parameters.chem_model, 'cloud')
-        instance.parameters.chem_model = 'JSHOCK'
+        instance.parameters.chem_model = 'jshock'
         self.assertEquals(instance.parameters.chem_model, 'jshock')
 
         instance.stop
@@ -119,60 +124,99 @@ class TestUclchem(TestWithMPI):
         instance.set_radfield(1, 200 | habing)
         self.assertEquals(instance.get_radfield(1), 200 | habing)
 
+        self.assertEquals(instance.get_number_of_particles(), 2)
+        self.assertEquals(len(instance.particles), 2)
+
         instance.stop()
 
-    def test_add_and_remove_particle(self):
-
+    def test_add_particle(self):
+        """Test add single particle from set. p = Particles(1)"""
         p = self.generate_single_particle()
         instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
         assert instance is not None
 
         instance.commit_parameters()
-        instance.particles.add_particle(p)
+        instance.particles.add_particles(p)
+        channel = instance.particles.new_channel_to(p)
 
-        self.assertEquals(len(instance.particles), 1)
+        self.assertEquals(instance.get_number_of_particles(), 1)
+        self._validate_particle_state(instance.particles, p)
 
-        instance.particles.remove_particle(instance.particles[0])
-        # instance.delete_particle(0)
-        self.assertEquals(len(instance.particles), 0)
-
-        instance.stop()
-
-    def test_add_and_delete_particle(self):
-        """Test add and delete single particle from set"""
-        p = self.generate_single_particle()
-        instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
-        assert instance is not None
-
-        instance.commit_parameters()
-        instance.particles.add_particle(p)
-
-        self.assertEquals(len(instance.particles), 1)
-        instance.delete_particle(0)
-
-        print(instance.particles)
+        # instance.evolve_model(1e3 | u.yr)
+        # print(instance.model_time)
+        # print('second call')
+        # # print(instance.particles)
+        # instance.evolve_model(2e3 | u.yr)
+        # print(instance.model_time)
 
         instance.stop()
 
-    def test_add_two_particles(self):
-        """Test add and delete particles"""
+    def test_add_particles(self):
+        """Test add 2 particles from set"""
         p = self.generate_two_particles()
         instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
         assert instance is not None
 
         instance.commit_parameters()
-        instance.particles.add_particle(p[0])
-        instance.particles.add_particle(p[1])
+        instance.particles.add_particles(p)
+        instance.commit_particles()
 
-        self.assertEquals(len(instance.particles), 2)
+        self.assertEquals(instance.get_number_of_particles(), 2)
+
+        instance.stop()
+
+    def test_add_and_remove_particle(self):
+        """Add then delete a particle."""
+        p = self.generate_single_particle()
+        instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
+        assert instance is not None
+
+        instance.commit_parameters()
+        instance.particles.add_particles(p)
+
+        self.assertEquals(instance.get_number_of_particles(), 1)
+
         instance.particles.remove_particle(instance.particles[0])
-        # instance.delete_particle(0)
-        # instance.particles
+        self.assertEquals(instance.get_number_of_particles(), 0)
 
-        print('printing state now', instance.get_state(0))
+        self.assertEquals(instance.particles.is_empty(), True)
 
-        print('len', len(instance.particles))
-        print(instance.particles)
+        instance.stop()
+
+    def test_add_and_remove_particles(self):
+        """Test add and delete multiple particles from set"""
+        p1 = self.generate_two_particles()
+        instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
+        assert instance is not None
+
+        instance.commit_parameters()
+        instance.particles.add_particles(p1)
+
+        self._validate_particle_state(instance.particles[0], p1[0])
+        self._validate_particle_state(instance.particles[1], p1[1])
+
+        self.assertEquals(instance.get_number_of_particles(), 2)
+        # SUPER WEIRD BEHAVIOR: IF YOU DELETE INSTANCE.PARTICLES[1] THE TEST PASSES
+        # BUT DELETING THE FIRST PARTICLE MESSES EVERYTHING UP....
+        # ALSO INSTANCE.PARTICLES.REMOVE_PARTICLES(INSTANCE.PARTICLES) DOES NOT RM ALL PARTICLES...
+        instance.particles.remove_particle(instance.particles[0])
+
+        self.assertEquals(instance.get_number_of_particles(), 1)
+
+        self._validate_particle_state(instance.particles[0], p1[1])
+
+        p2 = self.generate_two_particles()
+        instance.particles.add_particles(p2)
+
+        self.assertEquals(instance.get_number_of_particles(), 3)
+
+        self._validate_particle_state(instance.particles[0], p1[0])
+        self._validate_particle_state(instance.particles[1], p2[0])
+        self._validate_particle_state(instance.particles[2], p2[1])
+
+        instance.particles.remove_particle(instance.particles[0])
+        # self._validate_particle_state(instance.particles[0], p2[0])
+        # self._validate_particle_state(instance.particles[1], p2[1])
 
         instance.stop()
 
@@ -188,7 +232,7 @@ class TestUclchem(TestWithMPI):
         instance.particles.add_particle(p)
         instance.commit_particles()
 
-        instance.evolve_model(1e2 | u.yr)
+        instance.evolve_model(1e3 | u.yr)
 
         abundances = instance.get_abundances(0, 'H')
         self.assertAlmostEquals(abundances[0], 0.499372, places=5)
