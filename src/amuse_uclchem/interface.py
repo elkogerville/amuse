@@ -181,7 +181,7 @@ class UclchemImplementation(object):
 
         Parameters
         ----------
-        index_of_the_particle : amuse.rfi.python_code.ValueHolder
+        index_of_the_particle : amuse.rfi.python_code.ValueHolder[int]
             Mutable container used to return the index of the new particle.
         number_density : float
             Number density of the particle in units of cm**-3.
@@ -243,16 +243,16 @@ class UclchemImplementation(object):
         ----------
         index_of_the_particle : int
             Index of the particle as returned by `new_particle`.
-        number_density : amuse.rfi.python_code.ValueHolder
+        number_density : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the number density
             of the particle in units of cm**-3.
-        temperature : amuse.rfi.python_code.ValueHolder
+        temperature : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the temperature
             of the particle in units of K.
-        ionrate : amuse.rfi.python_code.ValueHolder
+        ionrate : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the ionization
             rate of the particle in units of s**-1.
-        radfield : amuse.rfi.python_code.ValueHolder
+        radfield : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the radiation
             field of the particle in units of habing.
 
@@ -320,7 +320,7 @@ class UclchemImplementation(object):
         ----------
         index_of_the_particle : int
             Index of the particle as returned by `new_particle`.
-        number_density : amuse.rfi.python_code.ValueHolder
+        number_density : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the number density
             of the particle in units of cm**-3.
 
@@ -369,7 +369,7 @@ class UclchemImplementation(object):
         ----------
         index_of_the_particle: int
             Index of the particle as returned by `new_particle`.
-        temperature : amuse.rfi.python_code.ValueHolder
+        temperature : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the temperature
             of the particle in units of K.
 
@@ -418,7 +418,7 @@ class UclchemImplementation(object):
         ----------
         index_of_the_particle: int
             Index of the particle as returned by `new_particle`.
-        ionrate : amuse.rfi.python_code.ValueHolder
+        ionrate : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the ionization
             rate of the particle in units of s**-1.
 
@@ -467,7 +467,7 @@ class UclchemImplementation(object):
         ----------
         index_of_the_particle: int
             Index of the particle as returned by `new_particle`.
-        ionrate : amuse.rfi.python_code.ValueHolder
+        radfield : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the radiation
             field of the particle in units of habing.
 
@@ -522,7 +522,7 @@ class UclchemImplementation(object):
         abundance_index : int
             Index of the abundance in the abundance array of the particle.
             The `abundance_index` can be calculated using `get_species_index`.
-        abundance : amuse.rfi.python_code.ValueHolder
+        abundance : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the abundance of a particle.
 
         Returns
@@ -581,7 +581,7 @@ class UclchemImplementation(object):
 
         Parameters
         ----------
-        chem_model : amuse.rfi.python_code.ValueHolder
+        chem_model : amuse.rfi.python_code.ValueHolder[str]
             Mutable container used to return the current
             model type.
 
@@ -637,7 +637,7 @@ class UclchemImplementation(object):
         name : str
             Name of chemical species. Must be one of the
             species tracked by UCLCHEM.
-        i : amuse.rfi.python_code.ValueHolder
+        i : amuse.rfi.python_code.ValueHolder[int]
             Mutable container used to return the index
             of the species.
 
@@ -675,7 +675,7 @@ class UclchemImplementation(object):
         ----------
         i : int
             Index of the chemical species in the abundance array.
-        name : amuse.rfi.python_code.ValueHolder
+        name : amuse.rfi.python_code.ValueHolder[str]
             Mutable container used to return the name of
             the chemical species.
 
@@ -698,7 +698,7 @@ class UclchemImplementation(object):
 
         Parameters
         ----------
-        time : amuse.rfi.python_code.ValueHolder
+        time : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the
             current time in units of years.
 
