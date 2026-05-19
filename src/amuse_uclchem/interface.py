@@ -710,6 +710,24 @@ class UclchemImplementation(object):
         time.value = self.current_time
         return 0
 
+    def get_number_of_particles(self, number_of_particles) -> int:
+        """
+        Retrieve the current number of particles in the code.
+
+        Parameters
+        ----------
+        number_of_particles : amuse.rfi.python_code.ValueHolder[int]
+            Mutable container used to return the
+            current number of particles.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
+        number_of_particles.value = len(self.uclchem_particles)
+        return 0
+
     def _validate_chemical_model(self, model: type[AbstractModel] | None) -> type[AbstractModel]:
         """
         Validate chemical model class.
@@ -1017,8 +1035,29 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         function.addParameter('time', dtype='float64', direction=function.OUT)
         function.result_type = 'int32'
         function.result_doc = """
-        0 - OK
-            Current value of the time was retrieved
+            0 - OK
+                Current value of the time was retrieved
+        """
+        return function
+
+    @legacy_function
+    def get_number_of_particles():
+        """
+        Retrieve the total number of particles defined in the code.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'number_of_particles',
+            dtype='int32',
+            direction=function.OUT,
+            description='Count of the particles in the code',
+        )
+        function.result_type = 'int32'
+        function.result_doc = """
+            0 - OK
+                Count could be determined
+            -1 - ERROR
+                Unable to determine the count
         """
         return function
 
@@ -1196,7 +1235,13 @@ class Uclchem(CommonCode):
         handler.add_method(
             'get_time',
             (),
-            (u.yr, handler.ERROR_CODE,)
+            (u.yr, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'get_number_of_particles',
+            (),
+            (handler.NO_UNIT, handler.ERROR_CODE,),
         )
 
     def define_parameters(self, handler):
