@@ -455,7 +455,3 @@ packages/dist
 
 # standard directory for a virtualenv
 env/
-
-# macOS
-.DS_Store
-*tar.gz
