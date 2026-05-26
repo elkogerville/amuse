@@ -1,18 +1,15 @@
-"""
-TIdal DYnamics of Multi-body ExtraSolar Systems Interface
-Code Author : Tjarda Boekholt & Alexandre Correia (MNRAS 2023, vol. 522, pp. 2885–2900)
-Interface Author : Elko Gerville-Reache
-
-Date Created : Nov 25, 2025
-Last Updated : May 13, 2026
-"""
-
-from amuse.community.interface.gd import GravitationalDynamics
-from amuse.community.interface.gd import GravitationalDynamicsInterface
-from amuse.community.interface.gd import GravityFieldInterface
-from amuse.community.interface.gd import GravityFieldCode
-from amuse.community.interface.stopping_conditions import StoppingConditions, StoppingConditionInterface
-from amuse.rfi.core import CodeInterface, legacy_function, LegacyFunctionSpecification
+from amuse.community.interface.gd import (
+    GravitationalDynamics,
+    GravitationalDynamicsInterface,
+    GravityFieldInterface,
+    GravityFieldCode
+)
+from amuse.community.interface.stopping_conditions import (
+    StoppingConditions, StoppingConditionInterface
+)
+from amuse.rfi.core import (
+    CodeInterface, legacy_function, LegacyFunctionSpecification
+)
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import units as u, nbody_system
 
@@ -1019,9 +1016,27 @@ class TidymessInterface(
         return function
 
     @legacy_function
+    def get_collision_mode():
+        """Get collision mode Tidymess parameter."""
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'collision_mode',
+            dtype='int32',
+            direction=function.OUT,
+            description='0=off, 1=flag, 2=exception, 3=replace')
+        function.result_type = 'int32'
+        function.result_doc = """\
+        0 - OK
+            collision mode was retrieved
+        -1 - ERROR
+            Could not find collision mode
+        """
+
+        return function
+
+    @legacy_function
     def set_collision_mode():
-        '''
-        '''
+        """Set collision mode Tidymess parameter."""
         function = LegacyFunctionSpecification()
         function.addParameter(
             'collision_mode',
@@ -1030,31 +1045,18 @@ class TidymessInterface(
             description='0=off, 1=flag, 2=exception, 3=replace'
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
+        function.result_doc = """\
+        0 - OK
+            collision mode was set
+        -1 - ERROR
+            Could not set collision mode
+        """
 
         return function
-
-
-    @legacy_function
-    def get_collision_mode():
-        '''
-        '''
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'collision_mode',
-            dtype='int32',
-            direction=function.OUT,
-            description='0=off, 1=flag, 2=exception, 3=replace')
-        function.result_type = 'int32'
-        function.result_doc = ''''''
-
-        return function
-
 
     @legacy_function
     def set_roche_mode():
-        '''
-        '''
+        """Set roche mode."""
         function = LegacyFunctionSpecification()
         function.addParameter(
             'roche_mode',
@@ -1063,15 +1065,18 @@ class TidymessInterface(
             description='0=off, 1=flag, 2=exception'
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
+        function.result_doc = """\
+        0 - OK
+            Roche mode was set
+        -1 - ERROR
+            Could not set roche mode
+        """
 
         return function
 
-
     @legacy_function
     def get_roche_mode():
-        """
-        """
+        """Get roche mode."""
         function = LegacyFunctionSpecification()
         function.addParameter(
             'roche_mode',
@@ -1080,10 +1085,14 @@ class TidymessInterface(
             description='0=off, 1=flag, 2=exception'
         )
         function.result_type = 'int32'
-        function.result_doc = ''''''
+        function.result_doc = """\
+        0 - OK
+            roche mode was retrieved
+        -1 - ERROR
+            Could not retrieve roche mode
+        """
 
         return function
-
 
     @legacy_function
     def set_breakup_mode():
@@ -1103,7 +1112,6 @@ class TidymessInterface(
         function.result_doc = ''''''
 
         return function
-
 
     @legacy_function
     def get_breakup_mode():
@@ -1125,36 +1133,42 @@ class TidymessInterface(
         return function
 
     @legacy_function
-    def set_initial_shape():
-        """
-        Set Tidymess initial shape.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'initial_shape',
-            dtype='int32',
-            direction=function.IN,
-            description='0=default'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """"""
-
-        return function
-
-    @legacy_function
     def get_initial_shape():
-        """
-        Get Tidymess initial shape value.
-        """
+        """Get Tidymess initial shape value."""
         function = LegacyFunctionSpecification()
         function.addParameter(
             'initial_shape',
             dtype='int32',
             direction=function.OUT,
-            description=''
+            description='0=sphere, 1=equilibrium'
         )
         function.result_type = 'int32'
-        function.result_doc = """"""
+        function.result_doc = """\
+        0 - OK
+            Initial shape was retrieved
+        -1 - ERROR
+            Could not retrieve initial shape
+        """
+
+        return function
+
+    @legacy_function
+    def set_initial_shape():
+        """Set Tidymess initial shape."""
+        function = LegacyFunctionSpecification()
+        function.addParameter(
+            'initial_shape',
+            dtype='int32',
+            direction=function.IN,
+            description='0=sphere, 1=equilibrium'
+        )
+        function.result_type = 'int32'
+        function.result_doc = """\
+        0 - OK
+            Initial shape was set
+        -1 - ERROR
+            Could not set initial shape
+        """
 
         return function
 
@@ -1259,6 +1273,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             **options
         )
 
+
     def define_state(self, handler):
         GravitationalDynamics.define_state(self, handler)
         GravityFieldCode.define_state(self, handler)
@@ -1269,12 +1284,12 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
 
         self.stopping_conditions.define_state(handler)
 
+
     def define_methods(self, handler):
         """
         Map legacy functions in TidymessInterface into
         Tidymess user methods.
         """
-
         GravitationalDynamics.define_methods(self, handler)
 
         handler.add_method(
@@ -1564,10 +1579,12 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
 
         self.stopping_conditions.define_parameters(handler)
 
+
     def define_properties(self, handler):
         """Define read only properties of Tidymess"""
         GravitationalDynamics.define_properties(self, handler)
         handler.add_property('get_total_energy', public_name='total_energy')
+
 
     def define_particle_sets(self, handler):
         GravitationalDynamics.define_particle_sets(self, handler)
