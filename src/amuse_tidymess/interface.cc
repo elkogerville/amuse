@@ -7,13 +7,12 @@
 #include <unordered_map>
 #include <vector>
 
-#include "tidymess_worker.h"
 #include "Tidy.h"
 #include "Breakup.h"
 #include "Collision.h"
 #include "Initializer.h"
 
-// AMUSE STOPPING CONDITIONS SUPPORT
+#include "tidymess_worker.h"
 #include <stopcond.h>
 
 
@@ -23,7 +22,6 @@ std::unique_ptr<Collision> collision;
 std::unique_ptr<Breakup> breakup;
 
 int particle_id_counter = 0;
-// std::unordered_map<int, size_t> bodies_map;
 double begin_time = 0;
 int init_shape = 0;
 int dt_sign = 1;
@@ -116,19 +114,41 @@ int commit_particles() {
     return 0;
 }
 
+/**
+ * Recommit parameters after commit_parameters has been called
+ */
 int recommit_parameters() {
     commit_parameters();
     return 0;
 }
 
+/**
+ * Recommit particles after commit_particles has been called
+ */
 int recommit_particles() {
+    if (tidymess->get_tidal_model() > 0) {
+        switch(init_shape) {
+            case 0:
+                tidymess->set_to_spherical_shape();
+                break;
+            case 1:
+                tidymess->set_to_equilibrium_shape();
+                break;
+            default:
+                return -1;
+        }
+        tidymess->update_angular_momentum();
+
+    }
+    tidymess->commit_parameters();
+    tidymess->initialize();
+
     return 0;
 }
 
 /**
- * Define a new particle in the stellar dynamics code. The particle is
- * initialized with the provided mass, radius, position and velocity.
- * This function returns an index that can be used to refer to this particle.
+ * Define a new particle in Tidymess. This function returns an
+ * index that can be used to refer to this particle.
  */
 int new_particle(
     int* index_of_the_particle,
@@ -735,7 +755,9 @@ int set_initial_shape(int initial_shape) {
     return 0;
 }
 
-// FIX
+/**
+ * Get Tidymess collision mode
+ */
 int get_collision_mode(int* collision_mode) {
     if (!collision_mode) return -1;
 
@@ -743,6 +765,9 @@ int get_collision_mode(int* collision_mode) {
     return 0;
 }
 
+/**
+ * Set Tidymess collision mode
+ */
 int set_collision_mode(int collision_mode) {
     tidymess->set_collision_mode(collision_mode);
     return 0;
@@ -751,7 +776,7 @@ int set_collision_mode(int collision_mode) {
 int get_roche_mode(int* roche_mode) {
     if (!roche_mode) return -1;
 
-    *roche_mode = tidymess->roche_mode; // doesn't appear in Tidy
+    *roche_mode = tidymess->roche_mode;
     return 0;
 }
 int set_roche_mode(int roche_mode) {
@@ -779,11 +804,19 @@ int get_num_integration_step(int* num_integration_step) {
     return 0;
 }
 
+/**
+ * Needed to compile the interface;
+ * not implemented yet
+ */
 int get_eps2(double* epsilon_squared) {
     if (!epsilon_squared) return -1;
     return 0;
 }
 
+/**
+ * Needed to compile the interface;
+ * not implemented yet
+ */
 int set_eps2(double epsilon_squared) {
     return 0;
 }
@@ -797,6 +830,10 @@ int get_total_energy(double* total_energy) {
     return 0;
 }
 
+/**
+ * Needed to compile the interface;
+ * not implemented yet
+ */
 int get_kinetic_energy(double* kinetic_energy) {
     if (!kinetic_energy) return -1;
     return 0;
@@ -1046,9 +1083,6 @@ int get_potential_at_point(
     double* phi,
     int npoints
 ) {
-    // for (int i = 0; i < npoints; i++) {
-    //     phi[i] = 0.0;
-    // }
     return 0;
 }
 
@@ -1066,14 +1100,13 @@ int get_gravity_at_point(
     double* az,
     int npoints
 ) {
-    // for (int i = 0; i < npoints; i++) {
-    //     ax[i] = 0.0;
-    //     ay[i] = 0.0;
-    //     az[i] = 0.0;
-    // }
     return 0;
 }
 
+/**
+ * Needed to compile the interface;
+ * not implemented yet
+ */
 int synchronize_model() {
     return 0;
 }
