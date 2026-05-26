@@ -1,17 +1,8 @@
-"""
-Date Created : December 10, 2025
-Last Updated : April 28, 2026
-Tests for Tidymess and TidymessInterface
-
-For questions about the tests, contact elkogerville@gmail.com
-"""
-
 from amuse.datamodel import Particles
 from amuse.ext.orbital_elements import generate_binaries
 from amuse.support.testing.amusetest import TestWithMPI
-from amuse.units import constants as c, nbody_system, units as u
-from amuse.units.quantities import VectorQuantity
 from amuse_tidymess.interface import Tidymess, TidymessInterface
+from amuse.units import constants as c, nbody_system, units as u
 import numpy as np
 
 
