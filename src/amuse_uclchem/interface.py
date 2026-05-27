@@ -1,31 +1,18 @@
-"""
-AMUSE interface for UCLCHEM, a gas-grain chemical code that
-propagates the abundances of chemical species through a network
-of user-defined reactions according to the physical conditions of the gas.
-
-Date Created:  April 01, 2026
-Date Modified: May 06, 2026
-"""
-
 from typing import Literal
+
 import numpy as np
 import uclchem
 from uclchem.model import get_species_names, AbstractModel
 
 from amuse.community.interface.common import CommonCode, CommonCodeInterface
-from amuse.community import (
-    LiteratureReferencesMixIn,
-    legacy_function,
-    LegacyFunctionSpecification,
-)
+from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.datamodel import Particle, Particles
-from amuse.rfi.core import PythonCodeInterface
+from amuse.rfi.core import legacy_function, LegacyFunctionSpecification, PythonCodeInterface
 from amuse.support.interface import InCodeComponentImplementation
 from amuse.units import units as u
 
 
 habing = u.named('habing', 'hab', 1.6e-3 * u.erg * u.cm**-2 * u.s**-1)
-# set run_type to 'external', model doesnt start immediately
 
 class UclchemImplementation(object):
 
@@ -570,6 +557,24 @@ class UclchemImplementation(object):
         self.uclchem_particles[i].abundance[abundance_index] = abundance
         return 0
 
+    def get_firstlast_abundance(self, first, last) -> int:
+        """
+        Get the index of the first and last abundances inside UCLCHEM.
+
+        This is a helper method for acessing the abundance array as
+        `instance.particles.abundances`.
+
+        Parameters
+        ----------
+        first : amuse.rfi.python_code.ValueHolder[int]
+            Index of the first abundance in the abundace array.
+        last : amuse.rfi.python_code.ValueHolder[int]
+            Index of the last abundance in the abundace array.
+        """
+        first.value = 0
+        last.value = len(get_species_names()) - 1
+        return 0
+
     def get_chemical_model(self, chem_model) -> int:
         """
         Retrieve the chemical model type used by UCLCHEM.
@@ -994,6 +999,15 @@ class UclchemInterface(CommonCodeInterface, PythonCodeInterface, LiteratureRefer
         return function
 
     @legacy_function
+    def get_firstlast_abundance():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('first', dtype='int32', direction=function.OUT)
+        function.addParameter('last', dtype='int32', direction=function.OUT)
+        function.result_type = 'int32'
+        return function
+
+    @legacy_function
     def get_species_index():
         """
         Given the name of a chemical species in the
@@ -1233,6 +1247,16 @@ class Uclchem(CommonCode):
         )
 
         handler.add_method(
+            'get_firstlast_abundance',
+            (),
+            (
+                handler.NO_UNIT,
+                handler.NO_UNIT,
+                handler.ERROR_CODE,
+            )
+        )
+
+        handler.add_method(
             'get_time',
             (),
             (u.yr, handler.ERROR_CODE,),
@@ -1265,18 +1289,18 @@ class Uclchem(CommonCode):
         handler.set_delete('particles', 'delete_particle')
         handler.add_setter('particles', 'set_state')
         handler.add_getter('particles', 'get_state')
-        # handler.add_gridded_getter(
-        #     "particles",
-        #     "get_abundance",
-        #     "get_firstlast_abundance",
-        #     names=("abundances",),
-        # )
-        # handler.add_gridded_setter(
-        #     "particles",
-        #     "set_abundance",
-        #     "get_firstlast_abundance",
-        #     names=("abundances",),
-        # )
+        handler.add_gridded_getter(
+            'particles',
+            'get_abundance',
+            'get_firstlast_abundance',
+            names=('abundances',),
+        )
+        handler.add_gridded_setter(
+            'particles',
+            'set_abundance',
+            'get_firstlast_abundance',
+            names=('abundances',),
+        )
 
     def define_state(self, handler):
         CommonCode.define_state(self, handler)
