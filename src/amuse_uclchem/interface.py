@@ -59,7 +59,7 @@ class UclchemImplementation(object):
 
     def commit_parameters(self) -> int:
         """
-        Convert the chemical model name to its corresponding AbstractModel class.
+        Convert the chemical model string name to its corresponding AbstractModel class.
 
         Validates that the chemical model specified by the user maps to a valid
         UCLCHEM model class.
@@ -1089,7 +1089,11 @@ class Uclchem(CommonCode):
             chem_interface
         )
 
-    def get_abundances(self, index_of_the_particle, species_names):
+    def get_abundances(
+        self,
+        index_of_the_particle: int,
+        species_names: str | list[str]
+    ) -> list[float]:
         """
         Get the abundances of a particle at the current simulation time
         by species name. Both a single species name or a list of names
@@ -1099,7 +1103,7 @@ class Uclchem(CommonCode):
         ----------
         index_of_the_particle : int
             Index of the particle as returned by `new_particle`.
-        species_names : list[str]
+        species_names : str | list[str]
             List of species names to query. Each name must be a species
             tracked by the UCLCHEM network. A sigle name is also a valid input.
 
