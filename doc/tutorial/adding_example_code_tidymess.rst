@@ -59,8 +59,23 @@ dependency we will need. By default it will look like:
 
    c c++ fortran java python cmake install download mpi openmp cuda opencl x11 opengl blas lapack gsl gmp mpfr fftw hdf5 netcdf4
 
-Since ``TIDYMESS`` is a standalone C++ code, we can simplify our dependencies to:
+Since ``TIDYMESS`` is a standalone C++ code, we can delete most of those and simplify our dependencies to:
 
 .. code-block:: text
 
    c c++
+
+Setting up Autoconf
+~~~~~~~~~~~~~~~~~~~
+The ``amuse_deps`` file we just created informs the ``AMUSE`` build system about whether or not our
+package is buildable given the available compilers and libraries detected on your computer. We now need
+to determine what compilers and libraries are on the system and how to use them. For this we will edit
+the ``configure.ac`` file in ``amuse_tidymess/support/``. This file contains a set of macros which will
+detect the tools and libraries needed to build our package. The template should contain all the macros
+needed for our package, so its just a matter of deleting what we don't need.
+
+.. WARNING::
+
+    Make sure the the ``amuse_tidymess/support/shared/`` folder is a simlink to ``amuse/support/shared/``
+    to ensure that there is no code duplication in the codebase, and that bug fixes are propagated to each
+    package automatically.
