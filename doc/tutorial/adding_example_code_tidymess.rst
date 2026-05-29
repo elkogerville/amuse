@@ -10,6 +10,12 @@ implements detailed tidal forces into an N-body code to track the deformation
 of bodies. This community code has already been implemented into AMUSE so you
 can follow along this tutorial.
 
+.. NOTE::
+
+    In this guide, ``TIDYMESS`` refers to the standalone simulation package,
+    while ``Tidymess`` refers to the ``TIDYMESS`` package inside of ``AMUSE``.
+
+
 Getting Started
 ===============
 
@@ -72,10 +78,26 @@ package is buildable given the available compilers and libraries detected on you
 to determine what compilers and libraries are on the system and how to use them. For this we will edit
 the ``configure.ac`` file in ``amuse_tidymess/support/``. This file contains a set of macros which will
 detect the tools and libraries needed to build our package. The template should contain all the macros
-needed for our package, so its just a matter of deleting what we don't need.
+needed for our package, so its just a matter of deleting what we don't need. Delete any comment prefaced
+with ``#####``, but only after following the direction of the comment.
+
+Once ``configure.ac`` is setup correctly, we can edit ``config.mk.in``, and remove any unneeded variables
+as well as any ``#####`` comment. This file is a template for ``config.mk``, which will contain a description
+of all the compiler and library variables needed for our package.
+
+Once these files are cleaned up, run ``autoreconf`` to (re)create the ``configure`` script, then run
+``./configure``. This will test the detection and check for errors. As a sanity check, run ``cat config.mk``
+and ensure that there are no ``@VARIABLE@`` symbols left! If there are, check that ``configure.ac`` and
+``config.mk.in`` were setup correctly.
 
 .. WARNING::
 
     Make sure the the ``amuse_tidymess/support/shared/`` folder is a simlink to ``amuse/support/shared/``
     to ensure that there is no code duplication in the codebase, and that bug fixes are propagated to each
-    package automatically.
+    package automatically. This should be done automatically by the ``amusifier`` but can be a source of bugs
+    if not setup correctly.
+
+Setting up the Makefile
+~~~~~~~~~~~~~~~~~~~~~~~
+With our build system detection working, we now need to download ``TIDYMESS`` into ``AMUSE``!
+This is where the Makefiles come in. ``AMUSE`` packages typically have 2 Makefiles.
