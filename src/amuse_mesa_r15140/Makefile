@@ -117,6 +117,7 @@ $(MESA_DIR)/utils/makedepf90-2.8.8: | $(MESA_DIR)
 	touch $(MESA_DIR)/utils/makedepf90-2.8.8/configure
 
 src/bin/makedepf90: | $(MESA_DIR)/utils/makedepf90-2.8.8 src/bin
+	touch $(MESA_DIR)/utils/makedepf90-2.8.8/configure
 	cd $(MESA_DIR)/utils/makedepf90-2.8.8 && ./configure
 	cd $(MESA_DIR)/utils/makedepf90-2.8.8 && $(MAKE)
 	cp $(MESA_DIR)/utils/makedepf90-2.8.8/makedepf90 $@
@@ -224,7 +225,11 @@ package-%: %_contains
 	python3 -m pip install -vv --no-cache-dir --no-deps --no-build-isolation --prefix ${PREFIX} packages/$*
 
 test-%:
+ifneq ($(CI),)
+	cd packages/$* && pytest -k 'not noci'
+else
 	cd packages/$* && pytest
+endif
 
 
 # Cleaning up

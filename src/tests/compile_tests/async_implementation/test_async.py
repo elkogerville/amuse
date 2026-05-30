@@ -650,6 +650,7 @@ class TestASync(TestWithMPI):
         self.assertEqual(request.result(), numpy.arange(1, 11) | units.m)
         t2 = time.time()
         self.assertGreater(t2-t1, 1.)
+        instance1.stop()
 
     def test31(self):
         """ test a grid attribute request, subgrids """
@@ -665,6 +666,7 @@ class TestASync(TestWithMPI):
         self.assertEqual(request2.result(), numpy.arange(6, 11) | units.m)
         t2 = time.time()
         self.assertGreater(t2-t1, 1.)
+        instance1.stop()
 
     def test32(self):
         """ test a grid attribute request setter """
@@ -684,6 +686,7 @@ class TestASync(TestWithMPI):
         self.assertEqual(instance1.grid.x, (11.+numpy.arange(1, 11)) | units.m)
         t2 = time.time()
         self.assertLess(t2-t1, 0.5)
+        instance1.stop()
 
     def test33(self):
         """ test a grid attribute request, subgrids """
@@ -700,6 +703,7 @@ class TestASync(TestWithMPI):
         self.assertGreater(t2-t1, 1.)
         self.assertEqual(instance1.grid.x[::2], (11.+numpy.arange(1, 11, 2)) | units.m)
         self.assertEqual(instance1.grid.x[1::2], (numpy.arange(2, 11, 2)) | units.m)
+        instance1.stop()
 
     def test34(self):
         """ test a grid attribute request, subgrids """
@@ -707,6 +711,7 @@ class TestASync(TestWithMPI):
         grid = instance1.grid.copy()
         request = instance1.grid.request.x
         self.assertEqual(request.result(), numpy.arange(1, 11) | units.m)
+        instance1.stop()
 
     def test35(self):
         """ test a grid attribute request setter with state"""
@@ -732,6 +737,7 @@ class TestASync(TestWithMPI):
         self.assertEqual(instance1.grid.x, (12. + numpy.arange(1, 11)) | units.m)
         t2 = time.time()
         self.assertLess(t2-t1, 0.5)
+        instance1.stop()
 
     def test36(self):
         """ more state tests"""
@@ -744,6 +750,7 @@ class TestASync(TestWithMPI):
         self.assertEqual(instance1.get_name_of_current_state(), '2')
         # ie state changes upon completion of call at wait. This is
         # sort of ok, alternatively state could be changed immediately...
+        instance1.stop()
 
 
 class TestASyncDistributed(TestASync):

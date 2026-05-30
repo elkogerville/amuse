@@ -93,33 +93,27 @@ class TestCImplementationInterface(TestWithMPI):
 
     def test7b(self):
         instance = ForTestingInterface(self.exefile)
-
         out, error = instance.echo_int(numpy.arange(2000000))
+        instance.stop()
 
         self.assertEqual(error, [0]*2000000)
         self.assertEqual(out, numpy.arange(2000000))
 
-        instance.stop()
-
     def test7c(self):
         instance = ForTestingInterface(self.exefile)
-
         out, error = instance.echo_string(["abc"]*10)
+        instance.stop()
 
         self.assertEqual(error, [0]*10)
         self.assertEqual(out, ["abc"]*10)
 
-        instance.stop()
-
     def test7d(self):
         instance = ForTestingInterface(self.exefile)
-
         out, error = instance.echo_string(["abc"]*100000)
+        instance.stop()
 
         self.assertEqual(error, [0]*100000)
         self.assertEqual(out, ["abc"]*100000)
-
-        instance.stop()
 
     def test8(self):
         instance = ForTestingInterface(self.exefile)
@@ -386,6 +380,8 @@ class TestCImplementationInterface(TestWithMPI):
         request2.wait()
         port_id1, error1 = request1.result()
         port_id2, error2 = request2.result()
+        instance1.stop()
+        instance2.stop()
         self.assertTrue(port_id1 >= 0)
         self.assertTrue(port_id2 >= 0)
         self.assertEqual(error1, 0)

@@ -19,7 +19,7 @@ CODELIB = src/libaarsethzare.a
 
 
 $(CODELIB): src/*.f
-	$(MAKE) -C src all
+	$(MAKE) -C src all FC=$(FC)
 
 
 # Building the workers

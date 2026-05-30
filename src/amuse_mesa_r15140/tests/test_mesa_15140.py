@@ -1318,7 +1318,8 @@ class TestMESA(TestWithMPI):
         self.assertEqual(core_mass_by_species[3], carbon_mass_in_core)
         self.assertEqual(core_mass_by_species[5], oxygen_mass_in_core)
 
-    def test25(self):
+    def test25_noci(self):
+        """Disabled on CI due to lack of disk space on Ubuntu"""
         print("Testing MESA accretion")
         instance = self.new_instance_of_an_optional_code(MESA)
         set_mesa_paths_instance(instance)

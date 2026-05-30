@@ -2,11 +2,13 @@ name: Test AMUSE framework
 
 on:
   push:
-    branches:
-     - main
+    paths:
+      - .github/workflows/test-framework.yml
+      - 'src/amuse/**'
   pull_request:
-    branches:
-     - main
+    paths:
+      - .github/workflows/test-framework.yml
+      - 'src/amuse/**'
   workflow_dispatch:
 
 jobs:
@@ -50,12 +52,16 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        fetch-depth: 100
+        fetch-depth: 0
         fetch-tags: true
 
     - name: Build framework
       run: |
         ./setup install amuse-framework
+
+    - name: Ensure we test only the installed package
+      run: |
+        ./setup distclean
 
     - name: Test framework
       env:
@@ -71,12 +77,10 @@ jobs:
       run: |
         ./setup test amuse-framework
 
-    - name: Save build logs
-      run: |
-        tar czf logs-${{ matrix.os }}.tar.gz support/logs
-
     - name: Archive build logs
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: logs-${{ matrix.os }}.tar.gz
-        path: logs-${{ matrix.os }}.tar.gz
+        name: logs-${{ matrix.os }}
+        path: ${{ github.workspace }}/support/logs/
+        if-no-files-found: warn
