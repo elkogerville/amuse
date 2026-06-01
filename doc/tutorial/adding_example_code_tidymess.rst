@@ -101,3 +101,45 @@ Setting up the Makefile
 ~~~~~~~~~~~~~~~~~~~~~~~
 With our build system detection working, we now need to download ``TIDYMESS`` into ``AMUSE``!
 This is where the Makefiles come in. ``AMUSE`` packages typically have 2 Makefiles.
+
+
+Creating the Interfaces
+=======================
+With ``TIDYMESS`` compiled into ``AMUSE``, we can now begin the process of creating our interface!
+The interface system allows community codes, which are all unique and depend on diverse libraries and
+programming languages, to communicate with the ``AMUSE`` framework, which is native Python. ``AMUSE``
+interfaces define a number of interface functions, which provide a standardized way for ``AMUSE`` to
+communicate with each community code. This way, the experience of using any ``AMUSE`` code is identical:
+all codes can be evolved with the ``evolve_model`` method, particles are represented as
+``amuse.datamodel.particles``, etc... The strength of ``AMUSE`` lies in its ability to prototype quickly:
+If the user wants to see what solution a different code would give for the same calculation, all they have
+to do is switch which code they are using, and the script most likely does not need to change.
+
+Therefore, our job when creating an interface is to map the community code functions to the ``AMUSE`` interface
+functions. The amusifier already created all the files we need: the ``interface.py`` and the ``interface.cc``.
+
+Defining the Python interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``interface.py`` actually defines two classes: the high-level and low-level Python interfaces. The high-level
+interface is what the user interacts with when using the community code. This defines the methods, parameters,
+and properties of each community code, and defines how the ``amuse.datamodel.particles`` work within that code.
+The ``amusifer`` generates a minimal code stub for the ``interface.py``, which is enough to get us started.
+The process of defining our interface starts with figuring out what type of code we are adding to ``AMUSE``.
+``AMUSE`` has a set of predefined Python interfaces we can use to build our interface from.
+
+
++----------------------------------+-------------------------------------------+
+| Interface:                       | Example codes:                            |
++----------------------------------+-------------------------------------------+
+| ``GravitationDynamicsInterface`` | N-body: Tidymess, Ph4, Huyano             |
++----------------------------------+-------------------------------------------+
+| ``HydrodynamicsInterface``       | Hydrodynamical: Capreole                  |
++----------------------------------+-------------------------------------------+
+| ``MagnetoHydrodynamicsInterface``| MHD: Athena                               |
++----------------------------------+-------------------------------------------+
+| ``StellarEvolutionInterface``    | Stellar: MESA, EVtwin, SeBa               |
++----------------------------------+-------------------------------------------+
+
+These interfaces define many
+of the required interface functions so that we don't have to.
+In this case, ``TIDYMESS`` is a N-Body code, and therefore falls under the
