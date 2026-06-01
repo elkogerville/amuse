@@ -6,6 +6,9 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - setup
+      - support/**
   workflow_dispatch:
 
 jobs:
