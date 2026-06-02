@@ -20,8 +20,8 @@ Getting Started
 ===============
 
 This tutorial assumes you have a working amuse or amuse development build,
-preferrably in seperated environment (virtualenv, venv or conda etc).
-Please ensure that amuse is setup correctly, this can be verified by running the
+preferably in seperated environment (virtualenv, venv or conda etc).
+Please ensure that amuse is set up correctly, this can be verified by running the
 ``amusifier`` .
 
 .. code-block:: bash
@@ -30,7 +30,7 @@ Please ensure that amuse is setup correctly, this can be verified by running the
 
 Naming our project
 ~~~~~~~~~~~~~~~~~~
-Amuse naming conventions typically follows PascalCase, so we will name our project Tidymess.
+PEP-8 naming conventions for classes follows PascalCase, so we will name our project Tidymess.
 
 Creating the initial directory structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,10 +40,11 @@ by using the ``amusifier`` script with ``--mode=dir``.
 
 Since ``TIDYMESS`` is a native C++ code with no other dependencies, we will specify
 ``--type=c``, but the ``amusifier`` can also build the interface directory for
-``f90`` and ``python`` codes.
+``f90`` and ``python`` codes. Make sure you run the ``amusifier`` in the ``amuse/src/`` directory.
 
 .. code-block:: bash
 
+    > cd amuse/src/
     > amusifier --type=c --mode=dir Tidymess
 
 Having run the ``amusifier``, we now have our new directory in ``amuse/src/amuse_tidymess``.
@@ -52,7 +53,7 @@ stubs to expand upon.
 
 Building the code
 =================
-Before we start working on the interface, we should try and install and compile ``TIDYMESS``
+Before we start working on the interface, we should try to install and compile ``TIDYMESS``
 inside of ``AMUSE``.
 
 Defining dependencies
@@ -69,7 +70,43 @@ Since ``TIDYMESS`` is a standalone C++ code, we can delete most of those and sim
 
 .. code-block:: text
 
-   c c++
+   c++
+
+To test that we did everything properly, we can run the ``./setup`` script from the root directory of ``AMUSE``::
+
+    > cd amuse/
+    > ./setup
+    Checking for dependencies, one moment please...
+
+    *** Configuration complete ***
+    Detected features: c c++ fortran python python-dev gmake cmake install download patch tar unzip gunzip bunzip2 unxz perl bison mpi openmp blas lapack gsl gmp mpfr fftw libz hdf5 netcdf4 qhull healpix-cxx
+
+    ** Enabled packages **
+
+    Packages marked i) are currently installed.
+
+    i) amuse-framework           amuse-hop                 amuse-petar
+       amuse-aarsethzare         amuse-huayno-openmp       amuse-ph4
+       amuse-adaptb              amuse-huayno              amuse-phantom
+       amuse-athena              amuse-kepler              amuse-phigrape
+       amuse-bhtree              amuse-kepler-orbiters     amuse-rebound
+       amuse-brutus              amuse-krome               amuse-sakura
+       amuse-bse                 amuse-mameclot            amuse-seba
+       amuse-capreole            amuse-mercury             amuse-secularmultiple
+       amuse-evtwin              amuse-mesa-r15140         amuse-sei
+       amuse-fastkick            amuse-mesa-r2208          amuse-simplex
+       amuse-fi                  amuse-mi6                 amuse-smalln
+       amuse-fractalcluster      amuse-mikkola             amuse-sphray
+       amuse-gadget2             amuse-mmams               amuse-sse
+       amuse-galactics           amuse-mobse               amuse-symple
+       amuse-galaxia             amuse-mocassin            amuse-tidymess
+       amuse-halogen             amuse-mosse               amuse-tupan
+       amuse-hermite             amuse-mpiamrvac           amuse-twobody
+       amuse-hermite-grx         amuse-nbody6xx            amuse-vader
+
+We can see that the ``AMUSE`` framework is correctly installed, indicated by the ``i)`` symbol. We can
+also see our package ``amuse-tidymess`` is listed meaning the ``AMUSE`` build system now knows of our project
+and we are ready to move on!
 
 Setting up Autoconf
 ~~~~~~~~~~~~~~~~~~~
@@ -92,7 +129,7 @@ and ensure that there are no ``@VARIABLE@`` symbols left! If there are, check th
 
 .. WARNING::
 
-    Make sure the the ``amuse_tidymess/support/shared/`` folder is a simlink to ``amuse/support/shared/``
+    Make sure the the ``amuse_tidymess/support/shared/`` folder is a symlink to ``amuse/support/shared/``
     to ensure that there is no code duplication in the codebase, and that bug fixes are propagated to each
     package automatically. This should be done automatically by the ``amusifier`` but can be a source of bugs
     if not setup correctly.
@@ -131,7 +168,7 @@ The process of defining our interface starts with figuring out what type of code
 +----------------------------------+-------------------------------------------+
 | Interface:                       | Example codes:                            |
 +----------------------------------+-------------------------------------------+
-| ``GravitationDynamicsInterface`` | N-body: Tidymess, Ph4, Huyano             |
+| ``GravitationDynamicsInterface`` | N-body: Tidymess, Ph4, Huayano            |
 +----------------------------------+-------------------------------------------+
 | ``HydrodynamicsInterface``       | Hydrodynamical: Capreole                  |
 +----------------------------------+-------------------------------------------+
