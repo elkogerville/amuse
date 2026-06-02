@@ -115,11 +115,17 @@ We now need to determine what compilers and libraries are on the system and how 
 the ``configure.ac`` file in ``amuse_tidymess/support/``. This file contains a set of macros which will
 detect the tools and libraries needed to build our package. The template should contain all the macros
 needed for our package, so its just a matter of deleting what we don't need. Delete any comment prefaced
-with ``#####``, but only after following the direction of the comment.
+with ``#####``, but only after following the direction of the comment. Since ``TIDYMESS`` is a native C++ code,
+most of the optional macros can be deleted, especially the ones related to external libraries like ``CUDA``,
+``MPI``, ``FFTW``, etc... The only library we will keep is ``AMUSE_LIB_STOPCOND()`` for enabling stopping
+conditions in our project, as well as ``AMUSE_DOWNLOAD()`` and ``AC_CHECK_TOOL(TAR, tar)`` for dynamically
+downloading ``TIDYMESS`` from github into our project when the user tries to install it (so we don't need to package
+the source code directly into ``AMUSE``).
 
 Once ``configure.ac`` is setup correctly, we can edit ``config.mk.in``, and remove any unneeded variables
 as well as any ``#####`` comment. This file is a template for ``config.mk``, which will contain a description
-of all the compiler and library variables needed for our package.
+of all the compiler and library variables needed for our package. Just like ``configure.ac``, the only optional variables
+we will keep are again related to the ``STOPCOND`` library and downloading our package.
 
 Once these files are cleaned up, run ``autoreconf`` to (re)create the ``configure`` script, then run
 ``./configure``. This will test the detection and check for errors. As a sanity check, run ``cat config.mk``
@@ -164,17 +170,17 @@ The process of defining our interface starts with figuring out what type of code
 ``AMUSE`` has a set of predefined Python interfaces we can use to build our interface from.
 
 
-+----------------------------------+-------------------------------------------+
-| Interface:                       | Example codes:                            |
-+----------------------------------+-------------------------------------------+
-| ``GravitationDynamicsInterface`` | N-body: Tidymess, Ph4, Huayano            |
-+----------------------------------+-------------------------------------------+
-| ``HydrodynamicsInterface``       | Hydrodynamical: Capreole                  |
-+----------------------------------+-------------------------------------------+
-| ``MagnetoHydrodynamicsInterface``| MHD: Athena                               |
-+----------------------------------+-------------------------------------------+
-| ``StellarEvolutionInterface``    | Stellar: MESA, EVtwin, SeBa               |
-+----------------------------------+-------------------------------------------+
++-----------------------------------+-------------------------------------------+
+| Interface:                        | Example codes:                            |
++-----------------------------------+-------------------------------------------+
+| ``GravitationDynamicsInterface``  | N-body: Tidymess, Ph4, Huayano            |
++-----------------------------------+-------------------------------------------+
+| ``HydrodynamicsInterface``        | Hydrodynamical: Capreole                  |
++-----------------------------------+-------------------------------------------+
+| ``MagnetoHydrodynamicsInterface`` | MHD: Athena                               |
++-----------------------------------+-------------------------------------------+
+| ``StellarEvolutionInterface``     | Stellar: MESA, EVtwin, SeBa               |
++-----------------------------------+-------------------------------------------+
 
 These interfaces define many
 of the required interface functions so that we don't have to.
