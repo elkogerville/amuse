@@ -30,7 +30,7 @@ Please ensure that amuse is set up correctly, this can be verified by running th
 
 Naming our project
 ~~~~~~~~~~~~~~~~~~
-PEP-8 naming conventions for classes follows PascalCase, so we will name our project Tidymess.
+PEP-8 naming conventions for classes follows PascalCase, so we will name our project ``Tidymess``.
 
 Creating the initial directory structure
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,10 +72,11 @@ Since ``TIDYMESS`` is a standalone C++ code, we can delete most of those and sim
 
    c++
 
-To test that we did everything properly, we can run the ``./setup`` script from the root directory of ``AMUSE``::
+To test that we did everything properly, we can run ``./setup`` from the top-level directory of ``AMUSE``::
 
     > cd amuse/
     > ./setup
+
     Checking for dependencies, one moment please...
 
     *** Configuration complete ***
@@ -110,9 +111,7 @@ and we are ready to move on!
 
 Setting up Autoconf
 ~~~~~~~~~~~~~~~~~~~
-The ``amuse_deps`` file we just created informs the ``AMUSE`` build system about whether or not our
-package is buildable given the available compilers and libraries detected on your computer. We now need
-to determine what compilers and libraries are on the system and how to use them. For this we will edit
+We now need to determine what compilers and libraries are on the system and how to use them. For this we will edit
 the ``configure.ac`` file in ``amuse_tidymess/support/``. This file contains a set of macros which will
 detect the tools and libraries needed to build our package. The template should contain all the macros
 needed for our package, so its just a matter of deleting what we don't need. Delete any comment prefaced
