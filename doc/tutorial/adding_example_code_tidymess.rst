@@ -117,7 +117,7 @@ detect the tools and libraries needed to build our package. The template should 
 needed for our package, so its just a matter of deleting what we don't need. Delete any comment prefaced
 with ``#####``, but only after following the direction of the comment. Since ``TIDYMESS`` is a native C++ code,
 most of the optional macros can be deleted, especially the ones related to external libraries like ``CUDA``,
-``MPI``, ``FFTW``, etc... The only library we will keep is ``AMUSE_LIB_STOPCOND()`` for enabling stopping
+``MPI``, ``FFTW``, etc... The only optional macros we will keep are ``AMUSE_LIB_STOPCOND()`` for enabling stopping
 conditions in our project, as well as ``AMUSE_DOWNLOAD()`` and ``AC_CHECK_TOOL(TAR, tar)`` for dynamically
 downloading ``TIDYMESS`` from github into our project when the user tries to install it (so we don't need to package
 the source code directly into ``AMUSE``).
