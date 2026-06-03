@@ -6,13 +6,8 @@ endif
 support/config.mk:
 	cd support && ./configure
 
-tsunami.tar.gz:
-	@echo "Add message here"
-
-
 src/tsunami-master: | tsunami.tar.gz
-	# tar xf $<
-	tar xf tsunami.tar.gz # FIXME
+	tar xf $<
 	mv tsunami-master src/
 
 # NOTE: how do stopconds work when in python only mode?
@@ -22,21 +17,8 @@ install_tsunami: | src/tsunami-master
 ifneq ($(CONDA_PREFIX),)
 	conda install --yes --channel conda-forge --override-channels numpy swig scikit-build-core
 endif
-	cd src/tsunami-master/build && cmake .. -DCMAKE_OSX_ARCHITECTURES=arm64 # FIXME: maybe we should ensure that build is clean and exists
-	$(MAKE) -C src/tsunami-master/build -j $(CPU_COUNT)
+	cd src/tsunami-master/ && pip install .
 
-# Building the workers
-# tsunami_worker.h: interface.py
-# 	amusifier --type=h interface.py TsunamiInterface -o $@
-
-# tsunami_worker.cc: interface.py
-# 	amusifier --type=c interface.py TsunamiInterface -o $@
-
-# tsunami_worker.o: tsunami_worker.cc tsunami_worker.h
-# 	$(MPICXX) -c -o $@ $(CFLAGS) $<
-
-# tsunami_worker: interface.o tsunami_worker.o $(CODELIB)
-# 	$(MPICXX) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
 tsunami_worker: interface.py install_tsunami
 	PYTHONPATH=. amusifier --type=py --mode=mpi -x interface TsunamiInterface TsunamiImplementation -o $@
