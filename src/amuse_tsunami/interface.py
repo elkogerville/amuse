@@ -1,5 +1,7 @@
 import numpy as np
 from numpy.typing import NDArray
+from amuse.community.interface.common import CommonCode, CommonCodeInterface
+import tsunami
 
 from amuse.support.interface import InCodeComponentImplementation
 from amuse.community.interface.gd import (
@@ -15,13 +17,13 @@ from amuse.community.interface.stopping_conditions import (
 from amuse.rfi.core import (
     CodeInterface,
     LegacyFunctionSpecification,
-    legacy_function
+    PythonCodeInterface,
+    legacy_function,
+    remote_function
 )
 from amuse.support.interface import MethodWithUnitsDefinition
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import generic_unit_system, nbody_system
-
-import tsunami
 
 
 class TsunamiImplementation(object):
@@ -43,7 +45,6 @@ class TsunamiImplementation(object):
         self._spin_list: list[list[float]] = []
         self._mass_list: list[float] = []
         self._radius_list: list[float] = []
-        self._stype_list: list[int] = []
 
         # commited particles
         self._pos: NDArray = np.empty((0, 3), dtype=np.float64)
@@ -91,14 +92,15 @@ class TsunamiImplementation(object):
             return 0
 
         if N_total < 2:
-            return -1
+            raise ValueError(
+                'Tsunami needs at least 2 particles when commiting!'
+            )
 
         if not (
             len(self._vel_list) == N_new and
             len(self._spin_list) == N_new and
             len(self._mass_list) == N_new and
-            len(self._radius_list) == N_new and
-            len(self._stype_list) == N_new
+            len(self._radius_list) == N_new
         ):
             return -1
 
@@ -108,7 +110,7 @@ class TsunamiImplementation(object):
         spin = np.empty((N_total, 3), dtype=np.float64)
         mass = np.empty(N_total, dtype=np.float64)
         radius = np.empty(N_total, dtype=np.float64)
-        stype = np.empty(N_total, dtype=np.int64)
+        stype = np.ones(N_total, dtype=np.int64) * -1
 
         # add any existing Tsunami particles
         if N_existing != 0:
@@ -117,7 +119,6 @@ class TsunamiImplementation(object):
             spin[:N_existing, :] = self._spin
             mass[:N_existing] = self._mass
             radius[:N_existing] = self._radius
-            stype[:N_existing] = self._stype
 
         # add new particles
         pos[N_existing:, :] = np.asarray(self._pos_list, dtype=np.float64).reshape(-1, 3)
@@ -125,7 +126,6 @@ class TsunamiImplementation(object):
         spin[N_existing:, :] = np.asarray(self._spin_list, dtype=np.float64).reshape(-1, 3)
         mass[N_existing:] = np.asarray(self._mass_list, dtype=np.float64)
         radius[N_existing:] = np.asarray(self._radius_list, dtype=np.float64)
-        stype[N_existing:] = np.asarray(self._stype_list, dtype=np.int64)
 
         self.tsunami.add_particle_set(pos, vel, mass, radius, stype, spin)
 
