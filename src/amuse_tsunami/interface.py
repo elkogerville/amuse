@@ -723,8 +723,38 @@ class TsunamiInterface(
         """
         return function
 
+    # @legacy_function
+    # def get_wpn():
+    #     function = LegacyFunctionSpecification()
+    #     function.addParameter(
+    #         'wpn',
+    #         dtype='bool',
+    #         direction=function.OUT
+    #     )
+    #     function.result_type = 'int32'
+    #     return function
 
-class Tsunami(GravitationalDynamics, GravityFieldCode):
+    # @legacy_function
+    # def set_wpn():
+    #     function = LegacyFunctionSpecification()
+    #     function.addParameter(
+    #         'wpn',
+    #         dtype='bool',
+    #         direction=function.IN
+    #     )
+    #     function.result_type = 'int32'
+    #     return function
+
+    @remote_function
+    def get_wpn():
+        returns (wpn='b')
+
+    @remote_function
+    def set_wpn(wpn='b'):
+        returns ()
+
+
+class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
     """One line description of this code
 
     Some more details about what it does, any special features it has beyond the
@@ -756,18 +786,11 @@ class Tsunami(GravitationalDynamics, GravityFieldCode):
 
     def define_state(self, handler):
         """Define the state model of the code."""
-        # for example:
-        # handler.set_initial_state('UNINITIALIZED')
-        # handler.add_transition('!UNINITIALIZED!STOPPED', 'END', 'cleanup_code')
-        # handler.add_transition('END', 'STOPPED', 'stop', False)
-        # handler.add_transition(
-        #     'UNINITIALIZED', 'INITIALIZED', 'initialize_code')
-        # handler.add_method('STOPPED', 'stop')
-        pass
+        GravitationalDynamics.define_state(self, handler)
+        GravityFieldCode.define_state(self, handler)
 
     def define_properties(self, handler):
-        # handler.add_property('name_of_the_getter', public_name="name_of_the_property")
-        pass
+        handler.add_property('get_time', public_name='model_time')
 
     def define_methods(self, handler):
         """
@@ -787,13 +810,50 @@ class Tsunami(GravitationalDynamics, GravityFieldCode):
                 generic_unit_system.speed,
                 generic_unit_system.speed,
                 generic_unit_system.speed,
-                generic_unit_system.length,        # radius
-                1 / generic_unit_system.time,      # wx
-                1 / generic_unit_system.time,      # wy
-                1 / generic_unit_system.time,      # wz
-                handler.NO_UNIT,                   # stype
+                generic_unit_system.length,
+                1 / generic_unit_system.time,
+                1 / generic_unit_system.time,
+                1 / generic_unit_system.time,
             ),
             (handler.INDEX, handler.ERROR_CODE)
+        )
+
+        handler.add_method(
+            'get_state',
+            (handler.INDEX,),
+            (
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,
+                1 / generic_unit_system.time,
+                1 / generic_unit_system.time,
+                1 / generic_unit_system.time,
+                handler.ERROR_CODE
+            ),
+        )
+
+        handler.add_method(
+            'set_state',
+            (
+                handler.INDEX,
+                generic_unit_system.mass,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.length,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.speed,
+                generic_unit_system.length,
+                1 / generic_unit_system.time,
+                1 / generic_unit_system.time,
+                1 / generic_unit_system.time,
+            ),
+            (handler.ERROR_CODE,)
         )
 
     def define_parameters(self, handler):
@@ -803,17 +863,19 @@ class Tsunami(GravitationalDynamics, GravityFieldCode):
         and a name, description and default value. Functions with the appropriate names
         must be defined in the native wrapper code.
         """
-        # handler.add_method_parameter(
-        #     "name_of_the_getter",
-        #     "name_of_the_setter",
-        #     "parameter_name",
-        #     "description",
-        #     default_value = <default value>
-        # )
-        pass
+        handler.add_method_parameter(
+            'get_wpn',
+            'set_wpn',
+            'wpn',
+            'enable post newtonian corrections',
+            default_value=False
+        )
+        # GravitationalDynamics.define_parameters(self, handler)
+
 
     def define_particle_sets(self, handler):
         """Define any particle sets inside the model."""
+        GravitationalDynamics.define_particle_sets(self, handler)
         # handler.define_set('particles', 'index_of_the_particle')
         # handler.set_new('particles', 'new_particle')
         # handler.set_delete('particles', 'delete_particle')
@@ -821,20 +883,10 @@ class Tsunami(GravitationalDynamics, GravityFieldCode):
         # handler.add_getter('particles', 'get_state')
         # handler.add_setter('particles', 'set_mass')
         # handler.add_getter('particles', 'get_mass', names=('mass',))
-        pass
 
-    def define_grids(self, handler):
-        """Define any grids inside the model."""
-        # handler.define_grid('grid',axes_names = ["x", "y"], grid_class=StructuredGrid)
-        # handler.set_grid_range('grid', '_grid_range')
-        # handler.add_getter('grid', 'get_grid_position', names=["x", "y"])
-        # handler.add_getter('grid', 'get_rho', names=["density"])
-        # handler.add_setter('grid', 'set_rho', names=["density"])
-        pass
-
-    # def define_converter(self, handler):
-        # """Handle unit conversion if an (optional) unit converter is specified."""
-        #     if self.unit_converter is not None:
-        #         handler.set_converter(
-        #             self.unit_converter.as_converter_from_si_to_generic()
-        #         )
+    def define_converter(self, handler):
+        """Handle unit conversion if an (optional) unit converter is specified."""
+        if self.unit_converter is not None:
+            handler.set_converter(
+                self.unit_converter.as_converter_from_si_to_generic()
+            )
