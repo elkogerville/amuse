@@ -381,13 +381,12 @@ class TsunamiImplementation(object):
         self._spin_list.clear()
         self._mass_list.clear()
         self._radius_list.clear()
-        self._stype_list.clear()
 
 class TsunamiInterface(
-    CodeInterface,
-    LiteratureReferencesMixIn,
+    PythonCodeInterface,
     GravitationalDynamicsInterface,
-    StoppingConditionInterface,
+    GravityFieldInterface,
+    LiteratureReferencesMixIn,
 ):
     """
     Description of the interface with the community code.
@@ -400,11 +399,14 @@ class TsunamiInterface(
     corresponding request from the Python part of AMUSE.
     """
 
-    include_headers = ['tsunami_worker.h', 'stopcond.h']
+    # include_headers = ['tsunami_worker.h', 'stopcond.h']
 
     def __init__(self, **kwargs):
-        CodeInterface.__init__(
-            self, name_of_the_worker='tsunami_worker', **kwargs
+        PythonCodeInterface.__init__(
+            self,
+            TsunamiImplementation,
+            'tsunami_worker',
+            **kwargs
         )
         LiteratureReferencesMixIn.__init__(self)
 
