@@ -149,29 +149,96 @@ class TsunamiImplementation(object):
 
         return 0
 
+    def evolve_model(self, time) -> int:
+        if time <= self.tsunami.time:
+            return -1
+
+        self.tsunami.evolve_system(time)
+
+        self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
+
+        return 0
+
+    def get_state(
+        self,
+        index_of_the_particle,
+        mass,
+        x,
+        y,
+        z,
+        vx,
+        vy,
+        vz,
+        radius,
+        wx,
+        wy,
+        wz
+    ) -> int:
+        i = index_of_the_particle
+        mass.value = self._mass[i]
+        x.value = self._pos[i,0]
+        y.value = self._pos[i,1]
+        z.value = self._pos[i,2]
+        vx.value = self._vel[i,0]
+        vy.value = self._vel[i,1]
+        vz.value = self._vel[i,2]
+        radius.value = self._radius[i]
+        wx.value = self._spin[i,0]
+        wy.value = self._spin[i,1]
+        wz.value = self._spin[i,2]
+        return 0
+
+    def set_state(
+        self,
+        index_of_the_particle,
+        mass,
+        x,
+        y,
+        z,
+        vx,
+        vy,
+        vz,
+        radius,
+        wx,
+        wy,
+        wz
+    ) -> int:
+        # i = index_of_the_particle
+        # mass.value = self._mass[i]
+        # x.value = self._pos[i,0]
+        # y.value = self._pos[i,1]
+        # z.value = self._pos[i,2]
+        # vx.value = self._vel[i,0]
+        # vy.value = self._vel[i,1]
+        # vz.value = self._vel[i,2]
+        # radius.value = self._radius[i]
+        # wx.value = self._spin[i,0]
+        # wy.value = self._spin[i,1]
+        # wz.value = self._spin[i,2]
+        return 0
+
     def new_particle(
         self,
-        index_of_the_particle: int,
-        mass: float,
-        x: float,
-        y: float,
-        z: float,
-        vx: float,
-        vy: float,
-        vz: float,
-        radius: float,
-        wx: float,
-        wy: float,
-        wz: float,
-        stype: int
+        index_of_the_particle,
+        mass,
+        x,
+        y,
+        z,
+        vx,
+        vy,
+        vz,
+        radius,
+        wx,
+        wy,
+        wz,
     ) -> int:
         self._pos_list.append([x, y, z])
         self._vel_list.append([vx, vy, vz])
         self._mass_list.append(mass)
         self._radius_list.append(radius)
         self._spin_list.append([wx, wy, wz])
-        self._stype_list.append(stype)
-        index_of_the_particle = len(self._pos_list) - 1
+
+        index_of_the_particle.value = len(self._pos_list) - 1
 
         return 0
 
@@ -415,13 +482,6 @@ class TsunamiInterface(
             description='The initial spin vector of the particle',
             default=0
         )
-        function.addParameter(
-            'stype',
-            dtype='float64',
-            direction=function.IN,
-            description='The physical type of the particle',
-            default=0
-        )
         function.result_type = 'int32'
         function.can_handle_array = True
         function.result_doc = """
@@ -433,103 +493,129 @@ class TsunamiInterface(
         return function
 
     @legacy_function
-    def get_state():
-        """
-        Retrieve the current state of a particle. The *minimal* information of
-        a stellar dynamics particle (mass, radius, position and velocity) is
-        returned.
-        """
+    def get_time():
         function = LegacyFunctionSpecification()
-        function.can_handle_array = True
         function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                "Index of the particle to get the state from. This index must "
-                "have been returned by an earlier call to :meth:`new_particle`"
-            ),
-        )
-        function.addParameter(
-            'mass',
+            'time',
             dtype='float64',
             direction=function.OUT,
-            description='The current mass of the particle',
-        )
-        function.addParameter(
-            'x',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current position vector of the particle',
-        )
-        function.addParameter(
-            'y',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current position vector of the particle',
-        )
-        function.addParameter(
-            'z',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current position vector of the particle',
-        )
-        function.addParameter(
-            'vx',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current velocity vector of the particle',
-        )
-        function.addParameter(
-            'vy',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current velocity vector of the particle',
-        )
-        function.addParameter(
-            'vz',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current velocity vector of the particle',
-        )
-        function.addParameter(
-            'radius',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current radius of the particle',
-        )
-        function.addParameter(
-            'wx',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current spin of the particle',
-        )
-        function.addParameter(
-            'wy',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current spin of the particle',
-        )
-        function.addParameter(
-            'wz',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current spin of the particle',
-        )
-        function.addParameter(
-            'stype',
-            dtype='float64',
-            direction=function.OUT,
-            description='The particle type',
+            description='time to evolve to'
         )
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
-            particle was removed from the model
+            System was evolved to time
         -1 - ERROR
-            particle could not be found
+            Requested time is <= current model time
         """
         return function
+
+
+    @remote_function(can_handle_array=True)
+    def get_state(
+        index_of_the_particle='i'
+    ):
+        returns (
+            mass='d',
+            x='d', y='d', z='d',
+            vx='d', vy='d', vz='d',
+            radius='d',
+            wx='d', wy='d', wz='d'
+        )
+
+
+    # @legacy_function
+    # def get_state():
+    #     """
+    #     Retrieve the current state of a particle. The *minimal* information of
+    #     a stellar dynamics particle (mass, radius, position and velocity) is
+    #     returned.
+    #     """
+    #     function = LegacyFunctionSpecification()
+    #     function.can_handle_array = True
+    #     function.addParameter(
+    #         'index_of_the_particle',
+    #         dtype='int32',
+    #         direction=function.IN,
+    #         description=(
+    #             "Index of the particle to get the state from. This index must "
+    #             "have been returned by an earlier call to :meth:`new_particle`"
+    #         ),
+    #     )
+    #     function.addParameter(
+    #         'mass',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current mass of the particle',
+    #     )
+    #     function.addParameter(
+    #         'x',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current position vector of the particle',
+    #     )
+    #     function.addParameter(
+    #         'y',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current position vector of the particle',
+    #     )
+    #     function.addParameter(
+    #         'z',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current position vector of the particle',
+    #     )
+    #     function.addParameter(
+    #         'vx',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current velocity vector of the particle',
+    #     )
+    #     function.addParameter(
+    #         'vy',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current velocity vector of the particle',
+    #     )
+    #     function.addParameter(
+    #         'vz',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current velocity vector of the particle',
+    #     )
+    #     function.addParameter(
+    #         'radius',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current radius of the particle',
+    #     )
+    #     function.addParameter(
+    #         'wx',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current spin of the particle',
+    #     )
+    #     function.addParameter(
+    #         'wy',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current spin of the particle',
+    #     )
+    #     function.addParameter(
+    #         'wz',
+    #         dtype='float64',
+    #         direction=function.OUT,
+    #         description='The current spin of the particle',
+    #     )
+    #     function.result_type = 'int32'
+    #     function.result_doc = """
+    #     0 - OK
+    #         particle was removed from the model
+    #     -1 - ERROR
+    #         particle could not be found
+    #     """
+    #     return function
 
     @legacy_function
     def set_state():
@@ -615,12 +701,6 @@ class TsunamiInterface(
             dtype='float64',
             direction=function.IN,
             description='The current spin of the particle',
-        )
-        function.addParameter(
-            'stype',
-            dtype='float64',
-            direction=function.IN,
-            description='The particle type',
         )
         function.result_type = 'int32'
         function.result_doc = """
