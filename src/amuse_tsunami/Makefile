@@ -6,7 +6,7 @@ endif
 support/config.mk:
 	cd support && ./configure
 
-src/tsunami-master: | tsunami.tar.gz
+src/tsunami-master: | tsunami-master.tar.gz
 	tar xf $<
 	mv tsunami-master src/
 
@@ -17,7 +17,7 @@ install_tsunami: | src/tsunami-master
 ifneq ($(CONDA_PREFIX),)
 	conda install --yes --channel conda-forge --override-channels numpy swig scikit-build-core
 endif
-	cd src/tsunami-master/ && pip install .
+	cd src/tsunami-master/ && pip install . -Ccmake.define.spin=ON
 
 
 tsunami_worker: interface.py install_tsunami
