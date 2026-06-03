@@ -248,9 +248,9 @@ class TsunamiImplementation(object):
 
         self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
 
-        x = self._pos[index_of_the_particle, 0]
-        y = self._pos[index_of_the_particle, 1]
-        z = self._pos[index_of_the_particle, 2]
+        x.value = self._pos[index_of_the_particle, 0]
+        y.value = self._pos[index_of_the_particle, 1]
+        z.value = self._pos[index_of_the_particle, 2]
 
         return 0
 
@@ -281,7 +281,7 @@ class TsunamiImplementation(object):
         """
         Get mass unit of Tsunami in MSun.
         """
-        Mscale = self.tsunami.Mscale
+        Mscale.value = self.tsunami.Mscale
 
         return 0
 
@@ -300,7 +300,7 @@ class TsunamiImplementation(object):
         """
         Get length unit of Tsunami in AU.
         """
-        Lscale = self.tsunami.Lscale
+        Lscale.value = self.tsunami.Lscale
 
         return 0
 
@@ -323,7 +323,7 @@ class TsunamiImplementation(object):
         This value is read only; to set it change
         Mscale and Lscale.
         """
-        Tscale = self.tsunami.Tscale
+        Tscale.value = self.tsunami.Tscale
 
         return 0
 
@@ -335,7 +335,7 @@ class TsunamiImplementation(object):
         This value is read only; to set it change
         Mscale and Lscale.
         """
-        Vscale = self.tsunami.Vscale
+        Vscale.value = self.tsunami.Vscale
 
         return 0
 
@@ -345,23 +345,33 @@ class TsunamiImplementation(object):
 
         tsunami.time returns time in N-body units.
         """
-        time = self.tsunami.time
+        time.value = self.tsunami.time
+        return 0
 
+    def get_wpn(self, wpn) -> int:
+        wpn.value = self.tsunami.Conf.wPNs
+        return 0
+
+    def set_wpn(self, wpn) -> int:
+        self.tsunami.Conf.wPNs = bool(wpn)
         return 0
 
     def get_potential_energy(self, potential_energy) -> int:
-        potential_energy = self.tsunami.pot
+        potential_energy.value = self.tsunami.pot
 
         return 0
 
     def get_kinetic_energy(self, kinetic_energy) -> int:
-        kinetic_energy = self.tsunami.kin
+        kinetic_energy.value = self.tsunami.kin
 
         return 0
 
     def get_total_energy(self, total_energy) -> int:
-        total_energy = self.tsunami.energy
+        total_energy.value = self.tsunami.energy
 
+        return 0
+
+    def synchronize_model(self) -> int:
         return 0
 
     def _clear_temporary_particle_buffers(self) -> None:
