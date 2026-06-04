@@ -646,19 +646,19 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         GravitationalDynamics.define_methods(self, handler)
 
         handler.add_method(
+            'evolve_model_dtmax',
+            (ns.time,),
+            (handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
             'new_particle',
             (
-                generic_unit_system.mass,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.length,
-                1 / generic_unit_system.time,
-                1 / generic_unit_system.time,
-                1 / generic_unit_system.time,
+                ns.mass,
+                ns.length,
+                ns.length, ns.length, ns.length,
+                ns.speed, ns.speed, ns.speed,
+                1 / ns.time, 1 / ns.time, 1 / ns.time,
             ),
             (handler.INDEX, handler.ERROR_CODE)
         )
@@ -667,17 +667,11 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             'get_state',
             (handler.INDEX,),
             (
-                generic_unit_system.mass,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.length,
-                1 / generic_unit_system.time,
-                1 / generic_unit_system.time,
-                1 / generic_unit_system.time,
+                ns.mass,
+                ns.length,
+                ns.length, ns.length, ns.length,
+                ns.speed, ns.speed, ns.speed,
+                1 / ns.time, 1 / ns.time, 1 / ns.time,
                 handler.ERROR_CODE
             ),
         )
@@ -686,17 +680,11 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             'set_state',
             (
                 handler.INDEX,
-                generic_unit_system.mass,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.length,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.speed,
-                generic_unit_system.length,
-                1 / generic_unit_system.time,
-                1 / generic_unit_system.time,
-                1 / generic_unit_system.time,
+                ns.mass,
+                ns.length,
+                ns.length, ns.length, ns.length,
+                ns.speed, ns.speed, ns.speed,
+                1 / ns.time, 1 / ns.time, 1 / ns.time,
             ),
             (handler.ERROR_CODE,)
         )
