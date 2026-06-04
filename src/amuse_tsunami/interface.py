@@ -273,63 +273,44 @@ class TsunamiImplementation(object):
 
     def set_state(
         self,
-        index_of_the_particle,
-        mass,
-        x,
-        y,
-        z,
-        vx,
-        vy,
-        vz,
-        radius,
-        wx,
-        wy,
-        wz
+        index_of_the_particle: int,
+        mass: float,
+        radius: float,
+        x: float, y: float, z: float,
+        vx: float, vy: float, vz: float,
+        wx: float, wy: float, wz: float
     ) -> int:
-        # i = index_of_the_particle
-        # mass.value = self._mass[i]
-        # x.value = self._pos[i,0]
-        # y.value = self._pos[i,1]
-        # z.value = self._pos[i,2]
-        # vx.value = self._vel[i,0]
-        # vy.value = self._vel[i,1]
-        # vz.value = self._vel[i,2]
-        # radius.value = self._radius[i]
-        # wx.value = self._spin[i,0]
-        # wy.value = self._spin[i,1]
-        # wz.value = self._spin[i,2]
+        i = index_of_the_particle
+        self._validate_particle_index(i)
+
+        self._mass[i] = mass
+        self._radius[i] = radius
+        self._pos[i,0] = x
+        self._pos[i,1] = y
+        self._pos[i,2] = z
+        self._vel[i,0] = vx
+        self._vel[i,1] = vy
+        self._vel[i,2] = vz
+        self._spin[i,0] = wx
+        self._spin[i,1] = wy
+        self._spin[i,2] = wz
+
+        self.tsunami.override_masses(self._mass)
+        self.tsunami.override_position_and_velocities(self._pos, self._vel)
+
         return 0
 
-    def new_particle(
+    def get_position(
         self,
-        index_of_the_particle,
-        mass,
-        x,
-        y,
-        z,
-        vx,
-        vy,
-        vz,
-        radius,
-        wx,
-        wy,
-        wz,
+        index_of_the_particle: int,
+        x: ValueHolder,
+        y: ValueHolder,
+        z: ValueHolder
     ) -> int:
-        self._pos_list.append([x, y, z])
-        self._vel_list.append([vx, vy, vz])
-        self._mass_list.append(mass)
-        self._radius_list.append(radius)
-        self._spin_list.append([wx, wy, wz])
-
-        index_of_the_particle.value = len(self._pos_list) - 1
-
-        return 0
-
-    def get_position(self, index_of_the_particle, x, y, z) -> int:
         if self._pos.shape[0] == 0:
             return -1
 
-        self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
+        self.synchronize_model()
 
         x.value = self._pos[index_of_the_particle, 0]
         y.value = self._pos[index_of_the_particle, 1]
@@ -337,9 +318,28 @@ class TsunamiImplementation(object):
 
         return 0
 
-    def set_position(self, index_of_the_particle, x, y, z) -> int:
+    def set_position(
+        self, index_of_the_particle: int, x: float, y: float, z: float
+    ) -> int:
+        """
+        Set the position of a particle. Ensure to update its mass first!
 
-        self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index.
+        x, y, z : float
+            Particle position.
+
+        Returns
+        -------
+        0 : If position was set.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
+        """
+        self._validate_particle_index(index_of_the_particle)
 
         self._pos[index_of_the_particle, 0] = x
         self._pos[index_of_the_particle, 1] = y
