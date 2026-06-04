@@ -73,16 +73,22 @@ class TsunamiImplementation(object):
         preallocated np.ndarrays of particles.
 
         This method grabs all pre-existing particles in Tsunami
-        as well as any particles inside the temporary buffers
+        as well as any new particles inside the temporary buffers
         and formats them as a particle set to be read by Tsunami.
+
+        This method should only be called after 2 new particles were added.
 
         Returns
         -------
-        0 : If particles were added to Tsunami succesfully or if no
-            new particles are available to be added
-        -1 : If less than 2 particles between the pre-existing particles
-            and the particles in the buffer, or if the shapes of the
-            particleset arrays dont match.
+         0 : If particles were added to Tsunami succesfully or if no
+             new particles are available to be added.
+        -1 : If the shapes of the particleset arrays dont match.
+
+        Raises
+        ------
+        ValueError :
+            If the total particle count is less than 2 particles between
+            the pre-existing particles and the particles in the buffer.
         """
         N_existing: int = self._pos.shape[0]
         N_new: int = len(self._pos_list)
@@ -360,7 +366,7 @@ class TsunamiImplementation(object):
 
         return 0
 
-    def get_mscale(self, Mscale) -> int:
+    def get_mscale(self, Mscale: ValueHolder) -> int:
         """
         Get mass unit of Tsunami in MSun.
         """
@@ -379,7 +385,7 @@ class TsunamiImplementation(object):
 
         return 0
 
-    def get_lscale(self, Lscale) -> int:
+    def get_lscale(self, Lscale: ValueHolder) -> int:
         """
         Get length unit of Tsunami in AU.
         """
@@ -387,7 +393,7 @@ class TsunamiImplementation(object):
 
         return 0
 
-    def set_lscale(self, Lscale) -> int:
+    def set_lscale(self, Lscale: float) -> int:
         """
         Set length unit of Tsunami in AU.
 
@@ -398,7 +404,7 @@ class TsunamiImplementation(object):
 
         return 0
 
-    def get_tscale(self, Tscale) -> int:
+    def get_tscale(self, Tscale: ValueHolder) -> int:
         """
         Get time unit of Tsunami in years.
         Derived from Mscale, Lscale, and G=1.
@@ -410,7 +416,7 @@ class TsunamiImplementation(object):
 
         return 0
 
-    def get_vscale(self, Vscale) -> int:
+    def get_vscale(self, Vscale: ValueHolder) -> int:
         """
         Get velocity unit of Tsunami in km/s.
         Derived from Mscale, Lscale, and G=1.
@@ -422,7 +428,7 @@ class TsunamiImplementation(object):
 
         return 0
 
-    def get_time(self, time) -> int:
+    def get_time(self, time: ValueHolder) -> int:
         """
         Get current model time.
 
@@ -431,39 +437,55 @@ class TsunamiImplementation(object):
         time.value = self.tsunami.time
         return 0
 
-    def get_wpn(self, wpn) -> int:
+    def get_wpn(self, wpn: ValueHolder) -> int:
         wpn.value = self.tsunami.Conf.wPNs
         return 0
 
-    def set_wpn(self, wpn) -> int:
+    def set_wpn(self, wpn: bool) -> int:
         self.tsunami.Conf.wPNs = bool(wpn)
         return 0
 
-    def get_potential_energy(self, potential_energy) -> int:
+    def get_potential_energy(self, potential_energy: ValueHolder) -> int:
         potential_energy.value = self.tsunami.pot
 
         return 0
 
-    def get_kinetic_energy(self, kinetic_energy) -> int:
+    def get_kinetic_energy(self, kinetic_energy: ValueHolder) -> int:
         kinetic_energy.value = self.tsunami.kin
 
         return 0
 
-    def get_total_energy(self, total_energy) -> int:
+    def get_total_energy(self, total_energy: ValueHolder) -> int:
         total_energy.value = self.tsunami.energy
 
         return 0
 
     def synchronize_model(self) -> int:
+        """
+        Synchronize TsunamiImplementation with TSUNAMI.
+        Call this function before accessing values to ensure
+        that the returned values are up to date.
+        """
+        self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
         return 0
+
+    def _validate_particle_index(self, i) -> None:
+        """
+        Validate that the requested particle index
+        refers to a particle in Tsunami.
+        """
+        if not 0 <= i < len(self._pos):
+            raise ValueError(
+                f'Incorrect index of the particle! Max index: {len(self._pos) - 1}'
+            )
 
     def _clear_temporary_particle_buffers(self) -> None:
         """Clear temporary particle buffers after commiting particles"""
+        self._mass_list.clear()
+        self._radius_list.clear()
         self._pos_list.clear()
         self._vel_list.clear()
         self._spin_list.clear()
-        self._mass_list.clear()
-        self._radius_list.clear()
 
 class TsunamiInterface(
     PythonCodeInterface,
