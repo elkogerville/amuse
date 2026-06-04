@@ -444,33 +444,11 @@ class TsunamiImplementation(object):
 
         return 0
 
-    def set_units(self, Mscale, Lscale) -> int:
-        """
-        Set the mass and length units for Tsunami.
-
-        Used for changing the unit system of
-        Tsunami after initialization.
-        """
-        self.tsunami.set_units(Mscale, Lscale)
-
-        return 0
-
     def get_mscale(self, Mscale: ValueHolder) -> int:
         """
         Get mass unit of Tsunami in MSun.
         """
         Mscale.value = self.tsunami.Mscale
-
-        return 0
-
-    def set_mscale(self, Mscale) -> int:
-        """
-        Set mass unit of Tsunami in MSun.
-
-        Used for changing the length unit of
-        Tsunami after initialization.
-        """
-        self.tsunami.set_units(Mscale, self.tsunami.Lscale)
 
         return 0
 
@@ -513,12 +491,76 @@ class TsunamiImplementation(object):
         time.value = self.tsunami.time
         return 0
 
-    def get_wpn(self, wpn: ValueHolder) -> int:
-        wpn.value = self.tsunami.Conf.wPNs
+    def get_alpha(self, alpha: ValueHolder) -> int:
+        alpha.value = self.tsunami.Conf.alpha
         return 0
 
-    def set_wpn(self, wpn: bool) -> int:
-        self.tsunami.Conf.wPNs = bool(wpn)
+    def set_alpha(self, alpha: float) -> int:
+        self.tsunami.Conf.alpha = alpha
+        return 0
+
+    def get_beta(self, beta: ValueHolder) -> int:
+        beta.value = self.tsunami.Conf.beta
+        return 0
+
+    def set_beta(self, beta: float) -> int:
+        self.tsunami.Conf.beta = beta
+        return 0
+
+    def get_gamma(self, gamma: ValueHolder) -> int:
+        gamma.value = self.tsunami.Conf.gamma
+        return 0
+
+    def set_gamma(self, gamma: float) -> int:
+        self.tsunami.Conf.gamma = gamma
+        return 0
+
+    def get_pn(self, pn: ValueHolder) -> int:
+        pn.value = self.tsunami.Conf.wPNs
+        return 0
+
+    def set_pn(self, pn: bool) -> int:
+        self.tsunami.Conf.wPNs = bool(pn)
+        return 0
+
+    def get_pn1(self, pn1: ValueHolder) -> int:
+        pn1.value = self.tsunami.Conf.pn1
+        return 0
+
+    def set_pn1(self, pn1: bool) -> int:
+        self.tsunami.Conf.pn1 = bool(pn1)
+        return 0
+
+    def get_pn2(self, pn2: ValueHolder) -> int:
+        pn2.value = self.tsunami.Conf.pn2
+        return 0
+
+    def set_pn2(self, pn2: bool) -> int:
+        self.tsunami.Conf.pn2 = bool(pn2)
+        return 0
+
+    def get_pn25(self, pn25: ValueHolder) -> int:
+        pn25.value = self.tsunami.Conf.pn25
+        return 0
+
+    def set_pn25(self, pn25: bool) -> int:
+        self.tsunami.Conf.pn25 = bool(pn25)
+        return 0
+
+    def get_pn3(self, pn3: ValueHolder) -> int:
+        pn3.value = self.tsunami.Conf.pn3
+        return 0
+
+    def set_pn3(self, pn3: bool) -> int:
+        self.tsunami.Conf.pn3 = bool(pn3)
+        return 0
+
+    def get_pn35(self, pn35: ValueHolder) -> int:
+        pn35.value = self.tsunami.Conf.pn35
+        return 0
+
+    def set_pn35(self, pn35: bool) -> int:
+        self.tsunami.Conf.pn35 = bool(pn35)
         return 0
 
     def get_potential_energy(self, potential_energy: ValueHolder) -> int:
@@ -658,13 +700,76 @@ class TsunamiInterface(
         return function
 
     @remote_function
-    def get_wpn():
-        returns (wpn='b')
+    def get_alpha():
+        returns (alpha='d')
 
     @remote_function
-    def set_wpn(wpn='b'):
+    def set_alpha(alpha='d'):
         returns ()
 
+    @remote_function
+    def get_beta():
+        returns (beta='d')
+
+    @remote_function
+    def set_beta(beta='d'):
+        returns ()
+
+    @remote_function
+    def get_gamma():
+        returns (gamma='d')
+
+    @remote_function
+    def set_gamma(gamma='d'):
+        returns ()
+
+    @remote_function
+    def get_pn():
+        returns (pn='b')
+
+    @remote_function
+    def set_pn(pn='b'):
+        returns ()
+
+    @remote_function
+    def get_pn1():
+        returns (pn1='b')
+
+    @remote_function
+    def set_pn1(pn1='b'):
+        returns ()
+
+    @remote_function
+    def get_pn2():
+        returns (pn2='b')
+
+    @remote_function
+    def set_pn2(pn2='b'):
+        returns ()
+
+    @remote_function
+    def get_pn25():
+        returns (pn25='b')
+
+    @remote_function
+    def set_pn25(pn25='b'):
+        returns ()
+
+    @remote_function
+    def get_pn3():
+        returns (pn3='b')
+
+    @remote_function
+    def set_pn3(pn3='b'):
+        returns ()
+
+    @remote_function
+    def get_pn35():
+        returns (pn35='b')
+
+    @remote_function
+    def set_pn35(pn35='b'):
+        returns ()
 
 class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
     """One line description of this code
@@ -764,11 +869,75 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         must be defined in the native wrapper code.
         """
         handler.add_method_parameter(
-            'get_wpn',
-            'set_wpn',
-            'wpn',
+            'get_alpha',
+            'set_alpha',
+            'alpha',
+            'alpha regularization parameter.',
+            default_value=1.0
+        )
+
+        handler.add_method_parameter(
+            'get_beta',
+            'set_beta',
+            'beta',
+            'beta regularization parameter.',
+            default_value=0.0
+        )
+
+        handler.add_method_parameter(
+            'get_gamma',
+            'set_gamma',
+            'gamma',
+            'gamma regularization parameter.',
+            default_value=0.0
+        )
+
+        handler.add_method_parameter(
+            'get_pn',
+            'set_pn',
+            'pn',
             'enable post newtonian corrections',
             default_value=False
+        )
+
+        handler.add_method_parameter(
+            'get_pn1',
+            'set_pn1',
+            'pn1',
+            'enable post newtonian corrections',
+            default_value=True
+        )
+
+        handler.add_method_parameter(
+            'get_pn2',
+            'set_pn2',
+            'pn2',
+            'enable post newtonian corrections',
+            default_value=True
+        )
+
+        handler.add_method_parameter(
+            'get_pn25',
+            'set_pn25',
+            'pn25',
+            'enable post newtonian corrections',
+            default_value=True
+        )
+
+        handler.add_method_parameter(
+            'get_pn3',
+            'set_pn3',
+            'pn3',
+            'enable post newtonian corrections',
+            default_value=True
+        )
+
+        handler.add_method_parameter(
+            'get_pn35',
+            'set_pn35',
+            'pn35',
+            'enable post newtonian corrections',
+            default_value=True
         )
         # GravitationalDynamics.define_parameters(self, handler)
 
