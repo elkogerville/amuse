@@ -34,8 +34,8 @@ class TsunamiImplementation(object):
     """
 
     def __init__(self):
-
-        self.tsunami = tsunami.Tsunami()
+        # hard code N-Body units to Lscale = Mscale = 1
+        self.tsunami = tsunami.Tsunami(1, 1)
 
         # temporary buffers for staging particles
         self._mass_list: list[float] = []
@@ -68,19 +68,20 @@ class TsunamiImplementation(object):
     def commit_particles(self) -> int:
         """
         Add all particles stored in the particle buffers
-        into the Tsunami code. Tsunami does not support
+        into the TSUNAMI code. TSUNAMI does not support
         adding individual particles and instead requires
         preallocated np.ndarrays of particles.
 
-        This method grabs all pre-existing particles in Tsunami
+        This method grabs all pre-existing particles in TSUNAMI
         as well as any new particles inside the temporary buffers
-        and formats them as a particle set to be read by Tsunami.
+        and formats them as numpy arrays to be read by TSUNAMI.
 
         This method should only be called after 2 new particles were added.
+        Calling this method with no new particles in the buffers does nothing.
 
         Returns
         -------
-         0 : If particles were added to Tsunami succesfully or if no
+         0 : If particles were added to TSUNAMI succesfully or if no
              new particles are available to be added.
         -1 : If the shapes of the particleset arrays dont match.
 
@@ -209,15 +210,54 @@ class TsunamiImplementation(object):
 
         return 0
 
+    def synchronize_model(self) -> int:
+        """
+        Synchronize TsunamiImplementation with TSUNAMI.
+        This ensures that the current particle state in
+        AMUSE matches the current state of TSUNAMI.
+
+        Call this function before accessing values to ensure
+        that the returned values are up to date.
+        """
+        self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
+        return 0
+
     def new_particle(
         self,
-        index_of_the_particle,
-        mass,
-        radius,
-        x, y, z,
-        vx, vy, vz,
-        wx, wy, wz
+        index_of_the_particle: ValueHolder,
+        mass: float,
+        radius: float,
+        x: float, y: float, z: float,
+        vx: float, vy: float, vz: float,
+        wx: float, wy: float, wz: float
     ) -> int:
+        """
+        Add a new particle to TSUNAMI.
+
+        The particles are added to a temporary buffer,
+        and are only added to TSUNAMI upon calling
+        `commit_particles` or `recommit_particles`.
+
+        Parameters
+        ----------
+        index_of_the_particle : ValueHolder[int]
+             ValueHolder instance to return the index
+             of the new particle.
+        mass : float
+            Particle mass.
+        radius : float
+            Particle radius.
+        x, y, z : float
+            Particle position.
+        vx, vy, vz : float
+            Particle velocity.
+        wx, wy, wz : float
+            Particle spin.
+
+        Returns
+        -------
+        0 : Particle was created successfully.
+        """
         self._mass_list.append(mass)
         self._radius_list.append(radius)
         self._pos_list.append([x, y, z])
@@ -258,6 +298,10 @@ class TsunamiImplementation(object):
         Returns
         -------
         0 : State was retrieved successfully.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
         """
         i = index_of_the_particle
         self._validate_particle_index(i)
@@ -286,6 +330,32 @@ class TsunamiImplementation(object):
         vx: float, vy: float, vz: float,
         wx: float, wy: float, wz: float
     ) -> int:
+        """
+        Set the state of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        mass : float
+            Particle mass.
+        radius : float
+            Particle radius.
+        x, y, z : float
+            Particle position.
+        vx, vy, vz : float
+            Particle velocity.
+        wx, wy, wz : float
+            Particle spin.
+
+        Returns
+        -------
+        0 : State was retrieved successfully.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
+        """
         i = index_of_the_particle
         self._validate_particle_index(i)
 
@@ -313,6 +383,25 @@ class TsunamiImplementation(object):
         y: ValueHolder,
         z: ValueHolder
     ) -> int:
+        """
+        Retrieve the position of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        x, y, z : ValueHolder[float]
+            ValueHolder instance to return the position
+            of the particle.
+
+        Returns
+        -------
+        0 : If position was set.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
+        """
         if self._pos.shape[0] == 0:
             return -1
 
@@ -333,7 +422,7 @@ class TsunamiImplementation(object):
         Parameters
         ----------
         index_of_the_particle : int
-            Particle index.
+            Particle index as returned by `new_particle`.
         x, y, z : float
             Particle position.
 
@@ -393,24 +482,12 @@ class TsunamiImplementation(object):
 
         return 0
 
-    def set_lscale(self, Lscale: float) -> int:
-        """
-        Set length unit of Tsunami in AU.
-
-        Used for changing the length unit of
-        Tsunami after initialization.
-        """
-        self.tsunami.set_units(self.tsunami.Mscale, Lscale)
-
-        return 0
-
     def get_tscale(self, Tscale: ValueHolder) -> int:
         """
         Get time unit of Tsunami in years.
         Derived from Mscale, Lscale, and G=1.
 
-        This value is read only; to set it change
-        Mscale and Lscale.
+        This value is read only.
         """
         Tscale.value = self.tsunami.Tscale
 
@@ -421,8 +498,7 @@ class TsunamiImplementation(object):
         Get velocity unit of Tsunami in km/s.
         Derived from Mscale, Lscale, and G=1.
 
-        This value is read only; to set it change
-        Mscale and Lscale.
+        This value is read only.
         """
         Vscale.value = self.tsunami.Vscale
 
@@ -458,15 +534,6 @@ class TsunamiImplementation(object):
     def get_total_energy(self, total_energy: ValueHolder) -> int:
         total_energy.value = self.tsunami.energy
 
-        return 0
-
-    def synchronize_model(self) -> int:
-        """
-        Synchronize TsunamiImplementation with TSUNAMI.
-        Call this function before accessing values to ensure
-        that the returned values are up to date.
-        """
-        self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
         return 0
 
     def _validate_particle_index(self, i) -> None:
