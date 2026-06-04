@@ -904,7 +904,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             'get_pn1',
             'set_pn1',
             'pn1',
-            'enable post newtonian corrections',
+            'enable post newtonian corrections of order 1',
             default_value=True
         )
 
@@ -912,7 +912,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             'get_pn2',
             'set_pn2',
             'pn2',
-            'enable post newtonian corrections',
+            'enable post newtonian corrections of order 2',
             default_value=True
         )
 
@@ -920,7 +920,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             'get_pn25',
             'set_pn25',
             'pn25',
-            'enable post newtonian corrections',
+            'enable post newtonian corrections of order 2.5',
             default_value=True
         )
 
@@ -928,7 +928,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             'get_pn3',
             'set_pn3',
             'pn3',
-            'enable post newtonian corrections',
+            'enable post newtonian corrections of order 3',
             default_value=True
         )
 
@@ -936,7 +936,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             'get_pn35',
             'set_pn35',
             'pn35',
-            'enable post newtonian corrections',
+            'enable post newtonian corrections of order 3.5',
             default_value=True
         )
         # GravitationalDynamics.define_parameters(self, handler)
