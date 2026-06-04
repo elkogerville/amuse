@@ -15,22 +15,20 @@ from amuse.community.interface.stopping_conditions import (
     StoppingConditionInterface
 )
 from amuse.rfi.core import (
-    CodeInterface,
     LegacyFunctionSpecification,
     PythonCodeInterface,
     legacy_function,
     remote_function
 )
-from amuse.support.interface import MethodWithUnitsDefinition
+from amuse.rfi.python_code import ValueHolder
 from amuse.support.literature import LiteratureReferencesMixIn
-from amuse.units import generic_unit_system, nbody_system
+from amuse.units import nbody_system as ns
 
 
 class TsunamiImplementation(object):
     """
     Notes:
         what to do with spin? can be compiled with or without
-        what to do with import tsunami
         what to do with setters
 
     """
@@ -40,29 +38,31 @@ class TsunamiImplementation(object):
         self.tsunami = tsunami.Tsunami()
 
         # temporary buffers for staging particles
+        self._mass_list: list[float] = []
+        self._radius_list: list[float] = []
         self._pos_list: list[list[float]] = []
         self._vel_list: list[list[float]] = []
         self._spin_list: list[list[float]] = []
-        self._mass_list: list[float] = []
-        self._radius_list: list[float] = []
 
         # commited particles
-        self._pos: NDArray = np.empty((0, 3), dtype=np.float64)
-        self._vel: NDArray = np.empty((0, 3), dtype=np.float64)
-        self._spin: NDArray = np.empty((0, 3), dtype=np.float64)
-        self._mass: NDArray = np.empty(0, dtype=np.float64)
-        self._radius: NDArray = np.empty(0, dtype=np.float64)
-        self._stype: NDArray = np.empty(0, dtype=np.int64)
+        self._mass = np.empty(0, dtype=np.float64)
+        self._radius = np.empty(0, dtype=np.float64)
+        self._pos = np.empty((0, 3), dtype=np.float64)
+        self._vel = np.empty((0, 3), dtype=np.float64)
+        self._spin = np.empty((0, 3), dtype=np.float64)
+        self._stype = np.empty(0, dtype=np.int64)
 
     def initialize_code(self) -> int:
         return 0
 
     def cleanup_code(self) -> int:
+        """Deallocate Tsunami particles."""
+        self._clear_temporary_particle_buffers()
         return 0
 
     def commit_parameters(self) -> int:
+        """Commit Tsunami parameters."""
         self.tsunami.commit_parameters()
-
         return 0
 
     def commit_particles(self) -> int:
@@ -97,92 +97,175 @@ class TsunamiImplementation(object):
             )
 
         if not (
-            len(self._vel_list) == N_new and
-            len(self._spin_list) == N_new and
             len(self._mass_list) == N_new and
-            len(self._radius_list) == N_new
+            len(self._radius_list) == N_new and
+            len(self._vel_list) == N_new and
+            len(self._spin_list) == N_new
         ):
             return -1
 
         # preallocate particleset for Tsunami
+        mass = np.empty(N_total, dtype=np.float64)
+        radius = np.empty(N_total, dtype=np.float64)
         pos = np.empty((N_total, 3), dtype=np.float64)
         vel = np.empty((N_total, 3), dtype=np.float64)
         spin = np.empty((N_total, 3), dtype=np.float64)
-        mass = np.empty(N_total, dtype=np.float64)
-        radius = np.empty(N_total, dtype=np.float64)
         stype = np.ones(N_total, dtype=np.int64) * -1
 
         # add any existing Tsunami particles
         if N_existing != 0:
+            mass[:N_existing] = self._mass
+            radius[:N_existing] = self._radius
             pos[:N_existing, :] = self._pos
             vel[:N_existing, :] = self._vel
             spin[:N_existing, :] = self._spin
-            mass[:N_existing] = self._mass
-            radius[:N_existing] = self._radius
 
         # add new particles
+        mass[N_existing:] = np.asarray(self._mass_list, dtype=np.float64)
+        radius[N_existing:] = np.asarray(self._radius_list, dtype=np.float64)
         pos[N_existing:, :] = np.asarray(self._pos_list, dtype=np.float64).reshape(-1, 3)
         vel[N_existing:, :] = np.asarray(self._vel_list, dtype=np.float64).reshape(-1, 3)
         spin[N_existing:, :] = np.asarray(self._spin_list, dtype=np.float64).reshape(-1, 3)
-        mass[N_existing:] = np.asarray(self._mass_list, dtype=np.float64)
-        radius[N_existing:] = np.asarray(self._radius_list, dtype=np.float64)
 
         self.tsunami.add_particle_set(pos, vel, mass, radius, stype, spin)
 
+        self._mass = mass
+        self._radius = radius
         self._pos = pos
         self._vel = vel
         self._spin = spin
-        self._mass = mass
-        self._radius = radius
         self._stype = stype
         self._clear_temporary_particle_buffers()
 
         return 0
 
     def recommit_parameters(self) -> int:
+        """Recommit parameters after commiting them."""
         self.tsunami.commit_parameters()
-
         return 0
 
     def recommit_particles(self) -> int:
+        """Recommit particles after commiting them."""
         self.commit_particles()
-
         return 0
 
-    def evolve_model(self, time) -> int:
+    def evolve_model(self, time: float) -> int:
+        """
+        Evolve the system to a specified final time.
+
+        Parameters
+        ----------
+        time : float
+            Time to evolve to.
+
+        Returns
+        -------
+         0 : If the evolution is succesful.
+        -1 : If `time` <= current model time.
+        """
         if time <= self.tsunami.time:
             return -1
 
         self.tsunami.evolve_system(time)
+        self.synchronize_model()
 
-        self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
+        return 0
+
+    def evolve_model_dtmax(self, time: float) -> int:
+        """
+        Evolves the system for a single integration step,
+        ensuring that the system time does not exceed the
+        specified target `time`. This method is especially
+        useful when precise control over the maximum timestep
+        is needed, such as in visualizations or applications
+        requiring fixed time intervals.
+
+        Unlike evolve_system(), this method performs only one
+        integration step and adapts the timestep to ensure
+        it does not exceed `time`. If the integration requires
+        a shorter timestep, it may stop well before `time`.
+
+        Parameters
+        ----------
+        time : float
+            Time to evolve to.
+
+        Returns
+        -------
+         0 : If the evolution is succesful.
+        -1 : If `time` <= current model time.
+        """
+        if time <= self.tsunami.time:
+            return -1
+
+        self.tsunami.evolve_system_dtmax(time)
+        self.synchronize_model()
+
+        return 0
+
+    def new_particle(
+        self,
+        index_of_the_particle,
+        mass,
+        radius,
+        x, y, z,
+        vx, vy, vz,
+        wx, wy, wz
+    ) -> int:
+        self._mass_list.append(mass)
+        self._radius_list.append(radius)
+        self._pos_list.append([x, y, z])
+        self._vel_list.append([vx, vy, vz])
+        self._spin_list.append([wx, wy, wz])
+
+        index_of_the_particle.value = len(self._pos_list) - 1
 
         return 0
 
     def get_state(
         self,
-        index_of_the_particle,
-        mass,
-        x,
-        y,
-        z,
-        vx,
-        vy,
-        vz,
-        radius,
-        wx,
-        wy,
-        wz
+        index_of_the_particle: int,
+        mass: ValueHolder,
+        radius: ValueHolder,
+        x: ValueHolder, y: ValueHolder, z: ValueHolder,
+        vx: ValueHolder, vy: ValueHolder, vz: ValueHolder,
+        wx: ValueHolder, wy: ValueHolder, wz: ValueHolder
     ) -> int:
+        """
+        Retrieve the state of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        mass : ValueHolder[float]
+            ValueHolder instance to return the mass value.
+        radius : ValueHolder[float]
+            ValueHolder instance to return the radius value.
+        x, y, z : ValueHolder[float]
+            ValueHolder instance to return the particle position.
+        vx, vy, vz : ValueHolder[float]
+            ValueHolder instance to return the particle velocity.
+        wx, wy, wz : ValueHolder[float]
+            ValueHolder instance to return the particle spin.
+
+        Returns
+        -------
+        0 : State was retrieved successfully.
+        """
         i = index_of_the_particle
+        self._validate_particle_index(i)
+
+        self.synchronize_model()
+
         mass.value = self._mass[i]
+        radius.value = self._radius[i]
         x.value = self._pos[i,0]
         y.value = self._pos[i,1]
         z.value = self._pos[i,2]
         vx.value = self._vel[i,0]
         vy.value = self._vel[i,1]
         vz.value = self._vel[i,2]
-        radius.value = self._radius[i]
         wx.value = self._spin[i,0]
         wy.value = self._spin[i,1]
         wz.value = self._spin[i,2]
