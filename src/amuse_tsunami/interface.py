@@ -104,7 +104,8 @@ class TsunamiImplementation(object):
             len(self._mass_list) == N_new and
             len(self._radius_list) == N_new and
             len(self._vel_list) == N_new and
-            len(self._spin_list) == N_new
+            len(self._spin_list) == N_new and
+            len(self._id_list) == N_new
         ):
             return -1
 
@@ -115,6 +116,7 @@ class TsunamiImplementation(object):
         vel = np.empty((N_total, 3), dtype=np.float64)
         spin = np.empty((N_total, 3), dtype=np.float64)
         stype = np.ones(N_total, dtype=np.int64) * -1
+        ids = np.empty(N_total, dtype=np.int32)
 
         # add any existing Tsunami particles
         if N_existing != 0:
@@ -123,6 +125,7 @@ class TsunamiImplementation(object):
             pos[:N_existing, :] = self._pos
             vel[:N_existing, :] = self._vel
             spin[:N_existing, :] = self._spin
+            ids[:N_existing] = self._ids
 
         # add new particles
         mass[N_existing:] = np.asarray(self._mass_list, dtype=np.float64)
@@ -130,6 +133,7 @@ class TsunamiImplementation(object):
         pos[N_existing:, :] = np.asarray(self._pos_list, dtype=np.float64).reshape(-1, 3)
         vel[N_existing:, :] = np.asarray(self._vel_list, dtype=np.float64).reshape(-1, 3)
         spin[N_existing:, :] = np.asarray(self._spin_list, dtype=np.float64).reshape(-1, 3)
+        ids[N_existing:] = np.asarray(self._id_list, dtype=np.int32)
 
         self.tsunami.add_particle_set(pos, vel, mass, radius, stype, spin)
 
@@ -139,7 +143,9 @@ class TsunamiImplementation(object):
         self._vel = vel
         self._spin = spin
         self._stype = stype
+        self._ids = ids
         self._clear_temporary_particle_buffers()
+        self.synchronize_model()
 
         return 0
 
