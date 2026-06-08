@@ -350,9 +350,7 @@ class TsunamiImplementation(object):
         ------
         ValueError : If `index_of_the_particle` is not valid.
         """
-        i = index_of_the_particle
-        self._validate_particle_index(i)
-
+        i = self._get_particle_index_by_id(index_of_the_particle)
         self.synchronize_model()
 
         mass.value = self._mass[i]
@@ -366,6 +364,7 @@ class TsunamiImplementation(object):
         wx.value = self._spin[i,0]
         wy.value = self._spin[i,1]
         wz.value = self._spin[i,2]
+
         return 0
 
     def set_state(
@@ -379,6 +378,9 @@ class TsunamiImplementation(object):
     ) -> int:
         """
         Set the state of a particle.
+
+        TSUNAMI will rescale the positions and velocities
+        to the center of mass frame.
 
         Parameters
         ----------
@@ -403,8 +405,7 @@ class TsunamiImplementation(object):
         ------
         ValueError : If `index_of_the_particle` is not valid.
         """
-        i = index_of_the_particle
-        self._validate_particle_index(i)
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         self._mass[i] = mass
         self._radius[i] = radius
@@ -452,11 +453,12 @@ class TsunamiImplementation(object):
         if self._pos.shape[0] == 0:
             return -1
 
+        i = self._get_particle_index_by_id(index_of_the_particle)
         self.synchronize_model()
 
-        x.value = self._pos[index_of_the_particle, 0]
-        y.value = self._pos[index_of_the_particle, 1]
-        z.value = self._pos[index_of_the_particle, 2]
+        x.value = self._pos[i, 0]
+        y.value = self._pos[i, 1]
+        z.value = self._pos[i, 2]
 
         return 0
 
@@ -481,11 +483,11 @@ class TsunamiImplementation(object):
         ------
         ValueError : If `index_of_the_particle` is not valid.
         """
-        self._validate_particle_index(index_of_the_particle)
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
-        self._pos[index_of_the_particle, 0] = x
-        self._pos[index_of_the_particle, 1] = y
-        self._pos[index_of_the_particle, 2] = z
+        self._pos[i, 0] = x
+        self._pos[i, 1] = y
+        self._pos[i, 2] = z
 
         self.tsunami.override_position_and_velocities(self._pos, self._vel)
 
@@ -496,7 +498,6 @@ class TsunamiImplementation(object):
         Get mass unit of Tsunami in MSun.
         """
         Mscale.value = self.tsunami.Mscale
-
         return 0
 
     def get_lscale(self, Lscale: ValueHolder) -> int:
@@ -504,7 +505,6 @@ class TsunamiImplementation(object):
         Get length unit of Tsunami in AU.
         """
         Lscale.value = self.tsunami.Lscale
-
         return 0
 
     def get_tscale(self, Tscale: ValueHolder) -> int:
@@ -515,7 +515,6 @@ class TsunamiImplementation(object):
         This value is read only.
         """
         Tscale.value = self.tsunami.Tscale
-
         return 0
 
     def get_vscale(self, Vscale: ValueHolder) -> int:
@@ -526,7 +525,6 @@ class TsunamiImplementation(object):
         This value is read only.
         """
         Vscale.value = self.tsunami.Vscale
-
         return 0
 
     def get_time(self, time: ValueHolder) -> int:
@@ -612,28 +610,49 @@ class TsunamiImplementation(object):
 
     def get_potential_energy(self, potential_energy: ValueHolder) -> int:
         potential_energy.value = self.tsunami.pot
-
         return 0
 
     def get_kinetic_energy(self, kinetic_energy: ValueHolder) -> int:
         kinetic_energy.value = self.tsunami.kin
-
         return 0
 
     def get_total_energy(self, total_energy: ValueHolder) -> int:
         total_energy.value = self.tsunami.energy
-
         return 0
 
-    def _validate_particle_index(self, i) -> None:
+    def get_number_of_particles(self, number_of_particles: ValueHolder) -> int:
         """
-        Validate that the requested particle index
-        refers to a particle in Tsunami.
+        Get total number of particles in TSUNAMI.
+
+        Paramters
+        ---------
+        number_of_particles : ValueHolder[int]
+            ValueHolder instance to return the number of particles in TSUNAMI.
+
+        Returns
+        -------
+        0 : If position was set.
         """
-        if not 0 <= i < len(self._pos):
-            raise ValueError(
-                f'Incorrect index of the particle! Max index: {len(self._pos) - 1}'
-            )
+        number_of_particles.value = len(self._pos)
+        return 0
+
+    def _get_particle_index_by_id(self, index_of_the_particle: int) -> int:
+        """
+        Given an amuse particle id as returned by `new_particle`, find the
+        index of that particle in TSUNAMI.
+        """
+        idx = np.where(self._ids == index_of_the_particle)[0]
+        if idx.size == 0:
+            raise ValueError('Incorrect particle id!')
+
+        return int(idx[0])
+
+    def _get_new_id(self) -> int:
+        """Create a unique, monotonically increasing id for `new_particle`."""
+        new_id = self._next_particle_id
+        self._next_particle_id += 1
+
+        return int(new_id)
 
     def _clear_temporary_particle_buffers(self) -> None:
         """Clear temporary particle buffers after commiting particles"""
