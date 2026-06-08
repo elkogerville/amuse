@@ -66,6 +66,9 @@ class TestTsunami(TestWithMPI):
         p[0].vx = 0 | ns.speed
         p[0].vy = 0 | ns.speed
         p[0].vz = 0 | ns.speed
+        p[0].wx = 0 | 1 / ns.time
+        p[0].wy = 0 | 1 / ns.time
+        p[0].wz = 0 | 1 / ns.time
 
         p[1].mass = 4 | ns.mass
         p[1].radius = 0 | ns.length
@@ -75,6 +78,9 @@ class TestTsunami(TestWithMPI):
         p[1].vx = 0 | ns.speed
         p[1].vy = 0 | ns.speed
         p[1].vz = 0 | ns.speed
+        p[1].wx = 0 | 1 / ns.time
+        p[1].wy = 0 | 1 / ns.time
+        p[1].wz = 0 | 1 / ns.time
 
         p[2].mass = 5 | ns.mass
         p[2].radius = 0 | ns.length
