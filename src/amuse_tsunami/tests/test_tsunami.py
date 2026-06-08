@@ -54,8 +54,8 @@ class TestTsunami(TestWithMPI):
 
         return HD80606
 
-
     def generate_pythagorean(self):
+        """Generate 3 particles in a pythagorean triangle configuration."""
         p = Particles(3)
 
         p[0].mass = 3 | ns.mass
@@ -90,54 +90,125 @@ class TestTsunami(TestWithMPI):
         p[2].vx = 0 | ns.speed
         p[2].vy = 0 | ns.speed
         p[2].vz = 0 | ns.speed
+        p[2].wx = 0 | 1 / ns.time
+        p[2].wy = 0 | 1 / ns.time
+        p[2].wz = 0 | 1 / ns.time
 
         return p
 
-    def test_tsunami(self):
+    def validate_tsunami_state(self, state, particle) -> None:
+        """
+        Validate that a state retrieved by `Tsunami.get_state`
+        matches the state of `particle`.
+
+        Parameters
+        ----------
+        state : list
+            List containing the state of the particle,
+            as returned by `get_state`.
+        particle : amuse.datamodel.particles.particle
+            Particle to validate against `state`.
+
+        Raises
+        ------
+        AssertionError : If the states don't match.
+        """
+        self.assertEquals(state[0], particle.mass)
+        self.assertEquals(state[1], particle.radius)
+        self.assertEquals(state[2], particle.x)
+        self.assertEquals(state[3], particle.y)
+        self.assertEquals(state[4], particle.z)
+        self.assertEquals(state[5], particle.vx)
+        self.assertEquals(state[6], particle.vy)
+        self.assertEquals(state[7], particle.vz)
+        self.assertEquals(state[8], particle.wx)
+        self.assertEquals(state[9], particle.wy)
+        self.assertEquals(state[10], particle.wz)
+
+    def test_add_and_delete_particles(self):
+        """Test adding and deleting particles in Tsunami."""
+        system = self.generate_pythagorean()
+
+        instance = self.new_instance_of_an_optional_code(Tsunami)
+        assert instance is not None
+
+        instance.particles.add_particles(system)
+        instance.commit_particles()
+
+        self.assertEquals(instance.get_number_of_particles(), len(system))
+
+        state0 = instance.get_state(0)
+        state1 = instance.get_state(1)
+        state2 = instance.get_state(2)
+
+        self.validate_tsunami_state(state0, system[0])
+        self.validate_tsunami_state(state1, system[1])
+        self.validate_tsunami_state(state2, system[2])
+
+        self.assertEquals(system[0].key, instance.particles[0].key)
+        self.assertEquals(system[1].key, instance.particles[1].key)
+        self.assertEquals(system[2].key, instance.particles[2].key)
+
+        instance.particles.remove_particle(system[0])
+        self.assertEquals(instance.get_number_of_particles(), len(system)-1)
+
+        instance.stop()
+
+    def test_tsunami_pythagorean_triple(self):
         system = self.generate_pythagorean()
 
         instance = Tsunami(redirection='none')
         assert instance is not None
 
-
-        print(instance.parameters)
-
+        instance.parameters.pn = False
         instance.commit_parameters()
 
         instance.particles.add_particles(system)
-        import matplotlib.pyplot as plt
-
         instance.commit_particles()
-        channel = instance.particles.new_channel_to(system)
-
-        print('ic\n', instance.particles)
 
         t_end = 65 | ns.time
         dt = 0.1 | ns.time
-        particles = []
-
         while instance.model_time <  t_end:
             instance.evolve_model(instance.model_time + dt)
-            channel.copy()
-            particles.append(system.copy())
-            print(instance.model_time)
 
-        colors = ['darkslateblue', 'mediumvioletred', 'c']
-        data = [[], [], []]
+        state0 = instance.get_state(0)
+        state1 = instance.get_state(1)
+        state2 = instance.get_state(2)
 
-        for p in particles:
-            for i in range(3):
-                data[i].append((p[i].x.number, p[i].y.number))
+        self.assertEquals(state0[0], 3 | ns.mass)
+        self.assertEquals(state0[1], 0 | ns.length)
+        self.assertAlmostRelativeEquals(state0[2], 4.15498855 | ns.length, places=7)
+        self.assertAlmostRelativeEquals(state0[3], 12.01338805 | ns.length, places=7)
+        self.assertEquals(state0[4], 0 | ns.length)
+        self.assertAlmostRelativeEquals(state0[5], 0.59219296 | ns.speed, places=7)
+        self.assertAlmostRelativeEquals(state0[6], 1.75695995 | ns.speed, places=7)
+        self.assertEquals(state0[7], 0 | ns.speed)
+        self.assertEquals(state0[8], 0 | 1 / ns.time)
+        self.assertEquals(state0[9], 0 | 1 / ns.time)
+        self.assertEquals(state0[10], 0 | 1 / ns.time)
 
-        import visualastro as va
-        with va.style('smplot'):
-            fig = plt.figure(figsize=(5,8), tight_layout=True)
-            ax = fig.add_subplot(111)
-            for i, (color, pts) in enumerate(zip(colors, data)):
-                xs, ys = zip(*pts)
-                ax.plot(xs, ys, color=color, linewidth=0.8)
+        self.assertEquals(state1[0], 4 | ns.mass)
+        self.assertEquals(state1[1], 0 | ns.length)
+        self.assertAlmostRelativeEquals(state1[2], -0.86025151 | ns.length, places=7)
+        self.assertAlmostRelativeEquals(state1[3], -4.09450317 | ns.length, places=7)
+        self.assertEquals(state1[4], 0 | ns.length)
+        self.assertAlmostRelativeEquals(state1[5], 0.61291976 | ns.speed, places=7)
+        self.assertAlmostRelativeEquals(state1[6], -0.92151518 | ns.speed, places=7)
+        self.assertEquals(state1[7], 0 | ns.speed)
+        self.assertEquals(state1[8], 0 | 1 / ns.time)
+        self.assertEquals(state1[9], 0 | 1 / ns.time)
+        self.assertEquals(state1[10], 0 | 1 / ns.time)
 
-        plt.show()
-
+        self.assertEquals(state2[0], 5 | ns.mass)
+        self.assertEquals(state2[1], 0 | ns.length)
+        self.assertAlmostRelativeEquals(state2[2], -1.80479192 | ns.length, places=7)
+        self.assertAlmostRelativeEquals(state2[3], -3.9324303 | ns.length, places=7)
+        self.assertEquals(state2[4], 0 | ns.length)
+        self.assertAlmostRelativeEquals(state2[5], -0.84565158 | ns.speed, places=7)
+        self.assertAlmostRelativeEquals(state2[6], -0.31696382 | ns.speed, places=7)
+        self.assertEquals(state2[7], 0 | ns.speed)
+        self.assertEquals(state2[8], 0 | 1 / ns.time)
+        self.assertEquals(state2[9], 0 | 1 / ns.time)
+        self.assertEquals(state2[10], 0 | 1 / ns.time)
 
         instance.stop()
