@@ -269,7 +269,49 @@ class TsunamiImplementation(object):
         self._vel_list.append([vx, vy, vz])
         self._spin_list.append([wx, wy, wz])
 
-        index_of_the_particle.value = len(self._pos_list) - 1
+        id = self._get_new_id()
+        index_of_the_particle.value = id
+        self._id_list.append(id)
+
+        return 0
+
+    def delete_particle(self, index_of_the_particle: int) -> int:
+        """
+        Delete a particle in TSUNAMI.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+
+        Returns
+        -------
+        0 : The particle was deleted successfully.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not valid.
+        ValueError :
+            If deleting a particle would cause TSUNAMI
+            to have less than 2 particles.
+        """
+        i = self._get_particle_index_by_id(index_of_the_particle)
+
+        if len(self._pos)-1 < 2:
+            raise ValueError(
+                'TSUNAMI does not support less than 2 particles!'
+            )
+
+        self._mass = np.delete(self._mass, i)
+        self._radius = np.delete(self._radius, i)
+        self._pos = np.delete(self._pos, i, axis=0)
+        self._vel = np.delete(self._vel, i, axis=0)
+        self._spin = np.delete(self._spin, i, axis=0)
+        self._ids = np.delete(self._ids, i)
+
+        self.tsunami.remove_particle(i)
+        self.synchronize_model()
 
         return 0
 
