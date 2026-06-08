@@ -222,6 +222,8 @@ class TsunamiImplementation(object):
         Call this function before accessing values to ensure
         that the returned values are up to date.
         """
+        self.tsunami.sync_masses(self._mass)
+        self.tsunami.sync_radii(self._radius)
         self.tsunami.sync_internal_state(self._pos, self._vel, self._spin)
         return 0
 
