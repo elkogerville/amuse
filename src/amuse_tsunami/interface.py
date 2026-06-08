@@ -1,9 +1,7 @@
 import numpy as np
-from numpy.typing import NDArray
-from amuse.community.interface.common import CommonCode, CommonCodeInterface
 import tsunami
 
-from amuse.support.interface import InCodeComponentImplementation
+from amuse.community.interface.common import CommonCode, CommonCodeInterface
 from amuse.community.interface.gd import (
     GravitationalDynamics,
     GravitationalDynamicsInterface,
@@ -21,17 +19,12 @@ from amuse.rfi.core import (
     remote_function
 )
 from amuse.rfi.python_code import ValueHolder
+from amuse.support.interface import InCodeComponentImplementation
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import nbody_system as ns
 
 
 class TsunamiImplementation(object):
-    """
-    Notes:
-        what to do with spin? can be compiled with or without
-        what to do with setters
-
-    """
 
     def __init__(self):
         # hard code N-Body units to Lscale = Mscale = 1
@@ -43,14 +36,18 @@ class TsunamiImplementation(object):
         self._pos_list: list[list[float]] = []
         self._vel_list: list[list[float]] = []
         self._spin_list: list[list[float]] = []
+        self._id_list: list[int] = []
 
-        # commited particles
+        # commited particle arrays
         self._mass = np.empty(0, dtype=np.float64)
         self._radius = np.empty(0, dtype=np.float64)
         self._pos = np.empty((0, 3), dtype=np.float64)
         self._vel = np.empty((0, 3), dtype=np.float64)
         self._spin = np.empty((0, 3), dtype=np.float64)
         self._stype = np.empty(0, dtype=np.int64)
+        self._ids = np.empty(0, dtype=np.int32)
+
+        self._next_particle_id = 0
 
     def initialize_code(self) -> int:
         return 0
