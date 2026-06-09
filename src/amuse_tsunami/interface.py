@@ -215,9 +215,12 @@ class TsunamiImplementation(object):
 
     def synchronize_model(self) -> int:
         """
-        Synchronize TsunamiImplementation with TSUNAMI.
-        This ensures that the current particle state in
-        AMUSE matches the current state of TSUNAMI.
+        Synchronize AMUSE with TSUNAMI. This ensures that
+        the current particle state in AMUSE matches the
+        current state of TSUNAMI.
+
+        Synchronizes the masses, radii, positions, velocities,
+        and spins of the system.
 
         Call this function before accessing values to ensure
         that the returned values are up to date.
@@ -444,7 +447,7 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : If position was set.
+        0 : Position was retrieved successfully.
 
         Raises
         ------
@@ -477,7 +480,7 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : If position was set.
+        0 : Position was set.
 
         Raises
         ------
@@ -490,6 +493,73 @@ class TsunamiImplementation(object):
         self._pos[i, 2] = z
 
         self.tsunami.override_position_and_velocities(self._pos, self._vel)
+
+        return 0
+
+    def get_spin(
+        self,
+        index_of_the_particle: int,
+        wx: ValueHolder,
+        wy: ValueHolder,
+        wz: ValueHolder
+    ) -> int:
+        """
+        Retrieve the spin of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        wx, wy, wz : ValueHolder[float]
+            ValueHolder instance to return the spin
+            of the particle.
+
+        Returns
+        -------
+        0 : Spin was retrieved.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
+        """
+        if self._pos.shape[0] == 0:
+            return -1
+
+        i = self._get_particle_index_by_id(index_of_the_particle)
+        self.synchronize_model()
+
+        wx.value = self._spin[i, 0]
+        wy.value = self._spin[i, 1]
+        wz.value = self._spin[i, 2]
+
+        return 0
+
+    def set_spin(
+        self, index_of_the_particle: int, wx: float, wy: float, wz: float
+    ) -> int:
+        """
+        Set the spin of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        wx, wy, wz : float
+            Particle spin.
+
+        Returns
+        -------
+        0 : If spin was set.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
+        """
+        i = self._get_particle_index_by_id(index_of_the_particle)
+
+        self._spin[i, 0] = wx
+        self._spin[i, 1] = wy
+        self._spin[i, 2] = wz
 
         return 0
 
@@ -894,8 +964,6 @@ class TsunamiInterface(
         function.result_doc = """
         0 - OK
             particle was added to Tsunami
-        -1 - ERROR
-            particle could not be added
         """
         return function
 
@@ -922,7 +990,7 @@ class TsunamiInterface(
         function.result_type = 'i'
         function.result_doc = """
         0 - OK
-            particle was removed from the model
+            particle state was retrieved
         """
         return function
 
@@ -939,6 +1007,42 @@ class TsunamiInterface(
             particle was found in the model and the information was set
         """
         return function
+
+    @legacy_function
+    def get_spin():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        for name in ['wx', 'wy', 'wz']:
+            function.addParameter(name, dtype='d', direction=function.OUT)
+        function.result_type = 'i'
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the information was retrieved
+        """
+        return function
+
+    @legacy_function
+    def set_spin():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        for name in ['wx', 'wy', 'wz']:
+            function.addParameter(name, dtype='d', direction=function.IN)
+        function.result_type = 'i'
+        function.result_doc = """
+        0 - OK
+            particle was found in the model and the information was retrieved
+        """
+        return function
+
+    @remote_function
+    def get_equilibrium_tides():
+        returns (equilibrium_tides='b')
+
+    @remote_function
+    def set_equilibrium_tides(equilibrium_tides='b'):
+        returns ()
 
     @remote_function
     def get_alpha():
@@ -1100,6 +1204,37 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
                 1 / ns.time, 1 / ns.time, 1 / ns.time,
             ),
             (handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
+            'get_spin',
+            (handler.INDEX,),
+            (
+                1 / ns.time,
+                1 / ns.time,
+                1 / ns.time,
+                handler.ERROR_CODE
+            )
+        )
+
+        handler.add_method(
+            'set_spin',
+            (
+                handler.INDEX,
+                1 / ns.time,
+                1 / ns.time,
+                1 / ns.time,
+            ),
+            (handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
+            'get_total_energy',
+            (),
+            (
+                ns.mass * ns.length**2 * ns.time**-2,
+                handler.ERROR_CODE,
+            ),
         )
 
     def define_parameters(self, handler):
