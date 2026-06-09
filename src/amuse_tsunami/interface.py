@@ -606,6 +606,32 @@ class TsunamiImplementation(object):
         time.value = self.tsunami.time
         return 0
 
+    def get_equilibrium_tides(self, equilibrium_tides: ValueHolder) -> int:
+        """
+        Get equilibrium tides parameter. Enables or disables equilibrium tides.
+
+        Parameters
+        ----------
+        equilibrium_tides : ValueHolder[bool]
+            ValueHolder instance to return equilibrium tides value.
+            If `True`, enables equilibrium tides.
+        """
+        equilibrium_tides.value = self.tsunami.Conf.wEqTides
+        return 0
+
+    def set_equilibrium_tides(self, equilibrium_tides: bool) -> int:
+        """
+        Set equilibrium tides parameter. Enables or disables equilibrium tides.
+
+        Parameters
+        ----------
+        equilibrium_tides : ValueHolder[bool]
+            ValueHolder instance to return equilibrium tides value.
+            If `True`, enables equilibrium tides.
+        """
+        self.tsunami.Conf.wEqTides = bool(equilibrium_tides)
+        return 0
+
     def get_alpha(self, alpha: ValueHolder) -> int:
         """
         Get alpha regularization parameter.
@@ -1244,6 +1270,14 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         and a name, description and default value. Functions with the appropriate names
         must be defined in the native wrapper code.
         """
+        handler.add_method_parameter(
+            'get_equilibrium_tides',
+            'set_equilibrium_tides',
+            'equilibrium_tides',
+            'enable equilibrium tides.',
+            default_value=False
+        )
+
         handler.add_method_parameter(
             'get_alpha',
             'set_alpha',
