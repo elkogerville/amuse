@@ -355,15 +355,15 @@ class TsunamiImplementation(object):
 
         mass.value = self._mass[i]
         radius.value = self._radius[i]
-        x.value = self._pos[i,0]
-        y.value = self._pos[i,1]
-        z.value = self._pos[i,2]
-        vx.value = self._vel[i,0]
-        vy.value = self._vel[i,1]
-        vz.value = self._vel[i,2]
-        wx.value = self._spin[i,0]
-        wy.value = self._spin[i,1]
-        wz.value = self._spin[i,2]
+        x.value = self._pos[i, 0]
+        y.value = self._pos[i, 1]
+        z.value = self._pos[i, 2]
+        vx.value = self._vel[i, 0]
+        vy.value = self._vel[i, 1]
+        vz.value = self._vel[i, 2]
+        wx.value = self._spin[i, 0]
+        wy.value = self._spin[i, 1]
+        wz.value = self._spin[i, 2]
 
         return 0
 
@@ -409,15 +409,15 @@ class TsunamiImplementation(object):
 
         self._mass[i] = mass
         self._radius[i] = radius
-        self._pos[i,0] = x
-        self._pos[i,1] = y
-        self._pos[i,2] = z
-        self._vel[i,0] = vx
-        self._vel[i,1] = vy
-        self._vel[i,2] = vz
-        self._spin[i,0] = wx
-        self._spin[i,1] = wy
-        self._spin[i,2] = wz
+        self._pos[i, 0] = x
+        self._pos[i, 1] = y
+        self._pos[i, 2] = z
+        self._vel[i, 0] = vx
+        self._vel[i, 1] = vy
+        self._vel[i, 2] = vz
+        self._spin[i, 0] = wx
+        self._spin[i, 1] = wy
+        self._spin[i, 2] = wz
 
         self.tsunami.override_masses(self._mass)
         self.tsunami.override_position_and_velocities(self._pos, self._vel)
@@ -537,86 +537,274 @@ class TsunamiImplementation(object):
         return 0
 
     def get_alpha(self, alpha: ValueHolder) -> int:
+        """
+        Get alpha regularization parameter.
+
+        Parameters
+        ----------
+        alpha : ValueHolder[float]
+            ValueHolder instance to return alpha value.
+        """
         alpha.value = self.tsunami.Conf.alpha
         return 0
 
     def set_alpha(self, alpha: float) -> int:
+        """
+        Set alpha regularization parameter.
+
+        Parameters
+        ----------
+        alpha : float
+            alpha regularization value.
+        """
         self.tsunami.Conf.alpha = alpha
         return 0
 
     def get_beta(self, beta: ValueHolder) -> int:
+        """
+        Get beta regularization parameter.
+
+        Parameters
+        ----------
+        beta : ValueHolder[float]
+            ValueHolder instance to return beta value.
+        """
         beta.value = self.tsunami.Conf.beta
         return 0
 
     def set_beta(self, beta: float) -> int:
+        """
+        Set beta regularization parameter.
+
+        Parameters
+        ----------
+        beta : float
+            beta regularization value.
+        """
         self.tsunami.Conf.beta = beta
         return 0
 
     def get_gamma(self, gamma: ValueHolder) -> int:
+        """
+        Get gamma regularization parameter.
+
+        Parameters
+        ----------
+        gamma : ValueHolder[float]
+            ValueHolder instance to return gamma value.
+        """
         gamma.value = self.tsunami.Conf.gamma
         return 0
 
     def set_gamma(self, gamma: float) -> int:
+        """
+        Set gamma regularization parameter.
+
+        Parameters
+        ----------
+        gamma : float
+            gamma regularization value.
+        """
         self.tsunami.Conf.gamma = gamma
         return 0
 
     def get_pn(self, pn: ValueHolder) -> int:
+        """
+        Get pn parameter. Enables or disables
+        post-Newtonian corrections.
+
+        Parameters
+        ----------
+        pn : ValueHolder[bool]
+            ValueHolder instance to return pn value. If `True`,
+            enables post-Newtonian corrections. Ensure that `pn1`,
+            `pn2`, `pn25`, `pn3` or `pn35` is also set.
+        """
         pn.value = self.tsunami.Conf.wPNs
         return 0
 
     def set_pn(self, pn: bool) -> int:
+        """
+        Set pn parameter. Enables or disables
+        post-Newtonian corrections.
+
+        Parameters
+        ----------
+        pn : bool
+            If `True`, enables post-Newtonian corrections. Ensure
+            that `pn1`, `pn2`, `pn25`, `pn3` or `pn35` is also set.
+        """
         self.tsunami.Conf.wPNs = bool(pn)
         return 0
 
     def get_pn1(self, pn1: ValueHolder) -> int:
+        """
+        Get pn1 parameter. Enables or disables
+        post-Newtonian corrections of order 1.
+
+        Parameters
+        ----------
+        pn1 : ValueHolder[bool]
+            ValueHolder instance to return pn1 value. If `True`,
+            enables post-Newtonian corrections of order 1.
+        """
         pn1.value = self.tsunami.Conf.pn1
         return 0
 
     def set_pn1(self, pn1: bool) -> int:
+        """
+        Set pn1 parameter. Enables or disables
+        post-Newtonian corrections of order 1.
+
+        Parameters
+        ----------
+        pn1 : bool
+            If True, enables post-Newtonian corrections of order 1.
+        """
         self.tsunami.Conf.pn1 = bool(pn1)
         return 0
 
     def get_pn2(self, pn2: ValueHolder) -> int:
+        """
+        Get pn2 parameter. Enables or disables
+        post-Newtonian corrections of order 2.
+
+        Parameters
+        ----------
+        pn2 : ValueHolder[bool]
+            ValueHolder instance to return pn2 value. If `True`,
+            enables post-Newtonian corrections of order 2.
+        """
         pn2.value = self.tsunami.Conf.pn2
         return 0
 
     def set_pn2(self, pn2: bool) -> int:
+        """
+        Set pn2 parameter. Enables or disables
+        post-Newtonian corrections of order 2.
+
+        Parameters
+        ----------
+        pn2 : bool
+            If True, enables post-Newtonian corrections of order 2.
+        """
         self.tsunami.Conf.pn2 = bool(pn2)
         return 0
 
     def get_pn25(self, pn25: ValueHolder) -> int:
+        """
+        Get pn25 parameter. Enables or disables
+        post-Newtonian corrections of order 2.5.
+
+        Parameters
+        ----------
+        pn25 : ValueHolder[bool]
+            ValueHolder instance to return pn25 value. If `True`,
+            enables post-Newtonian corrections of order 2.5.
+        """
         pn25.value = self.tsunami.Conf.pn25
         return 0
 
     def set_pn25(self, pn25: bool) -> int:
+        """
+        Set pn25 parameter. Enables or disables
+        post-Newtonian corrections of order 2.5.
+
+        Parameters
+        ----------
+        pn25 : bool
+            If True, enables post-Newtonian corrections of order 2.5.
+        """
         self.tsunami.Conf.pn25 = bool(pn25)
         return 0
 
     def get_pn3(self, pn3: ValueHolder) -> int:
+        """
+        Get pn3 parameter. Enables or disables
+        post-Newtonian corrections of order 3.
+
+        Parameters
+        ----------
+        pn3 : ValueHolder[bool]
+            ValueHolder instance to return pn3 value. If `True`,
+            enables post-Newtonian corrections of order 3.
+        """
         pn3.value = self.tsunami.Conf.pn3
         return 0
 
     def set_pn3(self, pn3: bool) -> int:
+        """
+        Set pn3 parameter. Enables or disables
+        post-Newtonian corrections of order 3.
+
+        Parameters
+        ----------
+        pn3 : bool
+            If True, enables post-Newtonian corrections of order 3.
+        """
         self.tsunami.Conf.pn3 = bool(pn3)
         return 0
 
     def get_pn35(self, pn35: ValueHolder) -> int:
+        """
+        Get pn35 parameter. Enables or disables
+        post-Newtonian corrections of order 3.5.
+
+        Parameters
+        ----------
+        pn35 : ValueHolder[bool]
+            ValueHolder instance to return pn35 value. If `True`,
+            enables post-Newtonian corrections of order 3.5.
+        """
         pn35.value = self.tsunami.Conf.pn35
         return 0
 
     def set_pn35(self, pn35: bool) -> int:
+        """
+        Set pn35 parameter. Enables or disables
+        post-Newtonian corrections of order 3.5.
+
+        Parameters
+        ----------
+        pn35 : bool
+            If True, enables post-Newtonian corrections of order 3.5.
+        """
         self.tsunami.Conf.pn35 = bool(pn35)
         return 0
 
     def get_potential_energy(self, potential_energy: ValueHolder) -> int:
+        """
+        Get total potential energy of the system. This value is read only.
+
+        Parameters
+        ----------
+        potential_energy : ValueHolder[float]
+            ValueHolder instance to return the potential energy of the system.
+        """
         potential_energy.value = self.tsunami.pot
         return 0
 
     def get_kinetic_energy(self, kinetic_energy: ValueHolder) -> int:
+        """
+        Get total kinetic energy of the system. This value is read only.
+
+        Parameters
+        ----------
+        kinetic_energy : ValueHolder[float]
+            ValueHolder instance to return the kinetic energy of the system.
+        """
         kinetic_energy.value = self.tsunami.kin
         return 0
 
     def get_total_energy(self, total_energy: ValueHolder) -> int:
+        """
+        Get total energy of the system. This value is read only.
+
+        Parameters
+        ----------
+        total_energy : ValueHolder[float]
+            ValueHolder instance to return the total energy of the system.
+        """
         total_energy.value = self.tsunami.energy
         return 0
 
@@ -628,10 +816,6 @@ class TsunamiImplementation(object):
         ---------
         number_of_particles : ValueHolder[int]
             ValueHolder instance to return the number of particles in TSUNAMI.
-
-        Returns
-        -------
-        0 : If position was set.
         """
         number_of_particles.value = len(self._pos)
         return 0
@@ -640,10 +824,15 @@ class TsunamiImplementation(object):
         """
         Given an amuse particle id as returned by `new_particle`, find the
         index of that particle in TSUNAMI.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle id as returned by `new_particle`.
         """
         idx = np.where(self._ids == index_of_the_particle)[0]
         if idx.size == 0:
-            raise ValueError('Incorrect particle id!')
+            raise ValueError(f'Particle id: {index_of_the_particle} not found!')
 
         return int(idx[0])
 
@@ -655,7 +844,7 @@ class TsunamiImplementation(object):
         return int(new_id)
 
     def _clear_temporary_particle_buffers(self) -> None:
-        """Clear temporary particle buffers after commiting particles"""
+        """Clear temporary particle buffers after commiting particles."""
         self._mass_list.clear()
         self._radius_list.clear()
         self._pos_list.clear()
@@ -725,11 +914,6 @@ class TsunamiInterface(
 
     @legacy_function
     def get_state():
-        """
-        Retrieve the current state of a particle. The *minimal* information of
-        a stellar dynamics particle (mass, radius, position and velocity) is
-        returned.
-        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
@@ -739,18 +923,11 @@ class TsunamiInterface(
         function.result_doc = """
         0 - OK
             particle was removed from the model
-        -1 - ERROR
-            particle could not be found
         """
         return function
 
     @legacy_function
     def set_state():
-        """
-        Update the current state of a particle. The *minimal* information of a
-        stellar dynamics particle (mass, radius, position and velocity) is
-        updated.
-        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
@@ -760,8 +937,6 @@ class TsunamiInterface(
         function.result_doc = """
         0 - OK
             particle was found in the model and the information was set
-        -1 - ERROR
-            particle could not be found
         """
         return function
 
