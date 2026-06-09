@@ -31,25 +31,27 @@ class TsunamiImplementation(object):
         self.tsunami = tsunami.Tsunami(1, 1)
 
         # temporary buffers for staging particles
+        self._id_list: list[int] = []
         self._mass_list: list[float] = []
         self._radius_list: list[float] = []
         self._pos_list: list[list[float]] = []
         self._vel_list: list[list[float]] = []
         self._spin_list: list[list[float]] = []
-        self._id_list: list[int] = []
 
         # commited particle arrays
+        self._ids = np.empty(0, dtype=np.int32)
         self._mass = np.empty(0, dtype=np.float64)
         self._radius = np.empty(0, dtype=np.float64)
         self._pos = np.empty((0, 3), dtype=np.float64)
         self._vel = np.empty((0, 3), dtype=np.float64)
         self._spin = np.empty((0, 3), dtype=np.float64)
         self._stype = np.empty(0, dtype=np.int64)
-        self._ids = np.empty(0, dtype=np.int32)
 
         self._next_particle_id = 0
 
     def initialize_code(self) -> int:
+        """Disable any TSUNAMI features that are not needed in AMUSE."""
+        self.tsunami.Conf.wExt = False
         return 0
 
     def cleanup_code(self) -> int:
@@ -101,49 +103,49 @@ class TsunamiImplementation(object):
             )
 
         if not (
+            len(self._id_list) == N_new and
             len(self._mass_list) == N_new and
             len(self._radius_list) == N_new and
             len(self._vel_list) == N_new and
-            len(self._spin_list) == N_new and
-            len(self._id_list) == N_new
+            len(self._spin_list) == N_new
         ):
             return -1
 
         # preallocate particleset for Tsunami
+        ids = np.empty(N_total, dtype=np.int32)
         mass = np.empty(N_total, dtype=np.float64)
         radius = np.empty(N_total, dtype=np.float64)
         pos = np.empty((N_total, 3), dtype=np.float64)
         vel = np.empty((N_total, 3), dtype=np.float64)
         spin = np.empty((N_total, 3), dtype=np.float64)
         stype = np.ones(N_total, dtype=np.int64) * -1
-        ids = np.empty(N_total, dtype=np.int32)
 
         # add any existing Tsunami particles
         if N_existing != 0:
+            ids[:N_existing] = self._ids
             mass[:N_existing] = self._mass
             radius[:N_existing] = self._radius
             pos[:N_existing, :] = self._pos
             vel[:N_existing, :] = self._vel
             spin[:N_existing, :] = self._spin
-            ids[:N_existing] = self._ids
 
         # add new particles
+        ids[N_existing:] = np.asarray(self._id_list, dtype=np.int32)
         mass[N_existing:] = np.asarray(self._mass_list, dtype=np.float64)
         radius[N_existing:] = np.asarray(self._radius_list, dtype=np.float64)
         pos[N_existing:, :] = np.asarray(self._pos_list, dtype=np.float64).reshape(-1, 3)
         vel[N_existing:, :] = np.asarray(self._vel_list, dtype=np.float64).reshape(-1, 3)
         spin[N_existing:, :] = np.asarray(self._spin_list, dtype=np.float64).reshape(-1, 3)
-        ids[N_existing:] = np.asarray(self._id_list, dtype=np.int32)
 
         self.tsunami.add_particle_set(pos, vel, mass, radius, stype, spin)
 
+        self._ids = ids
         self._mass = mass
         self._radius = radius
         self._pos = pos
         self._vel = vel
         self._spin = spin
         self._stype = stype
-        self._ids = ids
         self._clear_temporary_particle_buffers()
         self.synchronize_model()
 
@@ -306,12 +308,12 @@ class TsunamiImplementation(object):
                 'TSUNAMI does not support less than 2 particles!'
             )
 
+        self._ids = np.delete(self._ids, i)
         self._mass = np.delete(self._mass, i)
         self._radius = np.delete(self._radius, i)
         self._pos = np.delete(self._pos, i, axis=0)
         self._vel = np.delete(self._vel, i, axis=0)
         self._spin = np.delete(self._spin, i, axis=0)
-        self._ids = np.delete(self._ids, i)
 
         self.tsunami.remove_particle(i)
         self.synchronize_model()
@@ -941,6 +943,7 @@ class TsunamiImplementation(object):
 
     def _clear_temporary_particle_buffers(self) -> None:
         """Clear temporary particle buffers after commiting particles."""
+        self._id_list.clear()
         self._mass_list.clear()
         self._radius_list.clear()
         self._pos_list.clear()
