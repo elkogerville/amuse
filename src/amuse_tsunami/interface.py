@@ -625,6 +625,32 @@ class TsunamiImplementation(object):
         self.tsunami.Conf.wEqTides = bool(equilibrium_tides)
         return 0
 
+    def get_dynamical_tides(self, dynamical_tides: ValueHolder) -> int:
+        """
+        Get dynamical tides parameter. Enables or disables dynamical tides.
+
+        Parameters
+        ----------
+        dynamical_tides : ValueHolder[bool]
+            ValueHolder instance to return dynamical tides value.
+            If `True`, enables dynamical tides.
+        """
+        dynamical_tides.value = self.tsunami.Conf.wEqTides
+        return 0
+
+    def set_dynamical_tides(self, dynamical_tides: bool) -> int:
+        """
+        Set dynamical tides parameter. Enables or disables dynamical tides.
+
+        Parameters
+        ----------
+        dynamical_tides : ValueHolder[bool]
+            ValueHolder instance to return dynamical tides value.
+            If `True`, enables dynamical tides.
+        """
+        self.tsunami.Conf.wEqTides = bool(dynamical_tides)
+        return 0
+
     def get_alpha(self, alpha: ValueHolder) -> int:
         """
         Get alpha regularization parameter.
@@ -1074,6 +1100,14 @@ class TsunamiInterface(
         returns ()
 
     @remote_function
+    def get_dynamical_tides():
+        returns (dynamical_tides='b')
+
+    @remote_function
+    def set_dynamical_tides(dynamical_tides='b'):
+        returns ()
+
+    @remote_function
     def get_alpha():
         returns (alpha='d')
 
@@ -1279,6 +1313,14 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             'set_equilibrium_tides',
             'equilibrium_tides',
             'enable equilibrium tides.',
+            default_value=False
+        )
+
+        handler.add_method_parameter(
+            'get_dynamical_tides',
+            'set_dynamical_tides',
+            'dynamical_tides',
+            'enable dynamical tides.',
             default_value=False
         )
 
