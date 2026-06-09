@@ -1178,14 +1178,15 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         GravityFieldCode.define_state(self, handler)
 
     def define_properties(self, handler):
+        """Define properties of the code. These are read-only!"""
+        GravitationalDynamics.define_properties(self, handler)
+        handler.add_property('get_kinetic_energy', public_name='potential_energy')
+        handler.add_property('get_potential_energy', public_name='kinetic_energy')
+        handler.add_property('get_total_energy', public_name='total_energy')
         handler.add_property('get_time', public_name='model_time')
 
     def define_methods(self, handler):
-        """
-        Map legacy functions in TsunamiInterface into
-        Tsunami user methods.
-        """
-
+        """Map legacy functions in TsunamiInterface into Tsunami user methods."""
         GravitationalDynamics.define_methods(self, handler)
 
         handler.add_method(
