@@ -599,15 +599,6 @@ class TsunamiImplementation(object):
         Vscale.value = self.tsunami.Vscale
         return 0
 
-    def get_time(self, time: ValueHolder) -> int:
-        """
-        Get current model time.
-
-        tsunami.time returns time in N-body units.
-        """
-        time.value = self.tsunami.time
-        return 0
-
     def get_equilibrium_tides(self, equilibrium_tides: ValueHolder) -> int:
         """
         Get equilibrium tides parameter. Enables or disables equilibrium tides.
@@ -906,6 +897,15 @@ class TsunamiImplementation(object):
         total_energy.value = self.tsunami.energy
         return 0
 
+    def get_time(self, time: ValueHolder) -> int:
+        """
+        Get current model time.
+
+        tsunami.time returns time in N-body units.
+        """
+        time.value = self.tsunami.time
+        return 0
+
     def get_number_of_particles(self, number_of_particles: ValueHolder) -> int:
         """
         Get total number of particles in TSUNAMI.
@@ -997,19 +997,6 @@ class TsunamiInterface(
         return function
 
     @legacy_function
-    def get_time():
-        function = LegacyFunctionSpecification()
-        function.addParameter('time', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        function.result_doc = """
-        0 - OK
-            System was evolved to time
-        -1 - ERROR
-            Requested time is <= current model time
-        """
-        return function
-
-    @legacy_function
     def get_state():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
@@ -1062,6 +1049,19 @@ class TsunamiInterface(
         function.result_doc = """
         0 - OK
             particle was found in the model and the information was retrieved
+        """
+        return function
+
+    @legacy_function
+    def get_time():
+        function = LegacyFunctionSpecification()
+        function.addParameter('time', dtype='d', direction=function.OUT)
+        function.result_type = 'i'
+        function.result_doc = """
+        0 - OK
+            System was evolved to time
+        -1 - ERROR
+            Requested time is <= current model time
         """
         return function
 
