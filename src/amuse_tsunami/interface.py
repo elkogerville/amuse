@@ -1440,7 +1440,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         handler.add_method_parameter(
             'get_equilibrium_tides',
             'set_equilibrium_tides',
-            'equilibrium_tides',
+            'wEqTides',
             'enable equilibrium tides.',
             default_value=False
         )
@@ -1448,7 +1448,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         handler.add_method_parameter(
             'get_dynamical_tides',
             'set_dynamical_tides',
-            'dynamical_tides',
+            'wDynTides',
             'enable dynamical tides.',
             default_value=False
         )
@@ -1480,7 +1480,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         handler.add_method_parameter(
             'get_pn',
             'set_pn',
-            'pn',
+            'wPNs',
             'enable post newtonian corrections',
             default_value=False
         )
