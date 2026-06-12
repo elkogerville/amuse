@@ -469,6 +469,29 @@ class TsunamiImplementation(object):
 
         return 0
 
+    def get_mass(
+        self,
+        index_of_the_particle: int,
+        mass: ValueHolder
+    ) -> int:
+        i = self._get_particle_index_by_id(index_of_the_particle)
+        self.synchronize_model()
+
+        mass.value = self._mass[i]
+        return 0
+
+    def set_mass(
+        self,
+        index_of_the_particle: int,
+        mass: float
+    ) -> int:
+        i = self._get_particle_index_by_id(index_of_the_particle)
+
+        self._mass[i] = mass
+        self.tsunami.override_masses(self._mass)
+
+        return 0
+
     def get_position(
         self,
         index_of_the_particle: int,
@@ -495,9 +518,6 @@ class TsunamiImplementation(object):
         ------
         ValueError : If `index_of_the_particle` is not valid.
         """
-        if self._pos.shape[0] == 0:
-            return -1
-
         i = self._get_particle_index_by_id(index_of_the_particle)
         self.synchronize_model()
 
@@ -533,6 +553,75 @@ class TsunamiImplementation(object):
         self._pos[i, 0] = x
         self._pos[i, 1] = y
         self._pos[i, 2] = z
+
+        self.tsunami.override_position_and_velocities(self._pos, self._vel)
+
+        return 0
+
+    def get_velocity(
+        self,
+        index_of_the_particle: int,
+        vx: ValueHolder,
+        vy: ValueHolder,
+        vz: ValueHolder
+    ) -> int:
+        """
+        Retrieve the velocity of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        vx, vy, vz : ValueHolder[float]
+            ValueHolder instance to return the velocity
+            of the particle.
+
+        Returns
+        -------
+        0 : velocity was retrieved successfully.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
+        """
+        if self._pos.shape[0] == 0:
+            return -1
+
+        i = self._get_particle_index_by_id(index_of_the_particle)
+        self.synchronize_model()
+
+        vx.value = self._vel[i, 0]
+        vy.value = self._vel[i, 1]
+        vz.value = self._vel[i, 2]
+
+        return 0
+
+    def set_velocity(
+        self, index_of_the_particle: int, vx: float, vy: float, vz: float
+    ) -> int:
+        """
+        Set the velocity of a particle. Ensure to update its mass first!
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        vx, vy, vz : float
+            Particle velocity.
+
+        Returns
+        -------
+        0 : velocity was set.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
+        """
+        i = self._get_particle_index_by_id(index_of_the_particle)
+
+        self._vel[i, 0] = vx
+        self._vel[i, 1] = vy
+        self._vel[i, 2] = vz
 
         self.tsunami.override_position_and_velocities(self._pos, self._vel)
 
