@@ -728,6 +728,10 @@ class TsunamiImplementation(object):
         Vscale.value = self.tsunami.Vscale
         return 0
 
+    def get_speed_of_light(self, speed_of_light: ValueHolder) -> int:
+        speed_of_light.value = self.tsunami.speed_of_light
+        return 0
+
     def get_equilibrium_tides(self, equilibrium_tides: ValueHolder) -> int:
         """
         Get equilibrium tides parameter. Enables or disables equilibrium tides.
@@ -1207,6 +1211,10 @@ class TsunamiInterface(
         """
         return function
 
+    @remote_function
+    def get_speed_of_light():
+        returns (speed_of_light='d')
+
     @legacy_function
     def get_time():
         function = LegacyFunctionSpecification()
@@ -1350,6 +1358,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         handler.add_property('get_potential_energy', public_name='kinetic_energy')
         handler.add_property('get_total_energy', public_name='total_energy')
         handler.add_property('get_time', public_name='model_time')
+        handler.add_property('get_speed_of_light', public_name='speed_of_light')
 
     def define_methods(self, handler):
         """Map legacy functions in TsunamiInterface into Tsunami user methods."""
