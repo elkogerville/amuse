@@ -234,10 +234,10 @@ class TestTsunami(TestWithMPI):
 
         return p
 
-    def validate_tsunami_state(self, state, particle) -> None:
+    def validate_tsunami_state_equality(self, state: list, particle: Particle) -> None:
         """
         Validate that a state retrieved by `Tsunami.get_state`
-        matches the state of `particle`.
+        matches the state of `particle` exactly.
 
         Parameters
         ----------
@@ -262,6 +262,46 @@ class TestTsunami(TestWithMPI):
         self.assertEquals(state[8], particle.wx)
         self.assertEquals(state[9], particle.wy)
         self.assertEquals(state[10], particle.wz)
+
+
+    def validate_tsunami_state_relative_equality(
+        self,
+        state: list,
+        particle: Particle,
+        places: int = 7
+    ) -> None:
+        """
+        Validate that a state retrieved via `Tsunami.get_state` matches
+        the corresponding attributes of `particle`, within relative tolerance.
+
+        Parameters
+        ----------
+        state : list
+            State vector as returned by `get_state`, ordered as
+            [mass, radius, x, y, z, vx, vy, vz, wx, wy, wz].
+        particle : amuse.datamodel.particles.Particle
+            Particle instance whose attributes are compared against `state`.
+        places : int, optional, default=7
+            Number of decimal places of relative precision required for equality.
+
+        Raises
+        ------
+        AssertionError
+            If any corresponding value in `state` and `particle` does not match
+            within `places` relative precision.
+
+        """
+        self.assertAlmostRelativeEquals(state[0], particle.mass, places=places)
+        self.assertAlmostRelativeEquals(state[1], particle.radius, places=places)
+        self.assertAlmostRelativeEquals(state[2], particle.x, places=places)
+        self.assertAlmostRelativeEquals(state[3], particle.y, places=places)
+        self.assertAlmostRelativeEquals(state[4], particle.z, places=places)
+        self.assertAlmostRelativeEquals(state[5], particle.vx, places=places)
+        self.assertAlmostRelativeEquals(state[6], particle.vy, places=places)
+        self.assertAlmostRelativeEquals(state[7], particle.vz, places=places)
+        self.assertAlmostRelativeEquals(state[8], particle.wx, places=places)
+        self.assertAlmostRelativeEquals(state[9], particle.wy, places=places)
+        self.assertAlmostRelativeEquals(state[10], particle.wz, places=places)
 
     def test_add_and_delete_particles(self):
         """Test adding and deleting particles in Tsunami."""
