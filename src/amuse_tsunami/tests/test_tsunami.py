@@ -1,15 +1,153 @@
+from matplotlib.axes import Axes
+import matplotlib.pyplot as plt
+import numpy as np
+import tsunami
+
 from amuse.datamodel import Particle, Particles
 from amuse.ext.orbital_elements import generate_binaries
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse_tsunami.interface import TsunamiInterface, Tsunami
 from amuse.units import constants as c, nbody_system as ns, units as u
 
-# class TestTsunamiInterface(TestWithMPI):
+# if True, show comparison plots for certain tests
+show_plots = False
 
-#     def test_echo_int(self):
-#         instance = TsunamiInterface()
+class TestTsunamiInterface(TestWithMPI):
 
-#         instance.stop()
+    def test_initialization(self):
+        """
+        Test Tsunami initialization.
+        """
+        instance = self.new_instance_of_an_optional_code(TsunamiInterface)
+        assert instance is not None
+
+        self.assertEquals(0, instance.initialize_code())
+        self.assertEquals(0, instance.commit_parameters())
+        self.assertEquals(0, instance.cleanup_code())
+        instance.stop()
+
+    def test_setters_and_getters(self):
+        """
+        Test TsunamiInterface setters and getters.
+        """
+        # instance = self.new_instance_of_an_optional_code(TsunamiInterface, redirection='none')
+        instance = TsunamiInterface(redirection='none')
+        assert instance is not None
+
+        self.assertEquals(0, instance.initialize_code())
+        self.assertEquals(0, instance.commit_parameters())
+
+        result = instance.get_number_of_particles()
+        self.assertEquals(result['number_of_particles'], 0)
+
+        result = instance.new_particle(3,0,1,3,0,0,0,0,0,0,0)
+        self.assertEquals(result['index_of_the_particle'], 0)
+
+        result = instance.new_particle(4,0,-2,-1,0,0,0,0,1,1,1)
+        self.assertEquals(result['index_of_the_particle'], 1)
+
+        result = instance.new_particle(5,0,1,-1,0,0,0,0,0,0,0)
+        self.assertEquals(result['index_of_the_particle'], 2)
+
+        instance.commit_particles()
+        result = instance.get_number_of_particles()
+        self.assertEquals(result['number_of_particles'], 3)
+
+        result = instance.get_state(0)
+        self.assertEquals(result['mass'], 3.0)
+        self.assertEquals(result['radius'], 0.0)
+        self.assertEquals(result['x'], 1.0)
+        self.assertEquals(result['y'], 3.0)
+        self.assertEquals(result['z'], 0.0)
+        self.assertEquals(result['vx'], 0.0)
+        self.assertEquals(result['vy'], 0.0)
+        self.assertEquals(result['vz'], 0.0)
+        self.assertEquals(result['wx'], 0.0)
+        self.assertEquals(result['wy'], 0.0)
+        self.assertEquals(result['wz'], 0.0)
+
+        result = instance.get_state(1)
+        self.assertEquals(result['mass'], 4)
+        self.assertEquals(result['radius'], 0)
+        self.assertEquals(result['x'], -2)
+        self.assertEquals(result['y'], -1)
+        self.assertEquals(result['z'], 0)
+        self.assertEquals(result['vx'], 0)
+        self.assertEquals(result['vy'], 0)
+        self.assertEquals(result['vz'], 0)
+        self.assertEquals(result['wx'], 1)
+        self.assertEquals(result['wy'], 1)
+        self.assertEquals(result['wz'], 1)
+
+        result = instance.get_state(2)
+        self.assertEquals(result['mass'], 5)
+        self.assertEquals(result['radius'], 0)
+        self.assertEquals(result['x'], 1)
+        self.assertEquals(result['y'], -1)
+        self.assertEquals(result['z'], 0)
+        self.assertEquals(result['vx'], 0)
+        self.assertEquals(result['vy'], 0)
+        self.assertEquals(result['vz'], 0)
+        self.assertEquals(result['wx'], 0)
+        self.assertEquals(result['wy'], 0)
+        self.assertEquals(result['wz'], 0)
+
+        instance.set_mass(0, 1.5)
+        self.assertEquals(instance.get_mass(0)['mass'], 1.5)
+
+        instance.set_position(0, 2.5, 3.5, 4.5)
+        result = instance.get_position(0)
+        self.assertEquals(result['x'], 2.5)
+        self.assertEquals(result['y'], 3.5)
+        self.assertEquals(result['z'], 4.5)
+
+        instance.set_velocity(0, 5.5, 6.5, 7.5)
+        result = instance.get_velocity(0)
+        self.assertEquals(result['vx'], 5.5)
+        self.assertEquals(result['vy'], 6.5)
+        self.assertEquals(result['vz'], 7.5)
+
+        result = instance.get_radius(0)
+        self.assertEquals(result['radius'], 0)
+
+        result = instance.get_spin(1)
+        self.assertEquals(result['wx'], 1)
+        self.assertEquals(result['wy'], 1)
+        self.assertEquals(result['wz'], 1)
+
+        instance.delete_particle(0)
+        instance.recommit_particles()
+        result = instance.get_number_of_particles()
+        self.assertEquals(result['number_of_particles'], 2)
+
+        result = instance.get_state(1)
+        self.assertEquals(result['mass'], 4)
+        self.assertEquals(result['radius'], 0)
+        self.assertEquals(result['x'], -2)
+        self.assertEquals(result['y'], -1)
+        self.assertEquals(result['z'], 0)
+        self.assertEquals(result['vx'], 0)
+        self.assertEquals(result['vy'], 0)
+        self.assertEquals(result['vz'], 0)
+        self.assertEquals(result['wx'], 1)
+        self.assertEquals(result['wy'], 1)
+        self.assertEquals(result['wz'], 1)
+
+        result = instance.get_state(2)
+        self.assertEquals(result['mass'], 5)
+        self.assertEquals(result['radius'], 0)
+        self.assertEquals(result['x'], 1)
+        self.assertEquals(result['y'], -1)
+        self.assertEquals(result['z'], 0)
+        self.assertEquals(result['vx'], 0)
+        self.assertEquals(result['vy'], 0)
+        self.assertEquals(result['vz'], 0)
+        self.assertEquals(result['wx'], 0)
+        self.assertEquals(result['wy'], 0)
+        self.assertEquals(result['wz'], 0)
+
+        self.assertEquals(0, instance.cleanup_code())
+        instance.stop()
 
 
 class TestTsunami(TestWithMPI):
