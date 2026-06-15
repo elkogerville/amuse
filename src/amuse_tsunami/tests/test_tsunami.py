@@ -409,3 +409,239 @@ class TestTsunami(TestWithMPI):
         self.assertEquals(state2[10], 0 | 1 / ns.time)
 
         instance.stop()
+
+    def test_delete_particle_and_restart(self):
+        """
+        This test simulates a pythagorean triangle system
+        identical to `test_tsunami_pythagorean_triangle`,
+        but instead of evolving to time t=65, it first evolves
+        to time t=30, then deletes a particle, then adds it back
+        in before finishing the integration to t=65.
+        Both this test and `test_tsunami_pythagorean_triangle`
+        should agree. Due to integration differences, the results
+        of the two different simulations differ by more than 1 decimal
+        point, and the states are not compared in this test.
+        Set `show_plots=True` at the top of the test file to show the
+        comparison plot.
+        """
+        system = self.generate_pythagorean()
+
+        instance = self.new_instance_of_an_optional_code(Tsunami, redirection='none')
+        assert instance is not None
+
+        instance.parameters.wPNs = False
+        instance.parameters.wEqTides = False
+        instance.parameters.wDynTides = False
+        instance.commit_parameters()
+
+        instance.particles.add_particles(system)
+        channel = instance.particles.new_channel_to(system)
+        instance.commit_particles()
+
+        particles = []
+
+        t_midpoint = 30 | ns.time
+        dt = 0.1 | ns.time
+        while instance.model_time <  t_midpoint:
+            instance.evolve_model(instance.model_time + dt)
+            channel.copy()
+            particles.append(system.copy())
+
+        self.assertAlmostRelativeEquals(instance.model_time, t_midpoint, places=2)
+
+        # save original state after evolving to t=30
+        pars = instance.particles.copy()
+
+        # remove particle 0
+        instance.particles.remove_particle(instance.particles[0])
+        self.assertEquals(instance.get_number_of_particles(), 2)
+
+        # add 'particle 0' back in
+        instance.particles.add_particle(pars[0])
+        instance.recommit_particles()
+        self.assertEquals(instance.get_number_of_particles(), 3)
+
+        # check that new starting state is the same as t=30 state before deleting
+        # particle 0 now has id=3 because ids are unique and increasing monotonically
+        state0 = instance.get_state(3)
+        state1 = instance.get_state(1)
+        state2 = instance.get_state(2)
+        self.validate_tsunami_state_relative_equality(state0, pars[0], places=10)
+        self.validate_tsunami_state_relative_equality(state1, pars[1], places=10)
+        self.validate_tsunami_state_relative_equality(state2, pars[2], places=10)
+
+        t_end = 65 | ns.time
+        dt = 0.1 | ns.time
+        while instance.model_time <  t_end:
+            instance.evolve_model(instance.model_time + dt)
+            channel.copy()
+            particles.append(system.copy())
+
+        self.assertAlmostRelativeEquals(instance.model_time, t_end, places=2)
+
+        if show_plots:
+            colors = ['#483d8b', '#d81b60', '#dbb0ff']
+            ax = self.plot_particles_xy(
+                particles, colors=colors, labels=['star1', 'star2', 'star3']
+            )
+            self.plot_tsunami_pythagorean_triangle(ax)
+            ax.legend(edgecolor='w')
+            plt.show()
+
+        instance.stop()
+
+    def test_tsunami_does_not_rescale_to_com_frame(self):
+        """
+        By default Tsunami will rescale a system to its center
+        of mass frame. Test that this behavior is turned off.
+        """
+        p = Particles(3)
+        p.mass = [1,4,8] | ns.mass
+        p.radius = [1,1,2] | ns.length
+        p.position = [[0,1,2],[3,4,5],[6,7,8]] | ns.length
+        p.velocity = [[6,7,8],[9,10,11],[12,13,14]] | ns.speed
+        p.wx = [12,15,19] | 1 / ns.time
+        p.wy = [13,16,20] | 1 / ns.time
+        p.wz = [14,17,21] | 1 / ns.time
+
+        instance = self.new_instance_of_an_optional_code(Tsunami, redirection='none')
+        instance.particles.add_particles(p)
+        instance.commit_particles()
+
+        state0 = instance.get_state(0)
+        state1 = instance.get_state(1)
+        state2 = instance.get_state(2)
+
+        self.validate_tsunami_state_equality(state0, p[0])
+        self.validate_tsunami_state_equality(state1, p[1])
+        self.validate_tsunami_state_equality(state2, p[2])
+
+        instance.delete_particle(1)
+
+        state0 = instance.get_state(0)
+        state2 = instance.get_state(2)
+        self.validate_tsunami_state_relative_equality(state0, p[0])
+        self.validate_tsunami_state_relative_equality(state2, p[2])
+
+        instance.stop()
+
+
+    def test_pns(self):
+        def setup_binary(a=0.1, e=0.99, m1=50.0, m2=50.0, nu=0.0, pn1=True, pn2=True):
+            i = ome = Ome = 0.0 # rad
+            pos_vel2 = np.array([0.,0.,0., 0.,0.,0.])
+
+            print("\nGenerating binary")
+
+            print("kepl_to_cart corrections:\n  PN1 = {}\n  PN2 = {}".format(pn1, pn2))
+
+            pos_vel1 = keplutils.kepl_to_cart(pos_vel2, m1, m2, a, e, i, ome, Ome, nu, pn1=pn1, pn2=pn2)
+
+            m = np.array([m1, m2])
+            p = np.array([pos_vel1[:3], pos_vel2[:3]])
+            v = np.array([pos_vel1[3:], pos_vel2[3:]])
+
+            return m, p, v
+        keplutils = tsunami.KeplerUtils()
+        instance = self.new_instance_of_an_optional_code(Tsunami, redirection='none')
+        assert instance is not None
+
+        instance.parameters.wPNs = True
+
+
+    def plot_particles_xy(
+        self,
+        particles: list[Particles],
+        colors: list[str],
+        labels: list[str] | None = None,
+        figsize: tuple[float, float] = (6,6)
+    ) -> Axes:
+        """
+        Plot the xy position of a list of `Particles`.
+
+        Parameters
+        ----------
+        particles : list[Particles]
+            List of `amuse.datamodel.particles.Particles`, where each `Particles`
+            in the list is a simulation snapshot containing each `Particle` in the system.
+        colors : list[ColorType]
+            List of colors for each particle. Should have same length as the number of particles
+            in the system.
+        labels : list[str]
+            Label for each particle. Should have same length as the number of particles
+            in the system.
+        figsize : tuple[float, float]
+            Size of the figure.
+        """
+        data = [[], [], []]
+
+        for p in particles:
+            for i in range(len(p)):
+                data[i].append((p[i].x.number, p[i].y.number))
+
+        fig = plt.figure(figsize=figsize, tight_layout=True)
+        ax = fig.add_subplot(111)
+        ax.set_aspect('equal')
+        ax.minorticks_on()
+        ax.tick_params(
+            axis='both', length=2, direction='in',
+            which='both', right=True, top=True
+        )
+
+        for i, (color, pts) in enumerate(zip(colors, data)):
+            xs, ys = zip(*pts)
+            l = None if labels is None else labels[i]
+            ax.plot(xs, ys, color=color, linewidth=0.8, label=l)
+
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+
+        return ax
+
+    def plot_tsunami_pythagorean_triangle(self, ax: Axes) -> None:
+        """
+        Plot `test_tsunami.py` from the standalone TSUNAMI package.
+        """
+        import tsunami
+        code = tsunami.Tsunami(1.0, 1.0)
+
+        code.Conf.wPNs = False
+        code.Conf.wEqTides = False
+        code.Conf.wDynTides = False
+        code.Conf.wExt = False
+
+        code.Conf.dcoll = 0.0
+
+        m = np.array([3., 4., 5.])
+        p = np.array([[1.,3.,0.], [-2.,-1.,0.], [1.,-1.,0.]])
+        v = np.array([[0.,0.,0.], [0.,0.,0.], [0.,0.,0.]])
+        R = np.array([0., 0., 0.])
+        sp = np.array([[0.,0.,0.], [0.,0.,0.], [0.,0.,0.]])
+        st = np.array([-1, -1, -1])
+        code.add_particle_set(p, v, m, R, st, sp)
+
+        code.sync_internal_state(p, v, sp)
+        totp = [p.copy()]
+
+        dt = 0.1
+        ft = 65
+
+        time = 0
+        while time < ft:
+            time = time + dt
+
+            code.evolve_system(time)
+            time = code.time
+            code.sync_internal_state(p, v, sp)
+
+            totp.append(p.copy())
+
+        totp = np.vstack(totp)
+        code.sync_masses(m)
+        code.sync_radii(R)
+
+        colors = ['#26dcba', '#7d7ff3', '#cfe23c']
+
+        ax.plot(totp[::3,0], totp[::3,1], lw=0.8, ls='--', color=colors[0], label='star1 tsunami')
+        ax.plot(totp[1::3,0], totp[1::3,1], lw=0.8, ls='--', color=colors[1], label='star2 tsunami')
+        ax.plot(totp[2::3,0], totp[2::3,1], lw=0.8, ls='--', color=colors[2], label='star3 tsunami')
