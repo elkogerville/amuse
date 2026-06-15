@@ -50,8 +50,14 @@ class TsunamiImplementation(object):
         self._next_particle_id = 0
 
     def initialize_code(self) -> int:
-        """Disable any TSUNAMI features that are not needed in AMUSE."""
-        self.tsunami.Conf.wExt = False
+        """
+        Disable any TSUNAMI features that are not needed in AMUSE.
+
+        Tsunami by default will recenter the system to its center of mass
+        frame by subtracting it. External forces must be set to `True` so
+        that Tsunami adds the center of mass back into the system.
+        """
+        self.tsunami.Conf.wExt = True
         return 0
 
     def cleanup_code(self) -> int:
@@ -137,7 +143,6 @@ class TsunamiImplementation(object):
         vel[N_existing:, :] = np.asarray(self._vel_list, dtype=np.float64).reshape(-1, 3)
         spin[N_existing:, :] = np.asarray(self._spin_list, dtype=np.float64).reshape(-1, 3)
 
-        self.tsunami.reallocate_arrays(N_total)
         self.tsunami.add_particle_set(pos, vel, mass, radius, stype, spin)
 
         self._ids = ids
@@ -316,49 +321,10 @@ class TsunamiImplementation(object):
         self._vel = np.delete(self._vel, i, axis=0)
         self._spin = np.delete(self._spin, i, axis=0)
 
-        print('delete_particle\n')
+        self.tsunami.remove_particle(i)
+        self.synchronize_model()
 
         return 0
-
-    # def delete_particle2(self, index_of_the_particle: int) -> int:
-    #     """
-    #     Delete a particle in TSUNAMI.
-
-    #     Parameters
-    #     ----------
-    #     index_of_the_particle : int
-    #         Particle index as returned by `new_particle`.
-
-    #     Returns
-    #     -------
-    #     0 : The particle was deleted successfully.
-
-    #     Raises
-    #     ------
-    #     ValueError :
-    #         If `index_of_the_particle` is not valid.
-    #     ValueError :
-    #         If deleting a particle would cause TSUNAMI
-    #         to have less than 2 particles.
-    #     """
-    #     i = self._get_particle_index_by_id(index_of_the_particle)
-
-    #     if len(self._pos)-1 < 2:
-    #         raise ValueError(
-    #             'TSUNAMI does not support less than 2 particles!'
-    #         )
-
-    #     self._ids = np.delete(self._ids, i)
-    #     self._mass = np.delete(self._mass, i)
-    #     self._radius = np.delete(self._radius, i)
-    #     self._pos = np.delete(self._pos, i, axis=0)
-    #     self._vel = np.delete(self._vel, i, axis=0)
-    #     self._spin = np.delete(self._spin, i, axis=0)
-
-    #     self.tsunami.remove_particle(i)
-    #     self.synchronize_model()
-
-    #     return 0
 
     def get_state(
         self,
