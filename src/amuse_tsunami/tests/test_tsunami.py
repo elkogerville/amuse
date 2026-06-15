@@ -319,9 +319,9 @@ class TestTsunami(TestWithMPI):
         state1 = instance.get_state(1)
         state2 = instance.get_state(2)
 
-        self.validate_tsunami_state(state0, system[0])
-        self.validate_tsunami_state(state1, system[1])
-        self.validate_tsunami_state(state2, system[2])
+        self.validate_tsunami_state_equality(state0, system[0])
+        self.validate_tsunami_state_equality(state1, system[1])
+        self.validate_tsunami_state_equality(state2, system[2])
 
         self.assertEquals(system[0].key, instance.particles[0].key)
         self.assertEquals(system[1].key, instance.particles[1].key)
@@ -330,15 +330,27 @@ class TestTsunami(TestWithMPI):
         instance.particles.remove_particle(system[0])
         self.assertEquals(instance.get_number_of_particles(), len(system)-1)
 
+        state1 = instance.get_state(1)
+        state2 = instance.get_state(2)
+
+        self.validate_tsunami_state_equality(state1, system[1])
+        self.validate_tsunami_state_equality(state2, system[2])
+
         instance.stop()
 
     def test_tsunami_pythagorean_triple(self):
+        """
+        Test identical to `test_tsunami.py` from the TSUNAMI package.
+        Simulation results should be identical to standalone TSUNAMI.
+        """
         system = self.generate_pythagorean()
 
-        instance = Tsunami(redirection='none')
+        instance = self.new_instance_of_an_optional_code(Tsunami, redirection='none')
         assert instance is not None
 
-        instance.parameters.pn = False
+        instance.parameters.wPNs = False
+        instance.parameters.wEqTides = False
+        instance.parameters.wDynTides = False
         instance.commit_parameters()
 
         instance.particles.add_particles(system)
@@ -349,10 +361,17 @@ class TestTsunami(TestWithMPI):
         while instance.model_time <  t_end:
             instance.evolve_model(instance.model_time + dt)
 
+        # validate energies
+        self.assertAlmostRelativeEquals(instance.potential_energy.number, 22.461771188652676)
+        self.assertAlmostRelativeEquals(instance.kinetic_energy.number, 9.645104521979146)
+        self.assertAlmostRelativeEquals(instance.deltaE, 3.055333763768898e-13)
+
+        self.assertAlmostRelativeEquals(instance.model_time, t_end, places=2)
         state0 = instance.get_state(0)
         state1 = instance.get_state(1)
         state2 = instance.get_state(2)
 
+        # compare with standalone TSUNAMI simulation results
         self.assertEquals(state0[0], 3 | ns.mass)
         self.assertEquals(state0[1], 0 | ns.length)
         self.assertAlmostRelativeEquals(state0[2], 4.15498855 | ns.length, places=7)
