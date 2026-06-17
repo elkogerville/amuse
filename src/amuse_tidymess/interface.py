@@ -354,92 +354,55 @@ class TidymessInterface(
         """
         returns ()
 
-    @legacy_function
+    @remote_function
     def get_magnetic_braking():
         """
         Get magnetic braking parameter.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'magnetic_braking',
-            dtype='int32',
-            direction=function.OUT,
-            description='Magnetic braking. 0=off, 1=on'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            magnetic braking was retrieved
-        -1 - ERROR
-            magnetic braking could not be found
-        """
-        return function
 
-    @legacy_function
-    def set_magnetic_braking():
+        Returns
+        -------
+        magnetic_braking : int
+            Magnetic braking: 0=off, 1=on
         """
-        Set the magnetic braking parameter.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'magnetic_braking',
-            dtype='int32',
-            direction=function.IN,
-            description='Magnetic braking. 0=off, 1=on'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            magnetic braking coefficient was set
-        -1 - ERROR
-            Could not set magnetic braking coefficient
-        """
-        return function
+        returns (magnetic_braking='i')
 
-    @legacy_function
+    @remote_function
+    def set_magnetic_braking(magnetic_braking='i'):
+        """
+        Set magnetic braking parameter.
+
+        Parameters
+        ----------
+        magnetic_braking : int
+            Magnetic braking: 0=off, 1=on
+        """
+        returns ()
+
+    @remote_function
     def get_speed_of_light():
         """
         Retrieve Tidymess speed of light parameter.
-        Only used in conjunction with N-body units
-        and pn_order>0, otherwise equal to c.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'speed_of_light',
-            dtype='float64',
-            direction=function.OUT,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            speed of light was retrieved
-        -1 - ERROR
-            Could not find speed of light
-        """
-        return function
 
-    @legacy_function
-    def set_speed_of_light():
+        Returns
+        -------
+        speed_of_light : float
+            Speed of light. Only used in conjunction with
+            N-body units and `pn_order>0`, otherwise equal to c.
         """
-        Set Tidymess speed of light. Only used in
-        conjunction with N-body units and pn_order>0,
-        otherwise equal to c.
+        returns (speed_of_light='d')
+
+    @remote_function
+    def set_speed_of_light(speed_of_light='d'):
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'speed_of_light',
-            dtype='float64',
-            direction=function.IN,
-            description='')
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            speed of light was set
-        -1 - ERROR
-            Could not set speed of light
+        Set Tidymess speed of light parameter.
+
+        Parameters
+        ----------
+        speed_of_light : float
+            Speed of light. Only used in conjunction with
+            N-body units and `pn_order>0`, otherwise equal to c.
         """
-        return function
+        returns ()
 
     @legacy_function
     def get_dt_mode():
