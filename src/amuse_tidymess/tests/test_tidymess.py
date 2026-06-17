@@ -1,9 +1,10 @@
+import numpy as np
+
 from amuse.datamodel import Particles
 from amuse.ext.orbital_elements import generate_binaries
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse_tidymess.interface import Tidymess, TidymessInterface
-from amuse.units import constants as c, nbody_system, units as u
-import numpy as np
+from amuse.units import nbody_system, units as u
 
 
 class TestTidymessInterface(TestWithMPI):
@@ -254,8 +255,12 @@ class TestTidymessInterface(TestWithMPI):
         self.assertEquals(0, instance.initialize_code())
         self.assertEquals(0, instance.commit_parameters())
 
-        self.assertEquals([0, 0], list(instance.new_particle(0.5,  0.5, 0, 0,  0, 0.5, 0).values()))
-        self.assertEquals([1, 0], list(instance.new_particle(0.5, -0.5, 0, 0,  0, -0.5, 0).values()))
+        self.assertEquals([0, 0], list(instance.new_particle(
+            0.5,  0.5, 0, 0,  0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        ).values()))
+        self.assertEquals([1, 0], list(instance.new_particle(
+            0.5, -0.5, 0, 0,  0, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        ).values()))
         self.assertEquals(0, instance.commit_particles())
 
         self.assertEquals(0, instance.evolve_model(np.pi))  # half an orbit
@@ -300,6 +305,7 @@ class TestTidymess(TestWithMPI):
         HD80606[0].wx = 0.0 | 1 / u.s
         HD80606[0].wy = 0.0 | 1 / u.s
         HD80606[0].wz = 2.97188607137e-6 | 1 / u.s
+        HD80606[0].a_mb = 0
 
         HD80606[1].name = 'HD80606b'
         HD80606[1].mass = planet.mass
@@ -316,6 +322,7 @@ class TestTidymess(TestWithMPI):
         HD80606[1].wx = 0.0 | 1 / u.s
         HD80606[1].wy = 0.0 | 1 / u.s
         HD80606[1].wz = 0.000145444104333 | 1 / u.s
+        HD80606[1].a_mb = 0
 
         return HD80606
 
@@ -344,6 +351,7 @@ class TestTidymess(TestWithMPI):
         figure8[0].wx = 0 | 1 / nbody_system.time
         figure8[0].wy = 0 | 1 / nbody_system.time
         figure8[0].wz = 0 | 1 / nbody_system.time
+        figure8[0].a_mb = 0
 
         figure8[1].name = 'Star2'
         figure8[1].mass = 1 | nbody_system.mass
@@ -360,6 +368,7 @@ class TestTidymess(TestWithMPI):
         figure8[1].wx = 0 | 1 / nbody_system.time
         figure8[1].wy = 0 | 1 / nbody_system.time
         figure8[1].wz = 0 | 1 / nbody_system.time
+        figure8[1].a_mb = 0
 
         figure8[2].name = 'Star3'
         figure8[2].mass = 1 | nbody_system.mass
@@ -376,6 +385,7 @@ class TestTidymess(TestWithMPI):
         figure8[2].wx = 0 | 1 / nbody_system.time
         figure8[2].wy = 0 | 1 / nbody_system.time
         figure8[2].wz = 0 | 1 / nbody_system.time
+        figure8[2].a_mb = 0
 
         return figure8
 
@@ -1188,6 +1198,7 @@ class TestTidymess(TestWithMPI):
         p[0].wx = 0.0 | (1 / nbody_system.time)
         p[0].wy = 0.0 | (1 / nbody_system.time)
         p[0].wz = 0.0 | (1 / nbody_system.time)
+        p[0].a_mb = 0
 
         p[1].name = 'Star 2'
         p[1].mass = 10 | nbody_system.mass
@@ -1204,6 +1215,7 @@ class TestTidymess(TestWithMPI):
         p[1].wx = 0.0 | (1 / nbody_system.time)
         p[1].wy = 0.0 | (1 / nbody_system.time)
         p[1].wz = 0.0 | (1 / nbody_system.time)
+        p[1].a_mb = 0
 
         p[2].name = 'Star 3'
         p[2].mass = 10 | nbody_system.mass
@@ -1220,6 +1232,7 @@ class TestTidymess(TestWithMPI):
         p[2].wx = 0.0 | (1 / nbody_system.time)
         p[2].wy = 0.0 | (1 / nbody_system.time)
         p[2].wz = 0.0 | (1 / nbody_system.time)
+        p[2].a_mb = 0
 
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
@@ -1317,6 +1330,8 @@ class TestTidymess(TestWithMPI):
         p[0].wx = 0.0 | (1 / nbody_system.time)
         p[0].wy = 0.0 | (1 / nbody_system.time)
         p[0].wz = 0.0 | (1 / nbody_system.time)
+        p[0].a_mb = 0
+
         p[1].name = 'Star 2'
         p[1].mass = 10 | nbody_system.mass
         p[1].radius = 1 | nbody_system.length
@@ -1332,6 +1347,8 @@ class TestTidymess(TestWithMPI):
         p[1].wx = 0.0 | (1 / nbody_system.time)
         p[1].wy = 0.0 | (1 / nbody_system.time)
         p[1].wz = 0.0 | (1 / nbody_system.time)
+        p[1].a_mb = 0
+
         p[2].name = 'Star 3'
         p[2].mass = 10 | nbody_system.mass
         p[2].radius = 1 | nbody_system.length
@@ -1347,6 +1364,7 @@ class TestTidymess(TestWithMPI):
         p[2].wx = 0.0 | (1 / nbody_system.time)
         p[2].wy = 0.0 | (1 / nbody_system.time)
         p[2].wz = 0.0 | (1 / nbody_system.time)
+        p[2].a_mb = 0
 
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
