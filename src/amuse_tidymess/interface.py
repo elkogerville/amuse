@@ -8,7 +8,10 @@ from amuse.community.interface.stopping_conditions import (
     StoppingConditions, StoppingConditionInterface
 )
 from amuse.rfi.core import (
-    CodeInterface, legacy_function, LegacyFunctionSpecification
+    CodeInterface,
+    LegacyFunctionSpecification,
+    legacy_function,
+    remote_function
 )
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import nbody_system, units as u
@@ -93,99 +96,67 @@ class TidymessInterface(
         """
         return function
 
-    @legacy_function
-    def get_xi():
+    @remote_function
+    def get_xi(index_of_the_particle='i'):
         """
         Retrieve the moment of inertia of a particle.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('xi', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        function.result_doc = """
-        0 - OK
-            particle was found in the model and the moment of inertia was retrieved
-        -1 - ERROR
-            particle could not be found
-        """
-        return function
 
-    @legacy_function
-    def set_xi():
-        """
-        Update the current moment of inertia of a particle.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('xi', dtype='d', direction=function.IN)
-        function.result_type = 'int32'
-        function.result_doc = """
-        0 - OK
-            particle was found in the model and the moment of inertia was set
-        -1 - ERROR
-            particle could not be found
-        """
-        return function
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
 
-    @legacy_function
-    def get_kf():
+        Returns
+        -------
+        xi : float
+            Moment of inertia of the particle.
+        """
+        returns (xi='d')
+
+    @remote_function
+    def set_xi(index_of_the_particle='i', xi='d'):
+        """
+        Set the moment of inertia of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        xi : float
+            Moment of inertia of the particle.
+        """
+        returns ()
+
+    @remote_function
+    def get_kf(index_of_the_particle='i'):
         """
         Retrieve the fluid love number of a particle.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                'Index of the particle to get the state from. This index must '
-                'have been returned by an earlier call to :meth:`new_particle`'
-            )
-        )
-        function.addParameter(
-            'kf',
-            dtype='float64',
-            direction=function.OUT,
-            description='The fluid love number of a particle.'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """
-        0 - OK
-            particle was found in the model and the fluid love number was retrieved
-        -1 - ERROR
-            particle could not be found
-        """
-        return function
 
-    @legacy_function
-    def set_kf():
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+
+        Returns
+        -------
+        kf : float
+            Fluid love number of the particle.
         """
-        Update the current fluid love number of a particle.
+        returns (kf='d')
+
+    @remote_function
+    def set_kf(index_of_the_particle='i', kf='d'):
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                'Index of the particle to get the state from. This index must '
-                'have been returned by an earlier call to :meth:`new_particle`'
-            )
-        )
-        function.addParameter(
-            'kf',
-            dtype='float64',
-            direction=function.IN,
-            description='The fluid love number of a particle.'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """
-        0 - OK
-            particle was found in the model and the fluid love number was set
-        -1 - ERROR
-            particle could not be found
+        Set the fluid love number of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        kf : float
+            Fluid love number of the particle.
         """
-        return function
+        returns ()
 
     @legacy_function
     def get_tau():
