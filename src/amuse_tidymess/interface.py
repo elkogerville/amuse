@@ -11,8 +11,17 @@ from amuse.rfi.core import (
     CodeInterface, legacy_function, LegacyFunctionSpecification
 )
 from amuse.support.literature import LiteratureReferencesMixIn
-from amuse.units import units as u, nbody_system
+from amuse.units import nbody_system, units as u
 
+particle_attributes = [
+    'mass',
+    'x', 'y', 'z',
+    'vx', 'vy', 'vz',
+    'radius',
+    'xi', 'kf', 'tau',
+    'wx', 'wy', 'wz',
+    'a_mb'
+]
 
 class TidymessInterface(
     CodeInterface,
@@ -38,127 +47,15 @@ class TidymessInterface(
 
     @legacy_function
     def new_particle():
-        """
-        Define a new particle in the stellar dynamics code. The particle is
-        initialized with the provided mass, radius, position, velocity, moment
-        of inertia factor, fluid love number, fluid relaxation time, spin, and
-        magnetic breaking coefficient. This function returns an index that can
-        be used to refer to this particle.
-        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.OUT,
-            description=(
-                'An index assigned to the newly created particle. '
-                'This index is supposed to be a local index for the code '
-                '(and not valid in other instances of the code or in other codes)'
-            ),
-        )
-        function.addParameter(
-            'mass',
-            dtype='float64',
-            direction=function.IN,
-            description='The mass of the particle',
-        )
-        function.addParameter(
-            'x',
-            dtype='float64',
-            direction=function.IN,
-            description='The initial position vector of the particle',
-        )
-        function.addParameter(
-            'y',
-            dtype='float64',
-            direction=function.IN,
-            description='The initial position vector of the particle',
-        )
-        function.addParameter(
-            'z',
-            dtype='float64',
-            direction=function.IN,
-            description='The initial position vector of the particle',
-        )
-        function.addParameter(
-            'vx',
-            dtype='float64',
-            direction=function.IN,
-            description='The initial velocity vector of the particle',
-        )
-        function.addParameter(
-            'vy',
-            dtype='float64',
-            direction=function.IN,
-            description='The initial velocity vector of the particle',
-        )
-        function.addParameter(
-            'vz',
-            dtype='float64',
-            direction=function.IN,
-            description='The initial velocity vector of the particle',
-        )
-        function.addParameter(
-            'radius',
-            dtype='float64',
-            direction=function.IN,
-            description='The radius of the particle',
-            default=0,
-        )
-        function.addParameter(
-            'xi',
-            dtype='float64',
-            direction=function.IN,
-            description='Moment of inertia factor',
-            default=0
-        )
-        function.addParameter(
-            'kf',
-            dtype='float64',
-            direction=function.IN,
-            description='Fluid Love number from potential',
-            default=0
-        )
-        function.addParameter(
-            'tau',
-            dtype='float64',
-            direction=function.IN,
-            description='Fluid relaxation time',
-            default=0
-        )
-        function.addParameter(
-            'wx',
-            dtype='float64',
-            direction=function.IN,
-            description='Spin',
-            default=0
-        )
-        function.addParameter(
-            'wy',
-            dtype='float64',
-            direction=function.IN,
-            description='Spin',
-            default=0
-        )
-        function.addParameter(
-            'wz',
-            dtype='float64',
-            direction=function.IN,
-            description='Spin',
-            default=0
-        )
-        function.addParameter(
-            'a_mb',
-            dtype='float64',
-            direction=function.IN,
-            description='Magnetic braking coefficient',
-            default=0
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.OUT)
+        for name in particle_attributes:
+            function.addParameter(name, dtype='d', direction=function.IN)
+        function.result_type = 'i'
+        function.result_doc = """
         0 - OK
-            particle was created and added to the model
+            particle was created and added to Tidymess
         -1 - ERROR
             particle could not be created
         """
@@ -166,111 +63,12 @@ class TidymessInterface(
 
     @legacy_function
     def get_state():
-        """
-        Retrieve the current state of a particle.
-        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                "Index of the particle to get the state from. This index must "
-                "have been returned by an earlier call to :meth:`new_particle`"
-            ),
-        )
-        function.addParameter(
-            'mass',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current mass of the particle',
-        )
-        function.addParameter(
-            'x',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current position vector of the particle',
-        )
-        function.addParameter(
-            'y',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current position vector of the particle',
-        )
-        function.addParameter(
-            'z',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current position vector of the particle',
-        )
-        function.addParameter(
-            'vx',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current velocity vector of the particle',
-        )
-        function.addParameter(
-            'vy',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current velocity vector of the particle',
-        )
-        function.addParameter(
-            'vz',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current velocity vector of the particle',
-        )
-        function.addParameter(
-            'radius',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current radius of the particle',
-        )
-        function.addParameter(
-            'xi',
-            dtype='float64',
-            direction=function.OUT,
-            description='Moment of inertia factor',
-        )
-        function.addParameter(
-            'kf',
-            dtype='float64',
-            direction=function.OUT,
-            description='Fluid Love number from potential',
-        )
-        function.addParameter(
-            'tau',
-            dtype='float64',
-            direction=function.OUT,
-            description='Fluid relaxation time',
-        )
-        function.addParameter(
-            'wx',
-            dtype='float64',
-            direction=function.OUT,
-            description='Spin',
-        )
-        function.addParameter(
-            'wy',
-            dtype='float64',
-            direction=function.OUT,
-            description='Spin',
-        )
-        function.addParameter(
-            'wz',
-            dtype='float64',
-            direction=function.OUT,
-            description='Spin',
-        )
-        function.addParameter(
-            'a_mb',
-            dtype='float64',
-            direction=function.OUT,
-            description='Magnetic braking coefficient',
-        )
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        for name in particle_attributes:
+            function.addParameter(name, dtype='d', direction=function.OUT)
+        function.result_type = 'i'
         function.result_doc = """
         0 - OK
             state was retrieved from particle
@@ -281,112 +79,12 @@ class TidymessInterface(
 
     @legacy_function
     def set_state():
-        """
-        Update the current state of a particle.
-        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                "Index of the particle for which the state is to be updated. "
-                "This index must have been returned by an earlier call to "
-                ":meth:`new_particle`"
-            ),
-        )
-        function.addParameter(
-            'mass',
-            dtype='float64',
-            direction=function.IN,
-            description='The new mass of the particle',
-        )
-        function.addParameter(
-            'x',
-            dtype='float64',
-            direction=function.IN,
-            description='The new position vector of the particle',
-        )
-        function.addParameter(
-            'y',
-            dtype='float64',
-            direction=function.IN,
-            description='The new position vector of the particle',
-        )
-        function.addParameter(
-            'z',
-            dtype='float64',
-            direction=function.IN,
-            description='The new position vector of the particle',
-        )
-        function.addParameter(
-            'vx',
-            dtype='float64',
-            direction=function.IN,
-            description='The new velocity vector of the particle',
-        )
-        function.addParameter(
-            'vy',
-            dtype='float64',
-            direction=function.IN,
-            description='The new velocity vector of the particle',
-        )
-        function.addParameter(
-            'vz',
-            dtype='float64',
-            direction=function.IN,
-            description='The new velocity vector of the particle',
-        )
-        function.addParameter(
-            'radius',
-            dtype='float64',
-            direction=function.IN,
-            description='The new radius of the particle',
-        )
-        function.addParameter(
-            'xi',
-            dtype='float64',
-            direction=function.IN,
-            description='Moment of inertia factor',
-        )
-        function.addParameter(
-            'kf',
-            dtype='float64',
-            direction=function.IN,
-            description='Fluid Love number from potential',
-        )
-        function.addParameter(
-            'tau',
-            dtype='float64',
-            direction=function.IN,
-            description='Fluid relaxation time',
-        )
-        function.addParameter(
-            'wx',
-            dtype='float64',
-            direction=function.IN,
-            description='Spin',
-        )
-        function.addParameter(
-            'wy',
-            dtype='float64',
-            direction=function.IN,
-            description='Spin',
-        )
-        function.addParameter(
-            'wz',
-            dtype='float64',
-            direction=function.IN,
-            description='Spin',
-        )
-        function.addParameter(
-            'a_mb',
-            dtype='float64',
-            direction=function.IN,
-            description='Magnetic braking coefficient',
-        )
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        for name in particle_attributes:
+            function.addParameter(name, dtype='d', direction=function.IN)
+        function.result_type = 'i'
         function.result_doc = """
         0 - OK
             particle was found in the model and the information was set
@@ -401,22 +99,9 @@ class TidymessInterface(
         Retrieve the moment of inertia of a particle.
         """
         function = LegacyFunctionSpecification()
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                'Index of the particle to get the state from. This index must '
-                'have been returned by an earlier call to :meth:`new_particle`'
-            )
-        )
-        function.addParameter(
-            'xi',
-            dtype='float64',
-            direction=function.OUT,
-            description='The moment of inertia of a particle.'
-        )
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('xi', dtype='d', direction=function.OUT)
+        function.result_type = 'i'
         function.result_doc = """
         0 - OK
             particle was found in the model and the moment of inertia was retrieved
@@ -431,21 +116,8 @@ class TidymessInterface(
         Update the current moment of inertia of a particle.
         """
         function = LegacyFunctionSpecification()
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                'Index of the particle to get the state from. This index must '
-                'have been returned by an earlier call to :meth:`new_particle`'
-            )
-        )
-        function.addParameter(
-            'xi',
-            dtype='float64',
-            direction=function.IN,
-            description='The moment of inertia of a particle.'
-        )
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('xi', dtype='d', direction=function.IN)
         function.result_type = 'int32'
         function.result_doc = """
         0 - OK
