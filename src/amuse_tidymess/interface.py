@@ -404,48 +404,29 @@ class TidymessInterface(
         """
         returns ()
 
-    @legacy_function
+    @remote_function
     def get_dt_mode():
         """
         Retrieve Tidymess dt mode parameter.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'dt_mode',
-            dtype='int32',
-            direction=function.OUT,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            dt mode was retrieved
-        -1 - ERROR
-            Could not find dt mode
-        """
-        return function
 
-    @legacy_function
-    def set_dt_mode():
+        Returns
+        -------
+        dt_mode : int
+            timestep mode: 0=constant dt, 1=adaptive dt, 2=adaptive weighted dt.
         """
-        Set Tidymess dt mode parameter. Controls
-        which dt scheme is used in Tidymess.
+        returns (dt_mode='i')
+
+    @remote_function
+    def set_dt_mode(dt_mode='i'):
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'dt_mode',
-            dtype='int32',
-            direction=function.IN,
-            description='0=constant dt, 1=adaptive dt, 2=adaptive, weighted dt'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            dt mode was set
-        -1 - ERROR
-            Could not set dt mode
+        Set Tidymess dt mode parameter.
+
+        Parameters
+        ----------
+        dt_mode : int
+            timestep mode: 0=constant dt, 1=adaptive dt, 2=adaptive weighted dt.
         """
-        return function
+        returns ()
 
     @legacy_function
     def get_dt_const():
@@ -765,60 +746,28 @@ class TidymessInterface(
 
         return function
 
-    @legacy_function
-    def convert_spin_vectors_to_inertial():
+    @remote_function(can_handle_array=True)
+    def convert_spin_vectors_to_inertial(
+        lod='d', obl='d', psi='d'
+    ):
         """
         Convert spin vector {length of day, obliquity, spin precession angle}
-        to spin vector {wx, wy, wz}
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'lod',
-            dtype='float64',
-            direction=function.IN,
-            description=''
-        )
-        function.addParameter(
-            'obl',
-            dtype='float64',
-            direction=function.IN,
-            description=''
-        )
-        function.addParameter(
-            'psi',
-            dtype='float64',
-            direction=function.IN,
-            description=''
-        )
-        function.addParameter(
-            'wx',
-            dtype='float64',
-            direction=function.OUT,
-            description=''
-        )
-        function.addParameter(
-            'wy',
-            dtype='float64',
-            direction=function.OUT,
-            description=''
-        )
-        function.addParameter(
-            'wz',
-            dtype='float64',
-            direction=function.OUT,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            spin converted to inertial frame succesfully
-        -1 - ERROR
-            Could not convert to inertial frame
-        -2 - ERROR
-            Negative length of day detected
-        """
+        to spin vector {wx, wy, wz}.
 
-        return function
+        Useful for converting initial conditions into the format readable
+        by Tidymess.
+
+        Parameters
+        ----------
+        lod, obl, psi : float
+            Spin vector defined as {length of day, obliquity, spin precession angle}.
+
+        Returns
+        -------
+        wx, wy, wz : float
+            Converted spin vector in {wx, wy, wz} form.
+        """
+        returns (wx='d', wy='d', wz='d')
 
 
 class Tidymess(GravitationalDynamics, GravityFieldCode):
