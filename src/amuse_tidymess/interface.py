@@ -246,48 +246,29 @@ class TidymessInterface(
         """
         returns ()
 
-    @legacy_function
+    @remote_function
     def get_pn_order():
         """
         Get Tidymess pn order parameter.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'pn_order',
-            dtype='int32',
-            direction=function.OUT,
-            description='Post-Newtonian order: 0=none, 1=1pn, 2=1+2pn, 25=1+2+2.5pn'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            pn order was retrieved
-        -1 - ERROR
-            pn order could not be found
-        """
 
-        return function
+        Returns
+        -------
+        pn_order : int
+            Post-Newtonian order: 0=none, 1=1pn, 2=1+2pn, 25=1+2+2.5pn
+        """
+        returns (pn_order='i')
 
-    @legacy_function
-    def set_pn_order():
+    @remote_function
+    def set_pn_order(pn_order='i'):
         """
-        Set Tidymess pn order parameter
+        Set Tidymess pn order parameter.
+
+        Parameters
+        ----------
+        pn_order : int
+            Post-Newtonian order: 0=none, 1=1pn, 2=1+2pn, 25=1+2+2.5pn
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'pn_order',
-            dtype='int32',
-            direction=function.IN,
-            description='Post-Newtonian order: 0=none, 1=1pn, 2=1+2pn, 25=1+2+2.5pn'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            pn order was set
-        -1 - ERROR
-            pn order could not be set
-        """
-        return function
+        returns ()
 
     @legacy_function
     def get_magnetic_braking():

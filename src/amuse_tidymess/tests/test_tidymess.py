@@ -517,6 +517,7 @@ class TestTidymess(TestWithMPI):
         self.assertEquals(instance.particles[0], system1[0])
         self.assertEquals(instance.particles[1], system2[0])
         self.assertEquals(instance.particles[2], system2[1])
+
         instance.stop()
 
     def test_converting_spin_vectors(self):
