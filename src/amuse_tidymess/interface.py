@@ -50,6 +50,35 @@ class TidymessInterface(
 
     @legacy_function
     def new_particle():
+        """
+        Add a particle to Tidymess.
+
+        Parameters
+        ----------
+        mass : float
+            Particle mass.
+        x, y, z : float
+            Particle position.
+        vx, vy, vz : float
+            Particle velocity.
+        radius : float
+            Particle radius.
+        xi : float
+            Particle moment of inertia.
+        kf : float
+            Particle fluid love number.
+        tau : float
+            Particle fluid relaxation time.
+        wx, wy, wz : float
+            Particle spin vector.
+        a_mb : float
+            Particle magnetic breaking coefficient.
+
+        Returns
+        -------
+        index_of_the_particle : int
+            Particle index.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='i', direction=function.OUT)
@@ -66,6 +95,35 @@ class TidymessInterface(
 
     @legacy_function
     def get_state():
+        """
+        Retieve the state of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+
+        Returns
+        -------
+        mass : float
+            Particle mass.
+        x, y, z : float
+            Particle position.
+        vx, vy, vz : float
+            Particle velocity.
+        radius : float
+            Particle radius.
+        xi : float
+            Particle moment of inertia.
+        kf : float
+            Particle fluid love number.
+        tau : float
+            Particle fluid relaxation time.
+        wx, wy, wz : float
+            Particle spin vector.
+        a_mb : float
+            Particle magnetic breaking coefficient.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
@@ -82,6 +140,32 @@ class TidymessInterface(
 
     @legacy_function
     def set_state():
+        """
+        Set the state of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        mass : float
+            Particle mass.
+        x, y, z : float
+            Particle position.
+        vx, vy, vz : float
+            Particle velocity.
+        radius : float
+            Particle radius.
+        xi : float
+            Particle moment of inertia.
+        kf : float
+            Particle fluid love number.
+        tau : float
+            Particle fluid relaxation time.
+        wx, wy, wz : float
+            Particle spin vector.
+        a_mb : float
+            Particle magnetic breaking coefficient.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
