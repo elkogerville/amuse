@@ -158,202 +158,93 @@ class TidymessInterface(
         """
         returns ()
 
-    @legacy_function
-    def get_tau():
+    @remote_function
+    def get_tau(index_of_the_particle='i'):
         """
         Retrieve the fluid relaxation time of a particle.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                'Index of the particle to get the state from. This index must '
-                'have been returned by an earlier call to :meth:`new_particle`'
-            )
-        )
-        function.addParameter(
-            'tau',
-            dtype='float64',
-            direction=function.OUT,
-            description='The fluid relaxation time of a particle.'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """
-        0 - OK
-            particle was found in the model and the fluid
-            relaxation time was retrieved
-        -1 - ERROR
-            particle could not be found
-        """
-        return function
 
-    @legacy_function
-    def set_tau():
-        """
-        Update the current fluid relaxation time of a particle.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                'Index of the particle to get the state from. This index must '
-                'have been returned by an earlier call to :meth:`new_particle`'
-            )
-        )
-        function.addParameter(
-            'tau',
-            dtype='float64',
-            direction=function.IN,
-            description='The fluid relaxation time of a particle.'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """
-        0 - OK
-            particle was found in the model and the fluid
-            relaxation time was set
-        -1 - ERROR
-            particle could not be found
-        """
-        return function
+        Paramters
+        ---------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
 
-    @legacy_function
-    def get_spin():
+        Returns
+        -------
+        tau : float
+            Fluid relaxation time of the particle.
+        """
+        returns (tau='d')
+
+    @remote_function
+    def set_tau(index_of_the_particle='i', tau='d'):
+        """
+        Retrieve the fluid relaxation time of a particle.
+
+        Paramters
+        ---------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        tau : float
+            Fluid relaxation time of the particle.
+        """
+        returns ()
+
+    @remote_function(can_handle_array=True)
+    def get_spin(index_of_the_particle='i'):
         """
         Retrieve the spin vector of a particle.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                'Index of the particle to get the state from. This index must '
-                'have been returned by an earlier call to :meth:`new_particle`'
-            )
-        )
-        function.addParameter(
-            'wx',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current spin vector of the particle'
-        )
-        function.addParameter(
-            'wy',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current spin vector of the particle'
-        )
-        function.addParameter(
-            'wz',
-            dtype='float64',
-            direction=function.OUT,
-            description='The current spin vector of the particle'
-        )
-        function.result_type = 'int32'
-        function.can_handle_array = True
-        function.result_doc = """\
-            0 - OK
-                particle was found in the model and the spin was retrieved
-            -1 - ERROR
-                particle could not be found
-        """
-        return function
 
-    @legacy_function
-    def set_spin():
-        """
-        Update the current spin of a particle.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'index_of_the_particle',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                'Index of the particle for which the state is to be updated. '
-                'This index must have been returned by an earlier call to '
-                ':meth:`new_particle`'
-            )
-        )
-        function.addParameter(
-            'wx',
-            dtype='float64',
-            direction=function.IN,
-            description='The new spin vector of the particle'
-        )
-        function.addParameter(
-            'wy',
-            dtype='float64',
-            direction=function.IN,
-            description='The new spin vector of the particle'
-            )
-        function.addParameter(
-            'wz',
-            dtype='float64',
-            direction=function.IN,
-            description='The new spin vector of the particle'
-        )
-        function.result_type = 'int32'
-        function.can_handle_array = True
-        function.result_doc = """\
-        0 - OK
-            particle was found in the model and the spin was set
-        -1 - ERROR
-            particle could not be found
-        """
-        return function
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
 
-    @legacy_function
+        Returns
+        -------
+        wx, wy, wz : float
+            Spin vector of the particle.
+        """
+        returns (wx='d', wy='d', wz='d')
+
+    @remote_function(can_handle_array=True)
+    def set_spin(index_of_the_particle='i', wx='d', wy='d', wz='d'):
+        """
+        Set the spin vector of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        wx, wy, wz : float
+            Spin vector of the particle.
+        """
+        returns ()
+
+    @remote_function
     def get_tidal_model():
         """
         Get Tidymess tidal model.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'tidal_model',
-            dtype='int32',
-            direction=function.OUT,
-            description=(
-                '0=none, 1=conservative, 2=linear, '
-                '3=creep direct, 4=creep tidymess (default)'
-            )
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            tidal model was retrieved
-        -1 - ERROR
-            tidal model could not be found
-        """
-        return function
 
-    @legacy_function
-    def set_tidal_model():
+        Returns
+        -------
+        tidal_model : int
+            Tidal model. One of: 0=none, 1=conservative, 2=linear,
+            3=creep direct, 4=creep tidymess.
+        """
+        returns (tidal_model='i')
+
+    @remote_function
+    def set_tidal_model(tidal_model='i'):
         """
         Set Tidymess tidal model.
+
+        Parameters
+        ----------
+        tidal_model : int
+            Tidal model. One of: 0=none, 1=conservative, 2=linear,
+            3=creep direct, 4=creep tidymess.
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'tidal_model',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                '0=none, 1=conservative, 2=linear, '
-                '3=creep direct, 4=creep tidymess (default)'
-            )
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            tidal model was set
-        -1 - ERROR
-            tidal model could not be set
-        """
-        return function
+        returns ()
 
     @legacy_function
     def get_pn_order():
