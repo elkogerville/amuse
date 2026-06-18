@@ -59,6 +59,7 @@ int initialize_code() {
     // AMUSE STOPPING CONDITIONS SUPPORT
     initialize_stopping_conditions();
     set_support_for_condition(COLLISION_DETECTION);
+    set_support_for_condition(BREAKUP_DETECTION);
 
     return 0;
 }
