@@ -562,6 +562,13 @@ class StoppingConditions:
                 "when two a star goes supernova"
             )
         )
+        self.breakup_detection = StoppingCondition(
+            self,
+            10,
+            (
+                "If enabled, the code will stop after the breakup of a body"
+            )
+        )
 
     def all_conditions(self):
         for name in dir(self):
