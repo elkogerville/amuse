@@ -40,13 +40,13 @@ class TestTidymessInterface(TestWithMPI):
 
         result = instance.get_state(0)
         self.assertEquals(result['mass'], 1.0)
-        self.assertEquals(result['x'], 2.0)
-        self.assertEquals(result['y'], 3.0)
-        self.assertEquals(result['z'], 4.0)
-        self.assertEquals(result['vx'], 5.0)
-        self.assertEquals(result['vy'], 6.0)
-        self.assertEquals(result['vz'], 7.0)
-        self.assertEquals(result['radius'], 8.0)
+        self.assertEquals(result['radius'], 2.0)
+        self.assertEquals(result['x'], 3.0)
+        self.assertEquals(result['y'], 4.0)
+        self.assertEquals(result['z'], 5.0)
+        self.assertEquals(result['vx'], 6.0)
+        self.assertEquals(result['vy'], 7.0)
+        self.assertEquals(result['vz'], 8.0)
         self.assertEquals(result['xi'], 9.0)
         self.assertEquals(result['kf'], 10.0)
         self.assertEquals(result['tau'], 11.0)
@@ -256,10 +256,10 @@ class TestTidymessInterface(TestWithMPI):
         self.assertEquals(0, instance.commit_parameters())
 
         self.assertEquals([0, 0], list(instance.new_particle(
-            0.5,  0.5, 0, 0,  0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            0.5, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0
         ).values()))
         self.assertEquals([1, 0], list(instance.new_particle(
-            0.5, -0.5, 0, 0,  0, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            0.5, 0, -0.5, 0, 0, 0, -0.5, 0, 0, 0, 0, 0, 0, 0, 0
         ).values()))
         self.assertEquals(0, instance.commit_particles())
 

@@ -153,13 +153,13 @@ int recommit_particles() {
 int new_particle(
     int* index_of_the_particle,
     double mass,
+    double radius,
     double x,
     double y,
     double z,
     double vx,
     double vy,
     double vz,
-    double radius,
     double xi,
     double kf,
     double tau,
@@ -248,13 +248,13 @@ int evolve_model(double time) {
 int get_state(
     int index_of_the_particle,
     double* mass,
+    double* radius,
     double* x,
     double* y,
     double* z,
     double* vx,
     double* vy,
     double* vz,
-    double* radius,
     double* xi,
     double* kf,
     double* tau,
@@ -263,9 +263,8 @@ int get_state(
     double* wz,
     double* a_mb
 ) {
-    if (!mass || !x || !y || !z || !vx || !vy || !vz ||
-        !radius || !xi || !kf || !tau || !wx || !wy ||
-        !wz || !a_mb)
+    if (!mass || !radius || !x || !y || !z || !vx || !vy || !vz ||
+        !xi || !kf || !tau || !wx || !wy || !wz || !a_mb)
     {
         return -1;
     }
@@ -300,13 +299,13 @@ int get_state(
 int set_state(
     int index_of_the_particle,
     double mass,
+    double radius,
     double x,
     double y,
     double z,
     double vx,
     double vy,
     double vz,
-    double radius,
     double xi,
     double kf,
     double tau,

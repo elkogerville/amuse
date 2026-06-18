@@ -18,9 +18,9 @@ from amuse.units import nbody_system, units as u
 
 particle_attributes = [
     'mass',
+    'radius',
     'x', 'y', 'z',
     'vx', 'vy', 'vz',
-    'radius',
     'xi', 'kf', 'tau',
     'wx', 'wy', 'wz',
     'a_mb'
@@ -56,12 +56,12 @@ class TidymessInterface(
         ----------
         mass : float
             Particle mass.
+        radius : float
+            Particle radius.
         x, y, z : float
             Particle position.
         vx, vy, vz : float
             Particle velocity.
-        radius : float
-            Particle radius.
         xi : float
             Particle moment of inertia.
         kf : float
@@ -106,12 +106,12 @@ class TidymessInterface(
         -------
         mass : float
             Particle mass.
+        radius : float
+            Particle radius.
         x, y, z : float
             Particle position.
         vx, vy, vz : float
             Particle velocity.
-        radius : float
-            Particle radius.
         xi : float
             Particle moment of inertia.
         kf : float
@@ -148,12 +148,12 @@ class TidymessInterface(
             Particle index as returned by `new_particle`.
         mass : float
             Particle mass.
+        radius : float
+            Particle radius.
         x, y, z : float
             Particle position.
         vx, vy, vz : float
             Particle velocity.
-        radius : float
-            Particle radius.
         xi : float
             Particle moment of inertia.
         kf : float
@@ -671,10 +671,7 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
 
 
     def define_methods(self, handler):
-        """
-        Map legacy functions in TidymessInterface into
-        Tidymess user methods.
-        """
+        """Map TidymessInterface legacy_functions into Tidymess user methods."""
         GravitationalDynamics.define_methods(self, handler)
 
         handler.add_method(
@@ -684,10 +681,10 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 nbody_system.length,
                 nbody_system.length,
                 nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
                 nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
                 handler.NO_UNIT,
                 handler.NO_UNIT,
                 nbody_system.time,
@@ -707,10 +704,10 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 nbody_system.length,
                 nbody_system.length,
                 nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
                 nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
                 handler.NO_UNIT,
                 handler.NO_UNIT,
                 nbody_system.time,
@@ -730,10 +727,10 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
                 nbody_system.length,
                 nbody_system.length,
                 nbody_system.length,
-                nbody_system.speed,
-                nbody_system.speed,
-                nbody_system.speed,
                 nbody_system.length,
+                nbody_system.speed,
+                nbody_system.speed,
+                nbody_system.speed,
                 handler.NO_UNIT,
                 handler.NO_UNIT,
                 nbody_system.time,
