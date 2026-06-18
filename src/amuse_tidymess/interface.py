@@ -47,7 +47,6 @@ class TidymessInterface(
         )
         LiteratureReferencesMixIn.__init__(self)
 
-
     @legacy_function
     def new_particle():
         """
@@ -428,323 +427,198 @@ class TidymessInterface(
         """
         returns ()
 
-    @legacy_function
+    @remote_function
     def get_dt_const():
         """
         Retrieve Tidymess constant dt parameter.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'dt_const',
-            dtype='float64',
-            direction=function.OUT,
-            description='',
-            unit=nbody_system.time
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            constant dt was retrieved
-        -1 - ERROR
-            Could not find constant dt
-        """
-        return function
 
-    @legacy_function
-    def set_dt_const():
+        Only applicable if `dt_mode = 0`.
+
+        Returns
+        -------
+        dt_const : float
+            Constant dt value.
+        """
+        returns (dt_const='d' | nbody_system.time)
+
+    @remote_function
+    def set_dt_const(dt_const='d' | nbody_system.time):
         """
         Set Tidymess constant dt parameter.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'dt_const',
-            dtype='float64',
-            direction=function.IN,
-            description='',
-            unit=nbody_system.time
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            constant dt was set
-        -1 - ERROR
-            Could not set constant dt
-        """
-        return function
 
-    @legacy_function
+        Only applicable if `dt_mode = 0`.
+
+        Parameters
+        ----------
+        dt_const : float
+            Constant dt value.
+        """
+        returns ()
+
+    @remote_function
     def get_eta():
         """
         Retrieve Tidymess eta (accuracy) parameter.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'eta',
-            dtype='float64',
-            direction=function.OUT,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            eta was retrieved
-        -1 - ERROR
-            Could not find eta
-        """
-        return function
 
-    @legacy_function
-    def set_eta():
+        Returns
+        -------
+        eta : float
+            Integration accuracy parameter.
+        """
+        returns (eta='d')
+
+    @remote_function
+    def set_eta(eta='d'):
         """
         Set Tidymess eta (accuracy) parameter.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'eta',
-            dtype='float64',
-            direction=function.IN,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            eta was set
-        -1 - ERROR
-            Could not set eta
-        """
-        return function
 
-    @legacy_function
+        Parameters
+        ----------
+        eta : float
+            Integration accuracy parameter.
+        """
+        returns ()
+
+    @remote_function
     def get_n_iter():
         """
-        Retrieve Tidymess n iter parameter. This is the
+        Retrieve Tidymess n_iter parameter. This is the
         number of iterations to improve reversibility.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'n_iter',
-            dtype='int32',
-            direction=function.OUT,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            n_iter was retrieved
-        -1 - ERROR
-            Could not find n_iter
-        """
-        return function
 
-    @legacy_function
-    def set_n_iter():
+        Returns
+        -------
+        n_iter : int
+            Number of integration iterations.
         """
-        Set Tidymess n iter parameter. This is the
+        returns (n_iter='i')
+
+    @remote_function
+    def set_n_iter(n_iter='i'):
+        """
+        Set Tidymess n_iter parameter. This is the
         number of iterations to improve reversibility.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'n_iter',
-            dtype='int32',
-            direction=function.IN,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            n_iter was set
-        -1 - ERROR
-            Could not set n_iter
-        """
-        return function
 
-    @legacy_function
+        Parameters
+        ----------
+        n_iter : int
+            Number of integration iterations.
+        """
+        returns ()
+
+    @remote_function
     def get_collision_mode():
-        """Get collision mode Tidymess parameter."""
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'collision_mode',
-            dtype='int32',
-            direction=function.OUT,
-            description='0=off, 1=flag, 2=exception, 3=replace')
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            collision mode was retrieved
-        -1 - ERROR
-            Could not find collision mode
         """
+        Get Tidymess collision mode parameter.
 
-        return function
-
-    @legacy_function
-    def set_collision_mode():
-        """Set collision mode Tidymess parameter."""
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'collision_mode',
-            dtype='int32',
-            direction=function.IN,
-            description='0=off, 1=flag, 2=exception, 3=replace'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            collision mode was set
-        -1 - ERROR
-            Could not set collision mode
+        Returns
+        -------
+        collision_mode : int
+            Collision mode: 0=off, 1=flag, 2=exception, 3=replace.
         """
+        returns (collision_mode='i')
 
-        return function
-
-    @legacy_function
-    def set_roche_mode():
-        """Set roche mode."""
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'roche_mode',
-            dtype='int32',
-            direction=function.IN,
-            description='0=off, 1=flag, 2=exception'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            Roche mode was set
-        -1 - ERROR
-            Could not set roche mode
+    @remote_function
+    def set_collision_mode(collision_mode='i'):
         """
+        Set Tidymess collision mode parameter.
 
-        return function
+        Parameters
+        ----------
+        collision_mode : int
+            Collision mode: 0=off, 1=flag, 2=exception, 3=replace.
+        """
+        returns ()
 
-    @legacy_function
+    @remote_function
     def get_roche_mode():
-        """Get roche mode."""
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'roche_mode',
-            dtype='int32',
-            direction=function.OUT,
-            description='0=off, 1=flag, 2=exception'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            roche mode was retrieved
-        -1 - ERROR
-            Could not retrieve roche mode
         """
+        Retrieve Tidymess roche mode parameter.
 
-        return function
-
-    @legacy_function
-    def set_breakup_mode():
+        Returns
+        -------
+        roche_mode : int
+            Roche mode parameter: 0=off, 1=flag, 2=exception.
         """
+        returns (roche_mode='i')
+
+    @remote_function
+    def set_roche_mode(roche_mode='i'):
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'breakup_mode',
-            dtype='int32',
-            direction=function.IN,
-            description=(
-                'Centrifugal breakup speed detection. '
-                '0=off, 1=flag, 2=exception'
-            )
-        )
-        function.result_type = 'int32'
-        function.result_doc = ''''''
+        Set Tidymess roche mode parameter.
 
-        return function
+        Parameters
+        ----------
+        roche_mode : int
+            Roche mode parameter: 0=off, 1=flag, 2=exception.
+        """
+        returns ()
 
-    @legacy_function
+    @remote_function
     def get_breakup_mode():
         """
+        Retrieve Tidymess breakup mode parameter.
+
+        Returns
+        -------
+        breakup_mode : int
+            Centrifugal breakup speed detection. 0=off, 1=flag, 2=exception
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'breakup_mode',
-            dtype='int32',
-            direction=function.OUT,
-            description=(
-                'Centrifugal breakup speed detection. '
-                '0=off, 1=flag, 2=exception'
-            )
-        )
-        function.result_type = 'int32'
-        function.result_doc = """"""
+        returns (breakup_mode='i')
 
-        return function
+    @remote_function
+    def set_breakup_mode(breakup_mode='i'):
+        """
+        Set Tidymess breakup mode parameter.
 
-    @legacy_function
+        Parameters
+        ----------
+        breakup_mode : int
+            Centrifugal breakup speed detection. 0=off, 1=flag, 2=exception
+        """
+        returns ()
+
+    @remote_function
     def get_initial_shape():
-        """Get Tidymess initial shape value."""
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'initial_shape',
-            dtype='int32',
-            direction=function.OUT,
-            description='0=sphere, 1=equilibrium'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            Initial shape was retrieved
-        -1 - ERROR
-            Could not retrieve initial shape
         """
+        Get Tidymess initial shape parameter.
 
-        return function
-
-    @legacy_function
-    def set_initial_shape():
-        """Set Tidymess initial shape."""
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'initial_shape',
-            dtype='int32',
-            direction=function.IN,
-            description='0=sphere, 1=equilibrium'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """\
-        0 - OK
-            Initial shape was set
-        -1 - ERROR
-            Could not set initial shape
+        Returns
+        -------
+        initial_shape:
+            Initial of bodies: 0=sphere, 1=equilibrium.
         """
+        returns (initial_shape='i')
 
-        return function
+    @remote_function
+    def set_initial_shape(initial_shape='i'):
+        """
+        Set Tidymess initial shape parameter.
 
-    @legacy_function
+        Parameters
+        ----------
+        initial_shape:
+            Initial of bodies: 0=sphere, 1=equilibrium.
+        """
+        returns ()
+
+    @remote_function
     def get_num_integration_step():
         """
+        Retrieve Tidymess num_integration_step.
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'num_integration_step',
-            dtype='int32',
-            direction=function.OUT,
-            description=''
-        )
-        function.result_type = 'int32'
-        function.result_doc = """"""
+        returns (num_integration_step='i')
 
-        return function
-
-    @legacy_function
+    @remote_function
     def get_total_energy():
-        """Get total energy from system"""
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'total_energy',
-            dtype='float64',
-            direction=function.OUT,
-            description='Total energy of the system'
-        )
-        function.result_type = 'int32'
-        function.result_doc = """"""
+        """
+        Retrieve total energy of the system.
 
-        return function
+        Returns
+        -------
+        total_energy : float
+            System total energy.
+        """
+        returns (total_energy='d')
 
     @remote_function(can_handle_array=True)
     def convert_spin_vectors_to_inertial(
