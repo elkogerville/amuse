@@ -1,13 +1,16 @@
 from typing import Literal
 
 import numpy as np
+from numpy.typing import NDArray
 import uclchem
 from uclchem.model import get_species_names, AbstractModel
 
 from amuse.community.interface.common import CommonCode, CommonCodeInterface
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.datamodel import Particle, Particles
-from amuse.rfi.core import legacy_function, LegacyFunctionSpecification, PythonCodeInterface
+from amuse.rfi.core import (
+    legacy_function, LegacyFunctionSpecification, PythonCodeInterface
+)
 from amuse.support.interface import InCodeComponentImplementation
 from amuse.units import units as u
 
@@ -32,8 +35,8 @@ class UclchemImplementation(object):
         particles : amuse.datamodel.Particles
             Particles datamclass for storing UCLCHEM particles.
         """
-        self.current_time = 0
-        self.chem_model = 'cloud'
+        self.current_time: float = 0
+        self.chem_model: str = 'cloud'
         self.MODEL_MAP = {
             'cloud': uclchem.model.Cloud,
             'collapse': uclchem.model.Collapse,
@@ -47,6 +50,10 @@ class UclchemImplementation(object):
         self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
         self.param_dict: dict = {}
         self.uclchem_particles = Particles()
+        # self._id_list: list[int] = []
+        self._ids: NDArray = np.empty(0, dtype=np.int64)
+
+        self._next_particle_id: int = 0
 
     def initialize_code(self) -> int:
         # self.parameters = uclchem.advanced.GeneralSettings()
@@ -83,9 +90,10 @@ class UclchemImplementation(object):
         Initializes the abundances for all particles to an array of zeros
         as a `Particles` vector attribute.
         """
+        print("YOU ARE HERE")
         species = tuple(get_species_names())
-        self.uclchem_particles.add_vector_attribute('abundance', species)
-        self.uclchem_particles.abundance = np.zeros(len(species))
+        self.uclchem_particles.add_vector_attribute('abundances', species)
+        self.uclchem_particles.abundances = np.zeros(len(species))
         return 0
 
     def recommit_parameters(self) -> int:
@@ -140,8 +148,8 @@ class UclchemImplementation(object):
             params['finalTime'] = dt
 
             starting_chem = (
-                particle.abundance[np.newaxis, :] if
-                np.any(particle.abundance) else None
+                particle.abundances[np.newaxis, :] if
+                np.any(particle.abundances) else None
             )
             new_model = self.model_class(
                 param_dict=params,
@@ -150,7 +158,7 @@ class UclchemImplementation(object):
             physics = new_model.physics_array
             particle.number_density = physics[-1, 0, 1]
             particle.temperature = physics[-1, 0, 2]
-            particle.abundance = new_model.next_starting_chemistry_array[0, :]
+            particle.abundances = new_model.next_starting_chemistry_array[0, :]
 
         self.current_time = float(time)
         return 0
@@ -517,15 +525,13 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        if len(self.uclchem_particles) < 1:
-            raise ValueError(
-                'Uclchem has no particles!'
-            )
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        # if len(self.uclchem_particles) < 1:
+        #     raise ValueError(
+        #         'Uclchem has no particles!'
+        #     )
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
-        abundance.value = self.uclchem_particles[i].abundance[abundance_index]
+        abundance.value = self.uclchem_particles[i].abundances[abundance_index]
         return 0
 
     def set_abundance(self, index_of_the_particle, abundance_index, abundance) -> int:
