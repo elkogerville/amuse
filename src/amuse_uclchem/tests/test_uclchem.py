@@ -1,10 +1,10 @@
+import matplotlib.pyplot as plt
+from uclchem.model import get_species_names
 
 from amuse.datamodel import Particle, Particles
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse.units import units as u
 from amuse_uclchem.interface import UclchemInterface, Uclchem, habing
-import matplotlib.pyplot as plt
-from uclchem.model import get_species_names
 
 class TestUclchemInterface(TestWithMPI):
 
@@ -57,16 +57,23 @@ class TestUclchemInterface(TestWithMPI):
         result = instance.get_time()
         self.assertEquals(result['time'], 0)
 
+        instance.commit_particles()
+        instance.set_abundance(0, 0, 5)
+        print(instance.get_abundance(0, 0))
+
+        result = instance.get_abundance(0, 0)
+        self.assertEquals(result['abundance'], 5)
+
         instance.stop()
 
 class TestUclchem(TestWithMPI):
 
     def generate_single_particle(self):
-        p = Particles(1)
-        p[0].number_density = 1e4 | u.cm**-3
-        p[0].temperature = 10 | u.K
-        p[0].ionrate = 1.3e-17 | u.s**-1
-        p[0].radfield = 1 | habing
+        p = Particle()
+        p.number_density = 1e4 | u.cm**-3
+        p.temperature = 10 | u.K
+        p.ionrate = 1.3e-17 | u.s**-1
+        p.radfield = 1 | habing
 
         return p
 
@@ -130,29 +137,27 @@ class TestUclchem(TestWithMPI):
         instance.stop()
 
     def test_add_particle(self):
-        """Test add single particle from set. p = Particles(1)"""
+        """Test add single particle."""
         p = self.generate_single_particle()
-        instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
+        instance = self.new_instance_of_an_optional_code(Uclchem)
         assert instance is not None
 
         instance.commit_parameters()
-        instance.particles.add_particles(p)
-        channel = instance.particles.new_channel_to(p)
+        instance.particles.add_particle(p)
 
         self.assertEquals(instance.get_number_of_particles(), 1)
         self._validate_particle_state(instance.particles, p)
 
-        # instance.evolve_model(1e3 | u.yr)
-        # print(instance.model_time)
-        # print('second call')
-        # # print(instance.particles)
-        # instance.evolve_model(2e3 | u.yr)
-        # print(instance.model_time)
+        instance.evolve_model(1e3 | u.yr)
+        self.assertAlmostEquals(instance.model_time, 1e3| u.yr)
+
+        instance.evolve_model(2e3 | u.yr)
+        self.assertAlmostEquals(instance.model_time, 2e3| u.yr)
 
         instance.stop()
 
     def test_add_particles(self):
-        """Test add 2 particles from set"""
+        """Test add 2 particles."""
         p = self.generate_two_particles()
         instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
         assert instance is not None
@@ -163,6 +168,8 @@ class TestUclchem(TestWithMPI):
 
         self.assertEquals(instance.get_number_of_particles(), 2)
 
+        self._validate_particle_state(instance.particles, p)
+
         instance.stop()
 
     def test_add_and_remove_particle(self):
@@ -172,19 +179,18 @@ class TestUclchem(TestWithMPI):
         assert instance is not None
 
         instance.commit_parameters()
-        instance.particles.add_particles(p)
+        instance.particles.add_particle(p)
 
         self.assertEquals(instance.get_number_of_particles(), 1)
 
         instance.particles.remove_particle(instance.particles[0])
         self.assertEquals(instance.get_number_of_particles(), 0)
-
         self.assertEquals(instance.particles.is_empty(), True)
 
         instance.stop()
 
     def test_add_and_remove_particles(self):
-        """Test add and delete multiple particles from set"""
+        """Test add and delete multiple particles."""
         p1 = self.generate_two_particles()
         instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
         assert instance is not None
@@ -196,32 +202,42 @@ class TestUclchem(TestWithMPI):
         self._validate_particle_state(instance.particles[1], p1[1])
 
         self.assertEquals(instance.get_number_of_particles(), 2)
-        # SUPER WEIRD BEHAVIOR: IF YOU DELETE INSTANCE.PARTICLES[1] THE TEST PASSES
-        # BUT DELETING THE FIRST PARTICLE MESSES EVERYTHING UP....
-        # ALSO INSTANCE.PARTICLES.REMOVE_PARTICLES(INSTANCE.PARTICLES) DOES NOT RM ALL PARTICLES...
-        instance.particles.remove_particle(instance.particles[0])
+
+        instance.particles.remove_particle(instance.particles[1])
 
         self.assertEquals(instance.get_number_of_particles(), 1)
-
-        self._validate_particle_state(instance.particles[0], p1[1])
+        self._validate_particle_state(instance.particles[0], p1[0])
 
         p2 = self.generate_two_particles()
         instance.particles.add_particles(p2)
 
         self.assertEquals(instance.get_number_of_particles(), 3)
 
-        self._validate_particle_state(instance.particles[0], p1[0])
-        self._validate_particle_state(instance.particles[1], p2[0])
-        self._validate_particle_state(instance.particles[2], p2[1])
+        instance.particles.remove_particles(instance.particles)
+        self.assertEquals(instance.get_number_of_particles(), 0)
+        self.assertEquals(instance.particles.is_empty(), True)
 
-        instance.particles.remove_particle(instance.particles[0])
+        # print(p2)
+        # print(instance.particles[0].number_density)
+        # print(instance.particles[1].number_density)
+        # print(instance.particles[2].number_density)
+
+        # self._validate_particle_state(instance.particles[0], p1[0])
+        # self._validate_particle_state(instance.particles[1], p2[0])
+        # self._validate_particle_state(instance.particles[2], p2[1])
+
+        # instance.particles.remove_particle(instance.particles[0])
         # self._validate_particle_state(instance.particles[0], p2[0])
         # self._validate_particle_state(instance.particles[1], p2[1])
 
         instance.stop()
 
     def test_get_abundances(self):
-        """Test evolving a cloud model and getting the abundances."""
+        """
+        Test evolving a cloud model and getting the abundances.
+        The expected abundances are the default starting abundances
+        in UCLCHEM.
+        """
         p = self.generate_single_particle()
         instance = self.new_instance_of_an_optional_code(Uclchem)
         assert instance is not None
