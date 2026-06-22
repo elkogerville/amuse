@@ -32,8 +32,12 @@ class UclchemImplementation(object):
             These are the actual models which compute the chemistry.
         model_class : type[AbstractModel]
             Current UCLCHEM AbstractModel class used when calling `evolve_model`.
-        particles : amuse.datamodel.Particles
-            Particles datamclass for storing UCLCHEM particles.
+        uclchem_particles : amuse.datamodel.Particles
+            Particles datamodel for storing UCLCHEM particles.
+        _ids : np.ndarray
+            Array of unique ids for each particle in `uclchem_particles`.
+        _next_particle_id : int
+            Next particle index. New ids are assigned by `_get_new_id`.
         """
         self.current_time: float = 0
         self.chem_model: str = 'cloud'
@@ -50,7 +54,6 @@ class UclchemImplementation(object):
         self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
         self.param_dict: dict = {}
         self.uclchem_particles = Particles()
-        # self._id_list: list[int] = []
         self._ids: NDArray = np.empty(0, dtype=np.int64)
 
         self._next_particle_id: int = 0
@@ -197,8 +200,12 @@ class UclchemImplementation(object):
         p.temperature = temperature
         p.ionrate = ionrate
         p.radfield = radfield
-        index_of_the_particle.value = len(self.uclchem_particles)
+
+        id = self._get_new_id()
+        index_of_the_particle.value = id
         self.uclchem_particles.add_particle(p)
+        self._ids = np.append(self._ids, id)
+
         return 0
 
     def delete_particle(self, index_of_the_particle) -> int:
@@ -256,9 +263,7 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         number_density.value = p.number_density
@@ -296,9 +301,7 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         p.number_density = number_density
@@ -324,9 +327,7 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         number_density.value = p.number_density
@@ -348,9 +349,7 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         p.number_density = number_density
@@ -373,9 +372,7 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         temperature.value = p.temperature
@@ -397,9 +394,7 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         p.temperature = temperature
@@ -422,9 +417,7 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         ionrate.value = p.ionrate
@@ -446,9 +439,7 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         p.ionrate = ionrate
@@ -471,9 +462,7 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         radfield.value = p.radfield
@@ -495,9 +484,7 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         p.radfield = radfield
@@ -556,11 +543,11 @@ class UclchemImplementation(object):
         int :
             0 on success, -1 if the particle index is invalid.
         """
-        i = index_of_the_particle
-        if not self._is_valid_particle_index(i):
-            return -1
+        i = self._get_particle_index_by_id(index_of_the_particle)
 
-        self.uclchem_particles[i].abundance[abundance_index] = abundance
+        print(self.uclchem_particles[i].abundances.shape, abundance)
+        self.uclchem_particles[i].abundances[abundance_index] = abundance
+        print(self.uclchem_particles[i].abundances[abundance_index])
         return 0
 
     def get_firstlast_abundance(self, first, last) -> int:
@@ -766,22 +753,19 @@ class UclchemImplementation(object):
             )
         return model
 
-    def _is_valid_particle_index(self, i: int) -> bool:
-        """
-        Verify that the index of a particle is a valid reference
-        to a particle stored in the UclchemImplementation class.
+    def _get_particle_index_by_id(self, index_of_the_particle: int) -> int:
+        idx = np.where(self._ids == index_of_the_particle)[0]
+        if idx.size == 0:
+            raise ValueError(f'Particle id: {index_of_the_particle} not found!')
 
-        Parameters
-        ----------
-        i : int
-            Index of a particle as returned by `new_particle`.
+        return int(idx[0])
 
-        Returns
-        -------
-        bool :
-            True if `i` is a valid index to a particle.
-        """
-        return 0 <= i < len(self.uclchem_particles)
+    def _get_new_id(self) -> int:
+        """Create a unique, monotonically increasing id for `new_particle`."""
+        new_id = self._next_particle_id
+        self._next_particle_id += 1
+
+        return int(new_id)
 
     def _particle_to_dict(self, particle: Particle) -> dict:
         """
