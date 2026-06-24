@@ -1,0 +1,80 @@
+AC_CONFIG_AUX_DIR([shared])
+AC_CONFIG_MACRO_DIRS([shared/m4])
+
+AC_INIT([amuse-arepo], [1.0])
+
+AMUSE_LOG_ENVVARS()
+
+# Pick up Conda env or virtualenv
+AMUSE_VENV()
+
+# Set CPU_COUNT
+AX_COUNT_CPUS()
+AC_SUBST(CPU_COUNT)
+
+# Find the compiler(s)
+# AC_PROG_CC()
+AC_PROG_CXX()
+
+
+# Find tools for creating static libraries
+AC_CHECK_TARGET_TOOL([AR], [ar], [:])
+AS_IF([test $AR = ":"], [AC_MSG_ERROR([ar command not found.])])
+
+AC_PROG_RANLIB()
+AS_IF([test $RANLIB = ":"], [AC_MSG_ERROR([ranlib command not found.])])
+
+
+# Find tools to download and unpack with
+AMUSE_DOWNLOAD()
+AC_CHECK_TOOL(TAR, tar)
+# AC_CHECK_TOOL(UNZIP, unzip)
+# AC_CHECK_TOOL(GUNZIP, gunzip)
+# AC_CHECK_TOOL(BUNZIP2, bunzip2)
+# AC_CHECK_TOOL(UNXZ, unxz)
+AC_CHECK_TOOL(PERL, perl)
+
+
+# Find AMUSE libraries
+# AMUSE_LIB_STOPCOND()
+# AMUSE_LIB_STOPCONDMPI()
+AMUSE_LIB_AMUSE_MPI()
+# AMUSE_LIB_SIMPLE_HASH()
+# AMUSE_LIB_G6LIB()
+# AMUSE_LIB_SAPPORO_LIGHT()
+
+
+# Find MPI for the worker
+AC_LANG_PUSH([C++])
+AX_MPI()
+AC_LANG_POP([C++])
+
+
+# Find external dependencies
+AC_LANG_PUSH([C])
+AX_MPI()
+
+# AC_OPENMP()
+##### Pick one of these depending on which language the code is in #####
+# AC_SUBST(OPENMP_CFLAGS)
+# AC_SUBST(OPENMP_CXXFLAGS)
+
+# AMUSE_CUDA()
+# AMUSE_OPENCL()
+
+# AX_LAPACK()     # calls AX_BLAS automatically
+AX_PATH_GSL(1.0, [FOUND_GSL=yes])
+AX_GMP()
+# AX_MPFR()
+AX_FFTW()
+AX_LIB_HDF5()
+# AX_LIB_NETCDF4()
+
+##### End remove anything not needed by the code #####
+
+AC_LANG_POP([C])
+
+
+# Generate output
+AC_CONFIG_FILES([config.mk])
+AC_OUTPUT
