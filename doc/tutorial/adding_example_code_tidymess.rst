@@ -4,16 +4,17 @@ Adding a C++ N-Body Code to AMUSE
 =================================
 
 In this tutorial, we will create an interface from scratch for the
-TIdal DYnamics of Multi-body ExtraSolar Systems code, or ``TIDYMESS``,
-written by Dr. Tjarda Boekholt and Dr. Alexandre Correia. This code
-implements detailed tidal forces into an N-body code to track the deformation
-of bodies. This community code has already been implemented into AMUSE so you
+TIdal DYnamics of Multi-body ExtraSolar Systems code, or TIDYMESS,
+written by Dr. Tjarda Boekholt and Dr. Alexandre Correia
+(https://doi.org/10.48550/arXiv.2209.03955). This code implements detailed
+tidal forces into an N-body code to track the deformation of bodies.
+This community code has already been implemented into AMUSE so you
 can follow along this tutorial.
 
 .. NOTE::
 
-    In this guide, ``TIDYMESS`` refers to the standalone simulation package,
-    while ``Tidymess`` refers to the ``TIDYMESS`` package inside of ``AMUSE``.
+    In this guide, TIDYMESS refers to the standalone simulation package,
+    while ``Tidymess`` refers to the TIDYMESS package inside of AMUSE.
 
 
 Getting Started
@@ -38,7 +39,7 @@ To start, we need to create the directory structure for ``Tidymess``, along with
 necessary files to build our interface. The fastest method to setup the directory is
 by using the ``amusifier`` script with ``--mode=dir``.
 
-Since ``TIDYMESS`` is a native C++ code with no other dependencies, we will specify
+Since TIDYMESS is a native C++ code with no other dependencies, we will specify
 ``--type=c``, but the ``amusifier`` can also build the interface directory for
 ``f90`` and ``python`` codes. Make sure you run the ``amusifier`` in the ``amuse/src/`` directory.
 
@@ -53,12 +54,12 @@ stubs to expand upon.
 
 Building the code
 =================
-Before we start working on the interface, we should try to install and compile ``TIDYMESS``
+Before we start working on the interface, we should try to install and compile TIDYMESS
 inside of ``AMUSE``.
 
 Defining dependencies
 ~~~~~~~~~~~~~~~~~~~~~
-The ``AMUSE`` build system needs to know what packages and libraries our project depends on.
+The AMUSE build system needs to know what packages and libraries our project depends on.
 Navigate to ``amuse_tidymess/packages/amuse_tidymess.amuse_deps``, which is where we define every
 dependency we will need. By default it will look like:
 
@@ -72,7 +73,9 @@ Since ``TIDYMESS`` is a standalone C++ code, we can delete most of those and sim
 
    c++
 
-To test that we did everything properly, we can run ``./setup`` from the top-level directory of ``AMUSE``::
+To test that we did everything properly, we can run ``./setup`` from the top-level directory of AMUSE
+
+.. code-block:: text
 
     > cd amuse/
     > ./setup
@@ -80,7 +83,9 @@ To test that we did everything properly, we can run ``./setup`` from the top-lev
     Checking for dependencies, one moment please...
 
     *** Configuration complete ***
-    Detected features: c c++ fortran python python-dev gmake cmake install download patch tar unzip gunzip bunzip2 unxz perl bison mpi openmp blas lapack gsl gmp mpfr fftw libz hdf5 netcdf4 qhull healpix-cxx
+    Detected features: c c++ fortran python python-dev gmake cmake install
+    download patch tar unzip gunzip bunzip2 unxz perl bison mpi openmp blas
+    lapack gsl gmp mpfr fftw libz hdf5 netcdf4 qhull healpix-cxx
 
     ** Enabled packages **
 
@@ -105,8 +110,8 @@ To test that we did everything properly, we can run ``./setup`` from the top-lev
        amuse-hermite             amuse-mpiamrvac           amuse-twobody
        amuse-hermite-grx         amuse-nbody6xx            amuse-vader
 
-We can see that the ``AMUSE`` framework is correctly installed, indicated by the ``i)`` symbol. We can
-also see our package ``amuse-tidymess`` is listed meaning the ``AMUSE`` build system now knows of our project
+We can see that the AMUSE framework is correctly installed, indicated by the ``i)`` symbol. We can
+also see our package ``amuse-tidymess`` is listed meaning the AMUSE build system now knows of our project
 and we are ready to move on!
 
 Setting up Autoconf
@@ -115,12 +120,12 @@ We now need to determine what compilers and libraries are on the system and how 
 the ``configure.ac`` file in ``amuse_tidymess/support/``. This file contains a set of macros which will
 detect the tools and libraries needed to build our package. The template should contain all the macros
 needed for our package, so its just a matter of deleting what we don't need. Delete any comment prefaced
-with ``#####``, but only after following the direction of the comment. Since ``TIDYMESS`` is a native C++ code,
+with ``#####``, but only after following the direction of the comment. Since TIDYMESS is a native C++ code,
 most of the optional macros can be deleted, especially the ones related to external libraries like ``CUDA``,
 ``MPI``, ``FFTW``, etc... The only optional macros we will keep are ``AMUSE_LIB_STOPCOND()`` for enabling stopping
 conditions in our project, as well as ``AMUSE_DOWNLOAD()`` and ``AC_CHECK_TOOL(TAR, tar)`` for dynamically
-downloading ``TIDYMESS`` from github into our project when the user tries to install it (so we don't need to package
-the source code directly into ``AMUSE``).
+downloading TIDYMESS from github into our project when the user tries to install it (so we don't need to package
+the source code directly into AMUSE).
 
 Once ``configure.ac`` is setup correctly, we can edit ``config.mk.in``, and remove any unneeded variables
 as well as any ``#####`` comment. This file is a template for ``config.mk``, which will contain a description
