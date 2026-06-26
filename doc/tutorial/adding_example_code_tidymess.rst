@@ -170,9 +170,150 @@ and ensure that there are no ``@VARIABLE@`` symbols left! If there are, check th
 
 Setting up the Makefile
 ~~~~~~~~~~~~~~~~~~~~~~~
-With our build system detection working, we now need to download ``TIDYMESS`` into ``AMUSE``!
-This is where the Makefiles come in. ``AMUSE`` packages typically have 2 Makefiles.
+With our build system detection working, we now need to download TIDYMESS into AMUSE and compile the code.
+The ``amusifier`` already created our ``Makefile`` for us in ``src/amuse_tidymess/``, which has most of the code we
+will need for this step. The ``Makefile`` has several responsibilities: downloading and patching the community code
+source, compiling it into a static library, and linking that library with the auto-generated worker stub to produce
+the ``tidymess_worker``. This is the executable AMUSE spawns to communicate with the community code at runtime.
 
+The first thing to do is to set the ``VERSION`` variable at the top of the ``Makefile`` to the correct commit hash
+or tag of TIDYMESS. AMUSE does not bundle the source code of each community code: it downloads it dynamically at install
+time and pins it to a specific ``VERSION``. This decouples AMUSE from upstream changes, and makes version upgrades easy
+by simply changing the commit hash. Thankfully, TIDYMESS is open source, so we can freely download it
+from GitHub.
+
+.. code-block:: make
+
+    # Downloading the code
+    VERSION = 4f97bfe11e8c638fdda744ca288e57565efe718a
+
+    tidymess.tar.gz:
+    	$(DOWNLOAD) https://github.com/tidymess-code/tidymess/archive/$(VERSION).tar.gz >$@
+
+    src/tidymess: tidymess.tar.gz
+        tar xf $<
+        mv tidymess-$(VERSION) src/tidymess
+
+AMUSE will download ``tidymess.tar.gz`` from github, unpack it with the ``tar`` command, and move the newly downloaded
+TIDYMESS source code into ``amuse/src/amuse_tidymess/src``.
+
+The next step is to build the code into a static library. The ``amusifier`` generated ``Makefile`` will have all the
+flags needed for every AMUSE dependency by default, so we must remove any flag added to ``DEPFLAGS`` that will not
+be used by ``Tidymess``. These flags are generated from running ``./configure`` and are found in ``config.mk``!
+
+.. code-block:: make
+
+    ##### Remove anything not needed #####
+    DEPFLAGS += $(STOPCOND_CFLAGS) $(STOPCONDMPI_CFLAGS) $(AMUSE_MPI_CFLAGS)
+    DEPFLAGS += $(SIMPLE_HASH_CFLAGS) $(G6LIB_CFLAGS)
+    DEPFLAGS += $(SAPPORO_LIGHT_CFLAGS)
+
+    ##### Pick whichever language is applicable for the code #####
+    DEPFLAGS += $(OPENMP_CFLAGS) $(OPENMP_FFLAGS) $(OPENMP_CXXFLAGS)
+
+    ##### Remove anything not needed #####
+    DEPFLAGS += $(CUDA_FLAGS)
+    DEPFLAGS += $(CL_CFLAGS)
+    ##### LAPACK doesn't have flags, only libs... #####
+    DEPFLAGS += $(GSL_FLAGS)
+    DEPFLAGS += $(GMP_FLAGS)
+    DEPFLAGS += $(MPFR_FLAGS)
+    DEPFLAGS += $(FFTW_FLAGS)
+    CFLAGS += $(DEPFLAGS)
+    LDFLAGS += $(CUDA_LDFLAGS)
+
+    LDLIBS += -lm $(STOPCOND_LIBS) $(STOPCONDMPI_LIBS) $(AMUSE_MPI_LIBS)
+    LDLIBS += $(SIMPLE_HASH_LIBS) $(G6LIB_LIBS)
+    LDLIBS += $(SAPPORO_LIGHT_LIBS)
+
+    # TODO CUDA, anything else?
+    LDLIBS += $(CL_LIBS)
+    LDLIBS += $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS)
+    LDLIBS += $(GSL_LIBS)
+    LDLIBS += $(GMP_LIBS)
+    LDLIBS += $(MPFR_LIBS)
+    LDLIBS += $(FFTW_LIBS)
+
+Since TIDYMESS only depends on C++, we can remove most of the flags. We will keep the ``STOPCOND`` related flags
+to keep stopping conditions support in our package.
+
+.. code-block:: make
+
+    # Building the code into a static library
+    DEPFLAGS += $(STOPCOND_CFLAGS)
+    CXXFLAGS += $(DEPFLAGS)
+
+    LDLIBS += -lm $(STOPCOND_LIBS)
+
+We can then move on to compiling TIDYMESS as a static library (``libtidymess.a``). The ``|`` before ``src/tidymess``
+signifies an **order-only prerequisite**, which ensures that the source code is extracted before compilation,
+but is not redownloaded even if the timestep changes. This is so that we only redownload the source
+code if it is missing.
+
+.. code-block:: make
+
+    CODELIB = src/libtidymess.a
+
+    .PHONY: $(CODELIB)
+    $(CODELIB): | src/tidymess
+        $(MAKE) -C src -j $(CPU_COUNT) all
+
+The last step is linking, where the ``amusifier`` reads the ``interface.py`` and generates the
+worker ``tidymess_worker.cc``.
+
+.. code-block:: make
+
+    # Building the workers
+    tidymess_worker.h: interface.py
+    	amusifier --type=h interface.py TidymessInterface -o $@
+
+    tidymess_worker.cc: interface.py
+    	amusifier --type=c interface.py TidymessInterface -o $@
+
+    tidymess_worker.o: tidymess_worker.cc tidymess_worker.h
+    	$(MPICXX) -c -o $@ $(CXXFLAGS) $<
+
+    tidymess_worker: interface.o tidymess_worker.o $(CODELIB)
+    	$(MPICXX) -o $@ $(LDFLAGS) $^ $(LDLIBS)
+
+    interface.o: interface.cc tidymess_worker.h | src/tidymess
+    	$(MPICXX) -o $@ -c -I src/tidymess/integrator/include $(CXXFLAGS) $<
+
+The final bits of code at the end of the Makefile are for building and installing the package, as well
+as defining how to uninstall and cleanup the package.
+
+.. code-block:: make
+
+    # Which packages contain which workers?
+    amuse-tidymess_contains: tidymess_worker
+
+    # Building and installing packages
+    develop-%: %_contains
+    	support/shared/uninstall.sh $*
+    	python -m pip install -e packages/$*
+
+    install-%: %_contains
+    	support/shared/uninstall.sh $*
+    	python -m pip install packages/$*
+
+    package-%: %_contains
+    	python3 -m pip install -vv --no-cache-dir --no-deps --no-build-isolation --prefix ${PREFIX} packages/$*
+
+    test-%:
+    	cd packages/$* && pytest
+
+    # Cleaning up
+    .PHONY: clean
+    clean:
+	$(MAKE) -C src clean
+	rm -rf *.o *worker*
+
+    .PHONY: distclean
+    distclean: clean
+	rm -f support/config.mk support/config.log support/config.status
+	rm -rf support/autom4te.cache
+
+A typical AMUSE package will have a second ``Makefile``
 
 Creating the Interfaces
 =======================
@@ -189,6 +330,7 @@ to do is switch which code they are using, and the script most likely does not n
 Therefore, our job when creating an interface is to map the community code functions to the ``AMUSE`` interface
 functions. The amusifier already created all the files we need: the ``interface.py`` and the ``interface.cc``.
 
+
 Defining the Python interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The ``interface.py`` actually defines two classes: the high-level and low-level Python interfaces. The high-level
@@ -202,7 +344,7 @@ The process of defining our interface starts with figuring out what type of code
 +-----------------------------------+-------------------------------------------+
 | Interface:                        | Example codes:                            |
 +-----------------------------------+-------------------------------------------+
-| ``GravitationDynamicsInterface``  | N-body: Tidymess, Ph4, Huayano            |
+| ``GravitationDynamicsInterface``  | N-body: Tidymess, Ph4, Huayno             |
 +-----------------------------------+-------------------------------------------+
 | ``HydrodynamicsInterface``        | Hydrodynamical: Capreole                  |
 +-----------------------------------+-------------------------------------------+
