@@ -137,6 +137,30 @@ Once these files are cleaned up, run ``autoreconf`` to (re)create the ``configur
 and ensure that there are no ``@VARIABLE@`` symbols left! If there are, check that ``configure.ac`` and
 ``config.mk.in`` were setup correctly.
 
+.. code-block:: text
+
+    > cd amuse/src/amuse_tidymess/support/
+    > autoreconf
+    > ./configure
+    > cat config.mk
+
+    # Compilers
+    CXX = arm64-apple-darwin20.0.0-clang++
+
+    MPICXX = mpicxx
+
+    CPU_COUNT = 8
+
+    # Tools
+    AR = arm64-apple-darwin20.0.0-ar
+    RANLIB = arm64-apple-darwin20.0.0-ranlib
+    DOWNLOAD = curl -L
+    TAR = tar
+
+    # AMUSE framework libraries
+    STOPCOND_CFLAGS =  -I/Users/astro/miniconda3/envs/tidymess/include
+    STOPCOND_LIBS = -lstopcond
+
 .. WARNING::
 
     Make sure the the ``amuse_tidymess/support/shared/`` folder is a symlink to ``amuse/support/shared/``
