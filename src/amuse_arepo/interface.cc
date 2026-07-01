@@ -415,7 +415,7 @@ int cleanup_code(){
    * MPI_Abort. Calling MPI_Abort after MPI_Finalize is not allowed.
    * Hence unset the HDF error handler here
    */
-  H5Eset_auto(NULL, NULL);
+  H5Eset_auto2(H5E_DEFAULT, NULL, NULL);
 #endif /* #ifdef HAVE_HDF5 */
 
   MPI_Finalize();
