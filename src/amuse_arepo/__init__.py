@@ -1,1 +1,1 @@
-from amuse.community.arepo.interface import Arepo
+from amuse_arepo.interface import Arepo

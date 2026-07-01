@@ -9,9 +9,9 @@ support/config.mk:
 
 
 # Downloading the code
-VERSION = 1fc135a0244906054c7fd5f667175f63d8d6034b
+VERSION = c2383a9f2b57349561775a2b67de6044cd389580
 arepo-$(VERSION).tar.gz:
-	$(DOWNLOAD) https://gitlab.mpcdf.mpg.de/vrs/arepo/-/archive/$(VERSION)/arepo-$(VERSION).tar.gz >$@
+	$(DOWNLOAD) https://github.com/elkogerville/Arepo/archive/$(VERSION).tar.gz >$@
 
 
 src/arepo-$(VERSION): arepo-$(VERSION).tar.gz
@@ -69,7 +69,6 @@ $(CODELIB): | src/arepo-$(VERSION)
 		HDF5_LIB="$(HDF5_LDFLAGS) $(HDF5_LIBS)" \
 		build/main/main.o libarepo.a
 
-# try MPICH_INCL="" MPICH_LIB="" CC="$(MPICC)", -j 1
 
 # Building the workers
 arepo_worker.h: interface.py
