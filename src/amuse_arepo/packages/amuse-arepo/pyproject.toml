@@ -6,7 +6,7 @@ version = "0.0.1"
 # dynamic = ["version"]
 requires-python = ">=3.7"
 dependencies = [
-    "amuse-framework==2026.3.1.dev61+g005eae22c"
+    "amuse-framework"
 ]
 
 [build-system]
@@ -44,4 +44,3 @@ artifacts = ["amuse_arepo/arepo_worker"]
 pythonpath = ["amuse_arepo/tests/"]
 
 testpaths = ["amuse_arepo/tests"]
-
