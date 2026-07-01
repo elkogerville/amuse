@@ -13,17 +13,13 @@ VERSION = 1fc135a0244906054c7fd5f667175f63d8d6034b
 arepo-$(VERSION).tar.gz:
 	$(DOWNLOAD) https://gitlab.mpcdf.mpg.de/vrs/arepo/-/archive/$(VERSION)/arepo-$(VERSION).tar.gz >$@
 
-# PATCHES := $(shell cat patches/series)
 
 src/arepo-$(VERSION): arepo-$(VERSION).tar.gz
-	##### Modify as needed #####
 	tar xf $<
-	mv arepo-$(VERSION) src
-	cp src/arepo-$(VERSION)/Template-Config.sh src/arepo-$(VERSION)/Config.sh
-
-	# ##### Apply patches here, if needed #####
-	# patch <patch.patch
-	# for p in $(PATCHES) ; do patch -p1 <patches/$$p ; done
+	mkdir -p src/
+	mv arepo-$(VERSION) src/
+	cp configs/galaxy_merger_config.sh src/arepo-$(VERSION)/Config.sh
+# cp src/arepo-$(VERSION)/Template-Config.sh src/arepo-$(VERSION)/Config.sh
 
 
 # Building the code into a static library
@@ -35,59 +31,45 @@ src/arepo-$(VERSION): arepo-$(VERSION).tar.gz
 ##### Pick whichever language is applicable for the code #####
 # DEPFLAGS += $(OPENMP_CFLAGS) $(OPENMP_FFLAGS) $(OPENMP_CXXFLAGS)
 
-##### Remove anything not needed #####
-# DEPFLAGS += $(CUDA_FLAGS)
-# DEPFLAGS += $(CL_CFLAGS)
-##### LAPACK doesn't have flags, only libs... #####
+
 DEPFLAGS += $(GSL_FLAGS)
 DEPFLAGS += $(GMP_FLAGS)
-# DEPFLAGS += $(MPFR_FLAGS)
 DEPFLAGS += $(FFTW_FLAGS)
-##### Pick whichever language is applicable for the code #####
 DEPFLAGS += $(HDF5_CFLAGS)
-##### Pick whichever language is applicable for the code #####
-# DEPFLAGS += $(NETCDF4_CFLAGS) $(NETCDF4_FFLAGS)
 
 CFLAGS += $(DEPFLAGS)
 CFLAGS += -I src/arepo-$(VERSION)/src
 CFLAGS += -I src/arepo-$(VERSION)/build
-# LDFLAGS += $(CUDA_LDFLAGS)
+
 
 # LDLIBS += -lm $(STOPCOND_LIBS) $(STOPCONDMPI_LIBS) $(AMUSE_MPI_LIBS)
-# LDLIBS += $(SIMPLE_HASH_LIBS) $(G6LIB_LIBS)
-# LDLIBS += $(SAPPORO_LIGHT_LIBS)
 
-# TODO CUDA, anything else?
-# LDLIBS += $(CL_LIBS)
-# LDLIBS += $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS)
 LDLIBS += $(GSL_LIBS)
 LDLIBS += $(GMP_LIBS)
-# LDLIBS += $(MPFR_LIBS)
 LDLIBS += $(FFTW_LIBS)
-##### Pick whichever language is applicable for the code #####
 LDLIBS += $(HDF5_LIBS) $(HDF5_FLIBS)
 LDLIBS += $(shell mpicxx --showme:link)
-##### Pick whichever language is applicable for the code #####
-# LDLIBS += $(NETCDF4_LIBS) $(NETCDF4_FLIBS)
-
 
 CODELIB = src/arepo-$(VERSION)/libarepo.a
 SYSTYPE := $(shell uname -s)
+MPI_COMPILE_FLAGS := $(shell mpicxx --showme:compile)
+MPI_LINK_FLAGS := $(shell mpicxx --showme:link)
 
-##### Modify build command as needed #####
+
 .PHONY: $(CODELIB)
 $(CODELIB): | src/arepo-$(VERSION)
 	mkdir -p src/arepo-$(VERSION)/build
 	cd src/arepo-$(VERSION) && /usr/bin/perl prepare-config.perl Config.sh build
-	$(MAKE) -C src/arepo-$(VERSION) -j $(CPU_COUNT) SYSTYPE="$(SYSTYPE)" \
+	$(MAKE) -C src/arepo-$(VERSION) -j 1 SYSTYPE="$(SYSTYPE)" \
 		GSL_INCL="$(GSL_FLAGS)" \
 		GSL_LIB="$(GSL_LIBS)" \
-		MPICH_INCL="$(shell mpicxx --showme:compile)" \
-		MPICH_LIB="$(shell mpicxx --showme:link)" \
+		MPICH_INCL="$(MPI_COMPILE_FLAGS)" \
+		MPICH_LIB="$(MPI_LINK_FLAGS)" \
 		HDF5_INCL="$(HDF5_CPPFLAGS) -DH5_USE_16_API" \
 		HDF5_LIB="$(HDF5_LDFLAGS) $(HDF5_LIBS)" \
-		libarepo.a
+		build/main/main.o libarepo.a
 
+# try MPICH_INCL="" MPICH_LIB="" CC="$(MPICC)", -j 1
 
 # Building the workers
 arepo_worker.h: interface.py
@@ -108,10 +90,9 @@ interface.o: interface.cc arepo_worker.h $(CODELIB)
 
 
 # Which packages contain which workers?
-##### Add and/or remove as needed #####
 amuse-arepo_contains: arepo_worker
 
-amuse-arepo-SUFFIX_contains: arepo_SUFFIX_worker
+# amuse-arepo-SUFFIX_contains: arepo_SUFFIX_worker
 
 
 # Building and installing packages
@@ -133,11 +114,9 @@ test-%:
 # Cleaning up
 .PHONY: clean
 clean:
-	$(MAKE) -C src/ clean
 	rm -rf *.o *.mod *worker*
 
 .PHONY: distclean
 distclean: clean
-	rm -rf src/ arepo-$(VERSION).tar.gz
 	rm -f support/config.mk support/config.log support/config.status
 	rm -rf support/autom4te.cache
