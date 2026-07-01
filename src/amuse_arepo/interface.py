@@ -25,7 +25,7 @@ class ArepoInterface(
         .. [#] Weinberger, R., Springel, V., Pakmor, R., 2020, ApJS, 248, 32 (Public Code Release) [2020ApJS..248...32W]
     """
 
-    include_headers = ["worker_code.h", "interface.h"]
+    include_headers = ["arepo_worker.h", "interface.h"]
 
     def __init__(self, **keyword_arguments):
         CodeInterface.__init__(
@@ -92,7 +92,7 @@ class ArepoInterface(
         function.result_type = "int32"
         function.can_handle_array = True
         return function
-    
+
     @legacy_function
     def set_internal_energy():
         function = LegacyFunctionSpecification()
@@ -172,14 +172,14 @@ class ArepoInterface(
         function.addParameter('value', dtype='d', direction=function.IN)
         function.result_type = 'i'
         return function
-        
+
     @legacy_function
     def get_box_size():
         function = LegacyFunctionSpecification()
         function.addParameter('value', dtype='d', direction=function.OUT)
         function.result_type = 'i'
         return function
-    
+
     @legacy_function
     def get_omega_zero():
         function = LegacyFunctionSpecification()
