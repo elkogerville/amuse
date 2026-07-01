@@ -1,7 +1,5 @@
 #ifdef __cplusplus
 extern "C" {
-#define ___cplusplus
-#undef __cplusplus
 #endif
 
 #include "main/allvars.h"
@@ -20,7 +18,6 @@ typedef struct {
     double u;                                           /// entropy
 } gas_state;
 
-#ifdef ___cplusplus
+#ifdef __cplusplus
 }
-#define __cplusplus
 #endif
