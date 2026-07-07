@@ -440,6 +440,23 @@ class TsunamiImplementation(object):
         index_of_the_particle: int,
         mass: ValueHolder
     ) -> int:
+        """
+        Retrieve the mass of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        mass : ValueHolder[float]
+            ValueHolder instance to return the mass value.
+        Returns
+        -------
+        0 : Mass was retrieved successfully.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
+        """
         i = self._get_particle_index_by_id(index_of_the_particle)
         self.synchronize_model()
 
@@ -451,6 +468,24 @@ class TsunamiImplementation(object):
         index_of_the_particle: int,
         mass: float
     ) -> int:
+        """
+        Set the mass of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        mass : float
+            Particle mass.
+
+        Returns
+        -------
+        0 : Mass was retrieved successfully.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
+        """
         i = self._get_particle_index_by_id(index_of_the_particle)
 
         self._mass[i] = mass

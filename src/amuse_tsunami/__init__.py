@@ -1,1 +1,1 @@
-from amuse.community.tsunami.interface import Tsunami
+from amuse_tsunami.interface import Tsunami
