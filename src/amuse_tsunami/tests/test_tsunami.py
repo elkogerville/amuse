@@ -686,7 +686,7 @@ class TestTsunami(TestWithMPI):
 
         instance.stop()
 
-    def test_earth_moon_system(self):
+    def test_earth_moon_system_physical_units(self):
         """
         Test the Earth Moon system with physical units.
         Because of slight differences between the values
