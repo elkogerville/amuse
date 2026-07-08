@@ -143,6 +143,8 @@ class TestTsunamiInterface(TestWithMPI):
         instance.set_mass(0, 1.5)
         self.assertEquals(instance.get_mass(0)['mass'], 1.5)
 
+        self.assertEquals(instance.get_radius(0)['radius'], 0.0)
+
         instance.set_position(0, 2.5, 3.5, 4.5)
         result = instance.get_position(0)
         self.assertEquals(result['x'], 2.5)
@@ -154,9 +156,6 @@ class TestTsunamiInterface(TestWithMPI):
         self.assertEquals(result['vx'], 5.5)
         self.assertEquals(result['vy'], 6.5)
         self.assertEquals(result['vz'], 7.5)
-
-        result = instance.get_radius(0)
-        self.assertEquals(result['radius'], 0)
 
         result = instance.get_spin(1)
         self.assertEquals(result['wx'], 1)
@@ -181,6 +180,36 @@ class TestTsunamiInterface(TestWithMPI):
         self.assertEquals(result['wy'], 1)
         self.assertEquals(result['wz'], 1)
 
+        result = instance.get_state(2)
+        self.assertEquals(result['mass'], 5)
+        self.assertEquals(result['radius'], 0)
+        self.assertEquals(result['x'], 1)
+        self.assertEquals(result['y'], -1)
+        self.assertEquals(result['z'], 0)
+        self.assertEquals(result['vx'], 0)
+        self.assertEquals(result['vy'], 0)
+        self.assertEquals(result['vz'], 0)
+        self.assertEquals(result['wx'], 0)
+        self.assertEquals(result['wy'], 0)
+        self.assertEquals(result['wz'], 0)
+
+        instance.set_state(
+            1,
+            5, 5,
+            5, 5, 5,
+            5, 5, 5,
+            5, 5, 5
+        )
+        result = instance.get_state(1)
+        self.assertEquals(result['mass'], 5)
+        self.assertEquals(result['x'], 5)
+        self.assertEquals(result['y'], 5)
+        self.assertEquals(result['z'], 5)
+        self.assertEquals(result['vx'], 5)
+        self.assertEquals(result['vy'], 5)
+        self.assertEquals(result['vz'], 5)
+
+        # check that this is still the same
         result = instance.get_state(2)
         self.assertEquals(result['mass'], 5)
         self.assertEquals(result['radius'], 0)
