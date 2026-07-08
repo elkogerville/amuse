@@ -1316,10 +1316,6 @@ class TsunamiInterface(
         returns ()
 
     @remote_function
-    def use_physical_units(use_physical_units='b'):
-        returns ()
-
-    @remote_function
     def get_Mscale():
         returns (Mscale='d')
 
