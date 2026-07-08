@@ -1432,6 +1432,28 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         )
 
         handler.add_method(
+            'get_velocity',
+            (handler.INDEX,),
+            (
+                ns.speed,
+                ns.speed,
+                ns.speed,
+                handler.ERROR_CODE,
+            )
+        )
+
+        handler.add_method(
+            'set_velocity',
+            (
+                handler.INDEX,
+                ns.speed,
+                ns.speed,
+                ns.speed,
+            ),
+            (handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
             'get_spin',
             (handler.INDEX,),
             (
@@ -1443,24 +1465,11 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         )
 
         handler.add_method(
-            'set_spin',
-            (
-                handler.INDEX,
-                1 / ns.time,
-                1 / ns.time,
-                1 / ns.time,
-            ),
-            (handler.ERROR_CODE,)
+            'get_speed_of_light',
+            (),
+            (ns.speed, handler.ERROR_CODE)
         )
 
-        handler.add_method(
-            'get_total_energy',
-            (),
-            (
-                ns.mass * ns.length**2 * ns.time**-2,
-                handler.ERROR_CODE,
-            ),
-        )
 
     def define_parameters(self, handler):
         """Define model parameters.
