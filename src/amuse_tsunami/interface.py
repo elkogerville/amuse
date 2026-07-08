@@ -1372,10 +1372,15 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
     def define_properties(self, handler):
         """Define properties of the code. These are read-only!"""
         GravitationalDynamics.define_properties(self, handler)
-        handler.add_property('get_kinetic_energy', public_name='potential_energy')
-        handler.add_property('get_potential_energy', public_name='kinetic_energy')
+        handler.add_property('get_kinetic_energy', public_name='kinetic_energy')
+        handler.add_property('get_potential_energy', public_name='potential_energy')
         handler.add_property('get_total_energy', public_name='total_energy')
+        handler.add_property('get_deltaE', public_name='deltaE')
         handler.add_property('get_time', public_name='model_time')
+        handler.add_property('get_Mscale', public_name='Mscale')
+        handler.add_property('get_Lscale', public_name='Lscale')
+        handler.add_property('get_Tscale', public_name='Tscale')
+        handler.add_property('get_Vscale', public_name='Vscale')
         handler.add_property('get_speed_of_light', public_name='speed_of_light')
 
     def define_methods(self, handler):
