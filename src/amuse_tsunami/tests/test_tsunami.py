@@ -366,7 +366,6 @@ class TestTsunami(TestWithMPI):
         AssertionError
             If any corresponding value in `state` and `particle` does not match
             within `places` relative precision.
-
         """
         self.assertAlmostRelativeEquals(state[0], particle.mass, places=places)
         self.assertAlmostRelativeEquals(state[1], particle.radius, places=places)
@@ -600,30 +599,96 @@ class TestTsunami(TestWithMPI):
         self.validate_tsunami_state_relative_equality(state0, p[0])
         self.validate_tsunami_state_relative_equality(state2, p[2])
 
+        instance.set_mass(0, 4 | ns.mass)
+        instance.set_position(0, 67 | ns.length, 68 | ns.length, 69 | ns.length)
+        instance.set_velocity(2, 67 | ns.speed, 68 | ns.speed, 69 | ns.speed)
+
+        self.assertEquals(instance.get_mass(0), 4 | ns.mass)
+        self.assertEquals(
+            instance.get_position(0),
+            [67 | ns.length, 68 | ns.length, 69 | ns.length]
+        )
+        self.assertEquals(
+            instance.get_velocity(2),
+            [67 | ns.speed, 68 | ns.speed, 69 | ns.speed]
+        )
+        p3 = Particle(
+            mass=1 | ns.mass,
+            radius=100 | ns.length,
+            position=[89,90,91] | ns.length,
+            velocity=[92,93,94] | ns.speed,
+            wx=95 | 1 / ns.time,
+            wy=96 | 1 / ns.time,
+            wz=97 | 1 / ns.time
+        )
+        instance.particles.add_particle(p3)
+
+        state3 = instance.get_state(3)
+        self.validate_tsunami_state_equality(state3, p3)
+
+        # check that particles 0 and 2 have not changed
+        state0 = instance.get_state(0)
+        state2 = instance.get_state(2)
+        self.validate_tsunami_state_relative_equality(state0, instance.particles[0])
+        self.validate_tsunami_state_relative_equality(state2, instance.particles[2])
+
         instance.stop()
 
+    def test_physical_units(self):
+        """
+        Evolve a system with tidal effects in physical units.
 
-    def test_pns(self):
-        def setup_binary(a=0.1, e=0.99, m1=50.0, m2=50.0, nu=0.0, pn1=True, pn2=True):
-            i = ome = Ome = 0.0 # rad
-            pos_vel2 = np.array([0.,0.,0., 0.,0.,0.])
+        The reference values used in this test were generated
+        using the standalone Tidymess code. Because Tidymess
+        applies slightly different unit conversion factors in
+        physical-unit mode, the initial conditions were first
+        converted to N-body units before running the simulation
+        in Tidymess. The resulting outputs were then converted
+        back to physical units for comparison with the AMUSE results.
+        """
+        system = self.generate_HD80606b_system()
+        converter = ns.nbody_to_si(
+            system.mass.sum(), 0.455 | u.AU
+        )
 
-            print("\nGenerating binary")
-
-            print("kepl_to_cart corrections:\n  PN1 = {}\n  PN2 = {}".format(pn1, pn2))
-
-            pos_vel1 = keplutils.kepl_to_cart(pos_vel2, m1, m2, a, e, i, ome, Ome, nu, pn1=pn1, pn2=pn2)
-
-            m = np.array([m1, m2])
-            p = np.array([pos_vel1[:3], pos_vel2[:3]])
-            v = np.array([pos_vel1[3:], pos_vel2[3:]])
-
-            return m, p, v
-        keplutils = tsunami.KeplerUtils()
-        instance = self.new_instance_of_an_optional_code(Tsunami, redirection='none')
+        instance = self.new_instance_of_an_optional_code(
+            Tsunami, convert_nbody=converter
+        )
         assert instance is not None
 
-        instance.parameters.wPNs = True
+        instance.particles.add_particles(system)
+        instance.commit_particles()
+
+        m = np.ascontiguousarray(system.mass.value_in(u.Msun))
+        r = np.ascontiguousarray(system.radius.value_in(u.AU))
+        pos = np.ascontiguousarray(system.position.value_in(u.AU))
+        vel = np.ascontiguousarray(system.velocity.value_in(u.AU / u.yr))
+        wx = np.ascontiguousarray(system.wx.value_in(1 / u.yr))
+        wy = np.ascontiguousarray(system.wy.value_in(1 / u.yr))
+        wz = np.ascontiguousarray(system.wz.value_in(1 / u.yr))
+        spin = np.vstack([wx,wy,wz]).T
+        code = tsunami.Tsunami(1,1)
+        code.Conf.wExt = True
+        m_nb    = m
+        r_nb    = r
+        pos_nb  = pos
+        vel_nb  = vel / (2 * np.pi)
+        spin_nb = np.ascontiguousarray(spin / (2 * np.pi))
+        pt = np.ones_like(m_nb, dtype=np.int64) * -1
+        code.add_particle_set(pos_nb, vel_nb, m_nb, r_nb, pt, spin_nb)
+        code.sync_internal_state(pos_nb, vel_nb, spin_nb)
+
+        positions = instance.particles.position.value_in(u.AU)
+        velocities = instance.particles.velocity.value_in(u.km/u.s)
+        wx = instance.particles.wx.value_in(u.rad/u.yr)
+        wy = instance.particles.wy.value_in(u.rad/u.yr)
+        wz = instance.particles.wz.value_in(u.rad/u.yr)
+
+        self.assertAlmostRelativeEquals(positions, pos_nb * code.Lscale)
+        self.assertAlmostRelativeEquals(velocities, vel_nb * code.Vscale, places=4)
+        self.assertAlmostRelativeEquals(np.vstack([wx, wy, wz]).T, spin_nb / code.Tscale, places=4)
+
+        instance.stop()
 
 
     def plot_particles_xy(
@@ -649,6 +714,10 @@ class TestTsunami(TestWithMPI):
             in the system.
         figsize : tuple[float, float]
             Size of the figure.
+
+        Returns
+        -------
+        ax : Axes
         """
         data = [[], [], []]
 
