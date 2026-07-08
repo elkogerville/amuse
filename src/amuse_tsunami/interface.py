@@ -692,50 +692,35 @@ class TsunamiImplementation(object):
 
         return 0
 
-    def set_spin(
-        self, index_of_the_particle: int, wx: float, wy: float, wz: float
-    ) -> int:
+    def set_units(self, Mscale: float, Lscale: float) -> int:
         """
-        Set the spin of a particle.
+        Set the mass and length scale of Tsunami.
 
         Parameters
         ----------
-        index_of_the_particle : int
-            Particle index as returned by `new_particle`.
-        wx, wy, wz : float
-            Particle spin.
-
-        Returns
-        -------
-        0 : If spin was set.
-
-        Raises
-        ------
-        ValueError : If `index_of_the_particle` is not valid.
+        Mscale : float
+            Mass scale of Tsunami in MSun.
+        Lscale : float
+            Length scale of Tsunami in AU.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
-
-        self._spin[i, 0] = wx
-        self._spin[i, 1] = wy
-        self._spin[i, 2] = wz
-
+        self.tsunami.set_units(float(Mscale), float(Lscale))
         return 0
 
-    def get_mscale(self, Mscale: ValueHolder) -> int:
+    def get_Mscale(self, Mscale: ValueHolder) -> int:
         """
         Get mass unit of Tsunami in MSun.
         """
         Mscale.value = self.tsunami.Mscale
         return 0
 
-    def get_lscale(self, Lscale: ValueHolder) -> int:
+    def get_Lscale(self, Lscale: ValueHolder) -> int:
         """
         Get length unit of Tsunami in AU.
         """
         Lscale.value = self.tsunami.Lscale
         return 0
 
-    def get_tscale(self, Tscale: ValueHolder) -> int:
+    def get_Tscale(self, Tscale: ValueHolder) -> int:
         """
         Get time unit of Tsunami in years.
         Derived from Mscale, Lscale, and G=1.
@@ -745,7 +730,7 @@ class TsunamiImplementation(object):
         Tscale.value = self.tsunami.Tscale
         return 0
 
-    def get_vscale(self, Vscale: ValueHolder) -> int:
+    def get_Vscale(self, Vscale: ValueHolder) -> int:
         """
         Get velocity unit of Tsunami in km/s.
         Derived from Mscale, Lscale, and G=1.
@@ -756,6 +741,14 @@ class TsunamiImplementation(object):
         return 0
 
     def get_speed_of_light(self, speed_of_light: ValueHolder) -> int:
+        """
+        Get Tsunami speed of light in N-body units.
+
+        Parameters
+        ----------
+        speed_of_light : ValueHolder[float]
+            ValueHolder instance to return the speed of light value.
+        """
         speed_of_light.value = self.tsunami.speed_of_light
         return 0
 
