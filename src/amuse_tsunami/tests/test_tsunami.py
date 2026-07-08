@@ -686,6 +686,99 @@ class TestTsunami(TestWithMPI):
 
         instance.stop()
 
+    def test_earth_moon_system(self):
+        """
+        Test the Earth Moon system with physical units.
+        Because of slight differences between the values
+        of units / constants used in Tsunami and AMUSE,
+        it is not possible to perfectly recreate Tsunami
+        simulation in AMUSE when physical units are used.
+        """
+        p = self.generate_earth_moon_initial_conditions()
+        converter = ns.nbody_to_si(
+            p.mass.sum(), p.position.length()
+        )
+        converter = ns.nbody_to_si(1 | u.MSun, 1 | u.au)
+
+        instance = self.new_instance_of_an_optional_code(
+            Tsunami, convert_nbody=converter
+        )
+        assert instance is not None
+
+        instance.particles.add_particles(p)
+
+        end_time = (2 | u.yr).as_quantity_in(u.s)
+        dt = 50000 | u.s
+
+        while instance.model_time < end_time:
+            instance.evolve_model(instance.model_time + dt)
+
+        p2 = self.generate_earth_moon_initial_conditions()
+        m = np.ascontiguousarray(p2.mass.value_in(u.Msun))
+        r = np.ascontiguousarray(p2.radius.value_in(u.AU))
+        pos = np.ascontiguousarray(p2.position.value_in(u.AU))
+        vel = np.ascontiguousarray(p2.velocity.value_in(u.AU / u.yr))
+        wx = np.ascontiguousarray(p2.wx.value_in(1 / u.yr))
+        wy = np.ascontiguousarray(p2.wy.value_in(1 / u.yr))
+        wz = np.ascontiguousarray(p2.wz.value_in(1 / u.yr))
+        spin = np.vstack([wx,wy,wz]).T
+
+        code = tsunami.Tsunami(1, 1)
+        code.Conf.wExt = True
+        m_nb    = m / code.Mscale
+        r_nb    = r / code.Lscale
+        pos_nb  = pos / code.Lscale
+        vel_nb  = vel / (code.Lscale / code.Tscale)
+        spin_nb = np.ascontiguousarray(spin * code.Tscale)
+        pt = np.ones_like(m_nb, dtype=np.int64) * -1
+
+        code.add_particle_set(pos_nb, vel_nb, m_nb, r_nb, pt, spin_nb)
+        code.sync_internal_state(pos_nb, vel_nb, spin_nb)
+
+        t_end_yr = 2
+        dt_yr = dt.value_in(u.yr)
+        t_end_nb = t_end_yr / code.Tscale
+        dt_nb = dt_yr / code.Tscale
+        t = 0
+
+        while t < t_end_nb:
+            code.evolve_system(t + dt_nb)
+            t = code.time
+            code.sync_internal_state(pos_nb, vel_nb, spin_nb)
+
+        pos_au = instance.particles.position.as_quantity_in(u.AU)
+        vel_kms = instance.particles.velocity.as_quantity_in(u.kms)
+        wx = instance.particles.wx.as_quantity_in(1/u.yr)
+        wy = instance.particles.wy.as_quantity_in(1/u.yr)
+        wz = instance.particles.wz.as_quantity_in(1/u.yr)
+
+        tsunami_pos = pos_nb * code.Lscale | u.AU
+        tsunami_vel = vel_nb * code.Vscale | u.kms
+        tsunami_spin = spin_nb / code.Tscale | 1 / u.yr
+
+        self.assertAlmostRelativeEquals(pos_au, tsunami_pos, places=2)
+
+        self.assertAlmostRelativeEquals(vel_kms[0,0], tsunami_vel[0,0], places=2)
+        self.assertAlmostRelativeEquals(vel_kms[0,1], tsunami_vel[0,1], places=2)
+        self.assertAlmostRelativeEquals(vel_kms[1,0], tsunami_vel[1,0], places=2)
+        self.assertAlmostRelativeEquals(vel_kms[1,1], tsunami_vel[1,1], places=2)
+
+        # as of right now, Tsunami and AMUSE do not use the same exact unit values,
+        # namely the value of G and/or the value of pi. thus it is not possible
+        # to reproduce the exact values
+        with pytest.raises(AssertionError):
+            self.assertAlmostRelativeEquals(vel_kms[0,2], tsunami_vel[0,2], places=2)
+            self.assertAlmostRelativeEquals(vel_kms[1,2], tsunami_vel[1,2], places=2)
+
+        self.assertEquals(wx[0], tsunami_spin[0,0])
+        self.assertEquals(wx[1], tsunami_spin[1,0])
+        self.assertEquals(wy[0], tsunami_spin[0,1])
+        self.assertEquals(wy[1], tsunami_spin[1,1])
+        self.assertEquals(wz[0], tsunami_spin[0,2])
+        self.assertEquals(wz[1], tsunami_spin[1,2])
+
+        instance.stop()
+
     def test_physical_units(self):
         """
         Evolve a system with tidal effects in physical units.
