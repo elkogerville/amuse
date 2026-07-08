@@ -30,11 +30,59 @@ class TestTsunamiInterface(TestWithMPI):
         """
         Test TsunamiInterface setters and getters.
         """
-        # instance = self.new_instance_of_an_optional_code(TsunamiInterface, redirection='none')
-        instance = TsunamiInterface(redirection='none')
+        instance = self.new_instance_of_an_optional_code(TsunamiInterface)
         assert instance is not None
 
         self.assertEquals(0, instance.initialize_code())
+
+        instance.set_units(2, 2)
+        self.assertEquals(instance.get_Mscale()['Mscale'], 2)
+        self.assertEquals(instance.get_Lscale()['Lscale'], 2)
+        self.assertAlmostRelativeEquals(
+            instance.get_Vscale()['Vscale'], 29.78469182967693
+        )
+        self.assertAlmostRelativeEquals(
+            instance.get_Tscale()['Tscale'], 0.31831589802181726
+        )
+        self.assertAlmostRelativeEquals(
+            instance.get_speed_of_light()['speed_of_light'],
+            10065.320121972596
+        )
+
+        instance.set_equilibrium_tides(True)
+        self.assertEquals(
+            instance.get_equilibrium_tides()['equilibrium_tides'],
+            True
+        )
+
+        instance.set_dynamical_tides(True)
+        self.assertEquals(
+            instance.get_dynamical_tides()['dynamical_tides'],
+            True
+        )
+
+        instance.set_alpha(2)
+        self.assertEquals(instance.get_alpha()['alpha'], 2)
+        instance.set_beta(2)
+        self.assertEquals(instance.get_beta()['beta'], 2)
+        instance.set_gamma(2)
+        self.assertEquals(instance.get_gamma()['gamma'], 2)
+
+        instance.set_pn(True)
+        self.assertEquals(instance.get_pn()['pn'], True)
+        instance.set_pn1(True)
+        self.assertEquals(instance.get_pn1()['pn1'], True)
+        instance.set_pn2(True)
+        self.assertEquals(instance.get_pn2()['pn2'], True)
+        instance.set_pn25(True)
+        self.assertEquals(instance.get_pn25()['pn25'], True)
+        instance.set_pn3(True)
+        self.assertEquals(instance.get_pn3()['pn3'], True)
+        instance.set_pn35(True)
+        self.assertEquals(instance.get_pn35()['pn35'], True)
+
+        instance.set_units(1, 1)
+
         self.assertEquals(0, instance.commit_parameters())
 
         result = instance.get_number_of_particles()
