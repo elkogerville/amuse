@@ -1147,8 +1147,6 @@ class TsunamiInterface(
     corresponding request from the Python part of AMUSE.
     """
 
-    # include_headers = ['tsunami_worker.h', 'stopcond.h']
-
     def __init__(self, **kwargs):
         PythonCodeInterface.__init__(
             self,
@@ -1369,6 +1367,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         GravitationalDynamics.define_state(self, handler)
         GravityFieldCode.define_state(self, handler)
 
+
     def define_properties(self, handler):
         """Define properties of the code. These are read-only!"""
         GravitationalDynamics.define_properties(self, handler)
@@ -1382,6 +1381,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         handler.add_property('get_Tscale', public_name='Tscale')
         handler.add_property('get_Vscale', public_name='Vscale')
         handler.add_property('get_speed_of_light', public_name='speed_of_light')
+
 
     def define_methods(self, handler):
         """Map legacy functions in TsunamiInterface into Tsunami user methods."""
@@ -1578,6 +1578,7 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
         # handler.add_getter('particles', 'get_state')
         # handler.add_setter('particles', 'set_mass')
         # handler.add_getter('particles', 'get_mass', names=('mass',))
+
 
     def define_converter(self, handler):
         """Handle unit conversion if an (optional) unit converter is specified."""
