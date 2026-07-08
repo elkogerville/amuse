@@ -1358,16 +1358,11 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             **options
         )
 
-    # the following alternative __init__ is appropiate for codes that use an unspecified
-    # unit system (i.e. the quantities have dimension but no definite scale)
-    #
-    # def __init__(self, unit_converter=None, **options):
-    #     self.unit_converter = unit_converter
-    #     super().__init__(self,  tsunamiInterface(**options), **options)
-    #
-    # in this case you also need to use the define_converter below
+        if convert_nbody is not None:
+            M_s = convert_nbody.to_si(1 | generic_unit_system.mass).value_in(u.MSun)
+            L_s = convert_nbody.to_si(1 | generic_unit_system.length).value_in(u.AU)
+            self.set_units(M_s, L_s)
 
-    # typically the high level specification also contains the following:
 
     def define_state(self, handler):
         """Define the state model of the code."""
