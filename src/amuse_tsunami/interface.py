@@ -1064,16 +1064,17 @@ class TsunamiImplementation(object):
         kinetic_energy.value = self.tsunami.kin
         return 0
 
-    def get_total_energy(self, total_energy: ValueHolder) -> int:
+    def get_deltaE(self, deltaE: ValueHolder) -> int:
         """
-        Get total energy of the system. This value is read only.
+        Get fractional energy error `deltaE = (E - E0) / E0` excluding energy losses
+        due to dissipative terms (tides, post-Newtonians, external potentials)
 
         Parameters
         ----------
-        total_energy : ValueHolder[float]
-            ValueHolder instance to return the total energy of the system.
+        deltaE : ValueHolder[float]
+            ValueHolder instance to return the fraction energy error value.
         """
-        total_energy.value = self.tsunami.energy
+        deltaE.value = self.tsunami.deltaE
         return 0
 
     def get_time(self, time: ValueHolder) -> int:
@@ -1203,37 +1204,17 @@ class TsunamiInterface(
         """
         return function
 
-    @legacy_function
-    def get_spin():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        for name in ['wx', 'wy', 'wz']:
-            function.addParameter(name, dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        function.result_doc = """
-        0 - OK
-            particle was found in the model and the information was retrieved
-        """
-        return function
-
-    @legacy_function
-    def set_spin():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        for name in ['wx', 'wy', 'wz']:
-            function.addParameter(name, dtype='d', direction=function.IN)
-        function.result_type = 'i'
-        function.result_doc = """
-        0 - OK
-            particle was found in the model and the information was retrieved
-        """
-        return function
+    @remote_function(can_handle_array=True)
+    def get_spin(index_of_the_particle='i'):
+        returns (wx='d', wy='d', wz='d')
 
     @remote_function
     def get_speed_of_light():
         returns (speed_of_light='d')
+
+    @remote_function
+    def get_deltaE():
+        returns (deltaE='d')
 
     @legacy_function
     def get_time():
@@ -1336,15 +1317,37 @@ class TsunamiInterface(
     def set_pn35(pn35='b'):
         returns ()
 
-class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
-    """One line description of this code
+    @remote_function
+    def set_units(Mscale='d', Lscale='d'):
+        returns ()
 
-    Some more details about what it does, any special features it has beyond the
-    standard interfaces, and anything else the user needs to know.
+    @remote_function
+    def use_physical_units(use_physical_units='b'):
+        returns ()
+
+    @remote_function
+    def get_Mscale():
+        returns (Mscale='d')
+
+    @remote_function
+    def get_Lscale():
+        returns (Lscale='d')
+
+    @remote_function
+    def get_Tscale():
+        returns (Tscale='d')
+
+    @remote_function
+    def get_Vscale():
+        returns (Vscale='d')
+
+
+class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
+    """
+
     """
     def __init__(self, convert_nbody=None, **options):
         """Create a Tsunami instance to run simulations with."""
-        super().__init__(self,  TsunamiInterface(**options), **options)
 
         legacy_interface = TsunamiInterface(**options)
 
