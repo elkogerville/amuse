@@ -1137,14 +1137,10 @@ class TsunamiInterface(
     LiteratureReferencesMixIn,
 ):
     """
-    Description of the interface with the community code.
+    Tsunami is a direct few-body code with algorithmic regularization,
+    tidal forces and post-Newtonian corrections.
 
-    This class describes a set of functions in C++ or Fortran that are part of the AMUSE
-    wrapper of the community code. These functions in turn will call functions in the
-    community code, or update variables in it directly.
-
-    These functions will be called by the worker program when it receives the
-    corresponding request from the Python part of AMUSE.
+    .. [#] ADS:2023IAUS..362..404T (Trani, A. A. & Spera, M., 2023, IAUS, 362, 404)
     """
 
     def __init__(self, **kwargs):
@@ -1342,7 +1338,8 @@ class TsunamiInterface(
 
 class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
     """
-
+    Tsunami is a direct few-body code with algorithmic regularization,
+    tidal forces and post-Newtonian corrections.
     """
     def __init__(self, convert_nbody=None, **options):
         """Create a Tsunami instance to run simulations with."""
@@ -1571,13 +1568,6 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
     def define_particle_sets(self, handler):
         """Define any particle sets inside the model."""
         GravitationalDynamics.define_particle_sets(self, handler)
-        # handler.define_set('particles', 'index_of_the_particle')
-        # handler.set_new('particles', 'new_particle')
-        # handler.set_delete('particles', 'delete_particle')
-        # handler.add_setter('particles', 'set_state')
-        # handler.add_getter('particles', 'get_state')
-        # handler.add_setter('particles', 'set_mass')
-        # handler.add_getter('particles', 'get_mass', names=('mass',))
 
 
     def define_converter(self, handler):
