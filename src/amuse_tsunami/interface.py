@@ -490,6 +490,35 @@ class TsunamiImplementation(object):
 
         return 0
 
+    def get_radius(
+        self,
+        index_of_the_particle: int,
+        radius: ValueHolder
+    ) -> int:
+        """
+        Retrieve the radius of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Particle index as returned by `new_particle`.
+        radius : ValueHolder[float]
+            ValueHolder instance to return the radius value.
+
+        Returns
+        -------
+        0 : Radius was retrieved successfully.
+
+        Raises
+        ------
+        ValueError : If `index_of_the_particle` is not valid.
+        """
+        i = self._get_particle_index_by_id(index_of_the_particle)
+        self.synchronize_model()
+
+        radius.value = self._radius[i]
+        return 0
+
     def get_position(
         self,
         index_of_the_particle: int,
