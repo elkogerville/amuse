@@ -1,16 +1,12 @@
 import numpy as np
 import tsunami
 
-from amuse.community.interface.common import CommonCode, CommonCodeInterface
+from amuse.community.interface.common import CommonCode
 from amuse.community.interface.gd import (
     GravitationalDynamics,
     GravitationalDynamicsInterface,
     GravityFieldCode,
     GravityFieldInterface
-)
-from amuse.community.interface.stopping_conditions import (
-    StoppingConditions,
-    StoppingConditionInterface
 )
 from amuse.rfi.core import (
     LegacyFunctionSpecification,
@@ -19,9 +15,10 @@ from amuse.rfi.core import (
     remote_function
 )
 from amuse.rfi.python_code import ValueHolder
-from amuse.support.interface import InCodeComponentImplementation
 from amuse.support.literature import LiteratureReferencesMixIn
-from amuse.units import nbody_system as ns
+from amuse.units import (
+    generic_unit_system, nbody_system as ns, units as u
+)
 
 
 class TsunamiImplementation(object):
