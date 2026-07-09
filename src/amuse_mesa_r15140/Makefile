@@ -29,7 +29,7 @@ src/fpx3.tar.gz: | src
 	$(DOWNLOAD) http://user.astro.wisc.edu/~townsend/resource/download/sdk2/src/fpx3.tar.gz >$@
 
 src/fpx3_deps: | src
-	$(DOWNLOAD) https://raw.githubusercontent.com/rhdtownsend/sdk2/master/profile/common/fpx3/fpx3_deps >$@
+	$(DOWNLOAD) https://raw.githubusercontent.com/rhdtownsend/sdk2/897655920d1375d63df9e21b58485d6d3d62b342/package/fpx3/files/fpx3_deps >$@
 
 src/mesa-$(MESA_VERSION).zip:
 	$(DOWNLOAD) https://zenodo.org/record/4311514/files/mesa-$(MESA_VERSION).zip >$@
@@ -114,8 +114,10 @@ src/bin/fpx3_deps: | src/fpx3_deps
 
 $(MESA_DIR)/utils/makedepf90-2.8.8: | $(MESA_DIR)
 	cd $(MESA_DIR)/utils && tar xzf makedepf90-2.8.8.tar.gz -m
+	touch $(MESA_DIR)/utils/makedepf90-2.8.8/configure
 
 src/bin/makedepf90: | $(MESA_DIR)/utils/makedepf90-2.8.8 src/bin
+	touch $(MESA_DIR)/utils/makedepf90-2.8.8/configure
 	cd $(MESA_DIR)/utils/makedepf90-2.8.8 && ./configure
 	cd $(MESA_DIR)/utils/makedepf90-2.8.8 && $(MAKE)
 	cp $(MESA_DIR)/utils/makedepf90-2.8.8/makedepf90 $@
@@ -205,7 +207,7 @@ install_disabled:
 	@echo
 	@echo 'Please use'
 	@echo
-	@echo '    ./setup develop amuse-mesa_r15140'
+	@echo '    ./setup develop amuse-mesa-r15140'
 	@echo
 	@echo 'to install it'
 	@echo
@@ -223,7 +225,11 @@ package-%: %_contains
 	python3 -m pip install -vv --no-cache-dir --no-deps --no-build-isolation --prefix ${PREFIX} packages/$*
 
 test-%:
+ifneq ($(CI),)
+	cd packages/$* && pytest -k 'not noci'
+else
 	cd packages/$* && pytest
+endif
 
 
 # Cleaning up

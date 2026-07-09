@@ -341,6 +341,8 @@ class TestCImplementationInterface(TestWithMPI):
         request2.wait()
         port_id1, error1 = request1.result()
         port_id2, error2 = request2.result()
+        instance1.stop()
+        instance2.stop()
         self.assertTrue(port_id1 >= 0)
         self.assertTrue(port_id2 >= 0)
         self.assertEqual(error1, 0)

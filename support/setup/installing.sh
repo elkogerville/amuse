@@ -83,8 +83,17 @@ install_framework() {
             fi
         done
         if [ -n "${to_install}" ] ; then
-            conda install -y ${to_install}
+            conda install -c conda-forge --override-channels -y ${to_install}
         fi
+    fi
+
+    # On macos, pip will install an mpi4py wheel by default that uses a binary
+    # distribution of openmpi or mpich that's been put on PyPI(!), but doesn't seem to
+    # get installed by default and anyway isn't the version our workers will use. So we
+    # pre-install it here explicitly from source, so that it'll link to the MPI from the
+    # environment.
+    if [ "a${ENV_TYPE}" = "avirtualenv" ] ; then
+        pip install --no-binary mpi4py mpi4py
     fi
 
     ec_file="$(exit_code_file install amuse-framework)"
@@ -138,6 +147,30 @@ develop_framework() {
 
     announce_activity develop amuse-framework
 
+    # if we're in a conda env, install the dependencies using conda first rather than
+    # leaving it to pip.
+    if [ "a${ENV_TYPE}" = "aconda" ] ; then
+        to_install=''
+        for name_ver in ${FRAMEWORK_CONDA_DEPS}  ; do
+            name=$(echo "${name_ver}" | sed -e "s/'\([a-zA-Z0-9_-]*\).*/\1/")
+            if ! is_subset "$name" "${INSTALLED_PACKAGES}" ; then
+                to_install="${to_install} ${name_ver}"
+            fi
+        done
+        if [ -n "${to_install}" ] ; then
+            conda install -c conda-forge --override-channels -y ${to_install}
+        fi
+    fi
+
+    # On macos, pip will install an mpi4py wheel by default that uses a binary
+    # distribution of openmpi or mpich that's been put on PyPI(!), but doesn't seem to
+    # get installed by default and anyway isn't the version our workers will use. So we
+    # pre-install it here explicitly from source, so that it'll link to the MPI from the
+    # environment.
+    if [ "a${ENV_TYPE}" = "avirtualenv" ] ; then
+        pip install --no-binary mpi4py mpi4py
+    fi
+
     ec_file="$(exit_code_file install amuse-framework)"
     log_file="$(log_file install amuse-framework)"
 
@@ -187,16 +220,20 @@ install_package() {
     check_package "${package}"
 
     if ! is_subset "amuse-framework" "${INSTALLED_PACKAGES}" ; then
+        save_cmd="${cmd}"
         save_package="${package}"
         install_framework
         package="${save_package}"
+        cmd="${save_cmd}"
     fi
 
     if is_subset "${package}" "${NEEDS_SAPPORO_LIGHT}" ; then
         if ! is_subset "sapporo-light" "${INSTALLED_PACKAGES}" ; then
+            save_cmd="${cmd}"
             save_package="${package}"
             install_sapporo_light
             package="${save_package}"
+            cmd="${save_cmd}"
         fi
     fi
 
@@ -207,9 +244,11 @@ install_package() {
         # If the code is e.g. CUDA-only, then there may not be a base package.
         if is_subset "${base_package}" "${EXTANT_PACKAGES}" ; then
             if ! is_subset "${base_package}" "${INSTALLED_PACKAGES}" ; then
+                save_cmd="${cmd}"
                 save_package="${package}"
                 install_package "${cmd}" "${base_package}" "${brief}"
                 package="${save_package}"
+                cmd="${save_cmd}"
             fi
         fi
     fi
