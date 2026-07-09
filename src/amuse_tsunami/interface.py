@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.typing import NDArray
 import tsunami
 
 from amuse.community.interface.common import CommonCode
@@ -804,6 +805,27 @@ class TsunamiImplementation(object):
         self.tsunami.Conf.wEqTides = bool(dynamical_tides)
         return 0
 
+    def initialize_tidal_parameters(
+        self,
+        kaps: NDArray[np.float64],
+        taulag: NDArray[np.float64],
+        polyt: NDArray[np.float64],
+        gyrad: NDArray[np.float64],
+        N: int
+    ) -> int:
+        if any(len(arr) != N for arr in [kaps, taulag, polyt, gyrad]):
+            raise ValueError(
+                f'All tidal parameter arrays must have the same length ({N}) '
+                f'with one value for each particle.'
+            )
+        self.tsunami.initialize_tidal_parameters(
+            kaps,
+            taulag,
+            polyt,
+            gyrad
+        )
+        return 0
+
     def get_alpha(self, alpha: ValueHolder) -> int:
         """
         Get alpha regularization parameter.
@@ -1239,6 +1261,12 @@ class TsunamiInterface(
     def set_dynamical_tides(dynamical_tides='b'):
         returns ()
 
+    @remote_function(must_handle_array=True)
+    def initialize_tidal_parameters(
+        kaps='d', taulag='d', polyt='d', gyrad='d'
+    ):
+        returns ()
+
     @remote_function
     def get_alpha():
         returns (alpha='d')
@@ -1461,6 +1489,12 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             'get_speed_of_light',
             (),
             (ns.speed, handler.ERROR_CODE)
+        )
+
+        handler.add_method(
+            'initialize_tidal_parameters',
+            (handler.NO_UNIT, ns.time, handler.NO_UNIT, handler.NO_UNIT),
+            (handler.ERROR_CODE,)
         )
 
 
