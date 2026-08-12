@@ -908,7 +908,6 @@ class TestTsunami(TestWithMPI):
 
         instance.stop()
 
-
     def plot_particles_xy(
         self,
         particles: list[Particles],
