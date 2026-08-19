@@ -221,9 +221,14 @@ int evolve_model(double time) {
     reset_stopping_conditions();
 
     int is_collision_detection_enabled;
+    int is_breakup_detection_enabled;
     is_stopping_condition_enabled(
         COLLISION_DETECTION,
         &is_collision_detection_enabled
+    );
+    is_stopping_condition_enabled(
+        BREAKUP_DETECTION,
+        &is_breakup_detection_enabled
     );
 
     determine_dt_sgn(time);
@@ -235,6 +240,16 @@ int evolve_model(double time) {
             set_stopping_condition_info(stopping_index, COLLISION_DETECTION);
             set_stopping_condition_particle_index(stopping_index, 0, i);
             set_stopping_condition_particle_index(stopping_index, 1, j);
+        }
+    }
+
+    if (
+        is_breakup_detection_enabled && breakup->detect_breakup(tidymess->bodies)
+    ) {
+        for (const auto& i : breakup->get_breakup_indices()) {
+            int stopping_index = next_index_for_stopping_condition();
+            set_stopping_condition_info(stopping_index, BREAKUP_DETECTION);
+            set_stopping_condition_particle_index(stopping_index, 0, i);
         }
     }
     return 0;
