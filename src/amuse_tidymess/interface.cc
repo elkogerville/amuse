@@ -803,7 +803,7 @@ int set_roche_mode(int roche_mode) {
 
 int get_breakup_mode(int* breakup_mode) {
     if (!breakup_mode) return -1;
-    *breakup_mode = breakup->mode; /// niet in Tidy
+    *breakup_mode = breakup->mode;
     return 0;
 }
 int set_breakup_mode(int breakup_mode) {
