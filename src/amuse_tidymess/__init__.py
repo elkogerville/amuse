@@ -1,1 +1,1 @@
-from .interface import Tidymess
+from amuse_tidymess.interface import Tidymess

@@ -1,1 +1,1 @@
-from .interface import Tidymess
+from amuse.community.tidymess.interface import Tidymess
