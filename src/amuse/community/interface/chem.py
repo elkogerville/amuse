@@ -12,6 +12,30 @@ from amuse.rfi.core import LegacyFunctionSpecification
 class ChemicalEvolutionInterface(common.CommonCodeInterface):
 
     @legacy_function
+    def commit_parameters():
+        function = LegacyFunctionSpecification()
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
+    def commit_particles():
+        function = LegacyFunctionSpecification()
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
+    def recommit_parameters():
+        function = LegacyFunctionSpecification()
+        function.result_type = "i"
+        return function
+
+    @legacy_function
+    def recommit_particles():
+        function = LegacyFunctionSpecification()
+        function.result_type = "i"
+        return function
+
+    @legacy_function
     def evolve_model():
         function = LegacyFunctionSpecification()
         function.addParameter('time', dtype='d', direction=function.IN)
@@ -110,6 +134,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
                 Unable to determine the count
         """
         return function
+
 
 class ChemicalEvolution(common.CommonCode):
 
