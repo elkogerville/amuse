@@ -1,7 +1,12 @@
-import os.path
-from amuse.community.interface.common import CommonCodeInterface, CommonCode
-from amuse.community import *
-from amuse.support.options import option
+from amuse.community.interface.chem import (
+    ChemicalEvolution, ChemicalEvolutionInterface
+)
+from amuse.rfi.core import (
+    CodeInterface, LegacyFunctionSpecification, legacy_function
+)
+from amuse.support.literature import LiteratureReferencesMixIn
+from amuse.units import units
+
 
 #(Grevesse & Sauval, 1998, Space Sci. Rev. 85, 161)
 solar_abundances= dict(H=1.,
