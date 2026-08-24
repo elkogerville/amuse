@@ -17,10 +17,15 @@ solar_abundances= dict(H=1.,
                        Ne=1.2e-4,
                        SI=3.55e-5,
                        Fe=3.2e-5)
- 
-class KromeInterface(CodeInterface, CommonCodeInterface, LiteratureReferencesMixIn):
+
+
+class KromeInterface(
+    CodeInterface,
+    ChemicalEvolutionInterface,
+    LiteratureReferencesMixIn
+):
     """
-    
+
     KROME - a package to embed chemistry in astrophysical simulations
 
     .. [#] Grassi, T.; Bovino, S.; Schleicher, D. R. G.; Prieto, J.; Seifried, D.; Simoncini, E.; Gianturco, F. A., MNRAS, 439, 3, p.2386-2419 [2014MNRAS.439.2386G]
@@ -32,27 +37,6 @@ class KromeInterface(CodeInterface, CommonCodeInterface, LiteratureReferencesMix
 
     def name_of_the_worker(self):
         return 'krome_worker'
-
-    @legacy_function
-    def commit_particles():
-        function = LegacyFunctionSpecification()
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def commit_parameters():
-        function = LegacyFunctionSpecification()
-        function.result_type = 'i'
-        return function
-
-    def recommit_parameters():
-        return self.commit_parameters()
-
-    @legacy_function
-    def recommit_particles():
-        function = LegacyFunctionSpecification()
-        function.result_type = 'i'
-        return function
 
     @legacy_function
     def new_particle():
@@ -81,35 +65,6 @@ class KromeInterface(CodeInterface, CommonCodeInterface, LiteratureReferencesMix
         function.addParameter('id', dtype='i', direction=function.IN)
         for x in ['number_density','temperature','ionrate']:
             function.addParameter(x, dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def set_abundance():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('id', dtype='i', direction=function.IN)
-        function.addParameter('aid', dtype='i', direction=function.IN)
-        function.addParameter('abundance', dtype='d', direction=function.IN)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def get_abundance():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('id', dtype='i', direction=function.IN)
-        function.addParameter('aid', dtype='i', direction=function.IN)
-        function.addParameter('abundance', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def get_firstlast_abundance():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('first', dtype='i', direction=function.OUT)
-        function.addParameter('last', dtype='i', direction=function.OUT)
         function.result_type = 'i'
         return function
 
