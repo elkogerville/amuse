@@ -111,6 +111,7 @@ class Krome(ChemicalEvolution):
             (units.s,),
             (handler.ERROR_CODE,)
         )
+
         handler.add_method(
             "new_particle",
             (
@@ -123,6 +124,7 @@ class Krome(ChemicalEvolution):
                 handler.ERROR_CODE,
             )
         )
+
         handler.add_method(
             "set_state",
             (
@@ -135,6 +137,7 @@ class Krome(ChemicalEvolution):
                 handler.ERROR_CODE,
             )
         )
+
         handler.add_method(
             "get_state",
             (
@@ -147,51 +150,10 @@ class Krome(ChemicalEvolution):
                 handler.ERROR_CODE,
             )
         )
+
         handler.add_method(
-            "get_abundance",
-            (
-                handler.INDEX,
-                handler.INDEX,
-            ),
-            (
-                handler.NO_UNIT,
-                handler.ERROR_CODE,
-            )
-        )
-        handler.add_method(
-            "set_abundance",
-            (
-                handler.INDEX,
-                handler.INDEX,
-                handler.NO_UNIT,
-            ),
-            (
-                handler.ERROR_CODE,
-            )
-        )
-        handler.add_method(
-            "delete_particle",
-            (
-                handler.INDEX,
-            ),
-            (
-                handler.ERROR_CODE,
-            )
-        )
-        handler.add_method(
-            "get_firstlast_abundance",
-            (
-            ),
-            (
-                handler.NO_UNIT,
-                handler.NO_UNIT,
-                handler.ERROR_CODE,
-            )
-        )
-        handler.add_method(
-            "get_time",
-            (
-            ),
+            'get_time',
+            (),
             (
                 units.s,
                 handler.ERROR_CODE,
