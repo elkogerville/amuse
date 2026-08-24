@@ -211,3 +211,20 @@ class ChemicalEvolution(common.CommonCode):
             'get_firstlast_abundance',
             names=('abundances',),
         )
+
+    def define_state(self, handler):
+        common.CommonCode.define_state(self, handler)
+        handler.add_transition('INITIALIZED', 'EDIT', 'commit_parameters')
+        handler.add_transition('RUN', 'PARAMETER_CHANGE_A', 'invoke_state_change2')
+        handler.add_transition('EDIT', 'PARAMETER_CHANGE_B', 'invoke_state_change2')
+        handler.add_transition('PARAMETER_CHANGE_A', 'RUN', 'recommit_parameters')
+        handler.add_transition('PARAMETER_CHANGE_B', 'EDIT', 'recommit_parameters')
+        handler.add_method('EDIT', 'new_particle')
+        handler.add_method('EDIT', 'delete_particle')
+        handler.add_transition('EDIT', 'RUN', 'commit_particles')
+        handler.add_transition('RUN', 'UPDATE', 'new_particle', False)
+        handler.add_transition('RUN', 'UPDATE', 'delete_particle', False)
+        handler.add_transition('UPDATE', 'RUN', 'recommit_particles')
+        handler.add_method('RUN', 'evolve_model')
+        handler.add_method('RUN', 'get_state')
+        handler.add_method('RUN', 'get_abundance')
