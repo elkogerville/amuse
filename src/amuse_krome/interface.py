@@ -25,7 +25,6 @@ class KromeInterface(
     LiteratureReferencesMixIn
 ):
     """
-
     KROME - a package to embed chemistry in astrophysical simulations
 
     .. [#] Grassi, T.; Bovino, S.; Schleicher, D. R. G.; Prieto, J.; Seifried, D.; Simoncini, E.; Gianturco, F. A., MNRAS, 439, 3, p.2386-2419 [2014MNRAS.439.2386G]
@@ -113,7 +112,7 @@ class Krome(ChemicalEvolution):
         )
 
         handler.add_method(
-            "new_particle",
+            'new_particle',
             (
                 units.cm**-3,
                 units.K,
@@ -126,7 +125,7 @@ class Krome(ChemicalEvolution):
         )
 
         handler.add_method(
-            "set_state",
+            'set_state',
             (
                 handler.NO_UNIT,
                 units.cm**-3,
@@ -139,7 +138,7 @@ class Krome(ChemicalEvolution):
         )
 
         handler.add_method(
-            "get_state",
+            'get_state',
             (
                 handler.INDEX,
             ),
