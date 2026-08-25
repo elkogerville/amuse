@@ -41,39 +41,39 @@ function get_number_of_particles(n) result(ret)
   ret=0
 end function
 
-function new_particle(id,density,temperature,ionrate) result(ret)
+function new_particle(index_of_the_particle,density,temperature,ionrate) result(ret)
   use chem_mod
-  integer :: ret,id
-  double precision :: density,temperature,ionrate 
-  ret=add_particle(id,density,temperature,ionrate)
-end function
-
-function set_state(id,density,temperature,ionrate) result(ret)   
-  use chem_mod
-  integer :: ret,id
+  integer :: ret,index_of_the_particle
   double precision :: density,temperature,ionrate
-  ret=set_particle_state(id,density,temperature,ionrate)
+  ret=add_particle(index_of_the_particle,density,temperature,ionrate)
 end function
 
-function get_state(id,density,temperature,ionrate) result(ret)   
+function set_state(index_of_the_particle,density,temperature,ionrate) result(ret)
   use chem_mod
-  integer :: ret,id
+  integer :: ret,index_of_the_particle
   double precision :: density,temperature,ionrate
-  ret=get_particle_state(id,density,temperature,ionrate)
+  ret=set_particle_state(index_of_the_particle,density,temperature,ionrate)
 end function
 
-function get_abundance(id,aid,x) result(ret)
+function get_state(index_of_the_particle,density,temperature,ionrate) result(ret)
   use chem_mod
-  integer ret,id,aid
-  double precision x
-  ret=get_particle_abundance(id,aid,x)
+  integer :: ret,index_of_the_particle
+  double precision :: density,temperature,ionrate
+  ret=get_particle_state(index_of_the_particle,density,temperature,ionrate)
 end function
 
-function set_abundance(id,aid,x) result(ret)
+function get_abundance(index_of_the_particle,aid,x) result(ret)
   use chem_mod
-  integer ret,id,aid
+  integer ret,index_of_the_particle,aid
   double precision x
-  ret=set_particle_abundance(id,aid,x)
+  ret=get_particle_abundance(index_of_the_particle,aid,x)
+end function
+
+function set_abundance(index_of_the_particle,aid,x) result(ret)
+  use chem_mod
+  integer ret,index_of_the_particle,aid
+  double precision x
+  ret=set_particle_abundance(index_of_the_particle,aid,x)
 end function
 
 function get_firstlast_abundance(first,last) result(ret)
@@ -108,19 +108,19 @@ end function
 function evolve_model(tend) result(ret)
   use chem_mod
   integer :: ret
-  double precision :: tend  
+  double precision :: tend
   ret=evolve_chem_model(tend)
 end function
 
 function get_time(outtime) result(ret)
   use chem_mod
   integer :: ret
-  double precision :: outtime  
+  double precision :: outtime
   ret=chem_model_time(outtime)
 end function
 
-function delete_particle(id) result(ret)
+function delete_particle(index_of_the_particle) result(ret)
   use chem_mod
-  integer :: ret,id
-  ret=remove_particle(id)
+  integer :: ret,index_of_the_particle
+  ret=remove_particle(index_of_the_particle)
 end function

@@ -4,7 +4,7 @@ module chem_mod
   implicit none
 
   type particle_type
-    integer :: id
+    integer :: index_of_the_particle
     double precision :: density
     double precision :: temperature
     double precision :: ionrate
@@ -12,9 +12,9 @@ module chem_mod
   end type
 
   type(particle_type), allocatable :: particles(:)
-  
+
   double precision :: tcurrent  ! time unit = yr
-  
+
   integer :: nparticle
   integer :: tot_id
 
@@ -32,14 +32,14 @@ contains
     tot_id=0
     if(.not.allocated(particles)) allocate(particles(NMAX))
     particles(:)%density=0.
-    
+
     call krome_init()
-    
+
     ret=0
   end function
 
   function chem_end() result(ret)
-     integer :: ret 
+     integer :: ret
      if(allocated(particles)) deallocate(particles)
      ret=0
   end function
@@ -53,7 +53,7 @@ contains
     integer :: ret
     integer :: n
     integer :: i
- 
+
     particles_searcheable=.FALSE.
     nparticle=clean_particles(particles)
     ret=0
@@ -98,11 +98,11 @@ contains
     ret=0
   end function
 
-  function get_particle_abundance(id, aid, abundance) result(ret)
+  function get_particle_abundance(index_of_the_particle, aid, abundance) result(ret)
     integer :: ret
-    integer :: id,index,aid
+    integer :: index_of_the_particle,index,aid
     double precision :: abundance
-    index=find_particle(id)
+    index=find_particle(index_of_the_particle)
     if(index.LT.0) then
       ret=index
       return
@@ -115,11 +115,11 @@ contains
     ret=0
   end function
 
-  function set_particle_abundance(id, aid, abundance) result(ret)
+  function set_particle_abundance(index_of_the_particle, aid, abundance) result(ret)
     integer :: ret
-    integer :: id,index,aid
+    integer :: index_of_the_particle,index,aid
     double precision :: abundance
-    index=find_particle(id)
+    index=find_particle(index_of_the_particle)
     if(index.LT.0) then
       ret=index
       return
@@ -132,12 +132,12 @@ contains
     ret=0
   end function
 
-  function set_particle_state(id,density,temperature,ionrate) result(ret)
+  function set_particle_state(index_of_the_particle,density,temperature,ionrate) result(ret)
     integer :: ret
-    integer :: id,index
+    integer :: index_of_the_particle,index
     double precision :: density, temperature, ionrate
 
-    index=find_particle(id)
+    index=find_particle(index_of_the_particle)
     if(index.LT.0) then
       ret=index
       return
@@ -150,12 +150,12 @@ contains
 
   end function
 
-  function get_particle_state(id,density,temperature,ionrate) result(ret)
+  function get_particle_state(index_of_the_particle,density,temperature,ionrate) result(ret)
     integer :: ret
-    integer :: id,index
+    integer :: index_of_the_particle,index
     double precision :: density, temperature, ionrate
 
-    index=find_particle(id)
+    index=find_particle(index_of_the_particle)
 
     if(index.LT.0) then
       ret=index
@@ -169,39 +169,39 @@ contains
 
   end function
 
-  function add_particle(id,density,temperature,ionrate) result(ret)
+  function add_particle(index_of_the_particle,density,temperature,ionrate) result(ret)
   integer :: ret
-  integer :: i,id
+  integer :: i,index_of_the_particle
   double precision :: density, temperature,ionrate
   double precision :: x(krome_nmols)
   particles_searcheable=.FALSE.
-  id=new_id()  
+  index_of_the_particle=new_id()
   i=nparticle+1
 
   if(i.GT.NMAX) then
     ret=-1
     return
   endif
-  particles(i)%id=id
+  particles(i)%index_of_the_particle=index_of_the_particle
   particles(i)%density=density
   particles(i)%temperature=temperature
   particles(i)%ionrate=ionrate
   particles(i)%abundances=1.d-40
-  
+
   if(density.GT.0) then
     particles(i)%abundances(KROME_idx_H)  = 1. !H
     particles(i)%abundances(KROME_idx_H2) = 1.d-6    !H2
     particles(i)%abundances(KROME_idx_Hj) = 1.d-4    !H+
     particles(i)%abundances(KROME_idx_He) = 0.0775d0 !He
-  
+
     x=particles(i)%density*particles(i)%abundances
-  
+
     call krome_scale_Z(x(:), 0.d0) ! scale to solar
-  
+
     x(krome_idx_Cj) = x(krome_idx_C) !carbon is fully ionized
     x(krome_idx_C)  = 1d-40
     x(krome_idx_e) = krome_get_electrons(x(:))
-    
+
     particles(i)%abundances=x/particles(i)%density
   endif
 
@@ -209,10 +209,10 @@ contains
   ret=0
   end function
 
-  function remove_particle(id) result(ret)
+  function remove_particle(index_of_the_particle) result(ret)
   integer :: ret
-  integer :: i,id
-  i=find_particle(id)
+  integer :: i,index_of_the_particle
+  i=find_particle(index_of_the_particle)
   if(i.LE.0) then
     ret=i
     return
@@ -231,20 +231,20 @@ function clean_particles(par) result(np)
   type(particle_type) :: tmp
   left=1
   if(.NOT.allocated(par)) then
-    np = 0 
-    return  
+    np = 0
+    return
   endif
   right=size(par)
   if(right.EQ.0) then
     np=0
     return
-  endif 
+  endif
   do while(.TRUE.)
     do while(par(left)%density.GT.0.AND.left.LT.right)
       left=left+1
     enddo
     do while(par(right)%density.LE.0.AND.left.LT.right)
-      right=right-1  
+      right=right-1
     enddo
     if(left.LT.right) then
       tmp=par(left)
@@ -258,25 +258,25 @@ function clean_particles(par) result(np)
   np=left-1
 end function
 
-function find_particle(id_) result(index)
+function find_particle(index_of_the_particle) result(index)
   use hashMod
-  type(hash_type),save ::  hash
-  integer id_,index
+  type(hash_type),save :: hash
+  integer index_of_the_particle, index
   integer, save :: nbod=0
-  
+
   if(.NOT.particles_searcheable) then
     nbod=nparticle
     if(allocated(pid)) deallocate(pid)
     allocate(pid(nbod))
-    pid(1:nbod)=particles(1:nbod)%id
+    pid(1:nbod)=particles(1:nbod)%index_of_the_particle
     call initHash(nbod/2+1,nbod, pid,hash)
     particles_searcheable=.TRUE.
   endif
-  
 
-  index=find(id_,pid,hash)
 
-  if(index.LE.0) then   
+  index=find(index_of_the_particle,pid,hash)
+
+  if(index.LE.0) then
     index=-1
     return
   endif
@@ -284,11 +284,11 @@ function find_particle(id_) result(index)
     index=-2
     return
   endif
-  if(pid(index).NE.id_) then   
+  if(pid(index).NE.index_of_the_particle) then
     index=-3
     return
   endif
-  
+
 end function
 
 subroutine extend_particles(buf,n)
@@ -298,19 +298,19 @@ subroutine extend_particles(buf,n)
 
   m=0
   if(allocated(buf)) then
-    m=min(n,size(buf)) 
+    m=min(n,size(buf))
     allocate(tmpbuf(m))
     tmpbuf(1:m)=buf(1:m)
     deallocate(buf)
   endif
-    
+
   allocate(buf(n))
 
   if(m.GT.0 .and. allocated(tmpbuf)) then
     buf(1:m)=tmpbuf(1:m)
     deallocate(tmpbuf)
-  endif   
-  
+  endif
+
 end subroutine
 
 function new_id()

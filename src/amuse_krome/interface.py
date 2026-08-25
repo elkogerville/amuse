@@ -41,8 +41,8 @@ class KromeInterface(
     def new_particle():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('id', dtype='int32', direction=function.OUT)
-        for x in ['number_density','temperature','ionrate']:
+        function.addParameter('index_of_the_particle', dtype='int32', direction=function.OUT)
+        for x in ['number_density', 'temperature', 'ionrate']:
             function.addParameter(x, dtype='d', direction=function.IN)
         function.result_type = 'i'
         return function
@@ -51,7 +51,7 @@ class KromeInterface(
     def set_state():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('id', dtype='i', direction=function.IN)
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
         for x in ['number_density','temperature','ionrate']:
             function.addParameter(x, dtype='d', direction=function.IN)
         function.result_type = 'i'
@@ -61,7 +61,7 @@ class KromeInterface(
     def get_state():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('id', dtype='i', direction=function.IN)
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
         for x in ['number_density','temperature','ionrate']:
             function.addParameter(x, dtype='d', direction=function.OUT)
         function.result_type = 'i'
@@ -158,12 +158,3 @@ class Krome(ChemicalEvolution):
                 handler.ERROR_CODE,
             )
         )
-
-    def define_particle_sets(self, handler):
-        handler.define_set('particles', 'id')
-        handler.set_new('particles', 'new_particle')
-        handler.set_delete('particles', 'delete_particle')
-        handler.add_setter('particles', 'set_state')
-        handler.add_getter('particles', 'get_state')
-        handler.add_gridded_getter('particles', 'get_abundance','get_firstlast_abundance', names = ('abundances',))
-        handler.add_gridded_setter('particles', 'set_abundance','get_firstlast_abundance', names = ('abundances',))
