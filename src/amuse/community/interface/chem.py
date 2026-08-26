@@ -10,35 +10,60 @@ from amuse.rfi.core import LegacyFunctionSpecification
 
 
 class ChemicalEvolutionInterface(common.CommonCodeInterface):
-
-    @legacy_function
-    def commit_parameters():
-        function = LegacyFunctionSpecification()
-        function.result_type = 'i'
-        return function
-
     @legacy_function
     def commit_particles():
+        """
+        Let the code perform initialization actions
+        after all particles have been loaded in the model.
+        Should be called before the first evolve call and
+        after the last new_particle call.
+        """
         function = LegacyFunctionSpecification()
         function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def recommit_parameters():
-        function = LegacyFunctionSpecification()
-        function.result_type = "i"
+        function.result_doc = """
+            0 - OK
+                Model is initialized and evolution can start
+            -1 - ERROR
+                Error happened during initialization, this error needs to be
+                further specified by every code implemention
+        """
         return function
 
     @legacy_function
     def recommit_particles():
+        """
+        Let the code perform initialization actions
+        after the number of particles have been updated
+        or particle attributes have been updated from
+        the script.
+        """
         function = LegacyFunctionSpecification()
-        function.result_type = "i"
+        function.result_type = 'i'
+        function.result_doc = """
+            0 - OK
+                Model is initialized and evolution can start
+            -1 - ERROR
+                Error happened during initialization, this error needs to be
+                further specified by every code implemention
+        """
         return function
 
     @legacy_function
     def evolve_model():
+        """
+        Evolve the model until the given time, or until a stopping
+        condition is set.
+        """
         function = LegacyFunctionSpecification()
-        function.addParameter('time', dtype='d', direction=function.IN)
+        function.addParameter(
+            'time',
+            dtype='d',
+            direction=function.IN,
+            description=(
+                'Model time to evolve the code to. The model will be '
+                'evolved until this time is reached exactly or just after.'
+            ),
+        )
         function.result_type = 'i'
         return function
 
@@ -52,15 +77,17 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.IN
+        )
         function.result_type = 'i'
         function.result_doc = """
-        0 - OK
-            particle was removed from the model
-        -1 - ERROR
-            particle could not be removed
-        -2 - ERROR
-            not yet implemented
+            0 - OK
+                particle was removed from the model
+            -1 - ERROR
+                particle could not be removed
+            -2 - ERROR
+                not yet implemented
         """
         return function
 
@@ -122,11 +149,11 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         function = LegacyFunctionSpecification()
         function.addParameter(
             'number_of_particles',
-            dtype='int32',
+            dtype='i',
             direction=function.OUT,
             description='Count of the particles in the code',
         )
-        function.result_type = 'int32'
+        function.result_type = 'i'
         function.result_doc = """
             0 - OK
                 Count could be determined
