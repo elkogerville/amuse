@@ -120,10 +120,10 @@ class TestKromeInterface(TestWithMPI):
         self.assertTrue(last-first > 0)
 
         for i in range(first, last+1):
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             print(name)
             self.assertEqual(err, 0)
-            index, err = instance.get_index_of_species(name)
+            index, err = instance.get_species_index(name)
             self.assertEqual(i, index)
 
         instance.stop()
@@ -190,12 +190,12 @@ class TestKromeInterface(TestWithMPI):
 
         for s in ["H", "HE", "C", "SI", "O"]:
             x = solar_abundances[s]
-            aid, err = instance.get_index_of_species(s)
+            aid, err = instance.get_species_index(s)
             instance.set_abundance(id, aid, x)
 
         for s in ["H", "HE", "C", "SI", "O"]:
             x = solar_abundances[s]
-            aid, err = instance.get_index_of_species(s)
+            aid, err = instance.get_species_index(s)
             xx, err = instance.get_abundance(id, aid)
             self.assertEqual(x, xx)
             self.assertEqual(err, 0)
@@ -218,7 +218,7 @@ class TestKromeInterface(TestWithMPI):
 
         for s in ["H", "HE", "C", "SI", "O"]:
             x = solar_abundances[s]
-            aid, err = instance.get_index_of_species(s)
+            aid, err = instance.get_species_index(s)
             instance.set_abundance(id, aid, x)
 
         instance.commit_particles()
@@ -234,7 +234,7 @@ class TestKromeInterface(TestWithMPI):
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             print(i, name, x)
 
     def test9(self):
@@ -255,18 +255,18 @@ class TestKromeInterface(TestWithMPI):
 
         for s in ["H", "HE", "C", "SI", "O"]:
             x = solar_abundances[s]
-            aid, err = instance.get_index_of_species(s)
+            aid, err = instance.get_species_index(s)
             instance.set_abundance(id, aid, x)
 
-        aid, err = instance.get_index_of_species("C")
+        aid, err = instance.get_species_index("C")
         instance.set_abundance(id, aid, 1.e-40)
 
-        aid, err = instance.get_index_of_species("C+")
+        aid, err = instance.get_species_index("C+")
         instance.set_abundance(id, aid, solar_abundances["C"])
 
-        aid, err = instance.get_index_of_species("H2")
+        aid, err = instance.get_species_index("H2")
         instance.set_abundance(id, aid, 1.e-6)
-        aid, err = instance.get_index_of_species("H+")
+        aid, err = instance.get_species_index("H+")
         instance.set_abundance(id, aid, 1.e-4)
 
         instance.commit_particles()
@@ -282,7 +282,7 @@ class TestKromeInterface(TestWithMPI):
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             print(i, name, x)
 
     def test10(self):
@@ -306,7 +306,7 @@ class TestKromeInterface(TestWithMPI):
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             if name in abundances:
                 self.assertAlmostEqual(x, abundances[name], 12)
 
@@ -328,7 +328,7 @@ class TestKromeInterface(TestWithMPI):
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             result1[name] = x
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
@@ -348,7 +348,7 @@ class TestKromeInterface(TestWithMPI):
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             result2[name] = x
 
         for x in result1:

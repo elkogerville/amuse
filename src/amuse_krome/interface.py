@@ -52,7 +52,7 @@ class KromeInterface(
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        for x in ['number_density','temperature','ionrate']:
+        for x in ['number_density', 'temperature', 'ionrate']:
             function.addParameter(x, dtype='d', direction=function.IN)
         function.result_type = 'i'
         return function
@@ -62,26 +62,8 @@ class KromeInterface(
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        for x in ['number_density','temperature','ionrate']:
+        for x in ['number_density', 'temperature', 'ionrate']:
             function.addParameter(x, dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def get_index_of_species():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('name', dtype='s', direction=function.IN)
-        function.addParameter('index', dtype='i', direction=function.OUT)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def get_name_of_species():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index', dtype='i', direction=function.IN)
-        function.addParameter('name', dtype='s', direction=function.OUT)
         function.result_type = 'i'
         return function
 
@@ -95,10 +77,10 @@ class Krome(ChemicalEvolution):
 
         ChemicalEvolution.__init__(self, KromeInterface(**options))
 
-        first,last=self.get_firstlast_abundance()
-        self.species=dict()
-        for i in range(first,last+1):
-          self.species[self.get_name_of_species(i)]=i-1
+        first, last = self.get_firstlast_abundance()
+        self.species = dict()
+        for i in range(first, last+1):
+          self.species[self.get_species_name(i)] = i - 1
 
     def define_properties(self, handler):
         handler.add_property('get_time', public_name = "model_time")
@@ -118,10 +100,7 @@ class Krome(ChemicalEvolution):
                 units.K,
                 units.s**-1,
             ),
-            (
-                handler.INDEX,
-                handler.ERROR_CODE,
-            )
+            (handler.INDEX, handler.ERROR_CODE,)
         )
 
         handler.add_method(
@@ -153,8 +132,5 @@ class Krome(ChemicalEvolution):
         handler.add_method(
             'get_time',
             (),
-            (
-                units.s,
-                handler.ERROR_CODE,
-            )
+            (units.s, handler.ERROR_CODE,)
         )

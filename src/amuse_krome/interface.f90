@@ -84,7 +84,7 @@ function get_firstlast_abundance(first,last) result(ret)
   ret=0
 end function
 
-function get_name_of_species(i,s) result(ret)
+function get_species_name(i,s) result(ret)
   use chem_mod
   integer ret,i
   character*16 :: ss(krome_nmols),s
@@ -97,7 +97,7 @@ function get_name_of_species(i,s) result(ret)
   ret=0
 end function
 
-function get_index_of_species(s,i) result(ret)
+function get_species_index(s,i) result(ret)
   use chem_mod
   integer ret,i
   character*16 s
