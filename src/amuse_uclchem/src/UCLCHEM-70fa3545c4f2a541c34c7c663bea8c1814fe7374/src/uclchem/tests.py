@@ -1,0 +1,62 @@
+"""Collection of tests for UCLCHEM.
+
+Deprecated
+
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+import uclchem
+from uclchem.constants import default_elements_to_check
+
+
+def test_ode_conservation(
+    element_list: list[str] | None = None,
+) -> dict[str, float]:
+    """Test whether the ODEs conserve elements.
+
+    Useful to run each time you change network. Integrator errors may still cause
+    elements not to be conserved but they cannot be conserved if the ODEs are not correct.
+
+    Parameters
+    ----------
+    element_list : list[str] | None
+        A list of elements for which to check the conservation.
+        If None, use ``uclchem.constants.default_elements_to_check``. Default = None.
+
+    Returns
+    -------
+    result : dict[str, float]
+        A dictionary of the elements in element list with values
+        representing the total change of each element.
+
+    """
+    if element_list is None:
+        element_list = default_elements_to_check
+
+    param_dict = {
+        "endatfinaldensity": False,
+        "freefall": True,
+        "initialdens": 1e4,
+        "initialtemp": 10.0,
+        "finaldens": 1e5,
+        "finaltime": 1.0e3,
+    }
+    model = uclchem.model.Cloud(param_dict)
+    model.check_error()
+
+    physics_df, abundances_df = model.get_dataframes(joined=False)
+    result = uclchem.analysis.check_element_conservation(
+        cast("pd.DataFrame", abundances_df),
+        element_list=element_list,
+        percent=False,
+    )
+    result_floats = {
+        element: float(discrepancy) for element, discrepancy in result.items()
+    }
+    return result_floats
