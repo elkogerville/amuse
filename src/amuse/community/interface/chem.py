@@ -127,6 +127,38 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         return function
 
     @legacy_function
+    def get_species_index():
+        """
+        Given the name of a chemical species in the
+        chemical abundance array, retrieve its index.
+
+        Chemical abundances for each particle are stored
+        as a 1D array, where each element corresponds to
+        the abundance of a particular species.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter('name', dtype='s', direction=function.IN)
+        function.addParameter('index', dtype='i', direction=function.OUT)
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
+    def get_species_name():
+        """
+        Given the index of a chemical species in the
+        chemical abundance array, retrieve its name.
+
+        Chemical abundances for each particle are stored
+        as a 1D array, where each element corresponds to
+        the abundance of a particular species.
+        """
+        function = LegacyFunctionSpecification()
+        function.addParameter('index', dtype='i', direction=function.IN)
+        function.addParameter('name', dtype='s', direction=function.OUT)
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
     def get_time():
         """
         Retrieve the model time. This time should be close to the end time
