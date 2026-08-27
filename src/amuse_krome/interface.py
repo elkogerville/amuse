@@ -8,15 +8,12 @@ from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import units
 
 
-#(Grevesse & Sauval, 1998, Space Sci. Rev. 85, 161)
-solar_abundances= dict(H=1.,
-                       HE=.085,
-                       C=3.31e-4,
-                       N=8.3e-5,
-                       O=6.76e-4,
-                       Ne=1.2e-4,
-                       SI=3.55e-5,
-                       Fe=3.2e-5)
+# (Grevesse & Sauval, 1998, Space Sci. Rev. 85, 161)
+solar_abundances= dict(
+    H = 1.0, HE = 0.085,
+    C = 3.31e-4, N = 8.3e-5, O = 6.76e-4,
+    Ne = 1.2e-4, SI = 3.55e-5, Fe = 3.2e-5
+)
 
 
 class KromeInterface(
