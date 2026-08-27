@@ -38,18 +38,8 @@ class KromeInterface(
     def new_particle():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.OUT)
-        for x in ['number_density', 'temperature', 'ionrate']:
-            function.addParameter(x, dtype='d', direction=function.IN)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def set_state():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        for x in ['number_density', 'temperature', 'ionrate']:
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.OUT)
+        for x in ['rho', 'u', 'gamma', 'mu', 'ionrate']:
             function.addParameter(x, dtype='d', direction=function.IN)
         function.result_type = 'i'
         return function
@@ -59,8 +49,61 @@ class KromeInterface(
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        for x in ['number_density', 'temperature', 'ionrate']:
+        for x in ['rho', 'u', 'gamma', 'mu', 'ionrate']:
             function.addParameter(x, dtype='d', direction=function.OUT)
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
+    def set_state():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        for x in ['rho', 'u', 'gamma', 'mu', 'ionrate']:
+            function.addParameter(x, dtype='d', direction=function.IN)
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
+    def get_internal_energy():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('u', dtype='d', direction=function.OUT)
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
+    def set_internal_energy():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('u', dtype='d', direction=function.IN)
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
+    def get_density():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('rho', dtype='d', direction=function.OUT)
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
+    def set_density():
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('rho', dtype='d', direction=function.IN)
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
+    def set_amu_in_g():
+        function = LegacyFunctionSpecification()
+        function.addParameter('amu_in_g', dtype='d', direction=function.IN)
         function.result_type = 'i'
         return function
 
@@ -78,6 +121,9 @@ class Krome(ChemicalEvolution):
         self.species = dict()
         for i in range(first, last+1):
           self.species[self.get_species_name(i)] = i - 1
+
+        amu_in_g = (1 | units.amu).value_in(units.g)
+        self.set_amu_in_g(amu_in_g)
 
     def define_properties(self, handler):
         handler.add_property('get_time', public_name = "model_time")
