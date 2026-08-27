@@ -139,37 +139,63 @@ class Krome(ChemicalEvolution):
         handler.add_method(
             'new_particle',
             (
-                units.cm**-3,
-                units.K,
+                units.g * units.cm**-3,
+                units.cm**2 * units.s**-2,
+                handler.NO_UNIT,
+                units.g,
                 units.s**-1,
             ),
             (handler.INDEX, handler.ERROR_CODE,)
         )
 
         handler.add_method(
-            'set_state',
+            'get_state',
+            (handler.INDEX,),
             (
+                units.g * units.cm**-3,
+                units.cm**2 * units.s**-2,
                 handler.NO_UNIT,
-                units.cm**-3,
-                units.K,
+                units.g,
                 units.s**-1,
-            ),
-            (
                 handler.ERROR_CODE,
             )
         )
 
         handler.add_method(
-            'get_state',
+            'set_state',
             (
                 handler.INDEX,
-            ),
-            (
-                units.cm**-3,
-                units.K,
+                units.g * units.cm**-3,
+                units.cm**2 * units.s**-2,
+                handler.NO_UNIT,
+                units.g,
                 units.s**-1,
-                handler.ERROR_CODE,
-            )
+            ),
+            (handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
+            'get_density',
+            (handler.INDEX,),
+            (units.g * units.cm**-3, handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
+            'set_density',
+            (handler.INDEX, units.g * units.cm**-3,),
+            (handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
+            'get_internal_energy',
+            (handler.INDEX,),
+            (units.cm**2 * units.s**-2, handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
+            'set_internal_energy',
+            (handler.INDEX, units.cm**2 * units.s**-2,),
+            (handler.ERROR_CODE,)
         )
 
         handler.add_method(
