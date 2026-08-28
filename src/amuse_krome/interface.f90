@@ -129,6 +129,16 @@ function set_abundance(index_of_the_particle, abundance_index, abundance) result
   ret = set_particle_abundance(index_of_the_particle, abundance_index, abundance)
 end function set_abundance
 
+function set_abundances(index_of_the_particle, abundances, N) result(ret)
+  use chem_mod, only : set_particle_abundances
+  implicit none
+  integer, intent(in) :: N
+  integer, intent(in) :: index_of_the_particle(N)
+  double precision, intent(in) :: abundances(N)
+  integer :: ret
+  ret = set_particle_abundances(index_of_the_particle, abundances, N)
+end function set_abundances
+
 function get_firstlast_abundance(first, last) result(ret)
   use chem_mod, only : krome_nmols
   implicit none
