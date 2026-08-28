@@ -118,6 +118,16 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         return function
 
     @legacy_function
+    def set_abundances():
+        function = LegacyFunctionSpecification()
+        function.must_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('abundances', dtype='d', direction=function.IN)
+        function.addParameter('N', dtype='i', direction=function.LENGTH)
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
     def get_firstlast_abundance():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
@@ -227,7 +237,13 @@ class ChemicalEvolution(common.CommonCode):
                 handler.INDEX,
                 handler.NO_UNIT,
             ),
-            (handler.ERROR_CODE,),
+            (handler.ERROR_CODE,)
+        )
+
+        handler.add_method(
+            'set_abundances',
+            (handler.INDEX, handler.NO_UNIT,),
+            (handler.ERROR_CODE,)
         )
 
         handler.add_method(
