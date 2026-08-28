@@ -139,6 +139,24 @@ contains
     ret = 0
   end function set_particle_abundance
 
+  function set_particle_abundances(index_of_the_particle, abundances, N) result(ret)
+    integer, intent(in) :: N
+    integer, intent(in) :: index_of_the_particle(N)
+    double precision, intent(in) :: abundances(N)
+    integer :: index, ret
+    index = find_particle(index_of_the_particle(1))
+    if (index .LT. 0) then
+      ret = index
+      return
+    endif
+    if (N .NE. krome_nmols) then
+      ret = -2
+      return
+    endif
+    particles(index)%abundances = abundances
+    ret = 0
+  end function set_particle_abundances
+
   function set_particle_state(index_of_the_particle, rho, u, gamma, mu, ionrate) result(ret)
     integer, intent(in) :: index_of_the_particle
     double precision, intent(in) :: rho, u, gamma, mu, ionrate
