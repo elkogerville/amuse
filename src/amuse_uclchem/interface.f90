@@ -63,7 +63,7 @@
     ret=set_particle_abundance(id,aid,x)
   end function
 
-  function get_firstlast_abundance(first,last) result(ret)
+  function get_firstlast_species_index(first,last) result(ret)
    use network
    integer :: ret,first,last
    first=1

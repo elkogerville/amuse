@@ -60,7 +60,6 @@ class UclchemImplementation(object):
         self.param_dict: dict = {}
         self.uclchem_particles = Particles()
         self._ids: NDArray = np.empty(0, dtype=np.int64)
-
         self._next_particle_id: int = 0
 
     def initialize_code(self) -> int:
@@ -557,24 +556,65 @@ class UclchemImplementation(object):
         """
         i = self._get_particle_index_by_id(index_of_the_particle)
 
-        print(self.uclchem_particles[i].abundances.shape, abundance)
-        self.uclchem_particles[i].abundances[abundance_index] = abundance
-        print(self.uclchem_particles[i].abundances[abundance_index])
+        abundances = self.uclchem_particles[i].abundances
+        abundances[abundance_index] = abundance
+        self.uclchem_particles[i].abundances = abundances
         return 0
 
-    def get_firstlast_abundance(self, first, last) -> int:
+    def set_abundances(self, index_of_the_particle, abundances, N) -> int:
         """
-        Get the index of the first and last abundances inside UCLCHEM.
+        Set the full chemical abundance array for a given particle.
 
-        This is a helper method for acessing the abundance array as
+        Parameters
+        ----------
+        index_of_the_particle : np.ndarray[int]
+            Index of the particle as returned by `new_particle`. If an array,
+            only the first element is used.
+        abundances : np.ndarray[float]
+            Abundance values to assign to the particle, of length `N`.
+        N : int
+            Number of abundance values in `abundances`. Must match the
+            particle's existing abundance array length.
+
+        Returns
+        -------
+        int :
+            0 on success.
+
+        Raises
+        ------
+        ValueError
+            If `N` does not match the particle's existing number of abundances.
+        """
+        if not isinstance(index_of_the_particle, int):
+            index_of_the_particle = index_of_the_particle[0]
+        i = self._get_particle_index_by_id(index_of_the_particle)
+        N_abundances = self.uclchem_particles[i].abundances.shape[0]
+        if N != N_abundances:
+            raise ValueError(
+                f'abundances must have shape {N_abundances}, got {N}!'
+            )
+        self.uclchem_particles[i].abundances = abundances
+        return 0
+
+    def get_firstlast_species_index(self, first, last) -> int:
+        """
+        Get the index of the first and last species inside UCLCHEM.
+
+        This is a helper method for accessing the abundance array as
         `instance.particles.abundances`.
 
         Parameters
         ----------
         first : amuse.rfi.python_code.ValueHolder[int]
-            Index of the first abundance in the abundace array.
+            Index of the first species in the abundance array.
         last : amuse.rfi.python_code.ValueHolder[int]
-            Index of the last abundance in the abundace array.
+            Index of the last species in the abundance array.
+
+        Returns
+        -------
+        int :
+            0 on success.
         """
         first.value = 0
         last.value = len(get_species_names()) - 1
