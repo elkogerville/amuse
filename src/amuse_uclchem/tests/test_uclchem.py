@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from uclchem.model import get_species_names
+from uclchem.model import get_species_names as _get_species_names
 
 from amuse.datamodel import Particle, Particles
 from amuse.support.testing.amusetest import TestWithMPI
@@ -56,7 +56,7 @@ class TestUclchemInterface(TestWithMPI):
         result = instance.get_chemical_model()
         self.assertEquals(result['chem_model'], 'prestellarcore')
 
-        H_index = get_species_names().index('H')
+        H_index = _get_species_names().index('H')
         result = instance.get_species_name(H_index)
         self.assertEquals(result['name'], 'H')
         result = instance.get_species_index('H')
