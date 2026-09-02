@@ -95,6 +95,9 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
     def get_abundance():
         """
         Retrieve the chemical abundance of a species by index for a given particle.
+
+        The `abundance_index` can be queried for using the methods `get_species_index`
+        and `get_species_name`.
         """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
@@ -108,6 +111,9 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
     def set_abundance():
         """
         Set the chemical abundance of a species by index for a given particle.
+
+        The `abundance_index` can be queried for using the methods `get_species_index`
+        and `get_species_name`.
         """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
@@ -145,6 +151,11 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Chemical abundances for each particle are stored
         as a 1D array, where each element corresponds to
         the abundance of a particular species.
+
+        Examples
+        --------
+        >>> chem.get_species_index('H')
+        0
         """
         function = LegacyFunctionSpecification()
         function.addParameter('name', dtype='s', direction=function.IN)
@@ -161,6 +172,11 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Chemical abundances for each particle are stored
         as a 1D array, where each element corresponds to
         the abundance of a particular species.
+
+        Examples
+        --------
+        >>> chem.get_species_name(0)
+        'H'
         """
         function = LegacyFunctionSpecification()
         function.addParameter('abundance_index', dtype='i', direction=function.IN)
@@ -185,9 +201,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
 
     @legacy_function
     def get_number_of_particles():
-        """
-        Retrieve the total number of particles defined in the code.
-        """
+        """Retrieve the total number of particles defined in the code."""
         function = LegacyFunctionSpecification()
         function.addParameter(
             'number_of_particles',
