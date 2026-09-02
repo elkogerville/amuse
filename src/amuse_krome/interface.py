@@ -204,9 +204,9 @@ class Krome(ChemicalEvolution):
             (units.s, handler.ERROR_CODE,)
         )
 
-        def define_particle_sets(self, handler):
-            ChemicalEvolution.define_particle_sets(self, handler)
-            handler.add_getter('particles', 'get_density')
-            handler.add_setter('particles', 'set_density')
-            handler.add_getter('particles', 'get_internal_energy')
-            handler.add_setter('particles', 'set_internal_energy')
+    def define_particle_sets(self, handler):
+        ChemicalEvolution.define_particle_sets(self, handler)
+        handler.add_getter('particles', 'get_density')
+        handler.add_setter('particles', 'set_density')
+        handler.add_getter('particles', 'get_internal_energy')
+        handler.add_setter('particles', 'set_internal_energy')
