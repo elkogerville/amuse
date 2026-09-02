@@ -1092,6 +1092,11 @@ class Uclchem(ChemicalEvolution):
             chem_interface
         )
 
+        first, last = self.get_firstlast_species_index()
+        self.species = dict()
+        for i in range(first, last+1):
+          self.species[self.get_species_name(i)] = i
+
     def get_abundances(
         self,
         index_of_the_particle: int,
