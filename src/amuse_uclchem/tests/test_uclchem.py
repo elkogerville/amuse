@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 from uclchem.model import get_species_names
 
 from amuse.datamodel import Particle, Particles
@@ -65,7 +66,6 @@ class TestUclchemInterface(TestWithMPI):
 
         instance.commit_particles()
         instance.set_abundance(0, 0, 5)
-        print(instance.get_abundance(0, 0))
 
         result = instance.get_abundance(0, 0)
         self.assertEquals(result['abundance'], 5)
@@ -223,18 +223,39 @@ class TestUclchem(TestWithMPI):
         self.assertEquals(instance.get_number_of_particles(), 0)
         self.assertEquals(instance.particles.is_empty(), True)
 
-        # print(p2)
-        # print(instance.particles[0].number_density)
-        # print(instance.particles[1].number_density)
-        # print(instance.particles[2].number_density)
+        instance.stop()
 
-        # self._validate_particle_state(instance.particles[0], p1[0])
-        # self._validate_particle_state(instance.particles[1], p2[0])
-        # self._validate_particle_state(instance.particles[2], p2[1])
+    def test_set_abundance(self):
+        """Test setting a single chemical abundance for a particle."""
+        instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
+        assert instance is not None
 
-        # instance.particles.remove_particle(instance.particles[0])
-        # self._validate_particle_state(instance.particles[0], p2[0])
-        # self._validate_particle_state(instance.particles[1], p2[1])
+        p = self.generate_two_particles()
+        instance.particles.add_particles(p)
+        instance.commit_particles()
+
+        instance.set_abundance(0, 0, 5)
+        assert instance.get_abundance(0, 0) == 5
+
+        instance.set_abundance(1, 230, 0.45283)
+        assert instance.get_abundance(1, 230) == 0.45283
+
+        instance.stop()
+
+    def test_set_abundances(self):
+        """Test setting all abundances of a particle from an array."""
+        instance = self.new_instance_of_an_optional_code(Uclchem)
+        assert instance is not None
+
+        p = self.generate_two_particles()
+        instance.particles.add_particles(p)
+        instance.commit_particles()
+
+        abundances = np.random.rand(335)
+
+        instance.set_abundances(0, abundances)
+        assert np.all(instance.particles.abundances[0,:] == abundances)
+        assert np.all(instance.particles.abundances[1,:] == np.zeros(335))
 
         instance.stop()
 
