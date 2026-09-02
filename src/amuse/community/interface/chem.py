@@ -148,7 +148,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         """
         function = LegacyFunctionSpecification()
         function.addParameter('name', dtype='s', direction=function.IN)
-        function.addParameter('index', dtype='i', direction=function.OUT)
+        function.addParameter('abundance_index', dtype='i', direction=function.OUT)
         function.result_type = 'i'
         return function
 
@@ -163,7 +163,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         the abundance of a particular species.
         """
         function = LegacyFunctionSpecification()
-        function.addParameter('index', dtype='i', direction=function.IN)
+        function.addParameter('abundance_index', dtype='i', direction=function.IN)
         function.addParameter('name', dtype='s', direction=function.OUT)
         function.result_type = 'i'
         return function
