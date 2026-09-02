@@ -60,7 +60,7 @@ class TestUclchemInterface(TestWithMPI):
         result = instance.get_species_name(H_index)
         self.assertEquals(result['name'], 'H')
         result = instance.get_species_index('H')
-        self.assertEquals(result['index'], H_index)
+        self.assertEquals(result['abundance_index'], H_index)
 
         result = instance.get_time()
         self.assertEquals(result['time'], 0)
