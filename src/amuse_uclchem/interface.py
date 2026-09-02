@@ -673,63 +673,10 @@ class UclchemImplementation(object):
             0 on success.
         """
         first.value = 0
-        last.value = len(get_species_names()) - 1
+        last.value = len(_get_species_names()) - 1
         return 0
 
-    def get_chemical_model(self, chem_model) -> int:
-        """
-        Retrieve the chemical model type used by UCLCHEM.
-        This is the physics model used internally by UCLCHEM
-        to evolve the chemistry.
-
-        Possible values are `'cloud'`, `'collapse'`, `'cshock'`,
-        `'jshock'`, and `'prestellarcore'`.
-
-        Parameters
-        ----------
-        chem_model : amuse.rfi.python_code.ValueHolder[str]
-            Mutable container used to return the current
-            model type.
-
-        Returns
-        -------
-        int :
-            0 on success.
-        """
-        chem_model.value = self.chem_model
-        return 0
-
-    def set_chemical_model(self, chem_model) -> int:
-        """
-        Set the chemical model used by UCLCHEM. This is
-        the physics model used internally by UCLCHEM to
-        evolve the chemistry.
-
-        Possible values are `'cloud'`, `'collapse'`, `'cshock'`,
-        `'jshock'`, and `'prestellarcore'`.
-
-        Parameters
-        ----------
-        chem_model : {'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'}
-            Chemical model specifying the chemistry physics when evolving the particles.
-
-        Returns
-        -------
-        int :
-            0 on success.
-
-        Raises
-        ------
-        ValueError :
-            If `chem_model` is not one of the allowed models.
-        """
-        self.chem_model = chem_model
-        self.model_class = self._validate_chemical_model(
-            self.MODEL_MAP.get(self.chem_model, None)
-        )
-        return 0
-
-    def get_species_index(self, name, index) -> int:
+    def get_species_index(self, name, abundance_index) -> int:
         """
         Given the name of a chemical species in the
         chemical abundance array, retrieve its index.
@@ -743,7 +690,7 @@ class UclchemImplementation(object):
         name : str
             Name of chemical species. Must be one of the
             species tracked by UCLCHEM.
-        index : amuse.rfi.python_code.ValueHolder[int]
+        abundance_index : amuse.rfi.python_code.ValueHolder[int]
             Mutable container used to return the index
             of the species.
 
@@ -758,17 +705,17 @@ class UclchemImplementation(object):
         >>> chem.get_species_index('H2O')
         31
         """
-        species_names = get_species_names()
+        species_names = _get_species_names()
 
         try:
             idx = species_names.index(name)
         except ValueError:
             return -1
 
-        index.value = idx
+        abundance_index.value = idx
         return 0
 
-    def get_species_name(self, index, name) -> int:
+    def get_species_name(self, abundance_index, name) -> int:
         """
         Given the index of a chemical species in the
         chemical abundance array, retrieve its name.
@@ -779,11 +726,16 @@ class UclchemImplementation(object):
 
         Parameters
         ----------
-        i : int
+        abundance_index : int
             Index of the chemical species in the abundance array.
         name : amuse.rfi.python_code.ValueHolder[str]
             Mutable container used to return the name of
             the chemical species.
+
+        Returns
+        -------
+        int :
+            0 on success.
 
         Examples
         --------
@@ -791,11 +743,11 @@ class UclchemImplementation(object):
         >>> chem.get_species_name(31)
         'H2O'
         """
-        species_names = get_species_names()
-        if not 0 <= index < len(species_names):
+        species_names = _get_species_names()
+        if not 0 <= abundance_index < len(species_names):
             return -1
 
-        name.value = species_names[index]
+        name.value = species_names[abundance_index]
         return 0
 
     def get_time(self, time) -> int:
