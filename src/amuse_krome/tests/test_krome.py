@@ -115,7 +115,7 @@ class TestKromeInterface(TestWithMPI):
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         self.assertEqual(err, 0)
         self.assertTrue(last-first > 0)
 
@@ -180,7 +180,7 @@ class TestKromeInterface(TestWithMPI):
 
         instance.commit_particles()
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertTrue((x >= 0.) & (x <= 1.))
@@ -212,7 +212,7 @@ class TestKromeInterface(TestWithMPI):
         ion = 2.e-17
         id, err = instance.new_particle(dens, t, ion)
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             err = instance.set_abundance(id, i, 1.e-40)
 
@@ -230,7 +230,7 @@ class TestKromeInterface(TestWithMPI):
         self.assertEqual(err, 0)
         self.assertEqual(time, 10000.*yr)
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
@@ -249,7 +249,7 @@ class TestKromeInterface(TestWithMPI):
         ion = 2.e-17
         id, err = instance.new_particle(dens, t, ion)
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             err = instance.set_abundance(id, i, 1.e-40)
 
@@ -278,7 +278,7 @@ class TestKromeInterface(TestWithMPI):
         self.assertEqual(err, 0)
         self.assertEqual(time, 10000.*yr)
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
@@ -302,7 +302,7 @@ class TestKromeInterface(TestWithMPI):
                      "C+": 0.000269180975425, "SI": 3.2362683404e-05,
                      "O": 0.000489828841345}
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
@@ -324,7 +324,7 @@ class TestKromeInterface(TestWithMPI):
         instance.evolve_model(1.e10)
 
         result1 = {}
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
@@ -344,7 +344,7 @@ class TestKromeInterface(TestWithMPI):
         instance.evolve_model(1.e10)
 
         result2 = {}
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)

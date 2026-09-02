@@ -139,7 +139,7 @@ function set_abundances(index_of_the_particle, abundances, N) result(ret)
   ret = set_particle_abundances(index_of_the_particle, abundances, N)
 end function set_abundances
 
-function get_firstlast_abundance(first, last) result(ret)
+function get_firstlast_species_index(first, last) result(ret)
   use chem_mod, only : krome_nmols
   implicit none
   integer, intent(out) :: first, last
@@ -147,7 +147,7 @@ function get_firstlast_abundance(first, last) result(ret)
   first = 1
   last = krome_nmols ! this is the last species defined in amuse_helpers.f90
   ret = 0
-end function get_firstlast_abundance
+end function get_firstlast_species_index
 
 function get_species_name(index, name) result(ret)
   use chem_mod, only : krome_get_names, krome_nmols

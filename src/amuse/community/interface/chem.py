@@ -128,7 +128,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         return function
 
     @legacy_function
-    def get_firstlast_abundance():
+    def get_firstlast_species_index():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('first', dtype='i', direction=function.OUT)
@@ -247,7 +247,7 @@ class ChemicalEvolution(common.CommonCode):
         )
 
         handler.add_method(
-            'get_firstlast_abundance',
+            'get_firstlast_species_index',
             (),
             (
                 handler.NO_UNIT,
@@ -277,13 +277,13 @@ class ChemicalEvolution(common.CommonCode):
         handler.add_gridded_getter(
             'particles',
             'get_abundance',
-            'get_firstlast_abundance',
+            'get_firstlast_species_index',
             names=('abundances',),
         )
         handler.add_gridded_setter(
             'particles',
             'set_abundance',
-            'get_firstlast_abundance',
+            'get_firstlast_species_index',
             names=('abundances',),
         )
 
