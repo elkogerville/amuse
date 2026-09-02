@@ -1196,44 +1196,6 @@ class Uclchem(ChemicalEvolution):
         for i in range(first, last+1):
           self.species[self.get_species_name(i)] = i
 
-    def get_abundances(
-        self,
-        index_of_the_particle: int,
-        species_names: str | list[str]
-    ) -> list[float]:
-        """
-        Get the abundances of a particle at the current simulation time
-        by species name. Both a single species name or a list of names
-        are valid inputs.
-
-        Parameters
-        ----------
-        index_of_the_particle : int
-            Index of the particle as returned by `new_particle`.
-        species_names : str | list[str]
-            List of species names to query. Each name must be a species
-            tracked by the UCLCHEM network. A sigle name is also a valid input.
-
-        Returns
-        -------
-        abundances : list[float]
-            List containing the current abundances of the particle for
-            each species name passed in.
-
-        Notes
-        -----
-        To obtain the list of species in UCLCHEM:
-        >>> from uclchem.model import get_species_names
-        >>> get_species_names()
-        ['H', 'H+', 'H2', ...]
-        """
-        i = index_of_the_particle
-        if not isinstance(species_names, list):
-            species_names = [species_names]
-
-        indices = [self.get_species_index(species) for species in species_names]
-        return [self.get_abundance(i, aid) for aid in indices]
-
     def define_methods(self, handler):
         ChemicalEvolution.define_methods(self, handler)
         handler.add_method(
