@@ -7,6 +7,7 @@ from amuse.support.testing.amusetest import TestWithMPI
 from amuse.units import units as u
 from amuse_uclchem.interface import UclchemInterface, Uclchem, habing
 
+
 class TestUclchemInterface(TestWithMPI):
 
     def test_getters_and_setters(self):
@@ -259,7 +260,7 @@ class TestUclchem(TestWithMPI):
 
         instance.stop()
 
-    def test_get_abundances(self):
+    def test_evolve_abundances(self):
         """
         Test evolving a cloud model and getting the abundances.
         The expected abundances are the default starting abundances
@@ -314,82 +315,4 @@ class TestUclchem(TestWithMPI):
         for a, ea in zip(abund, expected_abundances):
             self.assertAlmostEqual(a, ea)
 
-        instance.stop()
-
-    def xtest_cloud_model(self):
-        p = Particles(1)
-        p[0].number_density = 1e4 | u.cm**-3
-        p[0].temperature = 10 | u.K
-        p[0].ionrate = 3 | u.s**-1
-        p[0].radfield = 4 | habing
-
-        end_time = 1e2 | u.yr
-        dt = end_time / 50
-
-        instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
-        assert instance is not None
-
-        instance.commit_parameters()
-        instance.particles.add_particle(p)
-        channel = instance.particles.new_channel_to(p)
-        H = []
-        H2 = []
-        H20 = []
-        CO = []
-        CH3OH = []
-        times = []
-
-        while instance.model_time < end_time:
-
-            time = instance.model_time + dt
-            times.append(time.number)
-            instance.evolve_model(time)
-            channel.copy()
-            H.append(instance.get_abundance(0, 0))
-            H2.append(instance.get_abundance(0, 2))
-            H20.append(instance.get_abundance(0, 31))
-            CO.append(instance.get_abundance(0, 49))
-            CH3OH.append(instance.get_abundance(0, 78))
-
-
-        instance.stop()
-
-
-        fig, ax = plt.subplots()
-        ax.set_xscale('log')
-        ax.plot(times, H, label='H')
-        ax.plot(times, H2, label='H2')
-        ax.plot(times, H20, label='H20')
-        ax.plot(times, CO, label='CO')
-        ax.plot(times, CH3OH, label='CH3OH')
-        ax.set_xlim(0.,100)
-
-        plt.legend()
-
-        plt.show()
-
-    def xtest_1(self):
-        end_time = 5000 | u.yr
-        dt = 1000 | u.yr
-        particles = Particles(10)
-        for p in particles:
-            p.number_density = 1e2 | u.cm**-3
-            p.temperature = 10 | u.K
-            p.ionrate = 3 | u.s**-1
-            p.radfield = 4 | habing
-
-        instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
-        assert instance is not None
-
-        instance.commit_parameters()
-        instance.particles.add_particles(particles)
-        channel = instance.particles.new_channel_to(particles)
-        import time
-        t1 = time.perf_counter()
-        while instance.model_time < end_time:
-            instance.evolve_model(instance.model_time + dt)
-            channel.copy()
-
-        t2 = time.perf_counter()
-        print('TIME', t2-t1)
         instance.stop()
