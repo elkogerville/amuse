@@ -3,7 +3,9 @@ from typing import Literal
 import numpy as np
 from numpy.typing import NDArray
 import uclchem
-from uclchem.model import get_species_names, AbstractModel
+from uclchem.model import (
+    get_species_names as _get_species_names, AbstractModel
+)
 
 from amuse.community.interface.chem import (
     ChemicalEvolution, ChemicalEvolutionInterface
@@ -26,6 +28,8 @@ habing = u.named('habing', 'hab', 1.6e-3 * u.erg * u.cm**-2 * u.s**-1)
 class UclchemImplementation(object):
     def __init__(self):
         """
+        Implementation of Uclchem legacy interface functions.
+
         Parameters
         ----------
         current_time : float
@@ -37,9 +41,12 @@ class UclchemImplementation(object):
             These are the actual models which compute the chemistry.
         model_class : type[AbstractModel]
             Current UCLCHEM AbstractModel class used when calling `evolve_model`.
+        self.param_dict : dict
+            Dictionary to hold any additional parameters sent to Uclchem before evolving.
+            Parameter getters and setters should modify this dictionary.
         uclchem_particles : amuse.datamodel.Particles
             Particles datamodel for storing UCLCHEM particles.
-        _ids : np.ndarray
+        _ids : np.ndarray[int]
             Array of unique ids for each particle in `uclchem_particles`.
         _next_particle_id : int
             Next particle index. New ids are assigned by `_get_new_id`.
@@ -56,9 +63,8 @@ class UclchemImplementation(object):
         self.model_class = self._validate_chemical_model(
             self.MODEL_MAP.get(self.chem_model, None)
         )
-        self.collapse: Literal['BE1.1', 'BE4', 'filament', 'ambipolar'] = 'BE1.1'
         self.param_dict: dict = {}
-        self.uclchem_particles = Particles()
+        self.uclchem_particles: Particles = Particles()
         self._ids: NDArray = np.empty(0, dtype=np.int64)
         self._next_particle_id: int = 0
 
@@ -80,12 +86,12 @@ class UclchemImplementation(object):
 
         Returns
         -------
-        int
+        int :
             0 on success.
 
         Raises
         ------
-        ValueError
+        ValueError :
             If `chem_model` is not a valid model name.
         """
         model = self.MODEL_MAP.get(self.chem_model, None)
@@ -97,8 +103,7 @@ class UclchemImplementation(object):
         Initializes the abundances for all particles to an array of zeros
         as a `Particles` vector attribute.
         """
-        print("YOU ARE HERE")
-        species = tuple(get_species_names())
+        species = tuple(_get_species_names())
         self.uclchem_particles.add_vector_attribute('abundances', species)
         self.uclchem_particles.abundances = np.zeros(len(species)) #+ 1-30
         return 0
@@ -112,12 +117,12 @@ class UclchemImplementation(object):
 
         Returns
         -------
-        int
+        int :
             0 on success.
 
         Raises
         ------
-        ValueError
+        ValueError :
             If `chem_model` is not a valid model name.
         """
         self.commit_parameters()
@@ -195,7 +200,7 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success
+            0 on success.
         """
         p = Particle()
         p.number_density = number_density
@@ -768,6 +773,59 @@ class UclchemImplementation(object):
         number_of_particles.value = len(self.uclchem_particles)
         return 0
 
+    def get_chemical_model(self, chem_model) -> int:
+        """
+        Retrieve the chemical model type used by UCLCHEM.
+        This is the physics model used internally by UCLCHEM
+        to evolve the chemistry.
+
+        Possible values are `'cloud'`, `'collapse'`, `'cshock'`,
+        `'jshock'`, and `'prestellarcore'`.
+
+        Parameters
+        ----------
+        chem_model : amuse.rfi.python_code.ValueHolder[str]
+            Mutable container used to return the current
+            model type.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
+        chem_model.value = self.chem_model
+        return 0
+
+    def set_chemical_model(self, chem_model) -> int:
+        """
+        Set the chemical model used by UCLCHEM. This is
+        the physics model used internally by UCLCHEM to
+        evolve the chemistry.
+
+        Possible values are `'cloud'`, `'collapse'`, `'cshock'`,
+        `'jshock'`, and `'prestellarcore'`.
+
+        Parameters
+        ----------
+        chem_model : {'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'}
+            Chemical model specifying the chemistry physics when evolving the particles.
+
+        Returns
+        -------
+        int :
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `chem_model` is not one of the allowed models.
+        """
+        self.chem_model = chem_model
+        self.model_class = self._validate_chemical_model(
+            self.MODEL_MAP.get(self.chem_model, None)
+        )
+        return 0
+
     def _validate_chemical_model(self, model: type[AbstractModel] | None) -> type[AbstractModel]:
         """
         Validate chemical model class.
@@ -779,13 +837,13 @@ class UclchemImplementation(object):
 
         Returns
         -------
-        type[AbstractModel]
+        type[AbstractModel] :
             Validated model class.
 
         Raises
         ------
-        ValueError
-            If model is None.
+        ValueError :
+            If `model` is `None`.
         """
         if model is None:
             raise ValueError(
@@ -1080,6 +1138,7 @@ class UclchemInterface(
 
 
 class Uclchem(ChemicalEvolution):
+
     def __init__(self, unit_converter=None, **options):
 
         if unit_converter is not None:
