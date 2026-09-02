@@ -236,15 +236,6 @@ class UclchemImplementation(object):
 
         return 0
 
-    def dummy(self, index_of_the_particle):
-        i = self._get_particle_index_by_id(index_of_the_particle)
-        print(self.uclchem_particles[i].abundances.shape)
-        print(self.uclchem_particles[i].abundances[0])
-        self.uclchem_particles[i].abundances[0] = 5
-        print(self.uclchem_particles[i].abundances[0])
-
-        return 0
-
     def get_state(
         self,
         index_of_the_particle,
@@ -528,7 +519,6 @@ class UclchemImplementation(object):
             0 on success, -1 if the particle index is invalid.
         """
         i = self._get_particle_index_by_id(index_of_the_particle)
-
         abundance.value = self.uclchem_particles[i].abundances[abundance_index]
         return 0
 
@@ -872,13 +862,6 @@ class UclchemInterface(
         return function
 
     @legacy_function
-    def dummy():
-        function = LegacyFunctionSpecification()
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.result_type = 'int32'
-        return function
-
-    @legacy_function
     def get_state():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
@@ -1149,12 +1132,6 @@ class Uclchem(ChemicalEvolution):
 
     def define_methods(self, handler):
         ChemicalEvolution.define_methods(self, handler)
-        handler.add_method(
-            'dummy',
-            (handler.NO_UNIT,),
-            (handler.ERROR_CODE,),
-        )
-
         handler.add_method(
             'new_particle',
             (u.cm**-3, u.K, u.s**-1, habing),
