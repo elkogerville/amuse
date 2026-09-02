@@ -149,29 +149,29 @@ function get_firstlast_species_index(first, last) result(ret)
   ret = 0
 end function get_firstlast_species_index
 
-function get_species_name(index, name) result(ret)
+function get_species_name(abundance_index, name) result(ret)
   use chem_mod, only : krome_get_names, krome_nmols
   implicit none
-  integer, intent(in) :: index
+  integer, intent(in) :: abundance_index
   character(len=16), intent(out) :: name
   integer :: ret
   character(len=16) :: names(krome_nmols)
-  if(index .LT. 1 .OR. index .GT. krome_nmols) then
+  if(abundance_index .LT. 1 .OR. abundance_index .GT. krome_nmols) then
     ret = -1
     return
   endif
   names = krome_get_names()
-  name = names(index)
+  name = names(abundance_index)
   ret = 0
 end function get_species_name
 
-function get_species_index(name, index) result(ret)
+function get_species_index(name, abundance_index) result(ret)
   use chem_mod, only : krome_get_index
   implicit none
   character(len=16), intent(in) :: name
-  integer, intent(out) :: index
+  integer, intent(out) :: abundance_index
   integer :: ret
-  index = krome_get_index(name)
+  abundance_index = krome_get_index(name)
   ret = 0
 end function get_species_index
 
