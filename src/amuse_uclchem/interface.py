@@ -222,23 +222,22 @@ class UclchemImplementation(object):
         Parameters
         ----------
         index_of_the_particle : int
-            index of the particle to delete, as returned by 'new_particle`.
+            index of the particle to delete,
+            as returned by 'new_particle`.
 
         Returns
         -------
         int :
-            0 if particle was deleted, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
-
-        print('IIIIII', i)
-        print('KEY', self.uclchem_particles.key)
-        print('INDECES', self.uclchem_particles.get_indices_of_keys(self.uclchem_particles.key))
-        print('delete this 1: ', self.uclchem_particles[i].key)
-
+        i = self._id_to_storage_index(index_of_the_particle)
         self.uclchem_particles.remove_particles(self.uclchem_particles[i].as_set())
         self._ids = np.delete(self._ids, i)
-
         return 0
 
     def get_state(
@@ -272,9 +271,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         number_density.value = p.number_density
@@ -310,9 +314,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         p.number_density = number_density
@@ -336,9 +345,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         number_density.value = p.number_density
@@ -358,9 +372,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         p.number_density = number_density
@@ -381,9 +400,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         temperature.value = p.temperature
@@ -403,9 +427,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         p.temperature = temperature
@@ -426,9 +455,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         ionrate.value = p.ionrate
@@ -448,9 +482,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         p.ionrate = ionrate
@@ -471,9 +510,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         radfield.value = p.radfield
@@ -487,15 +531,20 @@ class UclchemImplementation(object):
         ----------
         index_of_the_particle: int
             Index of the particle as returned by `new_particle`.
-        ionrate : float
+        radfield : float
             Radiation field of the particle in units of habing.
 
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         p = self.uclchem_particles[i]
         p.radfield = radfield
@@ -521,9 +570,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
         abundance.value = self.uclchem_particles[i].abundances[abundance_index]
         return 0
 
@@ -547,9 +601,14 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
         """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
 
         abundances = self.uclchem_particles[i].abundances
         abundances[abundance_index] = abundance
@@ -578,12 +637,14 @@ class UclchemImplementation(object):
 
         Raises
         ------
-        ValueError
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
+        ValueError :
             If `N` does not match the particle's existing number of abundances.
         """
         if not isinstance(index_of_the_particle, int):
             index_of_the_particle = index_of_the_particle[0]
-        i = self._get_particle_index_by_id(index_of_the_particle)
+        i = self._id_to_storage_index(index_of_the_particle)
         N_abundances = self.uclchem_particles[i].abundances.shape[0]
         if N != N_abundances:
             raise ValueError(
@@ -853,7 +914,34 @@ class UclchemImplementation(object):
             )
         return model
 
-    def _get_particle_index_by_id(self, index_of_the_particle: int) -> int:
+    def _id_to_storage_index(self, index_of_the_particle: int) -> int:
+        """
+        Resolve a particle id to its current index in internal storage.
+
+        Ids are assigned once per particle by `_get_new_id` and never reused.
+        `self._ids[k]` holds the id of the particle stored at position `k` in
+        `self.uclchem_particles`; this mapping is kept in sync by `new_particle`
+        and `delete_particle`. Because storage positions shift when a particle
+        is deleted while ids remain fixed, this lookup must be used instead of
+        assuming id and storage index are equal.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle, as assigned in `new_particle` and returned via
+            its `index_of_the_particle` output parameter.
+
+        Returns
+        -------
+        int :
+            Current index of the particle in internal storage
+            (`self.uclchem_particles`).
+
+        Raises
+        ------
+        ValueError :
+            If no particle with the given id exists in `self._ids`.
+        """
         idx = np.where(self._ids == index_of_the_particle)[0]
         if idx.size == 0:
             raise ValueError(f'Particle id: {index_of_the_particle} not found!')
