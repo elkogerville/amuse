@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 from uclchem.model import get_species_names as _get_species_names
 
