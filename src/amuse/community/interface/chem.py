@@ -2,15 +2,15 @@
 Chemical Evolution Interface Definition
 """
 
-from amuse.units import units as u
 from amuse.community.interface import common
-
-from amuse.rfi.core import legacy_function
+from amuse.rfi.core import legacy_function, remote_function
 from amuse.rfi.core import LegacyFunctionSpecification
+from amuse.units import units as u
 
 
 class ChemicalEvolutionInterface(common.CommonCodeInterface):
-    @legacy_function
+
+    @remote_function
     def commit_particles():
         """
         Let the code perform initialization actions
@@ -18,18 +18,9 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Should be called before the first evolve call and
         after the last new_particle call.
         """
-        function = LegacyFunctionSpecification()
-        function.result_type = 'i'
-        function.result_doc = """
-            0 - OK
-                Model is initialized and evolution can start
-            -1 - ERROR
-                Error happened during initialization, this error needs to be
-                further specified by every code implemention
-        """
-        return function
+        returns ()
 
-    @legacy_function
+    @remote_function
     def recommit_particles():
         """
         Let the code perform initialization actions
@@ -37,91 +28,48 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         or particle attributes have been updated from
         the script.
         """
-        function = LegacyFunctionSpecification()
-        function.result_type = 'i'
-        function.result_doc = """
-            0 - OK
-                Model is initialized and evolution can start
-            -1 - ERROR
-                Error happened during initialization, this error needs to be
-                further specified by every code implemention
-        """
-        return function
+        returns ()
 
-    @legacy_function
-    def evolve_model():
+    @remote_function
+    def evolve_model(time='d'):
         """
         Evolve the model until the given time, or until a stopping
-        condition is set.
+        condition is set. The model will be evolved until this time
+        is reached exactly or just after.
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'time',
-            dtype='d',
-            direction=function.IN,
-            description=(
-                'Model time to evolve the code to. The model will be '
-                'evolved until this time is reached exactly or just after.'
-            ),
-        )
-        function.result_type = 'i'
-        return function
+        returns ()
 
-    @legacy_function
-    def delete_particle():
+    @remote_function(can_handle_array=True)
+    def delete_particle(index_of_the_particle='i'):
         """
         Remove the definition of particle from the code. After calling this
         function the particle is no longer part of the model evolution. It is
         up to the code if the index will be reused.
         This function is optional.
         """
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter(
-            'index_of_the_particle', dtype='i', direction=function.IN
-        )
-        function.result_type = 'i'
-        function.result_doc = """
-            0 - OK
-                particle was removed from the model
-            -1 - ERROR
-                particle could not be removed
-            -2 - ERROR
-                not yet implemented
-        """
-        return function
+        returns ()
 
-    @legacy_function
-    def get_abundance():
+    @remote_function(can_handle_array=True)
+    def get_abundance(index_of_the_particle='i', abundance_index='i'):
         """
         Retrieve the chemical abundance of a species by index for a given particle.
 
         The `abundance_index` can be queried for using the methods `get_species_index`
         and `get_species_name`.
         """
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('abundance_index', dtype='i', direction=function.IN)
-        function.addParameter('abundance', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        return function
+        returns (abundance='d')
 
-    @legacy_function
-    def set_abundance():
+    @remote_function(can_handle_array=True)
+    def set_abundance(
+        index_of_the_particle='i', abundance_index='i', abundance='d'
+    ):
         """
         Set the chemical abundance of a species by index for a given particle.
 
         The `abundance_index` can be queried for using the methods `get_species_index`
         and `get_species_name`.
         """
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('abundance_index', dtype='i', direction=function.IN)
-        function.addParameter('abundance', dtype='d', direction=function.IN)
-        function.result_type = 'i'
-        return function
+        returns ()
 
     @legacy_function
     def set_abundances():
@@ -133,17 +81,12 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         function.result_type = 'i'
         return function
 
-    @legacy_function
+    @remote_function(can_handle_array=True)
     def get_firstlast_species_index():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('first', dtype='i', direction=function.OUT)
-        function.addParameter('last', dtype='i', direction=function.OUT)
-        function.result_type = 'i'
-        return function
+        returns (first='i', last='i')
 
-    @legacy_function
-    def get_species_index():
+    @remote_function
+    def get_species_index(name='s'):
         """
         Given the name of a chemical species in the
         chemical abundance array, retrieve its index.
@@ -157,14 +100,10 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         >>> chem.get_species_index('H')
         0
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter('name', dtype='s', direction=function.IN)
-        function.addParameter('abundance_index', dtype='i', direction=function.OUT)
-        function.result_type = 'i'
-        return function
+        returns (abundance_index='i')
 
-    @legacy_function
-    def get_species_name():
+    @remote_function
+    def get_species_name(abundance_index='i'):
         """
         Given the index of a chemical species in the
         chemical abundance array, retrieve its name.
@@ -178,45 +117,20 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         >>> chem.get_species_name(0)
         'H'
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter('abundance_index', dtype='i', direction=function.IN)
-        function.addParameter('name', dtype='s', direction=function.OUT)
-        function.result_type = 'i'
-        return function
+        returns (name='s')
 
-    @legacy_function
+    @remote_function
     def get_time():
         """
         Retrieve the model time. This time should be close to the end time
         specified in the evolve code.
         """
-        function = LegacyFunctionSpecification()
-        function.addParameter('time', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        function.result_doc = """
-            0 - OK
-                Current value of the time was retrieved
-        """
-        return function
+        returns (time='d')
 
-    @legacy_function
+    @remote_function
     def get_number_of_particles():
         """Retrieve the total number of particles defined in the code."""
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'number_of_particles',
-            dtype='i',
-            direction=function.OUT,
-            description='Count of the particles in the code',
-        )
-        function.result_type = 'i'
-        function.result_doc = """
-            0 - OK
-                Count could be determined
-            -1 - ERROR
-                Unable to determine the count
-        """
-        return function
+        returns (number_of_particles='i')
 
 
 class ChemicalEvolution(common.CommonCode):
@@ -254,7 +168,6 @@ class ChemicalEvolution(common.CommonCode):
         Notes
         -----
         To obtain the list of species in a chemistry code:
-
         >>> chem = Krome()
         >>> chem.species
         ['H', 'H2', ...]
