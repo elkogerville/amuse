@@ -4,7 +4,8 @@ from amuse.community.interface.chem import (
 from amuse.rfi.core import (
     CodeInterface,
     LegacyFunctionSpecification,
-    legacy_function
+    legacy_function,
+    remote_function
 )
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import units
@@ -38,9 +39,34 @@ class KromeInterface(
 
     @legacy_function
     def new_particle():
+        """
+        Add a new particle to Krome.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Index assigned to the newly created particle, returned by Krome.
+        rho : float
+            Density of the particle in units of g*cm**-3.
+        u : float
+            Internal energy of the particle in units of cm**2*s**-2.
+        gamma : float
+            Adiabatic index of the particle. Dimensionless.
+        mu : float
+            Mean molecular weight of the particle in units of g.
+        ionrate : float
+            Ionization rate of the particle in units of s**-1.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.OUT)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.OUT
+        )
         for x in ['rho', 'u', 'gamma', 'mu', 'ionrate']:
             function.addParameter(x, dtype='d', direction=function.IN)
         function.result_type = 'i'
@@ -48,9 +74,34 @@ class KromeInterface(
 
     @legacy_function
     def get_state():
+        """
+        Get the state of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Index of the particle to retrieve the state of.
+        rho : float
+            Density retrieved from the particle, in units of g*cm**-3.
+        u : float
+            Internal energy retrieved from the particle in units of cm**2*s**-2.
+        gamma : float
+            Adiabatic index retrieved from the particle. Dimensionless.
+        mu : float
+            Mean molecular weight retrieved from the particle, in units of g.
+        ionrate : float
+            Ionization rate retrieved from the particle, in units of s**-1.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.IN
+        )
         for x in ['rho', 'u', 'gamma', 'mu', 'ionrate']:
             function.addParameter(x, dtype='d', direction=function.OUT)
         function.result_type = 'i'
@@ -58,9 +109,34 @@ class KromeInterface(
 
     @legacy_function
     def set_state():
+        """
+        Set the state of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+             Index of the particle to set the state of.
+        rho : float
+            Density to set for the particle, in units of g*cm**-3.
+        u : float
+            Internal energy to set for the particle, in units of cm**2*s**-2.
+        gamma : float
+            Adiabatic index to set for the particle. Dimensionless.
+        mu : float
+            Mean molecular weight to set for the particle, in units of g.
+        ionrate : float
+            Ionization rate to set for the particle, in units of s**-1.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.IN
+        )
         for x in ['rho', 'u', 'gamma', 'mu', 'ionrate']:
             function.addParameter(x, dtype='d', direction=function.IN)
         function.result_type = 'i'
@@ -68,47 +144,116 @@ class KromeInterface(
 
     @legacy_function
     def get_internal_energy():
+        """
+        Get the internal energy of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+             Index of the particle to retrieve the internal energy of.
+        u : float
+            Internal energy retrieved from the particle, in units of cm**2*s**-2.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.IN
+        )
         function.addParameter('u', dtype='d', direction=function.OUT)
         function.result_type = 'i'
         return function
 
     @legacy_function
     def set_internal_energy():
+        """
+        Set the internal energy of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+             Index of the particle to set the internal energy of.
+        u : float
+            Internal energy to set for the particle, in units of cm**2*s**-2.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.IN
+        )
         function.addParameter('u', dtype='d', direction=function.IN)
         function.result_type = 'i'
         return function
 
     @legacy_function
     def get_density():
+        """
+        Get the density of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+             Index of the particle to retrieve the density of.
+        rho : float
+            Density retrieved from the particle, in units of g*cm**-3.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.IN
+        )
         function.addParameter('rho', dtype='d', direction=function.OUT)
         function.result_type = 'i'
         return function
 
     @legacy_function
     def set_density():
+        """
+        Set the density of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+             Index of the particle to set the density of.
+        rho : float
+            Density to set for the particle, in units of g*cm**-3.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.IN
+        )
         function.addParameter('rho', dtype='d', direction=function.IN)
         function.result_type = 'i'
         return function
 
-    @legacy_function
-    def set_amu_in_g():
-        function = LegacyFunctionSpecification()
-        function.addParameter('amu_in_g', dtype='d', direction=function.IN)
-        function.result_type = 'i'
-        return function
-
+    @remote_function
+    def set_amu_in_g(amu_in_g='d'):
+        """
+        Set the value of the atomic mass unit in grams.
+        This function is used internally by AMUSE to
+        send the value of amu in grams to Krome at runtime.
+        """
+        returns ()
 
 class Krome(ChemicalEvolution):
 
