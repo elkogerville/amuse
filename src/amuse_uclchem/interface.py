@@ -98,8 +98,8 @@ class UclchemImplementation(object):
 
     def commit_particles(self) -> int:
         """
-        Initializes the abundances for all particles to an array of zeros
-        as a `Particles` vector attribute.
+        Initialize the abundance vector attribute of the particle set
+        with an array of zeros.
         """
         species = tuple(_get_species_names())
         self.uclchem_particles.add_vector_attribute('abundances', species)
@@ -951,102 +951,102 @@ class UclchemInterface(
     def new_particle():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.OUT)
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.OUT)
         for x in ['number_density', 'temperature', 'ionrate', 'radfield']:
-            function.addParameter(x, dtype='float64', direction=function.IN)
-        function.result_type = 'int32'
+            function.addParameter(x, dtype='d', direction=function.IN)
+        function.result_type = 'i'
         return function
 
     @legacy_function
     def get_state():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
         for x in ['number_density', 'temperature', 'ionrate', 'radfield']:
-            function.addParameter(x, dtype='float64', direction=function.OUT)
-        function.result_type = 'int32'
+            function.addParameter(x, dtype='d', direction=function.OUT)
+        function.result_type = 'i'
         return function
 
     @legacy_function
     def set_state():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
         for x in ['number_density', 'temperature', 'ionrate', 'radfield']:
-            function.addParameter(x, dtype='float64', direction=function.IN)
-        function.result_type = 'int32'
+            function.addParameter(x, dtype='d', direction=function.IN)
+        function.result_type = 'i'
         return function
 
     @legacy_function
     def get_number_density():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('number_density', dtype='float64', direction=function.OUT)
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('number_density', dtype='d', direction=function.OUT)
+        function.result_type = 'i'
         return function
 
     @legacy_function
     def set_number_density():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('number_density', dtype='float64', direction=function.IN)
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('number_density', dtype='d', direction=function.IN)
+        function.result_type = 'i'
         return function
 
     @legacy_function
     def get_temperature():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('temperature', dtype='float64', direction=function.OUT)
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('temperature', dtype='d', direction=function.OUT)
+        function.result_type = 'i'
         return function
 
     @legacy_function
     def set_temperature():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('temperature', dtype='float64', direction=function.IN)
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('temperature', dtype='d', direction=function.IN)
+        function.result_type = 'i'
         return function
 
     @legacy_function
     def get_ionrate():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('ionrate', dtype='float64', direction=function.OUT)
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('ionrate', dtype='d', direction=function.OUT)
+        function.result_type = 'i'
         return function
 
     @legacy_function
     def set_ionrate():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('ionrate', dtype='float64', direction=function.IN)
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('ionrate', dtype='d', direction=function.IN)
+        function.result_type = 'i'
         return function
 
     @legacy_function
     def get_radfield():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('radfield', dtype='float64', direction=function.OUT)
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('radfield', dtype='d', direction=function.OUT)
+        function.result_type = 'i'
         return function
 
     @legacy_function
     def set_radfield():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('radfield', dtype='float64', direction=function.IN)
-        function.result_type = 'int32'
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter('radfield', dtype='d', direction=function.IN)
+        function.result_type = 'i'
         return function
 
     @legacy_function
@@ -1054,7 +1054,7 @@ class UclchemInterface(
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('chem_model', dtype='string', direction=function.OUT)
-        function.result_type = 'int32'
+        function.result_type = 'i'
         return function
 
     @legacy_function
@@ -1062,7 +1062,7 @@ class UclchemInterface(
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('chem_model', dtype='string', direction=function.IN)
-        function.result_type = 'int32'
+        function.result_type = 'i'
         return function
 
 

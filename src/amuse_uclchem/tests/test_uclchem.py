@@ -98,7 +98,9 @@ class TestUclchem(TestWithMPI):
         return p
 
     def _validate_particle_state(self, particle1, particle2):
-        attributes = ['key', 'number_density', 'temperature', 'ionrate', 'radfield']
+        attributes = [
+            'key', 'number_density', 'temperature', 'ionrate', 'radfield'
+        ]
         for attr in attributes:
             self.assertEquals(getattr(particle1, attr), getattr(particle2, attr))
 
