@@ -2,15 +2,19 @@
 Chemical Evolution Interface Definition
 """
 
+from collections.abc import Sequence
+
 from amuse.community.interface import common
 from amuse.rfi.core import legacy_function, remote_function
 from amuse.rfi.core import LegacyFunctionSpecification
 from amuse.units import units as u
+import numpy as np
+from numpy.typing import NDArray
 
 
 class ChemicalEvolutionInterface(common.CommonCodeInterface):
 
-    @remote_function
+    @legacy_function
     def commit_particles():
         """
         Let the code perform initialization actions
@@ -18,9 +22,18 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Should be called before the first evolve call and
         after the last new_particle call.
         """
-        returns ()
+        function = LegacyFunctionSpecification()
+        function.result_type = 'i'
+        function.result_doc = """
+            0 - OK
+                Model is initialized and evolution can start
+            -1 - ERROR
+                Error happened during initialization, this error needs to be
+                further specified by every code implemention
+        """
+        return function
 
-    @remote_function
+    @legacy_function
     def recommit_particles():
         """
         Let the code perform initialization actions
@@ -28,26 +41,50 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         or particle attributes have been updated from
         the script.
         """
-        returns ()
+        function = LegacyFunctionSpecification()
+        function.result_type = 'i'
+        function.result_doc = """
+            0 - OK
+                Model is initialized and evolution can start
+            -1 - ERROR
+                Error happened during initialization, this error needs to be
+                further specified by every code implemention
+        """
+        return function
 
-    @remote_function
-    def evolve_model(time='d'):
+    @legacy_function
+    def evolve_model():
         """
         Evolve the model until the given time, or until a stopping
         condition is set. The model will be evolved until this time
         is reached exactly or just after.
         """
-        returns ()
+        function = LegacyFunctionSpecification()
+        function.addParameter('time', dtype='d', direction=function.IN)
+        function.result_type = 'i'
+        return function
 
-    @remote_function(can_handle_array=True)
-    def delete_particle(index_of_the_particle='i'):
+    @legacy_function
+    def delete_particle():
         """
         Remove the definition of particle from the code. After calling this
         function the particle is no longer part of the model evolution. It is
         up to the code if the index will be reused.
         This function is optional.
         """
-        returns ()
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.IN
+        )
+        function.result_type = 'i'
+        function.result_doc = """
+            0 - OK
+                particle was removed from the model
+            -1 - ERROR
+                particle could not be removed
+        """
+        return function
 
     @remote_function(can_handle_array=True)
     def get_abundance(index_of_the_particle='i', abundance_index='i'):
@@ -143,40 +180,50 @@ class ChemicalEvolution(common.CommonCode):
     def get_abundances_by_name(
         self,
         index_of_the_particle: int,
-        species_names: str | list[str]
-    ) -> list[float]:
+        species_names: str | Sequence[str]
+    ) -> NDArray:
         """
         Get the abundances of a particle at the current simulation time
-        by species name. Both a single species name or a list of names
+        by species name. Both a single species name or a sequence of names
         are valid inputs.
 
         Parameters
         ----------
         index_of_the_particle : int
             Index of the particle as returned by `new_particle`.
-        species_names : str | list[str]
-            List of species names to query. Each name must be a species
-            tracked by the chemistry code network. A single name is also a valid
-            input.
+        species_names : str | Sequence[str]
+            Species name(s) to query. Each name must be a species
+            tracked by the chemistry code network. A single name is
+            also a valid input.
 
         Returns
         -------
-        abundances : list[float]
-            List containing the current abundances of the particle for
+        abundances : np.ndarray[float]
+            Array containing the current abundances of the particle for
             each species name passed in.
+
+        Examples
+        --------
+        >>> chem = Krome()
+        >>> chem.particles.add_particles(particles)
+        >>> chem.get_abundances_by_name(1, ['H','H2'])
+        [1.00000000e-40, 1.00000000e-40]
 
         Notes
         -----
-        To obtain the list of species in a chemistry code:
+        To obtain a dictionary of each (species: index) in a chemistry code:
         >>> chem = Krome()
         >>> chem.species
-        ['H', 'H2', ...]
+        {'E': 0, 'H-': 1, 'H': 2, 'HE': 3, 'H2': 4, ...}
         """
         i = index_of_the_particle
-        if not isinstance(species_names, list):
+        if isinstance(species_names, str):
             species_names = [species_names]
-        indices = [self.get_species_index(species) for species in species_names]
-        return [self.get_abundance(i, aid) for aid in indices]
+
+        indices = [
+            self.get_species_index(species) for species in species_names
+        ]
+        return np.asarray([self.get_abundance(i, aid) for aid in indices])
 
     def define_properties(self, handler):
         handler.add_property('get_time', public_name='model_time')

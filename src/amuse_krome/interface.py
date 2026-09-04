@@ -2,7 +2,9 @@ from amuse.community.interface.chem import (
     ChemicalEvolution, ChemicalEvolutionInterface
 )
 from amuse.rfi.core import (
-    CodeInterface, LegacyFunctionSpecification, legacy_function
+    CodeInterface,
+    LegacyFunctionSpecification,
+    legacy_function
 )
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import units
