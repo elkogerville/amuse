@@ -93,6 +93,14 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
 
         The `abundance_index` can be queried for using the methods `get_species_index`
         and `get_species_name`.
+
+        Examples
+        --------
+        # get H20 abundance of particle 0
+        >>> chem.get_species_index('H20')
+        2
+        >>> chem.get_abundance(0, 2)
+        0.005
         """
         returns (abundance='d')
 
@@ -105,18 +113,35 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
 
         The `abundance_index` can be queried for using the methods `get_species_index`
         and `get_species_name`.
+
+        Examples
+        --------
+        # set H20 abundance of particle 0
+        >>> chem.get_species_index('H20')
+        2
+        >>> chem.set_abundance(0, 2, 0.005)
         """
         returns ()
 
-    @legacy_function
-    def set_abundances():
-        function = LegacyFunctionSpecification()
-        function.must_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('abundances', dtype='d', direction=function.IN)
-        function.addParameter('N', dtype='i', direction=function.LENGTH)
-        function.result_type = 'i'
-        return function
+    @remote_function(must_handle_array=True)
+    def set_abundances(index_of_the_particle='i', abundances='d'):
+        """
+        Set all the abundances of a particle from an array.
+        The abundance array must match the shape of the abundance
+        array in the chemical evolution code.
+
+        Examples
+        --------
+        >>> abundances = np.random.rand(100)
+        >>> chem.set_abundances(0, abundances)
+
+        Notes
+        -----
+        # to get the abundance array of a particle, use:
+        >>> chem.particles[0].abundances
+        [0.0005, 0.0004, ...]
+        """
+        returns ()
 
     @remote_function(can_handle_array=True)
     def get_firstlast_species_index():
