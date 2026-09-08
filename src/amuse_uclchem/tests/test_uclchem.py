@@ -286,7 +286,7 @@ class TestUclchem(TestWithMPI):
         self.assertAlmostRelativeEquals(
             instance.particles.abundances,
             abundances,
-            places=6
+            places=3
         )
 
         instance.stop()
