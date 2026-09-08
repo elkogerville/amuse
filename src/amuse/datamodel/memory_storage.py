@@ -679,7 +679,10 @@ class InMemoryUnitlessAttribute(InMemoryAttribute):
         return self.values[index]
 
     def remove_indices(self, indices):
-        self.values = numpy.delete(self.values, indices)
+        if isinstance(self.values, numpy.ndarray) and self.values.ndim == 2:
+            self.values = numpy.delete(self.values, indices, axis=0)
+        else:
+            self.values = numpy.delete(self.values, indices)
 
     def has_units(self):
         return False
