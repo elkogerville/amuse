@@ -15,7 +15,7 @@ src/tsunami-master: | tsunami-master.tar.gz
 .PHONY: install_tsunami
 install_tsunami: | src/tsunami-master
 ifneq ($(CONDA_PREFIX),)
-	conda install --yes --channel conda-forge --override-channels numpy swig scikit-build-core
+	conda install --yes --channel conda-forge --override-channels numpy "swig=4.2.1" scikit-build-core
 endif
 	cd src/tsunami-master/ && pip install . -Ccmake.define.spin=ON
 
