@@ -1593,12 +1593,12 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             'enable post newtonian corrections of order 3.5',
             default_value=True
         )
-        # GravitationalDynamics.define_parameters(self, handler)
 
 
     def define_particle_sets(self, handler):
         """Define any particle sets inside the model."""
         GravitationalDynamics.define_particle_sets(self, handler)
+        handler.add_getter('particles', 'get_spin', names=('wx', 'wy', 'wz'))
 
 
     def define_converter(self, handler):
