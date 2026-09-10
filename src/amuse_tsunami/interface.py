@@ -9,6 +9,7 @@ from amuse.community.interface.gd import (
     GravityFieldCode,
     GravityFieldInterface
 )
+from amuse.datamodel.particles import Particles
 from amuse.rfi.core import (
     LegacyFunctionSpecification,
     PythonCodeInterface,
@@ -1381,6 +1382,8 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
             M_s = convert_nbody.to_si(1 | generic_unit_system.mass).value_in(u.MSun)
             L_s = convert_nbody.to_si(1 | generic_unit_system.length).value_in(u.AU)
             self.set_units(M_s, L_s)
+
+        Particles.add_global_vector_attribute('spin', ['wx', 'wy', 'wz'])
 
 
     def define_state(self, handler):
