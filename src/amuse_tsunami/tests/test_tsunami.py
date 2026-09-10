@@ -1,3 +1,4 @@
+from equilibrium_tides_averaged import EqTides, make_tsunami_ic
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
@@ -5,7 +6,7 @@ import pytest
 import tsunami
 
 from amuse.datamodel import Particle, Particles
-from amuse.ext.orbital_elements import generate_binaries
+from amuse.ext.orbital_elements import generate_binaries, orbital_elements
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse_tsunami.interface import TsunamiInterface, Tsunami
 from amuse.units import constants as c, nbody_system as ns, units as u
@@ -16,9 +17,7 @@ show_plots = False
 class TestTsunamiInterface(TestWithMPI):
 
     def test_initialization(self):
-        """
-        Test Tsunami initialization.
-        """
+        """Test Tsunami initialization."""
         instance = self.new_instance_of_an_optional_code(TsunamiInterface)
         assert instance is not None
 
@@ -28,9 +27,7 @@ class TestTsunamiInterface(TestWithMPI):
         instance.stop()
 
     def test_setters_and_getters(self):
-        """
-        Test TsunamiInterface setters and getters.
-        """
+        """Test TsunamiInterface setters and getters."""
         instance = self.new_instance_of_an_optional_code(TsunamiInterface)
         assert instance is not None
 
@@ -273,7 +270,7 @@ class TestTsunami(TestWithMPI):
     def generate_pythagorean(self):
         """
         Generate 3 particles in a pythagorean triangle configuration.
-        Initial conditions courtesty of Dr. Alessandro Trani
+        Initial conditions courtesy of Dr. Alessandro Alberto Trani.
         """
         p = Particles(3)
 
@@ -378,7 +375,8 @@ class TestTsunami(TestWithMPI):
 
         Raises
         ------
-        AssertionError : If the states don't match.
+        AssertionError :
+            If the states don't match.
         """
         self.assertEquals(state[0], particle.mass)
         self.assertEquals(state[1], particle.radius)
@@ -415,7 +413,7 @@ class TestTsunami(TestWithMPI):
 
         Raises
         ------
-        AssertionError
+        AssertionError :
             If any corresponding value in `state` and `particle` does not match
             within `places` relative precision.
         """
@@ -790,10 +788,10 @@ class TestTsunami(TestWithMPI):
         code.Conf.wExt = True
 
         # convert tsunami ics to nbody units
-        m_nb    = m / code.Mscale
-        r_nb    = r / code.Lscale
-        pos_nb  = pos / code.Lscale
-        vel_nb  = vel / (code.Lscale / code.Tscale)
+        m_nb = m / code.Mscale
+        r_nb = r / code.Lscale
+        pos_nb = pos / code.Lscale
+        vel_nb = vel / (code.Lscale / code.Tscale)
         spin_nb = np.ascontiguousarray(spin * code.Tscale)
         pt = np.ones_like(m_nb, dtype=np.int64) * -1
 
@@ -962,9 +960,7 @@ class TestTsunami(TestWithMPI):
         return ax
 
     def plot_tsunami_pythagorean_triangle(self, ax: Axes) -> None:
-        """
-        Plot `test_tsunami.py` from the standalone TSUNAMI package.
-        """
+        """Plot `test_tsunami.py` from the standalone TSUNAMI package."""
         import tsunami
         code = tsunami.Tsunami(1.0, 1.0)
 
