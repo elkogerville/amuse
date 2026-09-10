@@ -906,6 +906,128 @@ class TestTsunami(TestWithMPI):
 
         instance.stop()
 
+    def test_tides(self):
+        """
+        Test Tsunami tidal evolution. An AMUSE simulation
+        is compared with a standalone Tsunami tidal evolution test
+        script written by Dr. Alessandro Alberto Trani. The initial
+        conditions are also from this test script.
+        """
+        ############################
+        # Tsunami Initial Conditions
+        ############################
+        KU = tsunami.KeplerUtils()
+        m1 = 1  # MSun
+        m2 = 1  # MSun
+        R1 = 1 * KU.RSun2au
+        R2 = 1 * KU.RSun2au
+        # apsidal motion constant
+        kap = 0.05
+        k1 = kap
+        k2 = kap
+        # time-lag, first in seconds, converted to N-body
+        tausec = 1e3
+        tau1 = tausec / KU.yr2sec / KU.Tscale
+        tau2 = tausec / KU.yr2sec / KU.Tscale
+        # gyration radius, given inertia I = M * (rg * R)^2
+        rg = 0.28
+        rg1 = rg
+        rg2 = rg
+        # initial orbit
+        a0, e0 = 0.09, 0.3
+        # spin, first in period (days) then in angular frequency
+        Ps1 = 100 / 365.25 / KU.Tscale
+        spin1 = 2 * np.pi / Ps1
+        Ps2 = 0.0015 / KU.Tscale
+        spin2 = 2 * np.pi / Ps2
+
+        ET = EqTides(m1, m2, R1, R2, k1, k2, tau1, tau2, rg1, rg2, rotdist=False, usespin=True)
+        ET.setup_orbital_vectors(a0, e0)
+        obl1 = np.radians(30)
+        obl2 = 0.0
+        ET.setup_spin_vectors(spin1, spin2, obl1, obl2)
+        ET.setup_vectors()
+        ET.initialize_integrator()
+
+        m, R, p, v, spin, _ = make_tsunami_ic(m1, m2, R1, R2, a0, e0, ET.spin1_vec, ET.spin2_vec)
+
+        # final time, in units of initial orbital period (in N-body units)
+        tfin = 5e5 * ET.P0
+        dt = 5e1 * ET.P0
+
+        kaps = np.array([k1, k2])
+        polyind = np.array([0.0, 0.0])  # only for dynamical tide, null values
+        gyrad = np.array([rg1, rg2])
+
+        ##################
+        # AMUSE SIMULATION
+        ##################
+        converter = ns.nbody_to_si(1 | u.MSun, 1 | u.au)
+        instance = self.new_instance_of_an_optional_code(
+            Tsunami, convert_nbody=converter
+        )
+        assert instance is not None
+        # enable tides
+        instance.parameters.wEqTides = True
+
+        mass = m | u.MSun
+        radii = R | u.au
+        pos = p | u.au
+        vel = converter.to_si(v | ns.speed).as_quantity_in(u.AU/u.yr)
+        spin_si = converter.to_si(spin | 1 / ns.time).as_quantity_in(1/u.yr)
+        tau = np.array([tausec, tausec]) | u.s
+
+        p = Particles(2)
+        p.mass = mass
+        p.radius = radii
+        p.position = pos
+        p.velocity = vel
+        p.spin = spin_si
+        p[0].name = 'A'
+        p[1].name = 'B'
+
+        # add particles
+        instance.particles.add_particles(p)
+        channel = instance.particles.new_channel_to(p)
+        instance.commit_particles()
+        # initialize tides
+        instance.initialize_tidal_parameters(
+            kaps,
+            tau,
+            polyind,
+            gyrad
+        )
+
+        # convert final time and dt to SI units
+        tfin_si = converter.to_si(tfin | ns.time).as_quantity_in(u.yr)
+        dt_si = converter.to_si(dt | ns.time).as_quantity_in(u.yr)
+
+        pars = [p.copy()]
+        times = [instance.model_time]
+        while instance.model_time < tfin_si:
+            instance.evolve_model(instance.model_time + dt_si)
+            channel.copy()
+            pars.append(p.copy())
+            times.append(instance.model_time)
+
+        elements = [orbital_elements(p) for p in pars]
+        smas = [e[2].as_quantity_in(u.au) for e in elements]
+        eccentricities = [e[3] for e in elements]
+        print(eccentricities[-1])
+        # check that last semi major axis & e measurements agrees with Tsunami
+        self.assertAlmostRelativeEquals(
+            smas[-1], 0.090719705156567 | u.au, places=5
+        )
+        self.assertAlmostRelativeEquals(
+            eccentricities[-1], 0.2992015985318265400, places=5
+        )
+        # check that final times are the same
+        self.assertAlmostRelativeEquals(converter.to_nbody(
+            instance.model_time).number, 59983.559799160954, places=1
+        )
+
+        instance.stop()
+
     def plot_particles_xy(
         self,
         particles: list[Particles],
