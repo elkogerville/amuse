@@ -24,9 +24,9 @@ from amuse.units import (
 
 
 class TsunamiImplementation(object):
-
+    """Implementation class for Tsunami Interface."""
     def __init__(self):
-        # hard code N-Body units to Lscale = Mscale = 1
+        # hard code N-Body units to: Lscale = 1 [AU], Mscale = 1 [MSun]
         self.tsunami = tsunami.Tsunami(1, 1)
 
         # temporary buffers for staging particles
