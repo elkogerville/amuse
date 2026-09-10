@@ -789,7 +789,7 @@ class TsunamiImplementation(object):
             ValueHolder instance to return dynamical tides value.
             If `True`, enables dynamical tides.
         """
-        dynamical_tides.value = self.tsunami.Conf.wEqTides
+        dynamical_tides.value = self.tsunami.Conf.wDynTides
         return 0
 
     def set_dynamical_tides(self, dynamical_tides: bool) -> int:
@@ -802,7 +802,7 @@ class TsunamiImplementation(object):
             ValueHolder instance to return dynamical tides value.
             If `True`, enables dynamical tides.
         """
-        self.tsunami.Conf.wEqTides = bool(dynamical_tides)
+        self.tsunami.Conf.wDynTides = bool(dynamical_tides)
         return 0
 
     def initialize_tidal_parameters(
