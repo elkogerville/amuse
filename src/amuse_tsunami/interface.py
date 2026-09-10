@@ -66,7 +66,6 @@ class TsunamiImplementation(object):
 
     def commit_parameters(self) -> int:
         """Commit Tsunami parameters."""
-        self.tsunami.commit_parameters()
         return 0
 
     def commit_particles(self) -> int:
