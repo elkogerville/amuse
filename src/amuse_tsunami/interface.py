@@ -819,11 +819,9 @@ class TsunamiImplementation(object):
                 f'with one value for each particle.'
             )
         self.tsunami.initialize_tidal_parameters(
-            kaps,
-            taulag,
-            polyt,
-            gyrad
+            kaps, taulag, polyt, gyrad
         )
+        self.synchronize_model()
         return 0
 
     def get_alpha(self, alpha: ValueHolder) -> int:
@@ -1501,7 +1499,8 @@ class Tsunami(GravitationalDynamics, GravityFieldCode, CommonCode):
 
 
     def define_parameters(self, handler):
-        """Define model parameters.
+        """
+        Define model parameters.
 
         These have a native function for getting their value, another one for setting,
         and a name, description and default value. Functions with the appropriate names
