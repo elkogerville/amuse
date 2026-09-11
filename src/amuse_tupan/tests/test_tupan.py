@@ -10,7 +10,6 @@ try:
     from amuse_tupan.interface import TupanInterface, Tupan, MODULES_MISSING
 except ImportError:
     MODULES_MISSING = True
-print(MODULES_MISSING)
 
 class TestTupanInterface(TestWithMPI):
 
