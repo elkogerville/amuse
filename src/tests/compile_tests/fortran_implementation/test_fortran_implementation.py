@@ -26,7 +26,7 @@ class ForTesting(InCodeComponentImplementation):
                 units.m,
                 object.ERROR_CODE,
             )
-        )    
+        )
     """
 
 
@@ -196,11 +196,13 @@ class TestInterface(TestWithMPI):
     def test16b(self):
         instance = ForTesting(self.exefile)
         output = instance.echo_logical([True, True, False, True, False]*256)
+        instance.stop()
         self.assertEqual(output, [True, True, False, True, False]*256)
 
     def test16c(self):
         instance = ForTesting(self.exefile, redirection="none")
         output = instance.echo_logical2([True, True, False, True, False]*1024)
+        instance.stop()
         self.assertEqual(output, [True, True, False, True, False]*1024)
 
     def xtest20(self):
@@ -296,6 +298,8 @@ class TestInterface(TestWithMPI):
         request2.wait()
         port_id1, error1 = request1.result()
         port_id2, error2 = request2.result()
+        instance1.stop()
+        instance2.stop()
         self.assertTrue(port_id1 >= 0)
         self.assertTrue(port_id2 >= 0)
         self.assertEqual(error1, 0)

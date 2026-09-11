@@ -1,0 +1,105 @@
+name: Test AMUSE mesa-r15140
+
+on:
+  push:
+    paths:
+      - .github/workflows/test-mesa-r15140.yml
+      - 'src/amuse_mesa_r15140/**'
+  pull_request:
+    paths:
+      - .github/workflows/test-mesa-r15140.yml
+      - 'src/amuse_mesa_r15140/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+    - name: Set up conda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        auto-update-conda: true
+        channels: conda-forge
+        channel-priority: strict
+
+    - name: Show conda info
+      run: |
+        conda info
+        conda list
+
+    - name: Install dependencies
+      run: |
+        conda install c-compiler cxx-compiler fortran-compiler 'gfortran<14' python-gil pkgconfig coreutils patch curl tar unzip gzip bzip2 xz perl bison make cmake 'openmpi<5' gsl fftw gmp mpfr hdf5 netcdf4 libopenblas liblapack zlib pip wheel 'docutils>=0.6' 'mpi4py>=1.1.0' 'numpy>=1.2.2' 'h5py>=1.1.0' pytest
+
+    - name: Configure OpenMPI
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        mkdir -p "$HOME/.openmpi"
+        echo "btl_tcp_if_include = lo" >>"$HOME/.openmpi/mca-params.conf"
+        echo "rmaps_base_oversubscribe = true" >>"$HOME/.openmpi/mca-params.conf"
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - name: Cache downloads
+      uses: actions/cache@v4
+      with:
+        key: mesa-r15140-downloads
+        path: |
+          ${{ github.workspace }}/src/amuse_mesa_r15140/src/lapack95.tgz
+          ${{ github.workspace }}/src/amuse_mesa_r15140/src/crmath-1.2.zip
+          ${{ github.workspace }}/src/amuse_mesa_r15140/src/crlibm-1.0beta4.tar.gz
+          ${{ github.workspace }}/src/amuse_mesa_r15140/src/fpx3.tar.gz
+          ${{ github.workspace }}/src/amuse_mesa_r15140/src/fpx3_deps
+          ${{ github.workspace }}/src/amuse_mesa_r15140/src/mesa-r15140.zip
+
+    - name: Build mesa-r15140
+      run: |
+        ./setup develop amuse-mesa-r15140
+
+    - name: Configure OpenMPI for debugging
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: |
+        #    These help with debugging, but produce lots of output
+        echo "mpi_yield_when_idle = true" >>"$HOME/.openmpi/mca-params.conf"
+        # echo "mca_base_verbose = stdout,level:9" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "mpi_comm_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "btl_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "hwloc_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "if_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
+        # echo "pmix_base_verbose = 100" >> "$HOME/.openmpi/mca-params.conf"
+
+    - name: Test mesa-r15140
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      env:
+        OMP_NUM_THEADS: '1'
+      run: |
+        ./setup test amuse-mesa-r15140
+
+    - name: Test mesa-r15140
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: |
+        ./setup test amuse-mesa-r15140
+
+    - name: Archive build logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ matrix.os }}
+        path: ${{ github.workspace }}/support/logs/
+        if-no-files-found: warn

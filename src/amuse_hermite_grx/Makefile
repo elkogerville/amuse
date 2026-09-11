@@ -28,13 +28,14 @@ CFLAGS += $(DEPFLAGS) -pthread
 LDFLAGS += -pthread
 
 LDLIBS += $(STOPCOND_LIBS)
+$(info libs: $(LDLIBS) sc: $(STOPCOND_LIBS))
 
 CODELIB = src/Hermite_GRX/src/libhermite_grx.a
 
 
 .PHONY: $(CODELIB)
 $(CODELIB): | src/Hermite_GRX
-	$(MAKE) -C src/Hermite_GRX/src -j $(CPU_COUNT) all CC_FLAGS='$(CFLAGS)' LD_FLAGS='$(LD_FLAGS)'
+	$(MAKE) -C src/Hermite_GRX/src -j $(CPU_COUNT) all CC_FLAGS='$(CFLAGS) -std=c++11' LD_FLAGS='$(LD_FLAGS)'
 
 
 # Building the workers

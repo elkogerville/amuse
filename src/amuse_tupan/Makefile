@@ -31,9 +31,9 @@ install_tupan: | src/tupan
 ifneq ($(CONDA_PREFIX),)
 	conda install --yes cffi setuptools numpy scipy matplotlib
 else ifneq ($(VIRTUAL_ENV),)
-	pip install cffi setuptools numpy scipy matplotlib
+	python3 -m pip install cffi setuptools numpy scipy matplotlib
 endif
-	cd src/tupan && pip install .
+	cd src/tupan && python3 -m pip install .
 
 
 # Building the workers
@@ -48,11 +48,11 @@ amuse-tupan_contains: tupan_worker
 # Building and installing packages
 develop-%: %_contains install_tupan
 	support/shared/uninstall.sh $*
-	python -m pip install -e packages/$*
+	python3 -m pip install -e packages/$*
 
 install-%: %_contains install_tupan
 	support/shared/uninstall.sh $*
-	python -m pip install packages/$*
+	python3 -m pip install packages/$*
 
 package-%: %_contains
 	python3 -m pip install -vv --no-cache-dir --no-deps --no-build-isolation --prefix ${PREFIX} packages/$*

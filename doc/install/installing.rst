@@ -194,7 +194,7 @@ well. Fortunately, ``conda`` can help us here too:
 
 .. code-block:: bash
 
-   conda install scipy astropy jupyter pandas seaborn matplotlib
+   conda install -c conda-forge --override-channels scipy astropy jupyter pandas seaborn matplotlib
 
 
 Fixing MPI on Ubuntu

@@ -1,0 +1,76 @@
+name: Test compatibility on Ubuntu with venv/apt
+
+on:
+  schedule:
+    - cron: "0 3 * * 0"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - setup
+      - support/**
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc g++ gfortran python3 python3-dev pkg-config curl patch tar unzip gzip bzip2 xz-utils perl bison make cmake libopenmpi-dev openmpi-bin libgsl-dev libfftw3-dev libgmp3-dev libmpfr6 libmpfr-dev libhdf5-dev hdf5-tools libnetcdf-dev libqhull-dev libhealpix-cxx-dev liblapack-dev libblas-dev
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - name: Create virtualenv
+      run: |
+        python3 -m venv venv
+        . venv/bin/activate && python3 -m pip install pip wheel pytest
+
+    - name: Check set-up
+      run: . venv/bin/activate && ./setup
+
+    - name: Build everything we can
+      run: . venv/bin/activate && ./setup install all
+
+    - name: Ensure we test only the installed package
+      run: . venv/bin/activate && ./setup distclean
+
+    - name: Test all
+      env:
+        OMPI_MCA_rmaps_base_oversubscribe: 1
+        PRTE_MCA_rmaps_base_oversubscribe: 1
+        PRTE_MCA_rmaps_default_mapping_policy: ":oversubscribe"
+        OMPI_MCA_mpi_yield_when_idle: 1
+        PRTE_MCA_mpi_yield_when_idle: 1
+        OMPI_MCA_btl_tcp_if_include: lo,eth0
+        PRTE_MCA_btl_tcp_if_include: lo,eth0
+        PRTE_MCA_if_include: lo,eth0
+        OMPI_MCA_pmix_server_max_wait: 10
+      run: . venv/bin/activate && ./setup test all
+
+    - name: Archive build logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs-${{ matrix.os }}
+        path: ${{ github.workspace }}/support/logs/
+        if-no-files-found: warn

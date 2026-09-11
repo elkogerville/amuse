@@ -53,6 +53,7 @@ class TestInterfaceSockets(test_python_implementation.TestInterface):
         output_message = python_code.SocketMessage(0, 10, 1)
 
         x.handle_message(input_message, output_message)
+        del implementation
 
         self.assertEqual(len(output_message.ints), 1)
         self.assertEqual(len(output_message.doubles), 1)
@@ -75,6 +76,7 @@ class TestInterfaceSockets(test_python_implementation.TestInterface):
         self.assertEqual(len(output_message.doubles), 0)
         self.assertEqual(output_message.ints[0], 0)
         self.assertEqual(implementation.masses[1], 12.0)
+        del implementation
 
     def test4(self):
         implementation = test_python_implementation.ForTestingImplementation()
@@ -96,6 +98,7 @@ class TestInterfaceSockets(test_python_implementation.TestInterface):
         self.assertEqual(implementation.masses[2], 13.0)
         self.assertEqual(implementation.masses[3], 14.0)
         self.assertEqual(implementation.masses[4], 15.0)
+        del implementation
 
     def test8(self):
         implementation = test_python_implementation.ForTestingImplementation()
@@ -107,6 +110,7 @@ class TestInterfaceSockets(test_python_implementation.TestInterface):
         output_message = python_code.SocketMessage(0, 10, 1)
 
         x.handle_message(input_message, output_message)
+        del implementation
 
         self.assertEqual(len(output_message.ints), 2)
         self.assertEqual(output_message.ints[0], 0)

@@ -30,7 +30,7 @@ CODELIB = src/libchem.a
 
 .PHONY: $(CODELIB)
 $(CODELIB): | src/krome
-	$(MAKE) -C src libchem.a
+	$(MAKE) -C src libchem.a FC="$(FC)"
 
 
 # Building the workers

@@ -24,8 +24,11 @@ build_%:
 build_%/makefile_options: makefile_options_% | build_%
 	cp makefile_options_$* $@
 
-build_%/$(CODELIB) build_%/allvars.o &: build_%/makefile_options FORCE
+build_%/$(CODELIB): build_%/makefile_options FORCE
 	$(MAKE) -C build_$* -f ../src/Makefile -j $(CPU_COUNT) all VPATH=../src
+
+build_%/allvars.o: build_%/$(CODELIB) FORCE
+	@true
 
 
 # Load code configuration
@@ -81,7 +84,11 @@ package-%: %_contains
 	python3 -m pip install -vv --no-cache-dir --no-deps --no-build-isolation --prefix ${PREFIX} packages/$*
 
 test-%:
+ifneq ($(CI),)
+	cd packages/$* && pytest -k 'not noci'
+else
 	cd packages/$* && pytest
+endif
 
 
 # Cleaning up

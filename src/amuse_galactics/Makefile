@@ -32,7 +32,7 @@ $(EXES) &: | data/bin
 	cp src/bin/* data/bin/
 
 $(GASEXES) &: | data/gbin
-	$(MAKE) -C gas_src/src all CC="$(CC)" CFLAGS="$(CFLAGS)" F77="$(FC)" FFLAGS="$(FCFLAGS)" FFLAGS2="$(FCFLAGS)" PGSTUB=1
+	$(MAKE) -C gas_src/src all CC="$(CC)" CFLAGS="$(CFLAGS)" FC="$(FC)" FFLAGS="$(FCFLAGS)" FFLAGS2="$(FCFLAGS)" PGSTUB=1
 	$(MAKE) -C gas_src/src install
 	cp gas_src/bin/* data/gbin/
 
