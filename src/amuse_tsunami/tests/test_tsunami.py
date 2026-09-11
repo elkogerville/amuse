@@ -8,8 +8,8 @@ import tsunami
 from amuse.datamodel import Particle, Particles
 from amuse.ext.orbital_elements import generate_binaries, orbital_elements
 from amuse.support.testing.amusetest import TestWithMPI
-from amuse_tsunami.interface import TsunamiInterface, Tsunami
-from amuse.units import constants as c, nbody_system as ns, units as u
+from amuse.community.tsunami.interface import Tsunami, TsunamiInterface
+from amuse.units import nbody_system as ns, units as u
 
 # if True, show comparison plots for certain tests
 show_plots = False
@@ -360,7 +360,7 @@ class TestTsunami(TestWithMPI):
 
         return p
 
-    def validate_tsunami_state_equality(self, state: list, particle: Particle) -> None:
+    def _validate_tsunami_state_equality(self, state: list, particle: Particle) -> None:
         """
         Validate that a state retrieved by `Tsunami.get_state`
         matches the state of `particle` exactly.
@@ -391,7 +391,7 @@ class TestTsunami(TestWithMPI):
         self.assertEquals(state[10], particle.wz)
 
 
-    def validate_tsunami_state_relative_equality(
+    def _validate_tsunami_state_relative_equality(
         self,
         state: list,
         particle: Particle,
@@ -445,9 +445,9 @@ class TestTsunami(TestWithMPI):
         state1 = instance.get_state(1)
         state2 = instance.get_state(2)
 
-        self.validate_tsunami_state_equality(state0, system[0])
-        self.validate_tsunami_state_equality(state1, system[1])
-        self.validate_tsunami_state_equality(state2, system[2])
+        self._validate_tsunami_state_equality(state0, system[0])
+        self._validate_tsunami_state_equality(state1, system[1])
+        self._validate_tsunami_state_equality(state2, system[2])
 
         self.assertEquals(system[0].key, instance.particles[0].key)
         self.assertEquals(system[1].key, instance.particles[1].key)
@@ -459,8 +459,8 @@ class TestTsunami(TestWithMPI):
         state1 = instance.get_state(1)
         state2 = instance.get_state(2)
 
-        self.validate_tsunami_state_equality(state1, system[1])
-        self.validate_tsunami_state_equality(state2, system[2])
+        self._validate_tsunami_state_equality(state1, system[1])
+        self._validate_tsunami_state_equality(state2, system[2])
 
         instance.stop()
 
@@ -592,9 +592,9 @@ class TestTsunami(TestWithMPI):
         state0 = instance.get_state(3)
         state1 = instance.get_state(1)
         state2 = instance.get_state(2)
-        self.validate_tsunami_state_relative_equality(state0, pars[0], places=10)
-        self.validate_tsunami_state_relative_equality(state1, pars[1], places=10)
-        self.validate_tsunami_state_relative_equality(state2, pars[2], places=10)
+        self._validate_tsunami_state_relative_equality(state0, pars[0], places=10)
+        self._validate_tsunami_state_relative_equality(state1, pars[1], places=10)
+        self._validate_tsunami_state_relative_equality(state2, pars[2], places=10)
 
         t_end = 65 | ns.time
         dt = 0.1 | ns.time
@@ -638,16 +638,16 @@ class TestTsunami(TestWithMPI):
         state1 = instance.get_state(1)
         state2 = instance.get_state(2)
 
-        self.validate_tsunami_state_equality(state0, p[0])
-        self.validate_tsunami_state_equality(state1, p[1])
-        self.validate_tsunami_state_equality(state2, p[2])
+        self._validate_tsunami_state_equality(state0, p[0])
+        self._validate_tsunami_state_equality(state1, p[1])
+        self._validate_tsunami_state_equality(state2, p[2])
 
         instance.delete_particle(1)
 
         state0 = instance.get_state(0)
         state2 = instance.get_state(2)
-        self.validate_tsunami_state_relative_equality(state0, p[0])
-        self.validate_tsunami_state_relative_equality(state2, p[2])
+        self._validate_tsunami_state_relative_equality(state0, p[0])
+        self._validate_tsunami_state_relative_equality(state2, p[2])
 
         instance.set_mass(0, 4 | ns.mass)
         instance.set_position(0, 67 | ns.length, 68 | ns.length, 69 | ns.length)
@@ -674,13 +674,13 @@ class TestTsunami(TestWithMPI):
         instance.particles.add_particle(p3)
 
         state3 = instance.get_state(3)
-        self.validate_tsunami_state_equality(state3, p3)
+        self._validate_tsunami_state_equality(state3, p3)
 
         # check that particles 0 and 2 have not changed
         state0 = instance.get_state(0)
         state2 = instance.get_state(2)
-        self.validate_tsunami_state_relative_equality(state0, instance.particles[0])
-        self.validate_tsunami_state_relative_equality(state2, instance.particles[2])
+        self._validate_tsunami_state_relative_equality(state0, instance.particles[0])
+        self._validate_tsunami_state_relative_equality(state2, instance.particles[2])
 
         instance.stop()
 
