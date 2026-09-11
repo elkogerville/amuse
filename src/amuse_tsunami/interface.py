@@ -46,7 +46,7 @@ class TsunamiImplementation(object):
         self._spin = np.empty((0, 3), dtype=np.float64)
         self._stype = np.empty(0, dtype=np.int64)
 
-        self._next_particle_id = 0
+        self._next_particle_id: int = 0
 
     def initialize_code(self) -> int:
         """
@@ -65,7 +65,16 @@ class TsunamiImplementation(object):
         return 0
 
     def commit_parameters(self) -> int:
-        """Commit Tsunami parameters."""
+        """
+        Commit Tsunami parameters.
+
+        Notes
+        -----
+        * `tsunami.commit_particles` should not be called
+        here as it introduced subtle bugs in setting
+        parameters. That method should be reserved for
+        `recommit_parameters`.
+        """
         return 0
 
     def commit_particles(self) -> int:
@@ -103,7 +112,7 @@ class TsunamiImplementation(object):
 
         if N_total < 2:
             raise ValueError(
-                'Tsunami needs at least 2 particles when commiting!'
+                'Tsunami needs at least 2 particles when committing!'
             )
 
         if not (
@@ -156,12 +165,12 @@ class TsunamiImplementation(object):
         return 0
 
     def recommit_parameters(self) -> int:
-        """Recommit parameters after commiting them."""
+        """Recommit parameters after committing them."""
         self.tsunami.commit_parameters()
         return 0
 
     def recommit_particles(self) -> int:
-        """Recommit particles after commiting them."""
+        """Recommit particles after committing them."""
         self.commit_particles()
         return 0
 
@@ -176,8 +185,10 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-         0 : If the evolution is succesful.
-        -1 : If `time` <= current model time.
+         0 :
+            If the evolution is successful.
+        -1 :
+            If `time` <= current model time.
         """
         if time <= self.tsunami.time:
             return -1
@@ -196,10 +207,10 @@ class TsunamiImplementation(object):
         is needed, such as in visualizations or applications
         requiring fixed time intervals.
 
-        Unlike evolve_system(), this method performs only one
-        integration step and adapts the timestep to ensure
-        it does not exceed `time`. If the integration requires
-        a shorter timestep, it may stop well before `time`.
+        Unlike `tsunami.evolve_system`, this method performs only
+        one integration step and adapts the timestep to ensure it
+        does not exceed `time`. If the integration requires a
+        shorter timestep, it may stop well before `time`.
 
         Parameters
         ----------
@@ -208,8 +219,10 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-         0 : If the evolution is succesful.
-        -1 : If `time` <= current model time.
+         0 :
+            If the evolution is successful.
+        -1 :
+            If `time` <= current model time.
         """
         if time <= self.tsunami.time:
             return -1
@@ -270,7 +283,8 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : Particle was created successfully.
+        0 :
+            Particle was created successfully.
         """
         self._mass_list.append(mass)
         self._radius_list.append(radius)
@@ -295,7 +309,8 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : The particle was deleted successfully.
+        0 :
+            Particle was deleted successfully.
 
         Raises
         ------
@@ -353,11 +368,13 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : State was retrieved successfully.
+        0 :
+            State was retrieved successfully.
 
         Raises
         ------
-        ValueError : If `index_of_the_particle` is not valid.
+        ValueError :
+            If `index_of_the_particle` is not valid.
         """
         i = self._get_particle_index_by_id(index_of_the_particle)
         self.synchronize_model()
@@ -408,11 +425,13 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : State was retrieved successfully.
+        0 :
+            State was set successfully.
 
         Raises
         ------
-        ValueError : If `index_of_the_particle` is not valid.
+        ValueError :
+            If `index_of_the_particle` is not valid.
         """
         i = self._get_particle_index_by_id(index_of_the_particle)
 
@@ -447,13 +466,16 @@ class TsunamiImplementation(object):
             Particle index as returned by `new_particle`.
         mass : ValueHolder[float]
             ValueHolder instance to return the mass value.
+
         Returns
         -------
-        0 : Mass was retrieved successfully.
+        0 :
+            Mass was retrieved successfully.
 
         Raises
         ------
-        ValueError : If `index_of_the_particle` is not valid.
+        ValueError :
+            If `index_of_the_particle` is not valid.
         """
         i = self._get_particle_index_by_id(index_of_the_particle)
         self.synchronize_model()
@@ -478,11 +500,13 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : Mass was retrieved successfully.
+        0 :
+            Mass was set successfully.
 
         Raises
         ------
-        ValueError : If `index_of_the_particle` is not valid.
+        ValueError :
+            If `index_of_the_particle` is not valid.
         """
         i = self._get_particle_index_by_id(index_of_the_particle)
 
@@ -508,11 +532,13 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : Radius was retrieved successfully.
+        0 :
+            Radius was retrieved successfully.
 
         Raises
         ------
-        ValueError : If `index_of_the_particle` is not valid.
+        ValueError :
+            If `index_of_the_particle` is not valid.
         """
         i = self._get_particle_index_by_id(index_of_the_particle)
         self.synchronize_model()
@@ -540,11 +566,13 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : Position was retrieved successfully.
+        0 :
+            Position was retrieved successfully.
 
         Raises
         ------
-        ValueError : If `index_of_the_particle` is not valid.
+        ValueError :
+            If `index_of_the_particle` is not valid.
         """
         i = self._get_particle_index_by_id(index_of_the_particle)
         self.synchronize_model()
@@ -570,11 +598,13 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : Position was set.
+        0 :
+            Position was set successfully.
 
         Raises
         ------
-        ValueError : If `index_of_the_particle` is not valid.
+        ValueError :
+            If `index_of_the_particle` is not valid.
         """
         i = self._get_particle_index_by_id(index_of_the_particle)
 
@@ -606,15 +636,14 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : velocity was retrieved successfully.
+        0 :
+            Velocity was retrieved successfully.
 
         Raises
         ------
-        ValueError : If `index_of_the_particle` is not valid.
+        ValueError :
+            If `index_of_the_particle` is not valid.
         """
-        if self._pos.shape[0] == 0:
-            return -1
-
         i = self._get_particle_index_by_id(index_of_the_particle)
         self.synchronize_model()
 
@@ -639,11 +668,13 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : velocity was set.
+        0 :
+            Velocity was set successfully.
 
         Raises
         ------
-        ValueError : If `index_of_the_particle` is not valid.
+        ValueError :
+            If `index_of_the_particle` is not valid.
         """
         i = self._get_particle_index_by_id(index_of_the_particle)
 
@@ -675,15 +706,14 @@ class TsunamiImplementation(object):
 
         Returns
         -------
-        0 : Spin was retrieved.
+        0 :
+            Spin was retrieved successfully.
 
         Raises
         ------
-        ValueError : If `index_of_the_particle` is not valid.
+        ValueError :
+            If `index_of_the_particle` is not valid.
         """
-        if self._pos.shape[0] == 0:
-            return -1
-
         i = self._get_particle_index_by_id(index_of_the_particle)
         self.synchronize_model()
 
@@ -703,6 +733,11 @@ class TsunamiImplementation(object):
             Mass scale of Tsunami in MSun.
         Lscale : float
             Length scale of Tsunami in AU.
+
+        Returns
+        -------
+        0 :
+            Units were set successfully.
         """
         self.tsunami.set_units(float(Mscale), float(Lscale))
         return 0
@@ -710,6 +745,8 @@ class TsunamiImplementation(object):
     def get_Mscale(self, Mscale: ValueHolder) -> int:
         """
         Get mass unit of Tsunami in MSun.
+
+        To set `Mscale`, use `set_units`.
         """
         Mscale.value = self.tsunami.Mscale
         return 0
@@ -717,6 +754,8 @@ class TsunamiImplementation(object):
     def get_Lscale(self, Lscale: ValueHolder) -> int:
         """
         Get length unit of Tsunami in AU.
+
+        To set `Lscale`, use `set_units`.
         """
         Lscale.value = self.tsunami.Lscale
         return 0
@@ -724,7 +763,7 @@ class TsunamiImplementation(object):
     def get_Tscale(self, Tscale: ValueHolder) -> int:
         """
         Get time unit of Tsunami in years.
-        Derived from Mscale, Lscale, and G=1.
+        Derived from `Mscale`, `Lscale`, and G=1.
 
         This value is read only.
         """
@@ -734,7 +773,7 @@ class TsunamiImplementation(object):
     def get_Vscale(self, Vscale: ValueHolder) -> int:
         """
         Get velocity unit of Tsunami in km/s.
-        Derived from Mscale, Lscale, and G=1.
+        Derived from `Mscale`, `Lscale`, and G=1.
 
         This value is read only.
         """
@@ -749,6 +788,11 @@ class TsunamiImplementation(object):
         ----------
         speed_of_light : ValueHolder[float]
             ValueHolder instance to return the speed of light value.
+
+        Returns
+        -------
+        0 :
+            Speed of light was retrieved successfully.
         """
         speed_of_light.value = self.tsunami.speed_of_light
         return 0
@@ -762,6 +806,11 @@ class TsunamiImplementation(object):
         equilibrium_tides : ValueHolder[bool]
             ValueHolder instance to return equilibrium tides value.
             If `True`, enables equilibrium tides.
+
+        Returns
+        -------
+        0 :
+            Equilibrium tides parameter was retrieved successfully.
         """
         equilibrium_tides.value = self.tsunami.Conf.wEqTides
         return 0
@@ -775,6 +824,11 @@ class TsunamiImplementation(object):
         equilibrium_tides : ValueHolder[bool]
             ValueHolder instance to return equilibrium tides value.
             If `True`, enables equilibrium tides.
+
+        Returns
+        -------
+        0 :
+            Equilibrium tides parameter was set successfully.
         """
         self.tsunami.Conf.wEqTides = bool(equilibrium_tides)
         return 0
@@ -788,6 +842,11 @@ class TsunamiImplementation(object):
         dynamical_tides : ValueHolder[bool]
             ValueHolder instance to return dynamical tides value.
             If `True`, enables dynamical tides.
+
+        Returns
+        -------
+        0 :
+            Dynamical tides parameter was retrieved successfully.
         """
         dynamical_tides.value = self.tsunami.Conf.wDynTides
         return 0
@@ -801,6 +860,11 @@ class TsunamiImplementation(object):
         dynamical_tides : ValueHolder[bool]
             ValueHolder instance to return dynamical tides value.
             If `True`, enables dynamical tides.
+
+        Returns
+        -------
+        0 :
+            Dynamical tides parameter was set successfully.
         """
         self.tsunami.Conf.wDynTides = bool(dynamical_tides)
         return 0
@@ -832,6 +896,11 @@ class TsunamiImplementation(object):
         ----------
         alpha : ValueHolder[float]
             ValueHolder instance to return alpha value.
+
+        Returns
+        -------
+        0 :
+            Alpha parameter was retrieved successfully.
         """
         alpha.value = self.tsunami.Conf.alpha
         return 0
@@ -844,6 +913,11 @@ class TsunamiImplementation(object):
         ----------
         alpha : float
             alpha regularization value.
+
+        Returns
+        -------
+        0 :
+            Alpha parameter was set successfully.
         """
         self.tsunami.Conf.alpha = alpha
         return 0
@@ -856,6 +930,11 @@ class TsunamiImplementation(object):
         ----------
         beta : ValueHolder[float]
             ValueHolder instance to return beta value.
+
+        Returns
+        -------
+        0 :
+            Beta parameter was retrieved successfully.
         """
         beta.value = self.tsunami.Conf.beta
         return 0
@@ -868,6 +947,11 @@ class TsunamiImplementation(object):
         ----------
         beta : float
             beta regularization value.
+
+        Returns
+        -------
+        0 :
+            Beta parameter was set successfully.
         """
         self.tsunami.Conf.beta = beta
         return 0
@@ -880,6 +964,11 @@ class TsunamiImplementation(object):
         ----------
         gamma : ValueHolder[float]
             ValueHolder instance to return gamma value.
+
+        Returns
+        -------
+        0 :
+            Gamma parameter was retrieved successfully.
         """
         gamma.value = self.tsunami.Conf.gamma
         return 0
@@ -892,6 +981,11 @@ class TsunamiImplementation(object):
         ----------
         gamma : float
             gamma regularization value.
+
+        Returns
+        -------
+        0 :
+            Gamma parameter was set successfully.
         """
         self.tsunami.Conf.gamma = gamma
         return 0
@@ -907,6 +1001,11 @@ class TsunamiImplementation(object):
             ValueHolder instance to return pn value. If `True`,
             enables post-Newtonian corrections. Ensure that `pn1`,
             `pn2`, `pn25`, `pn3` or `pn35` is also set.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was retrieved successfully.
         """
         pn.value = self.tsunami.Conf.wPNs
         return 0
@@ -921,6 +1020,11 @@ class TsunamiImplementation(object):
         pn : bool
             If `True`, enables post-Newtonian corrections. Ensure
             that `pn1`, `pn2`, `pn25`, `pn3` or `pn35` is also set.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was set successfully.
         """
         self.tsunami.Conf.wPNs = bool(pn)
         return 0
@@ -935,6 +1039,11 @@ class TsunamiImplementation(object):
         pn1 : ValueHolder[bool]
             ValueHolder instance to return pn1 value. If `True`,
             enables post-Newtonian corrections of order 1.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was retrieved successfully.
         """
         pn1.value = self.tsunami.Conf.pn1
         return 0
@@ -948,6 +1057,11 @@ class TsunamiImplementation(object):
         ----------
         pn1 : bool
             If True, enables post-Newtonian corrections of order 1.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was set successfully.
         """
         self.tsunami.Conf.pn1 = bool(pn1)
         return 0
@@ -962,6 +1076,11 @@ class TsunamiImplementation(object):
         pn2 : ValueHolder[bool]
             ValueHolder instance to return pn2 value. If `True`,
             enables post-Newtonian corrections of order 2.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was retrieved successfully.
         """
         pn2.value = self.tsunami.Conf.pn2
         return 0
@@ -975,6 +1094,11 @@ class TsunamiImplementation(object):
         ----------
         pn2 : bool
             If True, enables post-Newtonian corrections of order 2.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was set successfully.
         """
         self.tsunami.Conf.pn2 = bool(pn2)
         return 0
@@ -989,6 +1113,11 @@ class TsunamiImplementation(object):
         pn25 : ValueHolder[bool]
             ValueHolder instance to return pn25 value. If `True`,
             enables post-Newtonian corrections of order 2.5.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was retrieved successfully.
         """
         pn25.value = self.tsunami.Conf.pn25
         return 0
@@ -1002,6 +1131,11 @@ class TsunamiImplementation(object):
         ----------
         pn25 : bool
             If True, enables post-Newtonian corrections of order 2.5.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was set successfully.
         """
         self.tsunami.Conf.pn25 = bool(pn25)
         return 0
@@ -1016,6 +1150,11 @@ class TsunamiImplementation(object):
         pn3 : ValueHolder[bool]
             ValueHolder instance to return pn3 value. If `True`,
             enables post-Newtonian corrections of order 3.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was retrieved successfully.
         """
         pn3.value = self.tsunami.Conf.pn3
         return 0
@@ -1029,6 +1168,11 @@ class TsunamiImplementation(object):
         ----------
         pn3 : bool
             If True, enables post-Newtonian corrections of order 3.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was set successfully.
         """
         self.tsunami.Conf.pn3 = bool(pn3)
         return 0
@@ -1043,6 +1187,11 @@ class TsunamiImplementation(object):
         pn35 : ValueHolder[bool]
             ValueHolder instance to return pn35 value. If `True`,
             enables post-Newtonian corrections of order 3.5.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was retrieved successfully.
         """
         pn35.value = self.tsunami.Conf.pn35
         return 0
@@ -1056,6 +1205,11 @@ class TsunamiImplementation(object):
         ----------
         pn35 : bool
             If True, enables post-Newtonian corrections of order 3.5.
+
+        Returns
+        -------
+        0 :
+            Post-Newtonian correction parameter was set successfully.
         """
         self.tsunami.Conf.pn35 = bool(pn35)
         return 0
@@ -1068,6 +1222,11 @@ class TsunamiImplementation(object):
         ----------
         potential_energy : ValueHolder[float]
             ValueHolder instance to return the potential energy of the system.
+
+        Returns
+        -------
+        0 :
+            Potential energy was retrieved successfully.
         """
         potential_energy.value = self.tsunami.pot
         return 0
@@ -1080,28 +1239,42 @@ class TsunamiImplementation(object):
         ----------
         kinetic_energy : ValueHolder[float]
             ValueHolder instance to return the kinetic energy of the system.
+
+        Returns
+        -------
+        0 :
+            Kinetic energy was retrieved successfully.
         """
         kinetic_energy.value = self.tsunami.kin
         return 0
 
     def get_deltaE(self, deltaE: ValueHolder) -> int:
         """
-        Get fractional energy error `deltaE = (E - E0) / E0` excluding energy losses
-        due to dissipative terms (tides, post-Newtonians, external potentials)
+        Get fractional energy error `deltaE = (E - E0) / E0` excluding
+        energy losses due to dissipative terms (tides, post-Newtonians,
+        external potentials)
 
         Parameters
         ----------
         deltaE : ValueHolder[float]
             ValueHolder instance to return the fraction energy error value.
+
+        Returns
+        -------
+        0 :
+            Energy error was retrieved successfully.
         """
         deltaE.value = self.tsunami.deltaE
         return 0
 
     def get_time(self, time: ValueHolder) -> int:
         """
-        Get current model time.
+        Get current model time in N-body units.
 
-        tsunami.time returns time in N-body units.
+        Returns
+        -------
+        0 :
+            Current model time was retrieved successfully.
         """
         time.value = self.tsunami.time
         return 0
@@ -1110,18 +1283,26 @@ class TsunamiImplementation(object):
         """
         Get total number of particles in TSUNAMI.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         number_of_particles : ValueHolder[int]
             ValueHolder instance to return the number of particles in TSUNAMI.
+
+        Returns
+        -------
+        0 :
+            Number of particles was retrieved successfully.
         """
         number_of_particles.value = len(self._pos)
         return 0
 
     def _get_particle_index_by_id(self, index_of_the_particle: int) -> int:
         """
-        Given an amuse particle id as returned by `new_particle`, find the
+        Given an AMUSE particle id as returned by `new_particle`, find the
         index of that particle in TSUNAMI.
+
+        This ensures that `index_of_the_particle` always points to the
+        correct particle, even after particle deletion.
 
         Parameters
         ----------
@@ -1135,14 +1316,21 @@ class TsunamiImplementation(object):
         return int(idx[0])
 
     def _get_new_id(self) -> int:
-        """Create a unique, monotonically increasing id for `new_particle`."""
+        """
+        Create a unique, monotonically increasing id for `new_particle`.
+
+        Returns
+        -------
+        int :
+            New particle id to be assigned.
+        """
         new_id = self._next_particle_id
         self._next_particle_id += 1
 
         return int(new_id)
 
     def _clear_temporary_particle_buffers(self) -> None:
-        """Clear temporary particle buffers after commiting particles."""
+        """Clear temporary particle buffers after committing particles."""
         self._id_list.clear()
         self._mass_list.clear()
         self._radius_list.clear()
@@ -1180,7 +1368,9 @@ class TsunamiInterface(
     def new_particle():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.OUT)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.OUT
+        )
         for name in ['mass', 'radius', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'wx', 'wy', 'wz']:
             function.addParameter(name, dtype='d', direction=function.IN)
         function.result_type = 'i'
@@ -1194,7 +1384,9 @@ class TsunamiInterface(
     def get_state():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.IN
+        )
         for name in ['mass', 'radius', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'wx', 'wy', 'wz']:
             function.addParameter(name, dtype='d', direction=function.OUT)
         function.result_type = 'i'
@@ -1208,7 +1400,9 @@ class TsunamiInterface(
     def set_state():
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        function.addParameter(
+            'index_of_the_particle', dtype='i', direction=function.IN
+        )
         for name in ['mass', 'radius', 'x', 'y', 'z', 'vx', 'vy', 'vz', 'wx', 'wy', 'wz']:
             function.addParameter(name, dtype='d', direction=function.IN)
         function.result_type = 'i'
@@ -1229,19 +1423,6 @@ class TsunamiInterface(
     @remote_function
     def get_deltaE():
         returns (deltaE='d')
-
-    @legacy_function
-    def get_time():
-        function = LegacyFunctionSpecification()
-        function.addParameter('time', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        function.result_doc = """
-        0 - OK
-            System was evolved to time
-        -1 - ERROR
-            Requested time is <= current model time
-        """
-        return function
 
     @remote_function
     def get_equilibrium_tides():
