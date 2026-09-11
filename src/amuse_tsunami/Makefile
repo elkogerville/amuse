@@ -10,7 +10,6 @@ src/tsunami-master: | tsunami-master.tar.gz
 	tar xf $<
 	mv tsunami-master src/
 
-# NOTE: how do stopconds work when in python only mode?
 
 .PHONY: install_tsunami
 install_tsunami: | src/tsunami-master
