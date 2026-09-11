@@ -896,6 +896,36 @@ class TsunamiImplementation(object):
         gyrad: NDArray[np.float64],
         N: int
     ) -> int:
+        """
+        Initialize tidal parameters for all particles in TSUNAMI.
+
+        Parameters
+        ----------
+        kaps : NDArray[np.float64]
+            Apsidal motion constant (love number) for each particle
+            in dimensionless units.
+        taulag : NDArray[np.float64]
+            Tidal lag time for each particle in units of time.
+        polyt : NDArray[np.float64]
+            Polytropic index for each particle in dimensionless units.
+        gyrad : NDArray[np.float64]
+            Gyration radius for each particle in dimensionless units.
+        N : int
+            Number of particles. Must match the length of `kaps`,
+            `taulag`, `polyt`, and `gyrad`. Is used internally by AMUSE
+            and is not set by the caller.
+
+        Returns
+        -------
+        0 :
+            Tidal parameters were initialized successfully.
+
+        Raises
+        ------
+        ValueError :
+            If `kaps`, `taulag`, `polyt`, or `gyrad` do not all have
+            length `N`.
+        """
         if any(len(arr) != N for arr in [kaps, taulag, polyt, gyrad]):
             raise ValueError(
                 f'All tidal parameter arrays must have the same length ({N}) '
