@@ -88,14 +88,17 @@ class TsunamiImplementation(object):
         as well as any new particles inside the temporary buffers
         and formats them as numpy arrays to be read by TSUNAMI.
 
-        This method should only be called after 2 new particles were added.
-        Calling this method with no new particles in the buffers does nothing.
+        This method should only be called if at least 2 particles exist
+        between committed and buffered particles. Calling this method
+        with no new particles in the buffers does nothing.
 
         Returns
         -------
-         0 : If particles were added to TSUNAMI succesfully or if no
-             new particles are available to be added.
-        -1 : If the shapes of the particleset arrays dont match.
+         0 :
+            If particles were added to TSUNAMI successfully or if no new
+            particles are available to be added.
+        -1 :
+            If the temporary particle buffers have inconsistent lengths.
 
         Raises
         ------
@@ -103,8 +106,23 @@ class TsunamiImplementation(object):
             If the total particle count is less than 2 particles between
             the pre-existing particles and the particles in the buffer.
         """
+        buffer_lengths = {
+            len(self._id_list),
+            len(self._mass_list),
+            len(self._radius_list),
+            len(self._pos_list),
+            len(self._vel_list),
+            len(self._spin_list),
+        }
+        # if no new particles to add
+        if len(buffer_lengths) == 0:
+            return 0
+        # if shape mismatch between particle buffers
+        if len(buffer_lengths) != 1:
+            return -1
+
         N_existing: int = self._pos.shape[0]
-        N_new: int = len(self._pos_list)
+        N_new: int = buffer_lengths.pop()
         N_total: int = N_existing + N_new
 
         if N_new == 0:
