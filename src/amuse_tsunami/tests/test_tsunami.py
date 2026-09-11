@@ -484,7 +484,7 @@ class TestTsunami(TestWithMPI):
 
         t_end = 65 | ns.time
         dt = 0.1 | ns.time
-        while instance.model_time <  t_end:
+        while instance.model_time < t_end:
             instance.evolve_model(instance.model_time + dt)
 
         # validate energies
@@ -568,7 +568,7 @@ class TestTsunami(TestWithMPI):
 
         t_midpoint = 30 | ns.time
         dt = 0.1 | ns.time
-        while instance.model_time <  t_midpoint:
+        while instance.model_time < t_midpoint:
             instance.evolve_model(instance.model_time + dt)
             channel.copy()
             particles.append(system.copy())
@@ -598,7 +598,7 @@ class TestTsunami(TestWithMPI):
 
         t_end = 65 | ns.time
         dt = 0.1 | ns.time
-        while instance.model_time <  t_end:
+        while instance.model_time < t_end:
             instance.evolve_model(instance.model_time + dt)
             channel.copy()
             particles.append(system.copy())
@@ -725,10 +725,10 @@ class TestTsunami(TestWithMPI):
         code.Conf.wExt = True
 
         # convert tsunami ics to nbody units
-        m_nb    = m / code.Mscale
-        r_nb    = r / code.Lscale
-        pos_nb  = pos / code.Lscale
-        vel_nb  = vel / (code.Lscale / code.Tscale)
+        m_nb = m / code.Mscale
+        r_nb = r / code.Lscale
+        pos_nb = pos / code.Lscale
+        vel_nb = vel / (code.Lscale / code.Tscale)
         spin_nb = np.ascontiguousarray(spin * code.Tscale)
         pt = np.ones_like(m_nb, dtype=np.int64) * -1
 
@@ -885,10 +885,10 @@ class TestTsunami(TestWithMPI):
         spin = np.vstack([wx,wy,wz]).T
         code = tsunami.Tsunami(1,1)
         code.Conf.wExt = True
-        m_nb    = m
-        r_nb    = r
-        pos_nb  = pos
-        vel_nb  = vel / (2 * np.pi)
+        m_nb = m
+        r_nb = r
+        pos_nb = pos
+        vel_nb = vel / (2 * np.pi)
         spin_nb = np.ascontiguousarray(spin / (2 * np.pi))
         pt = np.ones_like(m_nb, dtype=np.int64) * -1
         code.add_particle_set(pos_nb, vel_nb, m_nb, r_nb, pt, spin_nb)
