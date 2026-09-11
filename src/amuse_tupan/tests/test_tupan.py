@@ -11,6 +11,7 @@ try:
 except ImportError:
     MODULES_MISSING = True
 
+
 class TestTupanInterface(TestWithMPI):
 
     def test01(self):
@@ -177,8 +178,7 @@ class TestTupan(TestWithMPI):
         if MODULES_MISSING:
             self.skip("Failed to import a module required for Tupan")
         print("Testing Tupan default parameters")
-        instance = Tupan(converter=self.default_converter)
-        # instance = self.new_instance_of_an_optional_code(Tupan, self.default_converter)
+        instance = self.new_instance_of_an_optional_code(Tupan, self.default_converter)
         instance.initialize_code()
 
         self.assertEquals(instance.parameters.timestep_parameter, 0.03125)
