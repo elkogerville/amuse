@@ -176,7 +176,7 @@ class TestTupan(TestWithMPI):
     def test02(self):
         if MODULES_MISSING:
             self.skip("Failed to import a module required for Tupan")
-        print("Testing Tupan parameters")
+        print("Testing Tupan default parameters")
         instance = Tupan(converter=self.default_converter)
         # instance = self.new_instance_of_an_optional_code(Tupan, self.default_converter)
         instance.initialize_code()
