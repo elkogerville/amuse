@@ -351,6 +351,7 @@ class TsunamiImplementation(object):
         self._pos = np.delete(self._pos, i, axis=0)
         self._vel = np.delete(self._vel, i, axis=0)
         self._spin = np.delete(self._spin, i, axis=0)
+        self._stype = np.delete(self._stype, i)
 
         self.tsunami.remove_particle(i)
         self.synchronize_model()
