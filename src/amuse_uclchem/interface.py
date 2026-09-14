@@ -63,7 +63,6 @@ class UclchemImplementation(object):
         self._next_particle_id: int = 0
 
     def initialize_code(self) -> int:
-        # self.parameters = uclchem.advanced.GeneralSettings()
         return 0
 
     def cleanup_code(self) -> int:
