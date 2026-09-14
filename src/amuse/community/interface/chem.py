@@ -90,11 +90,11 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         return function
 
     @remote_function(can_handle_array=True)
-    def get_abundance(index_of_the_particle='i', abundance_index='i'):
+    def get_abundance(index_of_the_particle='i', species_index='i'):
         """
         Retrieve the chemical abundance of a species by index for a given particle.
 
-        The `abundance_index` can be queried for using the methods `get_species_index`
+        The `species_index` can be queried for using the methods `get_species_index`
         and `get_species_name`.
 
         Examples
@@ -109,12 +109,12 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
 
     @remote_function(can_handle_array=True)
     def set_abundance(
-        index_of_the_particle='i', abundance_index='i', abundance='d'
+        index_of_the_particle='i', species_index='i', abundance='d'
     ):
         """
         Set the chemical abundance of a species by index for a given particle.
 
-        The `abundance_index` can be queried for using the methods `get_species_index`
+        The `species_index` can be queried for using the methods `get_species_index`
         and `get_species_name`.
 
         Examples
@@ -154,7 +154,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Used internally by the ChemicalEvolutionInterface.
 
         Returns
-        ----------
+        -------
         first : int
             Index of the first species in the abundance array.
         last : int
@@ -177,10 +177,10 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         >>> chem.get_species_index('H')
         0
         """
-        returns (abundance_index='i')
+        returns (species_index='i')
 
     @remote_function
-    def get_species_name(abundance_index='i'):
+    def get_species_name(species_index='i'):
         """
         Given the index of a chemical species in the
         chemical abundance array, retrieve its name.
@@ -259,15 +259,17 @@ class ChemicalEvolution(common.CommonCode):
         if isinstance(species_names, str):
             species_names = [species_names]
 
-        indices = np.asarray(
+        species_indices = np.asarray(
             [self.get_species_index(name) for name in species_names],
             dtype=np.int32,
         )
         particle_indices = np.full(
-            indices.shape, index_of_the_particle, dtype=np.int32
+            species_indices.shape, index_of_the_particle, dtype=np.int32
         )
 
-        return np.asarray(self.get_abundance(particle_indices, indices))
+        return np.asarray(
+            self.get_abundance(particle_indices, species_indices)
+        )
 
     def define_properties(self, handler):
         handler.add_property('get_time', public_name='model_time')
