@@ -1071,57 +1071,18 @@ class Uclchem(ChemicalEvolution):
 
         chem_interface = UclchemInterface(**options)
 
-        InCodeComponentImplementation.__init__(
+        ChemicalEvolution.__init__(
             self,
             chem_interface
         )
 
-    def get_abundances(
-        self,
-        index_of_the_particle: int,
-        species_names: str | list[str]
-    ) -> list[float]:
-        """
-        Get the abundances of a particle at the current simulation time
-        by species name. Both a single species name or a list of names
-        are valid inputs.
-
-        Parameters
-        ----------
-        index_of_the_particle : int
-            Index of the particle as returned by `new_particle`.
-        species_names : str | list[str]
-            List of species names to query. Each name must be a species
-            tracked by the UCLCHEM network. A sigle name is also a valid input.
-
-        Returns
-        -------
-        abundances : list[float]
-            List containing the current abundances of the particle for
-            each species name passed in.
-
-        Notes
-        -----
-        To obtain the list of species in UCLCHEM:
-        >>> from uclchem.model import get_species_names
-        >>> get_species_names()
-        ['H', 'H+', 'H2', ...]
-        """
-        i = index_of_the_particle
-        if not isinstance(species_names, list):
-            species_names = [species_names]
-
-        indices = [self.get_species_index(species) for species in species_names]
-        return [self.get_abundance(i, aid) for aid in indices]
+        first, last = self.get_firstlast_species_index()
+        self.species = dict()
+        for i in range(first, last+1):
+          self.species[self.get_species_name(i)] = i
 
     def define_methods(self, handler):
-        CommonCode.define_methods(self, handler)
-        handler.add_method(
-            'evolve_model',
-            (u.yr,),
-            (handler.ERROR_CODE,)
-        )
-
+        ChemicalEvolution.define_methods(self, handler)
         handler.add_method(
             'new_particle',
             (u.cm**-3, u.K, u.s**-1, habing),
@@ -1129,12 +1090,6 @@ class Uclchem(ChemicalEvolution):
                 handler.INDEX,
                 handler.ERROR_CODE,
             ),
-        )
-
-        handler.add_method(
-            'delete_particle',
-            (handler.INDEX,),
-            (handler.ERROR_CODE,)
         )
 
         handler.add_method(
@@ -1209,56 +1164,6 @@ class Uclchem(ChemicalEvolution):
             (handler.ERROR_CODE,),
         )
 
-        handler.add_method(
-            'get_abundance',
-            (handler.INDEX, handler.INDEX,),
-            (handler.NO_UNIT, handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'set_abundance',
-            (
-                handler.INDEX,
-                handler.INDEX,
-                handler.NO_UNIT,
-            ),
-            (handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'get_species_name',
-            (handler.INDEX,),
-            (handler.NO_UNIT, handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'get_species_index',
-            (handler.NO_UNIT,),
-            (handler.INDEX, handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'get_firstlast_abundance',
-            (),
-            (
-                handler.NO_UNIT,
-                handler.NO_UNIT,
-                handler.ERROR_CODE,
-            )
-        )
-
-        handler.add_method(
-            'get_time',
-            (),
-            (u.yr, handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'get_number_of_particles',
-            (),
-            (handler.NO_UNIT, handler.ERROR_CODE,),
-        )
-
     def define_parameters(self, handler):
         handler.add_method_parameter(
             'get_chemical_model',
@@ -1270,42 +1175,3 @@ class Uclchem(ChemicalEvolution):
         handler.add_interface_parameter(
             'out_species', 'Array of molecules to use', default_value=['H', 'H2']
         )
-
-    def define_properties(self, handler):
-        handler.add_property('get_time', public_name='model_time')
-
-    def define_particle_sets(self, handler):
-        handler.define_set('particles', 'index_of_the_particle')
-        handler.set_new('particles', 'new_particle')
-        handler.set_delete('particles', 'delete_particle')
-        handler.add_setter('particles', 'set_state')
-        handler.add_getter('particles', 'get_state')
-        handler.add_gridded_getter(
-            'particles',
-            'get_abundance',
-            'get_firstlast_abundance',
-            names=('abundances',),
-        )
-        handler.add_gridded_setter(
-            'particles',
-            'set_abundance',
-            'get_firstlast_abundance',
-            names=('abundances',),
-        )
-
-    def define_state(self, handler):
-        CommonCode.define_state(self, handler)
-        handler.add_transition("INITIALIZED", "EDIT", "commit_parameters")
-        handler.add_transition("RUN", "PARAMETER_CHANGE_A", "invoke_state_change2")
-        handler.add_transition("EDIT", "PARAMETER_CHANGE_B", "invoke_state_change2")
-        handler.add_transition("PARAMETER_CHANGE_A", "RUN", "recommit_parameters")
-        handler.add_transition("PARAMETER_CHANGE_B", "EDIT", "recommit_parameters")
-        handler.add_method("EDIT", "new_particle")
-        handler.add_method('EDIT', 'delete_particle')
-        handler.add_transition("EDIT", "RUN", "commit_particles")
-        handler.add_transition("RUN", "UPDATE", "new_particle", False)
-        handler.add_transition("RUN", "UPDATE", "delete_particle", False)
-        handler.add_transition("UPDATE", "RUN", "recommit_particles")
-        handler.add_method("RUN", "evolve_model")
-        handler.add_method("RUN", "get_state")
-        handler.add_method("RUN", "get_abundance")
