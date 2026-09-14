@@ -1,21 +1,16 @@
-import os.path
-import numpy
-from amuse.support.testing.amusetest import TestWithMPI
-
-from amuse_krome.interface import KromeInterface, Krome, solar_abundances
-from amuse.units import units
 from amuse.datamodel import Particles
+from amuse.support.testing.amusetest import TestWithMPI
+from amuse.units import units
+from amuse_krome.interface import KromeInterface, Krome, solar_abundances
+import numpy as np
 
-from amuse.io import read_set_from_file
 
-# default_options={}
 default_options = dict(redirection="none")
-# default_options=dict(debugger="gdb")
 
 
 class TestKromeInterface(TestWithMPI):
 
-    def test1(self):
+    def test_initialization(self):
         print("Test 1: initialization")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
@@ -24,8 +19,8 @@ class TestKromeInterface(TestWithMPI):
         self.assertEqual(0, instance.cleanup_code())
         instance.stop()
 
-    def test2(self):
-        print("Test 1: add particle, get state")
+    def test_add_1_particle_and_get_state(self):
+        print("Test 2: add particle, get state")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -52,8 +47,8 @@ class TestKromeInterface(TestWithMPI):
 
         instance.stop()
 
-    def test3(self):
-        print("Test 1: add 2 particles, get state")
+    def test_add_2_particles_and_get_state(self):
+        print("Test 3: add 2 particles, get state")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -81,16 +76,16 @@ class TestKromeInterface(TestWithMPI):
 
         instance.stop()
 
-    def test4(self):
-        print("Test 1: add 100 particles, get state")
+    def test_add_100_particles_and_get_state(self):
+        print("Test 4: add 100 particles, get state")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
-        dens = 1.e5*numpy.random.random(100)
-        t = 500.*numpy.random.random(100)
-        ion = 1.e-11*numpy.random.random(100)
+        dens = 1.e5*np.random.random(100)
+        t = 500.*np.random.random(100)
+        ion = 1.e-11*np.random.random(100)
         id, err = instance.new_particle(dens, t, ion)
 
         self.assertEqual(err, 0)
@@ -110,34 +105,34 @@ class TestKromeInterface(TestWithMPI):
 
         instance.stop()
 
-    def test5(self):
+    def test_get_species(self):
         print("Test 5: can we get species?")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         self.assertEqual(err, 0)
         self.assertTrue(last-first > 0)
 
         for i in range(first, last+1):
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             print(name)
             self.assertEqual(err, 0)
-            index, err = instance.get_index_of_species(name)
+            index, err = instance.get_species_index(name)
             self.assertEqual(i, index)
 
         instance.stop()
 
-    def test6(self):
+    def test_add_and_remove_particles(self):
         print("Test 6: add 100 particles, remove particles")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
-        dens = 1.e5*numpy.random.random(100)
-        t = 500.*numpy.random.random(100)
-        ion = 1.e-11*numpy.random.random(100)
+        dens = 1.e5*np.random.random(100)
+        t = 500.*np.random.random(100)
+        ion = 1.e-11*np.random.random(100)
         ids, err = instance.new_particle(dens, t, ion)
 
         self.assertEqual(err, 0)
@@ -166,8 +161,8 @@ class TestKromeInterface(TestWithMPI):
 
         instance.stop()
 
-    def test7(self):
-        print("Test 1: add particle, set abundances")
+    def test_add_particle_and_set_abundances(self):
+        print("Test 7: add particle, set abundances")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -180,7 +175,7 @@ class TestKromeInterface(TestWithMPI):
 
         instance.commit_particles()
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertTrue((x >= 0.) & (x <= 1.))
@@ -190,18 +185,18 @@ class TestKromeInterface(TestWithMPI):
 
         for s in ["H", "HE", "C", "SI", "O"]:
             x = solar_abundances[s]
-            aid, err = instance.get_index_of_species(s)
+            aid, err = instance.get_species_index(s)
             instance.set_abundance(id, aid, x)
 
         for s in ["H", "HE", "C", "SI", "O"]:
             x = solar_abundances[s]
-            aid, err = instance.get_index_of_species(s)
+            aid, err = instance.get_species_index(s)
             xx, err = instance.get_abundance(id, aid)
             self.assertEqual(x, xx)
             self.assertEqual(err, 0)
 
-    def test8(self):
-        print("evolve test")
+    def test_evolve(self):
+        print("Test 8: evolve test")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -212,13 +207,13 @@ class TestKromeInterface(TestWithMPI):
         ion = 2.e-17
         id, err = instance.new_particle(dens, t, ion)
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             err = instance.set_abundance(id, i, 1.e-40)
 
         for s in ["H", "HE", "C", "SI", "O"]:
             x = solar_abundances[s]
-            aid, err = instance.get_index_of_species(s)
+            aid, err = instance.get_species_index(s)
             instance.set_abundance(id, aid, x)
 
         instance.commit_particles()
@@ -230,15 +225,15 @@ class TestKromeInterface(TestWithMPI):
         self.assertEqual(err, 0)
         self.assertEqual(time, 10000.*yr)
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             print(i, name, x)
 
-    def test9(self):
-        print("evolve test 2")
+    def test_evolve_ionized_initial_state(self):
+        print("Test 9: evolve test 2")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -249,24 +244,24 @@ class TestKromeInterface(TestWithMPI):
         ion = 2.e-17
         id, err = instance.new_particle(dens, t, ion)
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             err = instance.set_abundance(id, i, 1.e-40)
 
         for s in ["H", "HE", "C", "SI", "O"]:
             x = solar_abundances[s]
-            aid, err = instance.get_index_of_species(s)
+            aid, err = instance.get_species_index(s)
             instance.set_abundance(id, aid, x)
 
-        aid, err = instance.get_index_of_species("C")
+        aid, err = instance.get_species_index("C")
         instance.set_abundance(id, aid, 1.e-40)
 
-        aid, err = instance.get_index_of_species("C+")
+        aid, err = instance.get_species_index("C+")
         instance.set_abundance(id, aid, solar_abundances["C"])
 
-        aid, err = instance.get_index_of_species("H2")
+        aid, err = instance.get_species_index("H2")
         instance.set_abundance(id, aid, 1.e-6)
-        aid, err = instance.get_index_of_species("H+")
+        aid, err = instance.get_species_index("H+")
         instance.set_abundance(id, aid, 1.e-4)
 
         instance.commit_particles()
@@ -278,15 +273,15 @@ class TestKromeInterface(TestWithMPI):
         self.assertEqual(err, 0)
         self.assertEqual(time, 10000.*yr)
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             print(i, name, x)
 
-    def test10(self):
-        print("check initialization of abundances")
+    def test_abundance_initialization(self):
+        print("Test 10: check initialization of abundances")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -302,16 +297,16 @@ class TestKromeInterface(TestWithMPI):
                      "C+": 0.000269180975425, "SI": 3.2362683404e-05,
                      "O": 0.000489828841345}
 
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             if name in abundances:
                 self.assertAlmostEqual(x, abundances[name], 12)
 
-    def test11(self):
-        print("evolve test, comparison")
+    def test_evolve_comparison(self):
+        print("Test 11: evolve test, comparison")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -324,11 +319,11 @@ class TestKromeInterface(TestWithMPI):
         instance.evolve_model(1.e10)
 
         result1 = {}
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             result1[name] = x
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
@@ -344,11 +339,11 @@ class TestKromeInterface(TestWithMPI):
         instance.evolve_model(1.e10)
 
         result2 = {}
-        first, last, err = instance.get_firstlast_abundance()
+        first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
             x, err = instance.get_abundance(id, i)
             self.assertEqual(err, 0)
-            name, err = instance.get_name_of_species(i)
+            name, err = instance.get_species_name(i)
             result2[name] = x
 
         for x in result1:
@@ -358,14 +353,14 @@ class TestKromeInterface(TestWithMPI):
 class TestKrome(TestWithMPI):
     def makeparts(self, N):
         parts = Particles(N)
-        numpy.random.seed(1234567)
-        parts.number_density = (numpy.random.random(N)*1.e5+1.e5) | units.cm**-3
-        parts.temperature = (numpy.random.random(N)*500+100) | units.K
-        parts.ionrate = (numpy.random.random(N)*1.e-11+1.e-17) | units.s**-1
+        np.random.seed(1234567)
+        parts.number_density = (np.random.random(N)*1.e5+1.e5) | units.cm**-3
+        parts.temperature = (np.random.random(N)*500+100) | units.K
+        parts.ionrate = (np.random.random(N)*1.e-11+1.e-17) | units.s**-1
         return parts
 
-    def test0(self):
-        print("test1: basic startup and flow")
+    def test_startup(self):
+        print("Test 1: basic startup and flow")
         instance = self.new_instance_of_an_optional_code(Krome)
         self.assertEqual(instance.get_name_of_current_state(), 'UNINITIALIZED')
         instance.initialize_code()
@@ -378,8 +373,8 @@ class TestKrome(TestWithMPI):
         instance.cleanup_code()
         instance.stop()
 
-    def test1(self):
-        print("test1: adding particles")
+    def test_add_particles(self):
+        print("Test 2: adding particles")
 
         instance = self.new_instance_of_an_optional_code(Krome)
 
@@ -414,8 +409,8 @@ class TestKrome(TestWithMPI):
         instance.cleanup_code()
         instance.stop()
 
-    def test2(self):
-        print("test2: adding particles w abund.")
+    def test_add_particles_with_abundances(self):
+        print("Test 3: adding particles w abund.")
 
         instance = self.new_instance_of_an_optional_code(Krome)
 
@@ -423,10 +418,10 @@ class TestKrome(TestWithMPI):
 
         N = len(instance.species)
 
-        parts.abundances = numpy.zeros((5, N))
+        parts.abundances = np.zeros((5, N))
 
         for i in range(5):
-            parts[i].abundances = (numpy.array(range(N))+1)/(N+1.)
+            parts[i].abundances = (np.array(range(N))+1)/(N+1.)
 
         instance.particles.add_particles(parts)
 
@@ -445,8 +440,8 @@ class TestKrome(TestWithMPI):
         instance.cleanup_code()
         instance.stop()
 
-    def test3(self):
-        print("test3: evolve test")
+    def test_evolve(self):
+        print("Test 4: evolve test")
 
         instance = self.new_instance_of_an_optional_code(Krome, **default_options)
 
@@ -457,7 +452,7 @@ class TestKrome(TestWithMPI):
 
         Ns = len(instance.species)
 
-        parts.abundances = numpy.zeros((1, Ns))
+        parts.abundances = np.zeros((1, Ns))
 
         instance.particles.add_particles(parts)
 
@@ -467,14 +462,14 @@ class TestKrome(TestWithMPI):
 
         f = 2*instance.particles[0].abundances[instance.species["H2"]]
         self.assertTrue(f > 0.95)  # not much of a test..
-        # ~ for x,i in instance.species.items():
-            # ~ print x, instance.particles[0].abundances[i]
+
+        self.assertAlmostRelativeEquals(instance.model_time, 1e6 | units.yr)
 
         instance.cleanup_code()
         instance.stop()
 
-    def test4(self):
-        print("test4: evolve test (10 part)")
+    def test_10_particles_evolve(self):
+        print("Test 5: evolve test (10 part)")
 
         instance = self.new_instance_of_an_optional_code(Krome, **default_options)
 
@@ -485,7 +480,7 @@ class TestKrome(TestWithMPI):
 
         Ns = len(instance.species)
 
-        parts.abundances = numpy.zeros((10, Ns))
+        parts.abundances = np.zeros((10, Ns))
 
         instance.particles.add_particles(parts)
 
@@ -493,8 +488,6 @@ class TestKrome(TestWithMPI):
 
         f = 2*instance.particles[0].abundances[instance.species["H2"]]
         self.assertTrue(f > 0.95)  # not much of a test..
-        # ~ for x,i in instance.species.items():
-            # ~ print x, instance.particles[0].abundances[i]
 
         instance.cleanup_code()
         instance.stop()
