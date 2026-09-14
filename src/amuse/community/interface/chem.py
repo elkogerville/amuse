@@ -252,18 +252,22 @@ class ChemicalEvolution(common.CommonCode):
         Notes
         -----
         To obtain a dictionary of each (species: index) in a chemistry code:
-        >>> chem = Krome()
+        >>> chem = ChemicalEvolution()
         >>> chem.species
         {'E': 0, 'H-': 1, 'H': 2, 'HE': 3, 'H2': 4, ...}
         """
-        i = index_of_the_particle
         if isinstance(species_names, str):
             species_names = [species_names]
 
-        indices = [
-            self.get_species_index(species) for species in species_names
-        ]
-        return np.asarray([self.get_abundance(i, aid) for aid in indices])
+        indices = np.asarray(
+            [self.get_species_index(name) for name in species_names],
+            dtype=np.int32,
+        )
+        particle_indices = np.full(
+            indices.shape, index_of_the_particle, dtype=np.int32
+        )
+
+        return np.asarray(self.get_abundance(particle_indices, indices))
 
     def define_properties(self, handler):
         handler.add_property('get_time', public_name='model_time')
