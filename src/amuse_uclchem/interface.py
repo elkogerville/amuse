@@ -1,26 +1,29 @@
-from typing import Literal
-
 import numpy as np
 from numpy.typing import NDArray
 import uclchem
-from uclchem.model import get_species_names, AbstractModel
+from uclchem.model import (
+    get_species_names as _get_species_names, AbstractModel
+)
 
-from amuse.community.interface.common import CommonCode, CommonCodeInterface
+from amuse.community.interface.chem import (
+    ChemicalEvolution, ChemicalEvolutionInterface
+)
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.datamodel import Particle, Particles
 from amuse.rfi.core import (
-    legacy_function, LegacyFunctionSpecification, PythonCodeInterface
+    LegacyFunctionSpecification, PythonCodeInterface, legacy_function
 )
-from amuse.support.interface import InCodeComponentImplementation
 from amuse.units import units as u
 
 
 habing = u.named('habing', 'hab', 1.6e-3 * u.erg * u.cm**-2 * u.s**-1)
 
-class UclchemImplementation(object):
 
+class UclchemImplementation(object):
     def __init__(self):
         """
+        Implementation of Uclchem legacy interface functions.
+
         Parameters
         ----------
         current_time : float
@@ -592,31 +595,189 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the particle index is invalid.
-        """
-        i = self._get_particle_index_by_id(index_of_the_particle)
+            0 on success.
 
-        print(self.uclchem_particles[i].abundances.shape, abundance)
-        self.uclchem_particles[i].abundances[abundance_index] = abundance
-        print(self.uclchem_particles[i].abundances[abundance_index])
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
+        """
+        i = self._id_to_storage_index(index_of_the_particle)
+
+        abundances = self.uclchem_particles[i].abundances
+        abundances[abundance_index] = abundance
+        self.uclchem_particles[i].abundances = abundances
         return 0
 
-    def get_firstlast_abundance(self, first, last) -> int:
+    def set_abundances(self, index_of_the_particle, abundances, N) -> int:
         """
-        Get the index of the first and last abundances inside UCLCHEM.
+        Set the full chemical abundance array for a given particle.
 
-        This is a helper method for acessing the abundance array as
+        Parameters
+        ----------
+        index_of_the_particle : np.ndarray[int]
+            Index of the particle as returned by `new_particle`. If an array,
+            only the first element is used.
+        abundances : np.ndarray[float]
+            Abundance values to assign to the particle, of length `N`.
+        N : int
+            Number of abundance values in `abundances`. Must match the
+            particle's existing abundance array length.
+
+        Returns
+        -------
+        int :
+            0 on success.
+
+        Raises
+        ------
+        ValueError :
+            If `index_of_the_particle` is not a valid particle id.
+        ValueError :
+            If `N` does not match the particle's existing number of abundances.
+        """
+        if not isinstance(index_of_the_particle, int):
+            index_of_the_particle = index_of_the_particle[0]
+        i = self._id_to_storage_index(index_of_the_particle)
+        N_abundances = self.uclchem_particles[i].abundances.shape[0]
+        if N != N_abundances:
+            raise ValueError(
+                f'abundances must have shape {N_abundances}, got {N}!'
+            )
+        self.uclchem_particles[i].abundances = abundances
+        return 0
+
+    def get_firstlast_species_index(self, first, last) -> int:
+        """
+        Get the index of the first and last species inside UCLCHEM.
+
+        This is a helper method for accessing the abundance array as
         `instance.particles.abundances`.
 
         Parameters
         ----------
         first : amuse.rfi.python_code.ValueHolder[int]
-            Index of the first abundance in the abundace array.
+            Index of the first species in the abundance array.
         last : amuse.rfi.python_code.ValueHolder[int]
-            Index of the last abundance in the abundace array.
+            Index of the last species in the abundance array.
+
+        Returns
+        -------
+        int :
+            0 on success.
         """
         first.value = 0
-        last.value = len(get_species_names()) - 1
+        last.value = len(_get_species_names()) - 1
+        return 0
+
+    def get_species_index(self, name, abundance_index) -> int:
+        """
+        Given the name of a chemical species in the
+        chemical abundance array, retrieve its index.
+
+        Chemical abundances for each particle are stored
+        as a 1D array, where each element corresponds to
+        the abundance of a particular species.
+
+        Parameters
+        ----------
+        name : str
+            Name of chemical species. Must be one of the
+            species tracked by UCLCHEM.
+        abundance_index : amuse.rfi.python_code.ValueHolder[int]
+            Mutable container used to return the index
+            of the species.
+
+        Returns
+        -------
+        int :
+            0 on success, -1 if the species does not exist.
+
+        Examples
+        --------
+        >>> chem = Uclchem()
+        >>> chem.get_species_index('H2O')
+        31
+        """
+        species_names = _get_species_names()
+
+        try:
+            idx = species_names.index(name)
+        except ValueError:
+            return -1
+
+        abundance_index.value = idx
+        return 0
+
+    def get_species_name(self, abundance_index, name) -> int:
+        """
+        Given the index of a chemical species in the
+        chemical abundance array, retrieve its name.
+
+        Chemical abundances for each particle are stored
+        as a 1D array, where each element corresponds to
+        the abundance of a particular species.
+
+        Parameters
+        ----------
+        abundance_index : int
+            Index of the chemical species in the abundance array.
+        name : amuse.rfi.python_code.ValueHolder[str]
+            Mutable container used to return the name of
+            the chemical species.
+
+        Returns
+        -------
+        int :
+            0 on success.
+
+        Examples
+        --------
+        >>> chem = Uclchem()
+        >>> chem.get_species_name(31)
+        'H2O'
+        """
+        species_names = _get_species_names()
+        if not 0 <= abundance_index < len(species_names):
+            return -1
+
+        name.value = species_names[abundance_index]
+        return 0
+
+    def get_time(self, time) -> int:
+        """
+        Retrieve current model time in years.
+
+        Parameters
+        ----------
+        time : amuse.rfi.python_code.ValueHolder[float]
+            Mutable container used to return the
+            current time in units of years.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
+        time.value = self.current_time
+        return 0
+
+    def get_number_of_particles(self, number_of_particles) -> int:
+        """
+        Retrieve the current number of particles in the code.
+
+        Parameters
+        ----------
+        number_of_particles : amuse.rfi.python_code.ValueHolder[int]
+            Mutable container used to return the
+            current number of particles.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
+        number_of_particles.value = len(self.uclchem_particles)
         return 0
 
     def get_chemical_model(self, chem_model) -> int:
@@ -670,111 +831,6 @@ class UclchemImplementation(object):
         self.model_class = self._validate_chemical_model(
             self.MODEL_MAP.get(self.chem_model, None)
         )
-        return 0
-
-    def get_species_index(self, name, i) -> int:
-        """
-        Given the name of a chemical species in the
-        chemical abundance array, retrieve its index.
-
-        Chemical abundances for each particle are stored
-        as a 1D array, where each element corresponds to
-        the abundance of a particular species.
-
-        Parameters
-        ----------
-        name : str
-            Name of chemical species. Must be one of the
-            species tracked by UCLCHEM.
-        i : amuse.rfi.python_code.ValueHolder[int]
-            Mutable container used to return the index
-            of the species.
-
-        Returns
-        -------
-        int :
-            0 on success, -1 if the species does not exist.
-
-        Examples
-        --------
-        >>> chem = Uclchem()
-        >>> chem.get_species_index('H2O')
-        31
-        """
-        species_names = get_species_names()
-
-        try:
-            idx = species_names.index(name)
-        except ValueError:
-            return -1
-
-        i.value = idx
-        return 0
-
-    def get_species_name(self, i, name) -> int:
-        """
-        Given the index of a chemical species in the
-        chemical abundance array, retrieve its name.
-
-        Chemical abundances for each particle are stored
-        as a 1D array, where each element corresponds to
-        the abundance of a particular species.
-
-        Parameters
-        ----------
-        i : int
-            Index of the chemical species in the abundance array.
-        name : amuse.rfi.python_code.ValueHolder[str]
-            Mutable container used to return the name of
-            the chemical species.
-
-        Examples
-        --------
-        >>> chem = Uclchem()
-        >>> chem.get_species_name(31)
-        'H2O'
-        """
-        species_names = get_species_names()
-        if not 0 <= i < len(species_names):
-            return -1
-
-        name.value = species_names[i]
-        return 0
-
-    def get_time(self, time) -> int:
-        """
-        Retrieve current model time in years.
-
-        Parameters
-        ----------
-        time : amuse.rfi.python_code.ValueHolder[float]
-            Mutable container used to return the
-            current time in units of years.
-
-        Returns
-        -------
-        int :
-            0 on success.
-        """
-        time.value = self.current_time
-        return 0
-
-    def get_number_of_particles(self, number_of_particles) -> int:
-        """
-        Retrieve the current number of particles in the code.
-
-        Parameters
-        ----------
-        number_of_particles : amuse.rfi.python_code.ValueHolder[int]
-            Mutable container used to return the
-            current number of particles.
-
-        Returns
-        -------
-        int :
-            0 on success.
-        """
-        number_of_particles.value = len(self.uclchem_particles)
         return 0
 
     def _validate_chemical_model(self, model: type[AbstractModel] | None) -> type[AbstractModel]:
@@ -1002,120 +1058,12 @@ class UclchemInterface(
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('chem_model', dtype='string', direction=function.IN)
-        function.result_type = 'int32'
-        return function
-
-    @legacy_function
-    def get_abundance():
-        """
-        Retrieve the chemical abundance of a species by index for a given particle.
-
-        The `abundance_index` can be queried for using the methods `get_species_index`
-        and `get_species_name`.
-        """
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('abundance_index', dtype='int32', direction=function.IN)
-        function.addParameter('abundance', dtype='float64', direction=function.OUT)
-        function.result_type = 'int32'
-        return function
-
-    @legacy_function
-    def set_abundance():
-        """
-        Set the chemical abundance of a species by index for a given particle.
-
-        The `abundance_index` can be queried for using the methods `get_species_index`
-        and `get_species_name`.
-        """
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='int32', direction=function.IN)
-        function.addParameter('abundance_index', dtype='int32', direction=function.IN)
-        function.addParameter('abundance', dtype='float64', direction=function.IN)
-        function.result_type = 'int32'
-        return function
-
-    @legacy_function
-    def get_firstlast_abundance():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('first', dtype='int32', direction=function.OUT)
-        function.addParameter('last', dtype='int32', direction=function.OUT)
-        function.result_type = 'int32'
-        return function
-
-    @legacy_function
-    def get_species_index():
-        """
-        Given the name of a chemical species in the
-        chemical abundance array, retrieve its index.
-
-        Chemical abundances for each particle are stored
-        as a 1D array, where each element corresponds to
-        the abundance of a particular species.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter('name', dtype='string', direction=function.IN)
-        function.addParameter('i', dtype='int32', direction=function.OUT)
-        function.result_type = 'int32'
-        return function
-
-    @legacy_function
-    def get_species_name():
-        """
-        Given the index of a chemical species in the
-        chemical abundance array, retrieve its name.
-
-        Chemical abundances for each particle are stored
-        as a 1D array, where each element corresponds to
-        the abundance of a particular species.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter('i', dtype='int32', direction=function.IN)
-        function.addParameter('name', dtype='string', direction=function.OUT)
-        function.result_type = 'int32'
-        return function
-
-    @legacy_function
-    def get_time():
-        """
-        Retrieve the model time. This time should be close to the end time
-        specified in the evolve code.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter('time', dtype='float64', direction=function.OUT)
-        function.result_type = 'int32'
-        function.result_doc = """
-            0 - OK
-                Current value of the time was retrieved
-        """
-        return function
-
-    @legacy_function
-    def get_number_of_particles():
-        """
-        Retrieve the total number of particles defined in the code.
-        """
-        function = LegacyFunctionSpecification()
-        function.addParameter(
-            'number_of_particles',
-            dtype='int32',
-            direction=function.OUT,
-            description='Count of the particles in the code',
-        )
-        function.result_type = 'int32'
-        function.result_doc = """
-            0 - OK
-                Count could be determined
-            -1 - ERROR
-                Unable to determine the count
-        """
+        function.result_type = 'i'
         return function
 
 
-class Uclchem(CommonCode):
+class Uclchem(ChemicalEvolution):
+
     def __init__(self, unit_converter=None, **options):
 
         if unit_converter is not None:
