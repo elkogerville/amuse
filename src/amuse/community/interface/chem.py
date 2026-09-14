@@ -5,8 +5,11 @@ Chemical Evolution Interface Definition
 from collections.abc import Sequence
 
 from amuse.community.interface import common
-from amuse.rfi.core import legacy_function, remote_function
-from amuse.rfi.core import LegacyFunctionSpecification
+from amuse.rfi.core import (
+    LegacyFunctionSpecification,
+    legacy_function,
+    remote_function
+)
 from amuse.units import units as u
 import numpy as np
 from numpy.typing import NDArray
@@ -29,7 +32,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
                 Model is initialized and evolution can start
             -1 - ERROR
                 Error happened during initialization, this error needs to be
-                further specified by every code implemention
+                further specified by every code implementation
         """
         return function
 
@@ -48,7 +51,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
                 Model is initialized and evolution can start
             -1 - ERROR
                 Error happened during initialization, this error needs to be
-                further specified by every code implemention
+                further specified by every code implementation
         """
         return function
 
@@ -96,8 +99,8 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
 
         Examples
         --------
-        # get H20 abundance of particle 0
-        >>> chem.get_species_index('H20')
+        # get H2O abundance of particle 0
+        >>> chem.get_species_index('H2O')
         2
         >>> chem.get_abundance(0, 2)
         0.005
@@ -116,8 +119,8 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
 
         Examples
         --------
-        # set H20 abundance of particle 0
-        >>> chem.get_species_index('H20')
+        # set H2O abundance of particle 0
+        >>> chem.get_species_index('H2O')
         2
         >>> chem.set_abundance(0, 2, 0.005)
         """
@@ -143,8 +146,20 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         """
         returns ()
 
-    @remote_function(can_handle_array=True)
+    @remote_function()
     def get_firstlast_species_index():
+        """
+        Retrieve the index bounds of the chemical abundance array.
+
+        Used internally by the ChemicalEvolutionInterface.
+
+        Returns
+        ----------
+        first : int
+            Index of the first species in the abundance array.
+        last : int
+            Index of the last species in the abundance array.
+        """
         returns (first='i', last='i')
 
     @remote_function
@@ -206,7 +221,7 @@ class ChemicalEvolution(common.CommonCode):
         self,
         index_of_the_particle: int,
         species_names: str | Sequence[str]
-    ) -> NDArray:
+    ) -> NDArray[np.float64]:
         """
         Get the abundances of a particle at the current simulation time
         by species name. Both a single species name or a sequence of names
@@ -229,7 +244,7 @@ class ChemicalEvolution(common.CommonCode):
 
         Examples
         --------
-        >>> chem = Krome()
+        >>> chem = ChemicalEvolution()
         >>> chem.particles.add_particles(particles)
         >>> chem.get_abundances_by_name(1, ['H','H2'])
         [1.00000000e-40, 1.00000000e-40]
