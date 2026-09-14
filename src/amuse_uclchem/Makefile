@@ -8,13 +8,10 @@ support/config.mk:
 	cd support && ./configure
 
 # Downloading the code
-#VERSION = 4.0.0-rc4
-VERSION = 17bc9d90a9f21e7fd8c395e118f14f1ca83e0864
+VERSION = 70fa3545c4f2a541c34c7c663bea8c1814fe7374
 
 uclchem.tar.gz:
 	$(DOWNLOAD) https://github.com/uclchem/UCLCHEM/archive/$(VERSION).tar.gz >$@
-	#$(DOWNLOAD) https://github.com/uclchem/uclchem/archive/refs/tags/v$(VERSION).tar.gz >$@
-
 
 src/UCLCHEM-$(VERSION): uclchem.tar.gz
 	tar xf $<
