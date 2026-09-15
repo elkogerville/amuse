@@ -82,7 +82,7 @@ erg = named("erg", "erg", 1e-7 * J)
 barye = named("barye", "Ba", 0.1 * Pa)
 
 # radiation field
-habing = named("habing", "ha", 1.6e-3 * erg * cm**-2 * s**-1)
+habing = named("habing", "hab", 1.6e-3 * erg * cm**-2 * s**-1)
 
 # imperial distance units
 inch = named("inch", "in", 0.0254 * m)

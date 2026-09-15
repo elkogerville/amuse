@@ -36,8 +36,8 @@ class UclchemImplementation(object):
         model_class : type[AbstractModel]
             Current UCLCHEM AbstractModel class used when calling `evolve_model`.
         self.param_dict : dict
-            Dictionary to hold any additional parameters sent to Uclchem before evolving.
-            Parameter getters and setters should modify this dictionary.
+            Dictionary to hold any additional parameters sent to Uclchem before
+            evolving. Parameter getters and setters should modify this dictionary.
         uclchem_particles : amuse.datamodel.Particles
             Particles datamodel for storing UCLCHEM particles.
         _ids : np.ndarray[int]
@@ -852,10 +852,10 @@ class UclchemImplementation(object):
             If `model` is `None`.
         """
         if model is None:
+            options = ", ".join(f"'{k}'" for k in self.MODEL_MAP.keys())
             raise ValueError(
-                'chem_model must be one of the following options: '
-                "'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'! "
-                f'Got {self.chem_model}.'
+                f"\nchem_model must be one of the following options: {options}! "
+                f"Got {self.chem_model!r}."
             )
         return model
 
