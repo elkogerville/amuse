@@ -40,6 +40,14 @@ function recommit_particles() result(ret)
   ret = chem_commit_particles()
 end function recommit_particles
 
+function evolve_model(time) result(ret)
+  use chem_mod, only : evolve_chem_model
+  implicit none
+  double precision, intent(in) :: time
+  integer :: ret
+  ret = evolve_chem_model(time)
+end function evolve_model
+
 function new_particle(index_of_the_particle, number_density, temperature, ionrate) result(ret)
   use chem_mod, only : add_particle
   implicit none
@@ -74,6 +82,60 @@ function set_state(index_of_the_particle, number_density, temperature, ionrate) 
   integer :: ret
   ret = set_particle_state(index_of_the_particle, number_density, temperature, ionrate)
 end function set_state
+
+function get_number_density(index_of_the_particle, number_density) result(ret)
+  use chem_mod, only : get_particle_density
+  implicit none
+  integer, intent(in) :: index_of_the_particle
+  double precision, intent(out) :: number_density
+  integer :: ret
+  ret = get_particle_density(index_of_the_particle, number_density)
+end function get_number_density
+
+function set_number_density(index_of_the_particle, number_density) result(ret)
+  use chem_mod, only : set_particle_density
+  implicit none
+  integer, intent(in) :: index_of_the_particle
+  double precision, intent(in) :: number_density
+  integer :: ret
+  ret = set_particle_density(index_of_the_particle, number_density)
+end function set_number_density
+
+function get_temperature(index_of_the_particle, temperature) result(ret)
+  use chem_mod, only : get_particle_temperature
+  implicit none
+  integer, intent(in) :: index_of_the_particle
+  double precision, intent(out) :: temperature
+  integer :: ret
+  ret = get_particle_temperature(index_of_the_particle, temperature)
+end function get_temperature
+
+function set_temperature(index_of_the_particle, temperature) result(ret)
+  use chem_mod, only : set_particle_temperature
+  implicit none
+  integer, intent(in) :: index_of_the_particle
+  double precision, intent(in) :: temperature
+  integer :: ret
+  ret = set_particle_temperature(index_of_the_particle, temperature)
+end function set_temperature
+
+function get_ionrate(index_of_the_particle, ionrate) result(ret)
+  use chem_mod, only : get_particle_ionrate
+  implicit none
+  integer, intent(in) :: index_of_the_particle
+  double precision, intent(out) :: ionrate
+  integer :: ret
+  ret = get_particle_ionrate(index_of_the_particle, ionrate)
+end function get_ionrate
+
+function set_ionrate(index_of_the_particle, ionrate) result(ret)
+  use chem_mod, only : set_particle_ionrate
+  implicit none
+  integer, intent(in) :: index_of_the_particle
+  double precision, intent(in) :: ionrate
+  integer :: ret
+  ret = set_particle_ionrate(index_of_the_particle, ionrate)
+end function set_ionrate
 
 function get_abundance(index_of_the_particle, species_index, abundance) result(ret)
   use chem_mod, only : get_particle_abundance
@@ -138,14 +200,6 @@ function get_species_name(species_index, name) result(ret)
   name = names(species_index)
   ret = 0
 end function get_species_name
-
-function evolve_model(time) result(ret)
-  use chem_mod, only : evolve_chem_model
-  implicit none
-  double precision, intent(in) :: time
-  integer :: ret
-  ret = evolve_chem_model(time)
-end function evolve_model
 
 function get_time(time) result(ret)
   use chem_mod, only : chem_model_time
