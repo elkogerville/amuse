@@ -102,7 +102,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Returns
         -------
         number_density : float
-            Number density of the particle.
+            Number density of the particle in units of cm**-3.
         """
         returns (number_density='d')
 
@@ -116,7 +116,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         index_of_the_particle : int
             Id of the particle.
         number_density : float
-            Number density of the particle.
+            Number density of the particle in units of cm**-3.
         """
         returns ()
 
@@ -133,7 +133,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Returns
         -------
         temperature : float
-            Temperature of the particle.
+            Temperature of the particle in units of Kelvin.
         """
         returns (temperature='d')
 
@@ -147,7 +147,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         index_of_the_particle : int
             Id of the particle.
         temperature : float
-            Temperature of the particle.
+            Temperature of the particle in units of Kelvin.
         """
         returns ()
 
@@ -164,7 +164,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Returns
         -------
         ionrate : float
-            Ionrate of the particle.
+            Ionrate of the particle in units of s**-1.
         """
         returns (ionrate='d')
 
@@ -178,7 +178,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         index_of_the_particle : int
             Id of the particle.
         ionrate : float
-            Ionrate of the particle.
+            Ionrate of the particle in units of s**-1.
         """
         returns ()
 
@@ -226,6 +226,14 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         The abundance array must match the shape of the abundance
         array in the chemical evolution code.
 
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+        abundances : np.ndarray
+            Array of abundances. Must match the shape of
+            the abundance array inside the chemistry code.
+
         Examples
         --------
         >>> abundances = np.random.rand(100)
@@ -265,6 +273,16 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         as a 1D array, where each element corresponds to
         the abundance of a particular species.
 
+        Parameters
+        ----------
+        name : str
+            Name of species.
+
+        Returns
+        -------
+        species_index : int
+            Index of the species in the abundance array.
+
         Examples
         --------
         >>> chem.get_species_index('H')
@@ -281,6 +299,16 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Chemical abundances for each particle are stored
         as a 1D array, where each element corresponds to
         the abundance of a particular species.
+
+        Parameters
+        ----------
+        species_index : int
+            Index of the species.
+
+        Returns
+        -------
+        name : str
+            Species name corresponding to the input index.
 
         Examples
         --------
@@ -377,6 +405,42 @@ class ChemicalEvolution(common.CommonCode):
         )
 
         handler.add_method(
+            'get_number_density',
+            (handler.INDEX,),
+            (u.cm**-3, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'set_number_density',
+            (handler.INDEX, u.cm**-3,),
+            (handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'get_temperature',
+            (handler.INDEX,),
+            (u.K, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'set_temperature',
+            (handler.INDEX, u.K,),
+            (handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'get_ionrate',
+            (handler.INDEX,),
+            (u.s**-1, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'set_ionrate',
+            (handler.INDEX, u.s**-1,),
+            (handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
             'get_abundance',
             (handler.INDEX, handler.INDEX,),
             (handler.NO_UNIT, handler.ERROR_CODE,),
@@ -384,11 +448,7 @@ class ChemicalEvolution(common.CommonCode):
 
         handler.add_method(
             'set_abundance',
-            (
-                handler.INDEX,
-                handler.INDEX,
-                handler.NO_UNIT,
-            ),
+            (handler.INDEX, handler.INDEX, handler.NO_UNIT,),
             (handler.ERROR_CODE,)
         )
 
@@ -401,11 +461,7 @@ class ChemicalEvolution(common.CommonCode):
         handler.add_method(
             'get_firstlast_species_index',
             (),
-            (
-                handler.NO_UNIT,
-                handler.NO_UNIT,
-                handler.ERROR_CODE,
-            )
+            (handler.NO_UNIT, handler.NO_UNIT, handler.ERROR_CODE,)
         )
 
         handler.add_method(
@@ -421,9 +477,7 @@ class ChemicalEvolution(common.CommonCode):
         )
 
         handler.add_method(
-            'get_time',
-            (),
-            (u.yr, handler.ERROR_CODE,),
+            'get_time', (), (u.yr, handler.ERROR_CODE,),
         )
 
         handler.add_method(
@@ -438,6 +492,12 @@ class ChemicalEvolution(common.CommonCode):
         handler.set_delete('particles', 'delete_particle')
         handler.add_setter('particles', 'set_state')
         handler.add_getter('particles', 'get_state')
+        handler.add_setter('particles', 'set_number_density')
+        handler.add_getter('particles', 'get_number_density')
+        handler.add_setter('particles', 'set_temperature')
+        handler.add_getter('particles', 'get_temperature')
+        handler.add_setter('particles', 'set_ionrate')
+        handler.add_getter('particles', 'get_ionrate')
         handler.add_gridded_getter(
             'particles',
             'get_abundance',
