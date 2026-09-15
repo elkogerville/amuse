@@ -11,7 +11,10 @@ from amuse.community.interface.chem import (
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.datamodel import Particle, Particles
 from amuse.rfi.core import (
-    LegacyFunctionSpecification, PythonCodeInterface, legacy_function
+    LegacyFunctionSpecification,
+    PythonCodeInterface,
+    legacy_function,
+    remote_function
 )
 from amuse.units import units as u
 
@@ -972,93 +975,21 @@ class UclchemInterface(
         function.result_type = 'i'
         return function
 
-    @legacy_function
-    def get_number_density():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('number_density', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        return function
+    @remote_function(can_handle_array=True)
+    def get_radfield(index_of_the_particle='i'):
+        returns (radfield='d')
 
-    @legacy_function
-    def set_number_density():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('number_density', dtype='d', direction=function.IN)
-        function.result_type = 'i'
-        return function
+    @remote_function(can_handle_array=True)
+    def set_radfield(index_of_the_particle='i', radfield='d'):
+        returns ()
 
-    @legacy_function
-    def get_temperature():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('temperature', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def set_temperature():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('temperature', dtype='d', direction=function.IN)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def get_ionrate():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('ionrate', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def set_ionrate():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('ionrate', dtype='d', direction=function.IN)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def get_radfield():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('radfield', dtype='d', direction=function.OUT)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
-    def set_radfield():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        function.addParameter('radfield', dtype='d', direction=function.IN)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
+    @remote_function
     def get_chemical_model():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('chem_model', dtype='string', direction=function.OUT)
-        function.result_type = 'i'
-        return function
+        returns (chem_model='s')
 
-    @legacy_function
-    def set_chemical_model():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('chem_model', dtype='string', direction=function.IN)
-        function.result_type = 'i'
-        return function
+    @remote_function
+    def set_chemical_model(chem_model='s'):
+        returns ()
 
 
 class Uclchem(ChemicalEvolution):
@@ -1085,10 +1016,7 @@ class Uclchem(ChemicalEvolution):
         handler.add_method(
             'new_particle',
             (u.cm**-3, u.K, u.s**-1, habing),
-            (
-                handler.INDEX,
-                handler.ERROR_CODE,
-            ),
+            (handler.INDEX, handler.ERROR_CODE,),
         )
 
         handler.add_method(
@@ -1112,42 +1040,6 @@ class Uclchem(ChemicalEvolution):
                 u.s**-1,
                 habing,
             ),
-            (handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'get_number_density',
-            (handler.INDEX,),
-            (u.cm**-3, handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'set_number_density',
-            (handler.INDEX, u.cm**-3,),
-            (handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'get_temperature',
-            (handler.INDEX,),
-            (u.K, handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'set_temperature',
-            (handler.INDEX, u.K,),
-            (handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'get_ionrate',
-            (handler.INDEX,),
-            (u.s**-1, handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'set_ionrate',
-            (handler.INDEX, u.s**-1,),
             (handler.ERROR_CODE,),
         )
 
