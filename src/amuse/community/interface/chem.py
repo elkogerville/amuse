@@ -90,6 +90,99 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         return function
 
     @remote_function(can_handle_array=True)
+    def get_number_density(index_of_the_particle='i'):
+        """
+        Retrieve the number density of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+
+        Returns
+        -------
+        number_density : float
+            Number density of the particle.
+        """
+        returns (number_density='d')
+
+    @remote_function(can_handle_array=True)
+    def set_number_density(index_of_the_particle='i', number_density='d'):
+        """
+        Set the number density of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+        number_density : float
+            Number density of the particle.
+        """
+        returns ()
+
+    @remote_function(can_handle_array=True)
+    def get_temperature(index_of_the_particle='i'):
+        """
+        Retrieve the temperature of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+
+        Returns
+        -------
+        temperature : float
+            Temperature of the particle.
+        """
+        returns (temperature='d')
+
+    @remote_function(can_handle_array=True)
+    def set_temperature(index_of_the_particle='i', temperature='d'):
+        """
+        Set the temperature of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+        temperature : float
+            Temperature of the particle.
+        """
+        returns ()
+
+    @remote_function(can_handle_array=True)
+    def get_ionrate(index_of_the_particle='i'):
+        """
+        Retrieve the ionization rate of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+
+        Returns
+        -------
+        ionrate : float
+            Ionrate of the particle.
+        """
+        returns (ionrate='d')
+
+    @remote_function(can_handle_array=True)
+    def set_ionrate(index_of_the_particle='i', ionrate='d'):
+        """
+        Set the ionization rate of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+        ionrate : float
+            Ionrate of the particle.
+        """
+        returns ()
+
+    @remote_function(can_handle_array=True)
     def get_abundance(index_of_the_particle='i', species_index='i'):
         """
         Retrieve the chemical abundance of a species by index for a given particle.
@@ -100,9 +193,9 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Examples
         --------
         # get H2O abundance of particle 0
-        >>> chem.get_species_index('H2O')
+        >>> get_species_index('H2O')
         2
-        >>> chem.get_abundance(0, 2)
+        >>> get_abundance(0, 2)
         0.005
         """
         returns (abundance='d')
@@ -120,9 +213,9 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Examples
         --------
         # set H2O abundance of particle 0
-        >>> chem.get_species_index('H2O')
+        >>> get_species_index('H2O')
         2
-        >>> chem.set_abundance(0, 2, 0.005)
+        >>> set_abundance(0, 2, 0.005)
         """
         returns ()
 
