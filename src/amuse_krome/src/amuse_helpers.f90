@@ -93,6 +93,84 @@ contains
     ret = 0
   end function evolve_1_particle
 
+  function get_particle_density(index_of_the_particle, number_density) result(ret)
+    integer, intent(in) :: index_of_the_particle
+    double precision, intent(out) :: number_density
+    integer :: index, ret
+    index = find_particle(index_of_the_particle)
+    if (index .LT. 0) then
+      ret = index
+      return
+    endif
+    number_density = particles(index)%number_density
+    ret = 0
+  end function get_particle_density
+
+  function set_particle_density(index_of_the_particle, number_density) result(ret)
+    integer, intent(in) :: index_of_the_particle
+    double precision, intent(in) :: number_density
+    integer :: index, ret
+    index = find_particle(index_of_the_particle)
+    if (index .LT. 0) then
+      ret = index
+      return
+    endif
+    particles(index)%number_density = number_density
+    ret = 0
+  end function set_particle_density
+
+  function get_particle_temperature(index_of_the_particle, temperature) result(ret)
+    integer, intent(in) :: index_of_the_particle
+    double precision, intent(out) :: temperature
+    integer :: index, ret
+    index = find_particle(index_of_the_particle)
+    if (index .LT. 0) then
+      ret = index
+      return
+    endif
+    temperature = particles(index)%temperature
+    ret = 0
+  end function get_particle_temperature
+
+  function set_particle_temperature(index_of_the_particle, temperature) result(ret)
+    integer, intent(in) :: index_of_the_particle
+    double precision, intent(in) :: temperature
+    integer :: index, ret
+    index = find_particle(index_of_the_particle)
+    if (index .LT. 0) then
+      ret = index
+      return
+    endif
+    particles(index)%temperature = temperature
+    ret = 0
+  end function set_particle_temperature
+
+  function get_particle_ionrate(index_of_the_particle, ionrate) result(ret)
+    integer, intent(in) :: index_of_the_particle
+    double precision, intent(out) :: ionrate
+    integer :: index, ret
+    index = find_particle(index_of_the_particle)
+    if (index .LT. 0) then
+      ret = index
+      return
+    endif
+    ionrate = particles(index)%ionrate
+    ret = 0
+  end function get_particle_ionrate
+
+  function set_particle_ionrate(index_of_the_particle, ionrate) result(ret)
+    integer, intent(in) :: index_of_the_particle
+    double precision, intent(in) :: ionrate
+    integer :: index, ret
+    index = find_particle(index_of_the_particle)
+    if (index .LT. 0) then
+      ret = index
+      return
+    endif
+    particles(index)%ionrate = ionrate
+    ret = 0
+  end function set_particle_ionrate
+
   function get_particle_abundance(index_of_the_particle, species_index, abundance) result(ret)
     integer, intent(in) :: index_of_the_particle, species_index
     double precision, intent(out) :: abundance
