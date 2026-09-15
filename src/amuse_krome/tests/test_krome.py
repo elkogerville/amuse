@@ -19,8 +19,36 @@ class TestKromeInterface(TestWithMPI):
         self.assertEqual(0, instance.cleanup_code())
         instance.stop()
 
+    def test_getters_and_setters(self):
+        print("Test 2: getters and setters")
+
+        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        self.assertEqual(0, instance.initialize_code())
+        self.assertEqual(0, instance.commit_parameters())
+        dens = 1.e5
+        t = 500.
+        ion = 1.e-11
+        id, err = instance.new_particle(dens, t, ion)
+
+        new_dens = 2e5
+        new_temp = 1000
+        new_ionrate = 1e-12
+
+        instance.set_number_density(1, new_dens)
+        instance.set_temperature(1, new_temp)
+        instance.set_ionrate(1, new_ionrate)
+
+        res = instance.get_number_density(1)
+        self.assertEquals(res['number_density'], new_dens)
+        res = instance.get_temperature(1)
+        self.assertEquals(res['temperature'], new_temp)
+        res = instance.get_ionrate(1)
+        self.assertEquals(res['ionrate'], new_ionrate)
+
+        instance.stop()
+
     def test_add_1_particle_and_get_state(self):
-        print("Test 2: add particle, get state")
+        print("Test 3: add particle, get state")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -48,7 +76,7 @@ class TestKromeInterface(TestWithMPI):
         instance.stop()
 
     def test_add_2_particles_and_get_state(self):
-        print("Test 3: add 2 particles, get state")
+        print("Test 4: add 2 particles, get state")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -77,7 +105,7 @@ class TestKromeInterface(TestWithMPI):
         instance.stop()
 
     def test_add_100_particles_and_get_state(self):
-        print("Test 4: add 100 particles, get state")
+        print("Test 5: add 100 particles, get state")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -106,7 +134,7 @@ class TestKromeInterface(TestWithMPI):
         instance.stop()
 
     def test_get_species(self):
-        print("Test 5: can we get species?")
+        print("Test 6: can we get species?")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
 
@@ -124,7 +152,7 @@ class TestKromeInterface(TestWithMPI):
         instance.stop()
 
     def test_add_and_remove_particles(self):
-        print("Test 6: add 100 particles, remove particles")
+        print("Test 7: add 100 particles, remove particles")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -162,7 +190,7 @@ class TestKromeInterface(TestWithMPI):
         instance.stop()
 
     def test_add_particle_and_set_abundances(self):
-        print("Test 7: add particle, set abundances")
+        print("Test 8: add particle, set abundances")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -196,7 +224,7 @@ class TestKromeInterface(TestWithMPI):
             self.assertEqual(err, 0)
 
     def test_evolve(self):
-        print("Test 8: evolve test")
+        print("Test 9: evolve test")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -233,7 +261,7 @@ class TestKromeInterface(TestWithMPI):
             print(i, name, x)
 
     def test_evolve_ionized_initial_state(self):
-        print("Test 9: evolve test 2")
+        print("Test 10: evolve test 2")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -281,7 +309,7 @@ class TestKromeInterface(TestWithMPI):
             print(i, name, x)
 
     def test_abundance_initialization(self):
-        print("Test 10: check initialization of abundances")
+        print("Test 11: check initialization of abundances")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
@@ -306,7 +334,7 @@ class TestKromeInterface(TestWithMPI):
                 self.assertAlmostEqual(x, abundances[name], 12)
 
     def test_evolve_comparison(self):
-        print("Test 11: evolve test, comparison")
+        print("Test 12: evolve test, comparison")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         self.assertEqual(0, instance.initialize_code())
