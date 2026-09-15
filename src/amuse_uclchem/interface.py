@@ -1022,24 +1022,12 @@ class Uclchem(ChemicalEvolution):
         handler.add_method(
             'get_state',
             (handler.INDEX,),
-            (
-                u.cm**-3,
-                u.K,
-                u.s**-1,
-                habing,
-                handler.ERROR_CODE,
-            ),
+            (u.cm**-3, u.K, u.s**-1, habing, handler.ERROR_CODE,),
         )
 
         handler.add_method(
             'set_state',
-            (
-                handler.INDEX,
-                u.cm**-3,
-                u.K,
-                u.s**-1,
-                habing,
-            ),
+            (handler.INDEX, u.cm**-3, u.K, u.s**-1, habing,),
             (handler.ERROR_CODE,),
         )
 
