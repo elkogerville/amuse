@@ -7,7 +7,7 @@ from amuse.rfi.core import (
     legacy_function
 )
 from amuse.support.literature import LiteratureReferencesMixIn
-from amuse.units import units
+from amuse.units import units as u
 
 
 # (Grevesse & Sauval, 1998, Space Sci. Rev. 85, 161)
@@ -89,49 +89,27 @@ class Krome(ChemicalEvolution):
     def define_methods(self, handler):
         ChemicalEvolution.define_methods(self, handler)
         handler.add_method(
-            'evolve_model',
-            (units.s,),
-            (handler.ERROR_CODE,)
+            'evolve_model', (u.s,), (handler.ERROR_CODE,)
         )
 
         handler.add_method(
             'new_particle',
-            (
-                units.cm**-3,
-                units.K,
-                units.s**-1,
-            ),
+            (u.cm**-3, u.K, u.s**-1,),
             (handler.INDEX, handler.ERROR_CODE,)
         )
 
         handler.add_method(
             'get_state',
-            (
-                handler.INDEX,
-            ),
-            (
-                units.cm**-3,
-                units.K,
-                units.s**-1,
-                handler.ERROR_CODE,
-            )
+            (handler.INDEX,),
+            (u.cm**-3, u.K, u.s**-1, handler.ERROR_CODE,)
         )
 
         handler.add_method(
             'set_state',
-            (
-                handler.NO_UNIT,
-                units.cm**-3,
-                units.K,
-                units.s**-1,
-            ),
-            (
-                handler.ERROR_CODE,
-            )
+            (handler.NO_UNIT, u.cm**-3, u.K, u.s**-1,),
+            (handler.ERROR_CODE,)
         )
 
         handler.add_method(
-            'get_time',
-            (),
-            (units.s, handler.ERROR_CODE,)
+            'get_time', (), (u.s, handler.ERROR_CODE,)
         )
