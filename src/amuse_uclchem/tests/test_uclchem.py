@@ -5,7 +5,7 @@ from uclchem.model import get_species_names as _get_species_names
 from amuse.datamodel import Particle, Particles
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse.units import units as u
-from amuse_uclchem.interface import UclchemInterface, Uclchem, habing
+from amuse_uclchem.interface import UclchemInterface, Uclchem
 
 
 class TestUclchemInterface(TestWithMPI):
@@ -80,7 +80,7 @@ class TestUclchem(TestWithMPI):
         p.number_density = 1e4 | u.cm**-3
         p.temperature = 10 | u.K
         p.ionrate = 1.3e-17 | u.s**-1
-        p.radfield = 1 | habing
+        p.radfield = 1 | u.habing
 
         return p
 
@@ -89,12 +89,12 @@ class TestUclchem(TestWithMPI):
         p[0].number_density = 1e4 | u.cm**-3
         p[0].temperature = 10 | u.K
         p[0].ionrate = 1.3e-17 | u.s**-1
-        p[0].radfield = 1 | habing
+        p[0].radfield = 1 | u.habing
 
         p[1].number_density = 1e5 | u.cm**-3
         p[1].temperature = 20 | u.K
         p[1].ionrate = 1.3e-17 | u.s**-1
-        p[1].radfield = 1 | habing
+        p[1].radfield = 1 | u.habing
 
         return p
 
@@ -124,7 +124,7 @@ class TestUclchem(TestWithMPI):
         p = self.generate_two_particles()
         instance.particles.add_particles(p)
 
-        new_state = [10 | u.cm**-3, 20 | u.K, 30 | u.s**-1, 40 | habing]
+        new_state = [10 | u.cm**-3, 20 | u.K, 30 | u.s**-1, 40 | u.habing]
         instance.set_state(0, *new_state)
         self.assertEquals(instance.get_state(0), new_state)
 
@@ -137,8 +137,8 @@ class TestUclchem(TestWithMPI):
         instance.set_ionrate(1, 200 | u.s**-1)
         self.assertEquals(instance.get_ionrate(1), 200 | u.s**-1)
 
-        instance.set_radfield(1, 200 | habing)
-        self.assertEquals(instance.get_radfield(1), 200 | habing)
+        instance.set_radfield(1, 200 | u.habing)
+        self.assertEquals(instance.get_radfield(1), 200 | u.habing)
 
         self.assertEquals(instance.get_number_of_particles(), 2)
         self.assertEquals(len(instance.particles), 2)
@@ -297,7 +297,7 @@ class TestUclchem(TestWithMPI):
         p.number_density = 10010.000467300415 | u.cm**-3
         p.temperature = 10.0 | u.K
         p.ionrate = 1.3e-17 | u.s**-1
-        p.radfield = 1 | habing
+        p.radfield = 1 | u.habing
 
         instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
         assert instance is not None
