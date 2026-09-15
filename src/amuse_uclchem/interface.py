@@ -19,9 +19,6 @@ from amuse.rfi.core import (
 from amuse.units import units as u
 
 
-habing = u.named('habing', 'hab', 1.6e-3 * u.erg * u.cm**-2 * u.s**-1)
-
-
 class UclchemImplementation(object):
     def __init__(self):
         """
@@ -1015,31 +1012,31 @@ class Uclchem(ChemicalEvolution):
         ChemicalEvolution.define_methods(self, handler)
         handler.add_method(
             'new_particle',
-            (u.cm**-3, u.K, u.s**-1, habing),
+            (u.cm**-3, u.K, u.s**-1, u.habing),
             (handler.INDEX, handler.ERROR_CODE,),
         )
 
         handler.add_method(
             'get_state',
             (handler.INDEX,),
-            (u.cm**-3, u.K, u.s**-1, habing, handler.ERROR_CODE,),
+            (u.cm**-3, u.K, u.s**-1, u.habing, handler.ERROR_CODE,),
         )
 
         handler.add_method(
             'set_state',
-            (handler.INDEX, u.cm**-3, u.K, u.s**-1, habing,),
+            (handler.INDEX, u.cm**-3, u.K, u.s**-1, u.habing,),
             (handler.ERROR_CODE,),
         )
 
         handler.add_method(
             'get_radfield',
             (handler.INDEX,),
-            (habing, handler.ERROR_CODE,),
+            (u.habing, handler.ERROR_CODE,),
         )
 
         handler.add_method(
             'set_radfield',
-            (handler.INDEX, habing,),
+            (handler.INDEX, u.habing,),
             (handler.ERROR_CODE,),
         )
 
