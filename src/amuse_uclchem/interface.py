@@ -543,20 +543,20 @@ class UclchemImplementation(object):
         p.radfield = radfield
         return 0
 
-    def get_abundance(self, index_of_the_particle, abundance_index, abundance) -> int:
+    def get_abundance(self, index_of_the_particle, species_index, abundance) -> int:
         """
-        Retrieve the chemical abundance of a species by index for a given particle.
+        Retrieve the chemical abundance of a species for a given particle by index.
 
-        The `abundance_index` can be queried for using the methods `get_species_index`
+        The `species_index` can be queried for using the methods `get_species_index`
         and `get_species_name`.
 
         Parameters
         ----------
         index_of_the_particle : int
             Index of the particle as returned by `new_particle`.
-        abundance_index : int
-            Index of the abundance in the abundance array of the particle.
-            The `abundance_index` can be calculated using `get_species_index`.
+        species_index : int
+            Index of the species in the abundance array of the particle.
+            The `species_index` can be queried for using `get_species_index`.
         abundance : amuse.rfi.python_code.ValueHolder[float]
             Mutable container used to return the abundance of a particle.
 
@@ -571,23 +571,23 @@ class UclchemImplementation(object):
             If `index_of_the_particle` is not a valid particle id.
         """
         i = self._id_to_storage_index(index_of_the_particle)
-        abundance.value = self.uclchem_particles[i].abundances[abundance_index]
+        abundance.value = self.uclchem_particles[i].abundances[species_index]
         return 0
 
-    def set_abundance(self, index_of_the_particle, abundance_index, abundance) -> int:
+    def set_abundance(self, index_of_the_particle, species_index, abundance) -> int:
         """
-        Set the chemical abundance of a species by index for a given particle.
+        Set the chemical abundance of a species for a given particle by index.
 
-        The `abundance_index` can be queried for using the methods `get_species_index`
+        The `species_index` can be queried for using the methods `get_species_index`
         and `get_species_name`.
 
         Parameters
         ----------
         index_of_the_particle : int
             Index of the particle as returned by `new_particle`.
-        abundance_index : int
-            Index of the abundance in the abundance array of the particle.
-            The `abundance_index` can be calculated using `get_species_index`.
+        species_index : int
+            Index of the species in the abundance array of the particle.
+            The `species_index` can be queried for using `get_species_index`.
         abundance : float
             Abundance of the chemical species of the particle.
 
@@ -604,7 +604,7 @@ class UclchemImplementation(object):
         i = self._id_to_storage_index(index_of_the_particle)
 
         abundances = self.uclchem_particles[i].abundances
-        abundances[abundance_index] = abundance
+        abundances[species_index] = abundance
         self.uclchem_particles[i].abundances = abundances
         return 0
 
@@ -669,7 +669,7 @@ class UclchemImplementation(object):
         last.value = len(_get_species_names()) - 1
         return 0
 
-    def get_species_index(self, name, abundance_index) -> int:
+    def get_species_index(self, name, species_index) -> int:
         """
         Given the name of a chemical species in the
         chemical abundance array, retrieve its index.
@@ -683,7 +683,7 @@ class UclchemImplementation(object):
         name : str
             Name of chemical species. Must be one of the
             species tracked by UCLCHEM.
-        abundance_index : amuse.rfi.python_code.ValueHolder[int]
+        species_index : amuse.rfi.python_code.ValueHolder[int]
             Mutable container used to return the index
             of the species.
 
@@ -705,10 +705,10 @@ class UclchemImplementation(object):
         except ValueError:
             return -1
 
-        abundance_index.value = idx
+        species_index.value = idx
         return 0
 
-    def get_species_name(self, abundance_index, name) -> int:
+    def get_species_name(self, species_index, name) -> int:
         """
         Given the index of a chemical species in the
         chemical abundance array, retrieve its name.
@@ -719,7 +719,7 @@ class UclchemImplementation(object):
 
         Parameters
         ----------
-        abundance_index : int
+        species_index : int
             Index of the chemical species in the abundance array.
         name : amuse.rfi.python_code.ValueHolder[str]
             Mutable container used to return the name of
@@ -737,10 +737,10 @@ class UclchemImplementation(object):
         'H2O'
         """
         species_names = _get_species_names()
-        if not 0 <= abundance_index < len(species_names):
+        if not 0 <= species_index < len(species_names):
             return -1
 
-        name.value = species_names[abundance_index]
+        name.value = species_names[species_index]
         return 0
 
     def get_time(self, time) -> int:
