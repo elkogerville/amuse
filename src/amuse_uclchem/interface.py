@@ -1079,3 +1079,7 @@ class Uclchem(ChemicalEvolution, ChemNumberDensityTemperature):
         handler.add_interface_parameter(
             'out_species', 'Array of molecules to use', default_value=['H', 'H2']
         )
+
+    def define_particle_sets(self, handler):
+        ChemicalEvolution.define_particle_sets(self, handler)
+        ChemNumberDensityTemperature.define_particle_sets(self, handler)
