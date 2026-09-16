@@ -222,17 +222,20 @@ class TestKromeSphInterface(TestWithMPI):
 
         instance.stop()
 
-    def test7(self):
-        print("Test 1: add particle, set abundances")
+    def test_add_particle_and_set_abundances(self):
+        print("Test 8: add particle, set abundances")
 
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        instance = self.new_instance_of_an_optional_code(KromeSphInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
         dens = 1.e5
-        t = 500.
+        u = 500.
+        gamma = 5/3
+        mu = 1.23
         ion = 1.e-11
-        id, err = instance.new_particle(dens, t, ion)
+        id, err = instance.new_particle(dens, u, gamma, mu, ion)
 
         instance.commit_particles()
 

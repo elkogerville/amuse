@@ -322,12 +322,12 @@ class KromeSph(ChemicalEvolution, ChemDensityInternalEnergy):
         handler.add_method(
             'get_mu',
             (handler.INDEX,),
-            (handler.g, handler.ERROR_CODE,)
+            (u.g, handler.ERROR_CODE,)
         )
 
         handler.add_method(
             'set_mu',
-            (handler.INDEX, handler.g,),
+            (handler.INDEX, u.g,),
             (handler.ERROR_CODE,)
         )
 
