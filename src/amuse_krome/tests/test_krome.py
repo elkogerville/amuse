@@ -520,36 +520,38 @@ class TestKrome(TestWithMPI):
         instance.cleanup_code()
         instance.stop()
 
-    def test_delete_particles(self):
+    def test_delete_particles_and_abundances(self):
         print("Test 6: Delete particles")
 
         instance = self.new_instance_of_an_optional_code(Krome, **default_options)
 
-        parts = Particles(10)
-        parts.number_density = np.random.rand(10)*1.e5 | units.cm**-3
-        parts.temperature = np.random.rand(10)*50 | units.K
-        parts.ionrate = np.random.rand(10)*2.e-17 | units.s**-1
+        N_particles = 5
+        parts = Particles(N_particles)
+        parts.number_density = np.random.rand(N_particles)*1.e5 | units.cm**-3
+        parts.temperature = np.random.rand(N_particles)*50 | units.K
+        parts.ionrate = np.random.rand(N_particles)*2.e-17 | units.s**-1
 
         instance.particles.add_particles(parts)
         instance.commit_particles()
 
         instance.evolve_model(100 | units.yr)
 
+        N_species = len(instance.species)
         abundances = instance.particles.abundances
-        self.assertEquals(abundances.shape, (10, 37))
-        self.assertEquals(instance.get_number_of_particles(), 10)
+        self.assertEquals(abundances.shape, (N_particles, N_species))
+        self.assertEquals(instance.get_number_of_particles(), N_particles)
 
         instance.particles.remove_particle(parts[0])
         instance.recommit_particles()
-        self.assertEquals(instance.get_number_of_particles(), 9)
-        self.assertEquals(instance.particles.abundances.shape, (9, 37))
+        self.assertEquals(instance.get_number_of_particles(), N_particles-1)
+        self.assertEquals(instance.particles.abundances.shape, (N_particles-1, N_species))
         self.assertEquals(instance.particles.abundances.shape, abundances[1:, :].shape)
         self.assertEquals(instance.particles.abundances, abundances[1:, :])
 
         instance.particles.remove_particle(parts[1:5])
         instance.recommit_particles()
-        self.assertEquals(instance.get_number_of_particles(), 5)
-        self.assertEquals(instance.particles.abundances.shape, (5, 37))
+        self.assertEquals(instance.get_number_of_particles(), N_particles-5)
+        self.assertEquals(instance.particles.abundances.shape, (N_particles-5, N_species))
         self.assertEquals(instance.particles.abundances, abundances[5:, :])
 
         instance.particles.remove_particles(parts[5:])
