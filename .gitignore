@@ -456,6 +456,3 @@ packages/dist
 # standard directory for a virtualenv
 env/
 
-# mac DS_Store
-.DS_Store
-**/.DS_Store
