@@ -90,68 +90,6 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         return function
 
     @remote_function(can_handle_array=True)
-    def get_number_density(index_of_the_particle='i'):
-        """
-        Retrieve the number density of a particle.
-
-        Parameters
-        ----------
-        index_of_the_particle : int
-            Id of the particle.
-
-        Returns
-        -------
-        number_density : float
-            Number density of the particle in units of cm**-3.
-        """
-        returns (number_density='d')
-
-    @remote_function(can_handle_array=True)
-    def set_number_density(index_of_the_particle='i', number_density='d'):
-        """
-        Set the number density of a particle.
-
-        Parameters
-        ----------
-        index_of_the_particle : int
-            Id of the particle.
-        number_density : float
-            Number density of the particle in units of cm**-3.
-        """
-        returns ()
-
-    @remote_function(can_handle_array=True)
-    def get_temperature(index_of_the_particle='i'):
-        """
-        Retrieve the temperature of a particle.
-
-        Parameters
-        ----------
-        index_of_the_particle : int
-            Id of the particle.
-
-        Returns
-        -------
-        temperature : float
-            Temperature of the particle in units of Kelvin.
-        """
-        returns (temperature='d')
-
-    @remote_function(can_handle_array=True)
-    def set_temperature(index_of_the_particle='i', temperature='d'):
-        """
-        Set the temperature of a particle.
-
-        Parameters
-        ----------
-        index_of_the_particle : int
-            Id of the particle.
-        temperature : float
-            Temperature of the particle in units of Kelvin.
-        """
-        returns ()
-
-    @remote_function(can_handle_array=True)
     def get_ionrate(index_of_the_particle='i'):
         """
         Retrieve the ionization rate of a particle.
@@ -329,6 +267,74 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
     def get_number_of_particles():
         """Retrieve the total number of particles defined in the code."""
         returns (number_of_particles='i')
+
+
+class ChemTemperatureNumberDensityInterface:
+    """
+    Mixin for number density and temperature setters
+    and getters in the ChemicalEvolutionInterface.
+    """
+    @remote_function(can_handle_array=True)
+    def get_number_density(index_of_the_particle='i'):
+        """
+        Retrieve the number density of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+
+        Returns
+        -------
+        number_density : float
+            Number density of the particle in units of cm**-3.
+        """
+        returns (number_density='d')
+
+    @remote_function(can_handle_array=True)
+    def set_number_density(index_of_the_particle='i', number_density='d'):
+        """
+        Set the number density of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+        number_density : float
+            Number density of the particle in units of cm**-3.
+        """
+        returns ()
+
+    @remote_function(can_handle_array=True)
+    def get_temperature(index_of_the_particle='i'):
+        """
+        Retrieve the temperature of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+
+        Returns
+        -------
+        temperature : float
+            Temperature of the particle in units of Kelvin.
+        """
+        returns (temperature='d')
+
+    @remote_function(can_handle_array=True)
+    def set_temperature(index_of_the_particle='i', temperature='d'):
+        """
+        Set the temperature of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+        temperature : float
+            Temperature of the particle in units of Kelvin.
+        """
+        returns ()
 
 
 class ChemicalEvolution(common.CommonCode):
