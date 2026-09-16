@@ -7,6 +7,15 @@ import numpy as np
 
 default_options = dict(redirection='none')
 
+try:
+    # dynamically retrieve the species list from Krome since it can change
+    # based on the compilation options
+    instance = KromeSph()
+    krome_species = [key for key in instance.species.keys()]
+    E_index = krome_species.index('E')
+    krome_species.pop(E_index)
+except:
+    krome_species = None
 
 class TestKromeSphInterface(TestWithMPI):
 
@@ -247,22 +256,25 @@ class TestKromeSphInterface(TestWithMPI):
         x, err = instance.get_abundance(id, last+1)
         self.assertEqual(err, -1)
 
-        for s in ["H", "HE", "C", "SI", "O"]:
-            x = solar_abundances[s]
-            aid, err = instance.get_species_index(s)
-            instance.set_abundance(id, aid, x)
+        if krome_species is not None:
+            xs = np.random.rand(len(krome_species))
+            for i, s in enumerate(krome_species):
+                x = xs[i]
+                aid, err = instance.get_species_index(s)
+                instance.set_abundance(id, aid, x)
 
-        for s in ["H", "HE", "C", "SI", "O"]:
-            x = solar_abundances[s]
-            aid, err = instance.get_species_index(s)
-            xx, err = instance.get_abundance(id, aid)
-            self.assertEqual(x, xx)
-            self.assertEqual(err, 0)
+            for i, s in enumerate(krome_species):
+                x = xs[i]
+                aid, err = instance.get_species_index(s)
+                xx, err = instance.get_abundance(id, aid)
+                self.assertEqual(x, xx)
+                self.assertEqual(err, 0)
 
-    def test8(self):
-        print("evolve test")
+    def test_evolve(self):
+        print("Test 9: evolve test")
 
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        instance = self.new_instance_of_an_optional_code(KromeSphInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
