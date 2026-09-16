@@ -295,6 +295,32 @@ contains
     ret = 0
   end function set_particle_mu
 
+  function get_particle_ionrate(index_of_the_particle, ionrate) result(ret)
+    integer, intent(in) :: index_of_the_particle
+    double precision, intent(out) :: ionrate
+    integer :: index, ret
+    index = find_particle(index_of_the_particle)
+    if (index .LT. 0) then
+      ret = index
+      return
+    endif
+    ionrate = particles(index)%ionrate
+    ret = 0
+  end function get_particle_ionrate
+
+  function set_particle_ionrate(index_of_the_particle, ionrate) result(ret)
+    integer, intent(in) :: index_of_the_particle
+    double precision, intent(in) :: ionrate
+    integer :: index, ret
+    index = find_particle(index_of_the_particle)
+    if (index .LT. 0) then
+      ret = index
+      return
+    endif
+    particles(index)%ionrate = ionrate
+    ret = 0
+  end function set_particle_ionrate
+
   function add_particle(index_of_the_particle, rho, u, gamma, mu, ionrate) result(ret)
   integer, intent(out) :: index_of_the_particle
   double precision, intent(in) :: rho, u, gamma, mu, ionrate
