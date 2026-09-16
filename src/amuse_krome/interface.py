@@ -27,7 +27,7 @@ class KromeInterface(
     LiteratureReferencesMixIn
 ):
     """
-    KROME - a package to embed chemistry in astrophysical simulations
+    KROME: a package to embed chemistry in astrophysical simulations
 
     .. [#] Grassi, T.; Bovino, S.; Schleicher, D. R. G.; Prieto, J.; Seifried, D.; Simoncini, E.; Gianturco, F. A., MNRAS, 439, 3, p.2386-2419 [2014MNRAS.439.2386G]
     """
@@ -43,6 +43,25 @@ class KromeInterface(
 
     @legacy_function
     def new_particle():
+        """
+        Add a new particle to Krome.
+
+        Parameters
+        ----------
+        number_density : float
+            Number density of the particle in units of cm**-3.
+        temperature : float
+            Temperature of the particle in units of K.
+        ionrate : float
+            Ionization rate of the particle in units of s**-1.
+
+        Returns
+        -------
+        index_of_the_particle : int
+            Id of the newly created particle, returned by Krome.
+        int :
+            0 on success.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='i', direction=function.OUT)
@@ -52,22 +71,60 @@ class KromeInterface(
         return function
 
     @legacy_function
-    def set_state():
-        function = LegacyFunctionSpecification()
-        function.can_handle_array = True
-        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
-        for x in ['number_density','temperature','ionrate']:
-            function.addParameter(x, dtype='d', direction=function.IN)
-        function.result_type = 'i'
-        return function
-
-    @legacy_function
     def get_state():
+        """
+        Retrieve the state of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Index of the particle as returned by `new_particle`.
+
+        Returns
+        -------
+        number_density : float
+            Number density of the particle in units of cm**-3.
+        temperature : float
+            Temperature of the particle in units of K.
+        ionrate : float
+            Ionization rate of the particle in units of s**-1.
+        int :
+            0 on success.
+        """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
         function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
         for x in ['number_density','temperature','ionrate']:
             function.addParameter(x, dtype='d', direction=function.OUT)
+        function.result_type = 'i'
+        return function
+
+    @legacy_function
+    def set_state():
+        """
+        Set the state of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle as returned by `new_particle`.
+        number_density : float
+            Number density of the particle in units of cm**-3.
+        temperature : float
+            Temperature of the particle in units of K.
+        ionrate : float
+            Ionization rate of the particle in units of s**-1.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
+        function = LegacyFunctionSpecification()
+        function.can_handle_array = True
+        function.addParameter('index_of_the_particle', dtype='i', direction=function.IN)
+        for x in ['number_density','temperature','ionrate']:
+            function.addParameter(x, dtype='d', direction=function.IN)
         function.result_type = 'i'
         return function
 
