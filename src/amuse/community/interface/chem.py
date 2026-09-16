@@ -396,6 +396,74 @@ class ChemNumberDensityTemperatureInterface:
         returns ()
 
 
+class ChemDensityInternalEnergyInterface:
+    """
+    Mixin for density and internal energy setters
+    and getters in the ChemicalEvolutionInterface.
+    """
+    @remote_function(can_handle_array=True)
+    def get_density(index_of_the_particle='i'):
+        """
+        Get the density of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+             Index of the particle to retrieve the density of.
+
+        Returns
+        -------
+        rho : float
+            Density retrieved from the particle, in units of g*cm**-3.
+        """
+        returns (rho='d')
+
+    @remote_function(can_handle_array=True)
+    def set_density(index_of_the_particle='i', rho='d'):
+        """
+        Set the density of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+             Index of the particle to set the density of.
+        rho : float
+            Density to set for the particle, in units of g*cm**-3.
+        """
+        returns ()
+
+    @remote_function(can_handle_array=True)
+    def get_internal_energy(index_of_the_particle='i'):
+        """
+        Get the internal energy of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+             Index of the particle to retrieve the internal energy of.
+
+        Returns
+        -------
+        u : float
+            Internal energy retrieved from the particle, in units of cm**2*s**-2.
+        """
+        returns (u='d')
+
+    @remote_function(can_handle_array=True)
+    def set_internal_energy(index_of_the_particle='i', u='d'):
+        """
+        Set the internal energy of a particle.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+             Index of the particle to set the internal energy of.
+        u : float
+            Internal energy to set for the particle, in units of cm**2*s**-2.
+        """
+        returns ()
+
+
 class ChemicalEvolution(common.CommonCode):
 
     def __init__(self, legacy_interface, unit_converter=None, **options):
