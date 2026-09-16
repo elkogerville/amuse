@@ -39,7 +39,7 @@ class KromeSphInterface(
         LiteratureReferencesMixIn.__init__(self)
 
     def name_of_the_worker(self):
-        return 'krome_worker'
+        return 'kromesph_worker'
 
     @legacy_function
     def new_particle():
