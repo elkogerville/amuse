@@ -6,6 +6,7 @@ from uclchem.model import (
 )
 
 from amuse.community.interface.chem import (
+    ChemNumberDensityTemperature,
     ChemicalEvolution,
     ChemicalEvolutionInterface,
     ChemNumberDensityTemperatureInterface,
@@ -1015,7 +1016,7 @@ class UclchemInterface(
         returns ()
 
 
-class Uclchem(ChemicalEvolution):
+class Uclchem(ChemicalEvolution, ChemNumberDensityTemperature):
     """Uclchem is a gas-grain chemical code for astrochemical modelling."""
     def __init__(self, unit_converter=None, **options):
 
@@ -1036,6 +1037,7 @@ class Uclchem(ChemicalEvolution):
 
     def define_methods(self, handler):
         ChemicalEvolution.define_methods(self, handler)
+        ChemNumberDensityTemperature.define_methods(self, handler)
         handler.add_method(
             'new_particle',
             (u.cm**-3, u.K, u.s**-1, u.habing),
