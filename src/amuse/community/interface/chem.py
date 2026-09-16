@@ -331,7 +331,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
 class ChemNumberDensityTemperatureInterface:
     """
     Mixin for number density and temperature setters
-    and getters in the ChemicalEvolutionInterface.
+    and getters in ChemicalEvolutionInterface.
     """
     @remote_function(can_handle_array=True)
     def get_number_density(index_of_the_particle='i'):
@@ -399,7 +399,7 @@ class ChemNumberDensityTemperatureInterface:
 class ChemDensityInternalEnergyInterface:
     """
     Mixin for density and internal energy setters
-    and getters in the ChemicalEvolutionInterface.
+    and getters in ChemicalEvolutionInterface.
     """
     @remote_function(can_handle_array=True)
     def get_density(index_of_the_particle='i'):
@@ -538,30 +538,6 @@ class ChemicalEvolution(common.CommonCode):
         )
 
         handler.add_method(
-            'get_number_density',
-            (handler.INDEX,),
-            (u.cm**-3, handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'set_number_density',
-            (handler.INDEX, u.cm**-3,),
-            (handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'get_temperature',
-            (handler.INDEX,),
-            (u.K, handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
-            'set_temperature',
-            (handler.INDEX, u.K,),
-            (handler.ERROR_CODE,),
-        )
-
-        handler.add_method(
             'get_ionrate',
             (handler.INDEX,),
             (u.s**-1, handler.ERROR_CODE,),
@@ -660,3 +636,66 @@ class ChemicalEvolution(common.CommonCode):
         handler.add_method('RUN', 'evolve_model')
         handler.add_method('RUN', 'get_state')
         handler.add_method('RUN', 'get_abundance')
+
+
+class ChemNumberDensityTemperature:
+    """
+    Mixin for number density and temperature setters
+    and getters in ChemicalEvolution.
+    """
+    def define_methods(self, handler):
+        handler.add_method(
+            'get_number_density',
+            (handler.INDEX,),
+            (u.cm**-3, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'set_number_density',
+            (handler.INDEX, u.cm**-3,),
+            (handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'get_temperature',
+            (handler.INDEX,),
+            (u.K, handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'set_temperature',
+            (handler.INDEX, u.K,),
+            (handler.ERROR_CODE,),
+        )
+
+
+class ChemDensityInternalEnergy:
+    """
+    Mixin for density and internal energy setters
+    and getters in ChemicalEvolution.
+    """
+
+    def define_methods(self, handler):
+        handler.add_method(
+            'get_density',
+            (handler.INDEX,),
+            (u.g * u.cm**-3, handler.ERROR_CODE),
+        )
+
+        handler.add_method(
+            'set_density',
+            (handler.INDEX, u.g * u.cm**-3),
+            (handler.ERROR_CODE,),
+        )
+
+        handler.add_method(
+            'get_internal_energy',
+            (handler.INDEX,),
+            (u.cm**2 * u.s**-2, handler.ERROR_CODE),
+        )
+
+        handler.add_method(
+            'set_internal_energy',
+            (handler.INDEX, u.cm**2 * u.s**-2),
+            (handler.ERROR_CODE,),
+        )
