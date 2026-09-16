@@ -27,7 +27,7 @@ class KromeInterface(
     LiteratureReferencesMixIn
 ):
     """
-    KROME: a package to embed chemistry in astrophysical simulations
+    KROME: a package to embed chemistry in astrophysical simulations.
 
     .. [#] Grassi, T.; Bovino, S.; Schleicher, D. R. G.; Prieto, J.; Seifried, D.; Simoncini, E.; Gianturco, F. A., MNRAS, 439, 3, p.2386-2419 [2014MNRAS.439.2386G]
     """
@@ -130,7 +130,7 @@ class KromeInterface(
 
 
 class Krome(ChemicalEvolution):
-
+    """Krome is a package to embed chemistry in astrophysical simulations."""
     def __init__(self, unit_converter=None, **options):
 
         if unit_converter is not None:
