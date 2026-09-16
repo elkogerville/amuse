@@ -14,6 +14,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 1: initialization")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
         self.assertEqual(0, instance.cleanup_code())
@@ -23,6 +24,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 2: getters and setters")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
         dens = 1.e5
@@ -51,6 +53,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 3: add particle, get state")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -79,6 +82,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 4: add 2 particles, get state")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -108,6 +112,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 5: add 100 particles, get state")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -137,6 +142,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 6: can we get species?")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
 
         first, last, err = instance.get_firstlast_species_index()
         self.assertEqual(err, 0)
@@ -155,6 +161,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 7: add 100 particles, remove particles")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -193,6 +200,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 8: add particle, set abundances")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -227,6 +235,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 9: evolve test")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -264,6 +273,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 10: evolve test 2")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -312,6 +322,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 11: check initialization of abundances")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -337,6 +348,7 @@ class TestKromeInterface(TestWithMPI):
         print("Test 12: evolve test, comparison")
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -390,6 +402,8 @@ class TestKrome(TestWithMPI):
     def test_startup(self):
         print("Test 1: basic startup and flow")
         instance = self.new_instance_of_an_optional_code(Krome)
+        assert instance is not None
+
         self.assertEqual(instance.get_name_of_current_state(), 'UNINITIALIZED')
         instance.initialize_code()
         self.assertEqual(instance.get_name_of_current_state(), 'INITIALIZED')
@@ -405,6 +419,7 @@ class TestKrome(TestWithMPI):
         print("Test 2: adding particles")
 
         instance = self.new_instance_of_an_optional_code(Krome)
+        assert instance is not None
 
         parts = self.makeparts(5)
 
@@ -441,6 +456,7 @@ class TestKrome(TestWithMPI):
         print("Test 3: adding particles w abund.")
 
         instance = self.new_instance_of_an_optional_code(Krome)
+        assert instance is not None
 
         parts = self.makeparts(5)
 
@@ -472,6 +488,7 @@ class TestKrome(TestWithMPI):
         print("Test 4: evolve test")
 
         instance = self.new_instance_of_an_optional_code(Krome, **default_options)
+        assert instance is not None
 
         parts = Particles(1)
         parts.number_density = 1.e5 | units.cm**-3
@@ -500,6 +517,7 @@ class TestKrome(TestWithMPI):
         print("Test 5: evolve test (10 part)")
 
         instance = self.new_instance_of_an_optional_code(Krome, **default_options)
+        assert instance is not None
 
         parts = Particles(10)
         parts.number_density = 1.e5 | units.cm**-3
@@ -524,6 +542,7 @@ class TestKrome(TestWithMPI):
         print("Test 6: Delete particles")
 
         instance = self.new_instance_of_an_optional_code(Krome, **default_options)
+        assert instance is not None
 
         N_particles = 10
         parts = Particles(N_particles)
