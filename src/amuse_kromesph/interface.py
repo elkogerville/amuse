@@ -146,6 +146,82 @@ class KromeSphInterface(
         function.result_type = 'i'
         return function
 
+    @remote_function(can_handle_array=True)
+    def get_gamma(index_of_the_particle='i'):
+        """
+        Retrieve the adiabatic index of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle as returned by `new_particle`.
+
+        Returns
+        -------
+        gamma : float
+            Adiabatic index retrieved from the particle. Dimensionless.
+        int :
+            0 on success.
+        """
+        returns (gamma='d')
+
+    @remote_function(can_handle_array=True)
+    def set_gamma(index_of_the_particle='i', gamma='d'):
+        """
+        Set the adiabatic index of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle as returned by `new_particle`.
+        gamma : float
+            Adiabatic index to set for the particle. Dimensionless.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
+        returns ()
+
+    @remote_function(can_handle_array=True)
+    def get_mu(index_of_the_particle='i'):
+        """
+        Retrieve the mean molecular weigth of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle as returned by `new_particle`.
+
+        Returns
+        -------
+        mu : float
+            Mean molecular weight retrieved from the particle, in units of g.
+        int :
+            0 on success.
+        """
+        returns (mu='d')
+
+    @remote_function(can_handle_array=True)
+    def set_mu(index_of_the_particle='i', mu='d'):
+        """
+        Set the mean molecular weigth of a particle by index.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle as returned by `new_particle`.
+        mu : float
+            Mean molecular weight retrieved from the particle, in units of g.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
+        returns ()
+
     @remote_function
     def set_amu_in_g(amu_in_g='d'):
         """
