@@ -269,7 +269,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         returns (number_of_particles='i')
 
 
-class ChemTemperatureNumberDensityInterface:
+class ChemNumberDensityTemperatureInterface:
     """
     Mixin for number density and temperature setters
     and getters in the ChemicalEvolutionInterface.

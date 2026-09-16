@@ -6,7 +6,9 @@ from uclchem.model import (
 )
 
 from amuse.community.interface.chem import (
-    ChemicalEvolution, ChemicalEvolutionInterface
+    ChemicalEvolution,
+    ChemicalEvolutionInterface,
+    ChemNumberDensityTemperatureInterface,
 )
 from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.datamodel import Particle, Particles
@@ -925,6 +927,7 @@ class UclchemImplementation(object):
 
 class UclchemInterface(
     ChemicalEvolutionInterface,
+    ChemNumberDensityTemperatureInterface,
     PythonCodeInterface,
     LiteratureReferencesMixIn,
 ):

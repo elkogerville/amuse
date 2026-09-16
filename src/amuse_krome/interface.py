@@ -1,5 +1,7 @@
 from amuse.community.interface.chem import (
-    ChemicalEvolution, ChemicalEvolutionInterface
+    ChemicalEvolution,
+    ChemicalEvolutionInterface,
+    ChemNumberDensityTemperatureInterface
 )
 from amuse.rfi.core import (
     CodeInterface,
@@ -21,6 +23,7 @@ solar_abundances= dict(
 class KromeInterface(
     CodeInterface,
     ChemicalEvolutionInterface,
+    ChemNumberDensityTemperatureInterface,
     LiteratureReferencesMixIn
 ):
     """
