@@ -26,6 +26,7 @@ class TestKromeSphInterface(TestWithMPI):
         assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
+
         dens = 1.e5
         u = 500
         gamma = 5/3
@@ -67,20 +68,24 @@ class TestKromeSphInterface(TestWithMPI):
         self.assertEqual(0, instance.commit_parameters())
 
         dens = 1.e5
-        t = 500.
+        u = 500
+        gamma = 5/3
+        mu = 1.23
         ion = 1.e-11
-        id, err = instance.new_particle(dens, t, ion)
+        id, err = instance.new_particle(dens, u, gamma, mu, ion)
 
         self.assertEqual(err, 0)
 
         self.assertEqual(instance.commit_particles(), 0)
 
-        dens_, t_, ion_, err = instance.get_state(id)
+        dens_, u_, gamma_, mu_, ion_, err = instance.get_state(id)
 
         self.assertEqual(err, 0)
 
         self.assertEqual(dens_, dens)
-        self.assertEqual(t_, t)
+        self.assertEqual(u_, u)
+        self.assertEqual(gamma_, gamma)
+        self.assertEqual(mu_, mu_)
         self.assertEqual(ion_, ion)
 
         self.assertEqual(0, instance.cleanup_code())
@@ -96,60 +101,70 @@ class TestKromeSphInterface(TestWithMPI):
         self.assertEqual(0, instance.commit_parameters())
 
         dens = [1.e5, 2.e5]
-        t = [500., 550]
+        u = [500, 550]
+        gamma = [5/3, 6/4]
+        mu = [1.23, 2.23]
         ion = [1.e-11, 2.e-11]
-        id, err = instance.new_particle(dens, t, ion)
+        ids, err = instance.new_particle(dens, u, gamma, mu, ion)
 
         self.assertEqual(err, 0)
 
         self.assertEqual(instance.commit_particles(), 0)
 
         for i in range(2):
-            dens_, t_, ion_, err = instance.get_state(id[i])
+            dens_, u_, gamma_, mu_, ion_, err = instance.get_state(ids[i])
 
             self.assertEqual(err, 0)
 
             self.assertEqual(dens_, dens[i])
-            self.assertEqual(t_, t[i])
+            self.assertEqual(u_, u[i])
+            self.assertEqual(gamma_, gamma[i])
+            self.assertEqual(mu_, mu[i])
             self.assertEqual(ion_, ion[i])
 
         self.assertEqual(0, instance.cleanup_code())
 
         instance.stop()
 
-    def test4(self):
-        print("Test 1: add 100 particles, get state")
+    def test_add_100_particles_and_get_state(self):
+        print("Test 5: add 100 particles, get state")
 
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        instance = self.new_instance_of_an_optional_code(KromeSphInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
-        dens = 1.e5*numpy.random.random(100)
-        t = 500.*numpy.random.random(100)
-        ion = 1.e-11*numpy.random.random(100)
-        id, err = instance.new_particle(dens, t, ion)
+        dens = 1.e5*np.random.random(100)
+        u = 500.*np.random.random(100)
+        gamma = 3/5.*np.random.random(100)
+        mu = 1.23*np.random.random(100)
+        ion = 1.e-11*np.random.random(100)
+        ids, err = instance.new_particle(dens, u, gamma, mu, ion)
 
         self.assertEqual(err, 0)
 
         self.assertEqual(instance.commit_particles(), 0)
 
         for i in range(100):
-            dens_, t_, ion_, err = instance.get_state(id[i])
+            dens_, u_, gamma_, mu_, ion_, err = instance.get_state(ids[i])
 
             self.assertEqual(err, 0)
 
             self.assertEqual(dens_, dens[i])
-            self.assertEqual(t_, t[i])
+            self.assertEqual(u_, u[i])
+            self.assertEqual(gamma_, gamma[i])
+            self.assertEqual(mu_, mu[i])
             self.assertEqual(ion_, ion[i])
 
         self.assertEqual(0, instance.cleanup_code())
 
         instance.stop()
 
-    def test5(self):
-        print("Test 5: can we get species?")
+    def test_get_species(self):
+        print("Test 6: can we get species?")
 
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        instance = self.new_instance_of_an_optional_code(KromeSphInterface, **default_options)
+        assert instance is not None
 
         first, last, err = instance.get_firstlast_species_index()
         self.assertEqual(err, 0)
@@ -164,17 +179,20 @@ class TestKromeSphInterface(TestWithMPI):
 
         instance.stop()
 
-    def test6(self):
-        print("Test 6: add 100 particles, remove particles")
+    def test_add_and_remove_particles(self):
+        print("Test 7: add 100 particles, remove particles")
 
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        instance = self.new_instance_of_an_optional_code(KromeSphInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
-        dens = 1.e5*numpy.random.random(100)
-        t = 500.*numpy.random.random(100)
-        ion = 1.e-11*numpy.random.random(100)
-        ids, err = instance.new_particle(dens, t, ion)
+        dens = 1.e5*np.random.random(100)
+        u = 500.*np.random.random(100)
+        gamma = 3/5.*np.random.random(100)
+        mu = 1.23*np.random.random(100)
+        ion = 1.e-11*np.random.random(100)
+        ids, err = instance.new_particle(dens, u, gamma, mu, ion)
 
         self.assertEqual(err, 0)
 
@@ -186,15 +204,17 @@ class TestKromeSphInterface(TestWithMPI):
         instance.recommit_particles()
 
         for i in range(10, 100):
-            dens_, t_, ion_, err = instance.get_state(ids[i])
+            dens_, u_, gamma_, mu_, ion_, err = instance.get_state(ids[i])
 
             self.assertEqual(err, 0)
 
             self.assertEqual(dens_, dens[i])
-            self.assertEqual(t_, t[i])
+            self.assertEqual(u_, u[i])
+            self.assertEqual(gamma_, gamma[i])
+            self.assertEqual(mu_, mu[i])
             self.assertEqual(ion_, ion[i])
 
-        dens_, t_, ion_, err = instance.get_state(ids[0])
+        dens_, u_, gamma_, mu_, ion_, err = instance.get_state(ids[0])
 
         self.assertEqual(err, -1)
 
