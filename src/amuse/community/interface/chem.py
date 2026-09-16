@@ -24,16 +24,17 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         after all particles have been loaded in the model.
         Should be called before the first evolve call and
         after the last new_particle call.
+
+        Returns
+        -------
+        int :
+            Return status:
+            - 0: Model is initialized and evolution can start.
+            - -1 : An error occurred during initialization. The error
+              needs to be further specified by each code implementation.
         """
         function = LegacyFunctionSpecification()
         function.result_type = 'i'
-        function.result_doc = """
-            0 - OK
-                Model is initialized and evolution can start
-            -1 - ERROR
-                Error happened during initialization, this error needs to be
-                further specified by every code implementation
-        """
         return function
 
     @legacy_function
@@ -43,16 +44,17 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         after the number of particles have been updated
         or particle attributes have been updated from
         the script.
+
+        Returns
+        -------
+        int :
+            Return status:
+            - 0: Model is initialized and evolution can start.
+            - -1: An error occurred during initialization. The error
+              needs to be further specified by each code implementation.
         """
         function = LegacyFunctionSpecification()
         function.result_type = 'i'
-        function.result_doc = """
-            0 - OK
-                Model is initialized and evolution can start
-            -1 - ERROR
-                Error happened during initialization, this error needs to be
-                further specified by every code implementation
-        """
         return function
 
     @legacy_function
@@ -61,6 +63,18 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Evolve the model until the given time, or until a stopping
         condition is set. The model will be evolved until this time
         is reached exactly or just after.
+
+        Parameters
+        ----------
+        time : float
+            Time to evolve the system to.
+
+        Returns
+        -------
+        int :
+            Return status:
+            - 0: Evolved model successfully.
+            - -1 : Requested time could not be evolved to.
         """
         function = LegacyFunctionSpecification()
         function.addParameter('time', dtype='d', direction=function.IN)
@@ -73,7 +87,18 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         Remove the definition of particle from the code. After calling this
         function the particle is no longer part of the model evolution. It is
         up to the code if the index will be reused.
-        This function is optional.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle to delete.
+
+        Returns
+        -------
+        int :
+            Return status:
+            - 0 : Particle was removed from the model.
+            - -1 : Particle could not be removed.
         """
         function = LegacyFunctionSpecification()
         function.can_handle_array = True
@@ -81,12 +106,6 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
             'index_of_the_particle', dtype='i', direction=function.IN
         )
         function.result_type = 'i'
-        function.result_doc = """
-            0 - OK
-                particle was removed from the model
-            -1 - ERROR
-                particle could not be removed
-        """
         return function
 
     @remote_function(can_handle_array=True)
@@ -128,6 +147,18 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         The `species_index` can be queried for using the methods `get_species_index`
         and `get_species_name`.
 
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+        species_index : int
+            Index of the species in the abundance array.
+
+        Returns
+        -------
+        abundance : float
+            Abundance of the requested species.
+
         Examples
         --------
         # get H2O abundance of particle 0
@@ -147,6 +178,15 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
 
         The `species_index` can be queried for using the methods `get_species_index`
         and `get_species_name`.
+
+        Parameters
+        ----------
+        index_of_the_particle : int
+            Id of the particle.
+        species_index : int
+            Index of the species in the abundance array.
+        abundance : float
+            Abundance of the species to set.
 
         Examples
         --------
@@ -260,12 +300,31 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         """
         Retrieve the model time. This time should be close to the end time
         specified in the evolve code.
+
+        Returns
+        -------
+        time : float
+            Current model time.
         """
         returns (time='d')
 
     @remote_function
     def get_number_of_particles():
-        """Retrieve the total number of particles defined in the code."""
+        """
+        Retrieve the total number of particles defined in the code.
+
+        Returns
+        -------
+        number_of_particles : int
+            Current number of particles in the model.
+
+        Notes
+        -----
+        `number_of_particles` may not be updated if particles are
+        deleted. To ensure the correct number is returned, call
+        `commit_particles` or `recommit_particles` before calling
+        `get_number_of_particles`.
+        """
         returns (number_of_particles='i')
 
 
