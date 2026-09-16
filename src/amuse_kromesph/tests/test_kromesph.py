@@ -1,33 +1,68 @@
-import os.path
-import numpy
-from amuse.support.testing.amusetest import TestWithMPI
-
-from amuse_krome.interface import KromeInterface, Krome, solar_abundances
-from amuse.units import units
 from amuse.datamodel import Particles
-
-from amuse.io import read_set_from_file
-
-# default_options={}
-default_options = dict(redirection="none")
-# default_options=dict(debugger="gdb")
+from amuse.support.testing.amusetest import TestWithMPI
+from amuse.units import units
+from amuse_kromesph.interface import KromeSph, KromeSphInterface, solar_abundances
+import numpy as np
 
 
-class TestKromeInterface(TestWithMPI):
+default_options = dict(redirection='none')
 
-    def test1(self):
+
+class TestKromeSphInterface(TestWithMPI):
+
+    def test_initialization(self):
         print("Test 1: initialization")
-
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        instance = self.new_instance_of_an_optional_code(KromeSphInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
         self.assertEqual(0, instance.cleanup_code())
         instance.stop()
 
-    def test2(self):
-        print("Test 1: add particle, get state")
+    def test_getters_and_setters(self):
+        print("Test 2: getters and setters")
 
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        instance = self.new_instance_of_an_optional_code(KromeSphInterface, **default_options)
+        assert instance is not None
+        self.assertEqual(0, instance.initialize_code())
+        self.assertEqual(0, instance.commit_parameters())
+        dens = 1.e5
+        u = 500
+        gamma = 5/3
+        mu = 1.23
+        ion = 1.e-11
+        id, err = instance.new_particle(dens, u, gamma, mu, ion)
+
+        new_dens = 2e5
+        new_u = 1000
+        new_gamma = 10/3
+        new_mu = 2.23
+        new_ionrate = 1e-12
+
+        instance.set_density(1, new_dens)
+        instance.set_internal_energy(1, new_u)
+        instance.set_gamma(1, new_gamma)
+        instance.set_mu(1, new_mu)
+        instance.set_ionrate(1, new_ionrate)
+
+        res = instance.get_density(1)
+        self.assertEquals(res['rho'], new_dens)
+        res = instance.get_internal_energy(1)
+        self.assertEquals(res['u'], new_u)
+        res = instance.get_gamma(1)
+        self.assertEquals(res['gamma'], new_gamma)
+        res = instance.get_mu(1)
+        self.assertEquals(res['mu'], new_mu)
+        res = instance.get_ionrate(1)
+        self.assertEquals(res['ionrate'], new_ionrate)
+
+        instance.stop()
+
+    def test_add_1_particle_and_get_state(self):
+        print("Test 3: add particle, get state")
+
+        instance = self.new_instance_of_an_optional_code(KromeSphInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -52,10 +87,11 @@ class TestKromeInterface(TestWithMPI):
 
         instance.stop()
 
-    def test3(self):
-        print("Test 1: add 2 particles, get state")
+    def test_add_2_particles_and_get_state(self):
+        print("Test 4: add 2 particles, get state")
 
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        instance = self.new_instance_of_an_optional_code(KromeSphInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
