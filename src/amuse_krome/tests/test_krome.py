@@ -525,7 +525,7 @@ class TestKrome(TestWithMPI):
 
         instance = self.new_instance_of_an_optional_code(Krome, **default_options)
 
-        N_particles = 5
+        N_particles = 10
         parts = Particles(N_particles)
         parts.number_density = np.random.rand(N_particles)*1.e5 | units.cm**-3
         parts.temperature = np.random.rand(N_particles)*50 | units.K
