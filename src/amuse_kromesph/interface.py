@@ -337,10 +337,7 @@ class KromeSph(ChemicalEvolution, ChemDensityInternalEnergy):
 
     def define_particle_sets(self, handler):
         ChemicalEvolution.define_particle_sets(self, handler)
-        handler.add_getter('particles', 'get_density')
-        handler.add_setter('particles', 'set_density')
-        handler.add_getter('particles', 'get_internal_energy')
-        handler.add_setter('particles', 'set_internal_energy')
+        ChemDensityInternalEnergy.define_particle_sets(self, handler)
         handler.add_getter('particles', 'get_gamma')
         handler.add_setter('particles', 'set_gamma')
         handler.add_getter('particles', 'get_mu')

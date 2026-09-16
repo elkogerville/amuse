@@ -175,3 +175,7 @@ class Krome(ChemicalEvolution, ChemNumberDensityTemperature):
         handler.add_method(
             'get_time', (), (u.s, handler.ERROR_CODE,)
         )
+
+    def define_particle_sets(self, handler):
+        ChemicalEvolution.define_particle_sets(self, handler)
+        ChemNumberDensityTemperature.define_particle_sets(self, handler)

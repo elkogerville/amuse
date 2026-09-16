@@ -601,10 +601,6 @@ class ChemicalEvolution(common.CommonCode):
         handler.set_delete('particles', 'delete_particle')
         handler.add_setter('particles', 'set_state')
         handler.add_getter('particles', 'get_state')
-        handler.add_setter('particles', 'set_number_density')
-        handler.add_getter('particles', 'get_number_density')
-        handler.add_setter('particles', 'set_temperature')
-        handler.add_getter('particles', 'get_temperature')
         handler.add_setter('particles', 'set_ionrate')
         handler.add_getter('particles', 'get_ionrate')
         handler.add_gridded_getter(
@@ -668,6 +664,12 @@ class ChemNumberDensityTemperature:
             (handler.ERROR_CODE,),
         )
 
+    def define_particle_sets(self, handler):
+        handler.add_setter('particles', 'set_number_density')
+        handler.add_getter('particles', 'get_number_density')
+        handler.add_setter('particles', 'set_temperature')
+        handler.add_getter('particles', 'get_temperature')
+
 
 class ChemDensityInternalEnergy:
     """
@@ -699,3 +701,9 @@ class ChemDensityInternalEnergy:
             (handler.INDEX, u.cm**2 * u.s**-2),
             (handler.ERROR_CODE,),
         )
+
+    def define_particle_sets(self, handler):
+        handler.add_setter('particles', 'set_density')
+        handler.add_getter('particles', 'get_density')
+        handler.add_setter('particles', 'set_internal_energy')
+        handler.add_getter('particles', 'get_internal_energy')
