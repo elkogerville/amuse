@@ -31,17 +31,17 @@ class UclchemImplementation(object):
         current_time : float
             Current simulation time.
         chem_model : {'cloud', 'collapse', 'cshock', 'jshock', 'prestellarcore'}
-            UCLCHEM model for the chemistry evolution.
+            Uclchem model for the chemistry evolution.
         MODEL_MAP : dict[str, type[AbstractModel]]
-            Dictionary to map `chem_model` to a UCLCHEM AbstractModel class.
+            Dictionary to map `chem_model` to a Uclchem AbstractModel class.
             These are the actual models which compute the chemistry.
         model_class : type[AbstractModel]
-            Current UCLCHEM AbstractModel class used when calling `evolve_model`.
+            Current Uclchem AbstractModel class used when calling `evolve_model`.
         self.param_dict : dict
             Dictionary to hold any additional parameters sent to Uclchem before
             evolving. Parameter getters and setters should modify this dictionary.
         uclchem_particles : amuse.datamodel.Particles
-            Particles datamodel for storing UCLCHEM particles.
+            Particles datamodel for storing Uclchem particles.
         _ids : np.ndarray[int]
             Array of unique ids for each particle in `uclchem_particles`.
         _next_particle_id : int
@@ -68,7 +68,7 @@ class UclchemImplementation(object):
         return 0
 
     def cleanup_code(self) -> int:
-        """Remove all the particles stored in UCLCHEM."""
+        """Remove all the particles stored in Uclchem."""
         self.uclchem_particles.remove_particles(self.uclchem_particles)
         return 0
 
@@ -77,7 +77,7 @@ class UclchemImplementation(object):
         Convert the chemical model string name to its corresponding AbstractModel class.
 
         Validates that the chemical model specified by the user maps to a valid
-        UCLCHEM model class.
+        Uclchem model class.
 
         Returns
         -------
@@ -97,6 +97,11 @@ class UclchemImplementation(object):
         """
         Initialize the abundance vector attribute of the particle set
         with an array of zeros.
+
+        Returns
+        -------
+        int :
+            0 on success.
         """
         species = tuple(_get_species_names())
         self.uclchem_particles.add_vector_attribute('abundances', species)
@@ -108,7 +113,7 @@ class UclchemImplementation(object):
         Convert the chemical model name to its corresponding AbstractModel class.
 
         Validates that the chemical model specified by the user maps to a valid
-        UCLCHEM model class.
+        Uclchem model class.
 
         Returns
         -------
@@ -124,6 +129,14 @@ class UclchemImplementation(object):
         return 0
 
     def recommit_particles(self) -> int:
+        """
+        Recommit particles.
+
+        Returns
+        -------
+        int :
+            0 on success.
+        """
         return 0
 
     def evolve_model(self, time) -> int:
@@ -140,8 +153,10 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if `time` is less than or equal
-            to the current simulation time.
+            Return status:
+            - 0: Evolved model successfully.
+            - -1 : Requested time is less than or equal to
+              the current simulation time.
         """
         dt = float(time - self.current_time)
         if dt <= 0:
@@ -177,7 +192,7 @@ class UclchemImplementation(object):
         radfield
     ) -> int:
         """
-        Add a new particle to UCLCHEM.
+        Add a new particle to Uclchem.
 
         Parameters
         ----------
@@ -212,7 +227,7 @@ class UclchemImplementation(object):
 
     def delete_particle(self, index_of_the_particle) -> int:
         """
-        Delete a particle in UCLCHEM.
+        Delete a particle in Uclchem.
 
         Parameters
         ----------
@@ -650,7 +665,7 @@ class UclchemImplementation(object):
 
     def get_firstlast_species_index(self, first, last) -> int:
         """
-        Get the index of the first and last species inside UCLCHEM.
+        Get the index of the first and last species inside Uclchem.
 
         This is a helper method for accessing the abundance array as
         `instance.particles.abundances`.
@@ -684,7 +699,7 @@ class UclchemImplementation(object):
         ----------
         name : str
             Name of chemical species. Must be one of the
-            species tracked by UCLCHEM.
+            species tracked by Uclchem.
         species_index : amuse.rfi.python_code.ValueHolder[int]
             Mutable container used to return the index
             of the species.
@@ -692,7 +707,9 @@ class UclchemImplementation(object):
         Returns
         -------
         int :
-            0 on success, -1 if the species does not exist.
+            Return status:
+            - 0: Species index retrieved successfully.
+            - -1: Species does not exist.
 
         Examples
         --------
@@ -783,8 +800,8 @@ class UclchemImplementation(object):
 
     def get_chemical_model(self, chem_model) -> int:
         """
-        Retrieve the chemical model type used by UCLCHEM.
-        This is the physics model used internally by UCLCHEM
+        Retrieve the chemical model type used by Uclchem.
+        This is the physics model used internally by Uclchem
         to evolve the chemistry.
 
         Possible values are `'cloud'`, `'collapse'`, `'cshock'`,
@@ -806,8 +823,8 @@ class UclchemImplementation(object):
 
     def set_chemical_model(self, chem_model) -> int:
         """
-        Set the chemical model used by UCLCHEM. This is
-        the physics model used internally by UCLCHEM to
+        Set the chemical model used by Uclchem. This is
+        the physics model used internally by Uclchem to
         evolve the chemistry.
 
         Possible values are `'cloud'`, `'collapse'`, `'cshock'`,
@@ -905,16 +922,22 @@ class UclchemImplementation(object):
     def _particle_to_dict(self, particle: Particle) -> dict:
         """
         Format an AMUSE Particle into a parameter dictionary
-        readable by UCLCHEM.
+        readable by Uclchem.
 
-        Unlike AMUSE, UCLCHEM does not work with particles but
+        Unlike AMUSE, Uclchem does not work with particles but
         rather a dictionary of parameters. This is a helper function
-        to be called before evolving a particle with UCLCHEM.
+        to be called before evolving a particle with Uclchem.
 
         Parameters
         ----------
         particle : amuse.datamodel.Particle
-            Particle to evolve by UCLCHEM.
+            Particle to evolve by Uclchem.
+
+        Returns
+        -------
+        dict :
+            Particle returned as a dictionary with key, value
+            pairs taken from the particle attributes.
         """
         param_dict = {
             'initialDens': float(particle.number_density),
@@ -932,7 +955,7 @@ class UclchemInterface(
     LiteratureReferencesMixIn,
 ):
     """
-    UCLCHEM: A Gas-Grain Chemical Code for astrochemical modelling
+    UCLCHEM: a gas-grain chemical code for astrochemical modelling.
 
     .. [#] ADS:2017AJ....154...38H (Holdship, J. ; Viti, S, ; Jiménez-Serra, I.; Makrymallis, A. ; Priestley, F. , 2017, AJ)
     """
@@ -993,7 +1016,7 @@ class UclchemInterface(
 
 
 class Uclchem(ChemicalEvolution):
-
+    """Uclchem is a gas-grain chemical code for astrochemical modelling."""
     def __init__(self, unit_converter=None, **options):
 
         if unit_converter is not None:
