@@ -327,13 +327,14 @@ class TestUclchem(TestWithMPI):
     def test_delete_particles_and_abundances(self):
 
         instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
+        assert instance is not None
 
         N_particles = 5
         parts = Particles(N_particles)
-        parts.number_density = np.random.rand(5)*1.e5 | u.cm**-3
-        parts.temperature = np.random.rand(5)*50 | u.K
-        parts.ionrate = np.random.rand(5)*2.e-17 | u.s**-1
-        parts.radfield = np.random.rand(5)* 1 | u.habing
+        parts.number_density = np.random.rand(N_particles)*1.e5 | u.cm**-3
+        parts.temperature = np.random.rand(N_particles)*50 | u.K
+        parts.ionrate = np.random.rand(N_particles)*2.e-17 | u.s**-1
+        parts.radfield = np.random.rand(N_particles)* 1 | u.habing
 
         instance.particles.add_particles(parts)
         instance.commit_particles()
@@ -343,7 +344,7 @@ class TestUclchem(TestWithMPI):
         N_species = len(instance.species)
         abundances = instance.particles.abundances
         self.assertEquals(abundances.shape, (N_particles, N_species))
-        self.assertEquals(instance.get_number_of_particles(), 5)
+        self.assertEquals(instance.get_number_of_particles(), N_particles)
 
         instance.particles.remove_particle(parts[0])
         instance.recommit_particles()
