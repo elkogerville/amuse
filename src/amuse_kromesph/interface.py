@@ -1,4 +1,5 @@
 from amuse.community.interface.chem import (
+    ChemDensityInternalEnergy,
     ChemDensityInternalEnergyInterface,
     ChemicalEvolution,
     ChemicalEvolutionInterface,
@@ -160,8 +161,13 @@ class KromeSphInterface(
         returns ()
 
 
-class KromeSph(ChemicalEvolution):
+class KromeSph(ChemicalEvolution, ChemDensityInternalEnergy):
+    """
+    Krome is a package to embed chemistry in astrophysical simulations.
 
+    KromeSph is an interface for an alternate compilation of Krome
+    more suitable for coupled hydrodynamic simulations.
+    """
     def __init__(self, unit_converter=None, **options):
 
         if unit_converter is not None:
@@ -182,6 +188,7 @@ class KromeSph(ChemicalEvolution):
 
     def define_methods(self, handler):
         ChemicalEvolution.define_methods(self, handler)
+        ChemDensityInternalEnergy.define_methods(self, handler)
         handler.add_method(
             'evolve_model', (u.s,), (handler.ERROR_CODE,)
         )
@@ -225,26 +232,26 @@ class KromeSph(ChemicalEvolution):
         )
 
         handler.add_method(
-            'get_density',
+            'get_gamma',
             (handler.INDEX,),
-            (u.g * u.cm**-3, handler.ERROR_CODE,)
+            (handler.NO_UNIT, handler.ERROR_CODE,)
         )
 
         handler.add_method(
-            'set_density',
-            (handler.INDEX, u.g * u.cm**-3,),
+            'set_gamma',
+            (handler.INDEX, handler.NO_UNIT,),
             (handler.ERROR_CODE,)
         )
 
         handler.add_method(
-            'get_internal_energy',
+            'get_mu',
             (handler.INDEX,),
-            (u.cm**2 * u.s**-2, handler.ERROR_CODE,)
+            (handler.g, handler.ERROR_CODE,)
         )
 
         handler.add_method(
-            'set_internal_energy',
-            (handler.INDEX, u.cm**2 * u.s**-2,),
+            'set_mu',
+            (handler.INDEX, handler.g,),
             (handler.ERROR_CODE,)
         )
 
@@ -258,3 +265,7 @@ class KromeSph(ChemicalEvolution):
         handler.add_setter('particles', 'set_density')
         handler.add_getter('particles', 'get_internal_energy')
         handler.add_setter('particles', 'set_internal_energy')
+        handler.add_getter('particles', 'get_gamma')
+        handler.add_setter('particles', 'set_gamma')
+        handler.add_getter('particles', 'get_mu')
+        handler.add_setter('particles', 'set_mu')

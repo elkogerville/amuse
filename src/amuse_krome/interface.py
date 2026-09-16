@@ -1,4 +1,5 @@
 from amuse.community.interface.chem import (
+    ChemNumberDensityTemperature,
     ChemicalEvolution,
     ChemicalEvolutionInterface,
     ChemNumberDensityTemperatureInterface
@@ -129,7 +130,7 @@ class KromeInterface(
         return function
 
 
-class Krome(ChemicalEvolution):
+class Krome(ChemicalEvolution, ChemNumberDensityTemperature):
     """Krome is a package to embed chemistry in astrophysical simulations."""
     def __init__(self, unit_converter=None, **options):
 
@@ -148,6 +149,7 @@ class Krome(ChemicalEvolution):
 
     def define_methods(self, handler):
         ChemicalEvolution.define_methods(self, handler)
+        ChemNumberDensityTemperature.define_methods(self, handler)
         handler.add_method(
             'evolve_model', (u.s,), (handler.ERROR_CODE,)
         )
@@ -166,7 +168,7 @@ class Krome(ChemicalEvolution):
 
         handler.add_method(
             'set_state',
-            (handler.NO_UNIT, u.cm**-3, u.K, u.s**-1,),
+            (handler.INDEX, u.cm**-3, u.K, u.s**-1,),
             (handler.ERROR_CODE,)
         )
 
