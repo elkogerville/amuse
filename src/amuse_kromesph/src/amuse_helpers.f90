@@ -90,7 +90,7 @@ contains
     rho = particle%rho
     u = particle%u
     gamma = particle%gamma
-    mu = particle%mu
+    mu = particle%mu * amu_2_g
     cr = particle%ionrate
 
     n(krome_idx_e) = krome_get_electrons(n(:))
