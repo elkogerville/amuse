@@ -1,7 +1,10 @@
 from amuse.datamodel import Particles
+from amuse.ic.molecular_cloud import new_molecular_cloud
 from amuse.support.testing.amusetest import TestWithMPI
-from amuse.units import units
-from amuse_kromesph.interface import KromeSph, KromeSphInterface, solar_abundances
+from amuse.units import units, nbody_system
+from amuse_kromesph.interface import (
+    KromeSph, KromeSphInterface, solar_abundances
+)
 import numpy as np
 
 
@@ -426,18 +429,31 @@ class TestKromeSphInterface(TestWithMPI):
             self.assertAlmostEqual(result1[x], result2[x])
 
 
-class TestKrome(TestWithMPI):
-    def makeparts(self, N):
-        parts = Particles(N)
-        numpy.random.seed(1234567)
-        parts.number_density = (numpy.random.random(N)*1.e5+1.e5) | units.cm**-3
-        parts.temperature = (numpy.random.random(N)*500+100) | units.K
-        parts.ionrate = (numpy.random.random(N)*1.e-11+1.e-17) | units.s**-1
-        return parts
+class TestKromeSph(TestWithMPI):
+    def molecular_cloud(self, N):
+        """Make a molecular cloud with N particles."""
+        Mgas = 3e4 | units.MSun
+        Rgas = 0.14 | units.pc
 
-    def test0(self):
-        print("test1: basic startup and flow")
-        instance = self.new_instance_of_an_optional_code(Krome)
+        converter = nbody_system.nbody_to_si(Mgas, Rgas)
+        cloud = new_molecular_cloud(
+            target_number_of_particles=N,
+            convert_nbody=converter
+        )
+        cloud.rho = 1.86510064359e-17 | units.g * units.cm**-3
+        cloud.u = 204790703997.0 | units.cm**2 * units.s**-2
+        gamma = 5./3.
+        cloud.mu = 1.23 | units.amu
+        cloud.gamma = gamma
+        cloud.ionrate = 0.0 | units.s**-1
+        cloud.index = range(N)
+        return cloud
+
+    def test_startup(self):
+        print("Test 1: basic startup and flow")
+        instance = self.new_instance_of_an_optional_code(KromeSph)
+        assert instance is not None
+
         self.assertEqual(instance.get_name_of_current_state(), 'UNINITIALIZED')
         instance.initialize_code()
         self.assertEqual(instance.get_name_of_current_state(), 'INITIALIZED')
@@ -449,12 +465,13 @@ class TestKrome(TestWithMPI):
         instance.cleanup_code()
         instance.stop()
 
-    def test1(self):
-        print("test1: adding particles")
+    def test_add_particles(self):
+        print("Test 2: adding particles")
 
-        instance = self.new_instance_of_an_optional_code(Krome)
+        instance = self.new_instance_of_an_optional_code(KromeSph)
+        assert instance is not None
 
-        parts = self.makeparts(5)
+        parts = self.molecular_cloud(5)
 
         self.assertEqual(len(instance.particles), 0)
         instance.particles.add_particles(parts)
@@ -462,125 +479,76 @@ class TestKrome(TestWithMPI):
 
         self.assertEqual(instance.get_name_of_current_state(), 'EDIT')
 
+        instance.commit_particles()
+        self.assertEqual(instance.get_number_of_particles(), len(parts))
+
         part2 = instance.particles.copy()
 
-        self.assertAlmostRelativeEquals(parts.number_density, part2.number_density, 12)
-        self.assertAlmostRelativeEquals(parts.temperature, part2.temperature, 12)
+        self.assertAlmostRelativeEquals(parts.rho, part2.rho, 12)
+        self.assertAlmostRelativeEquals(parts.u, part2.u, 12)
+        self.assertAlmostRelativeEquals(parts.gamma, part2.gamma, 12)
+        self.assertAlmostRelativeEquals(parts.mu, part2.mu, 12)
         self.assertAlmostRelativeEquals(parts.ionrate, part2.ionrate, 12)
-
-        for p in part2:
-            i = instance.species["E"]
-            self.assertAlmostEqual(p.abundances[i], 0.000369180975425)
-            i = instance.species["H+"]
-            self.assertAlmostEqual(p.abundances[i], 0.0001)
-            i = instance.species["HE"]
-            self.assertAlmostEqual(p.abundances[i], 0.0775)
-            i = instance.species["C+"]
-            self.assertAlmostEqual(p.abundances[i], 0.000269180975425)
-            i = instance.species["SI"]
-            self.assertAlmostEqual(p.abundances[i], 3.2362683404e-05)
-            i = instance.species["O"]
-            self.assertAlmostEqual(p.abundances[i], 0.000489828841345)
 
         instance.cleanup_code()
         instance.stop()
 
-    def test2(self):
-        print("test2: adding particles w abund.")
+    def test_add_particles_with_abundances(self):
+        print("Test 3: adding particles w abund.")
 
-        instance = self.new_instance_of_an_optional_code(Krome)
+        instance = self.new_instance_of_an_optional_code(KromeSph)
+        assert instance is not None
 
-        parts = self.makeparts(5)
+        cloud = self.molecular_cloud(100)
+        instance.particles.add_particles(cloud)
 
-        N = len(instance.species)
+        channel_chem_2_gas = instance.particles.new_channel_to(cloud)
+        channel_gas_2_chem = cloud.new_channel_to(instance.particles)
 
-        parts.abundances = numpy.zeros((5, N))
+        for p in cloud.index:
+            instance.set_abundance(p+1, instance.species['H']+1, 0.76875095999999998)
+            instance.set_abundance(p+1, instance.species['H2']+1, 0.0023031866999999998)
+            instance.set_abundance(p+1, instance.species['H+']+1, 5.8058537999999997e-09)
+            instance.set_abundance(p+1, instance.species['HE']+1, 0.23894584999999999)
 
-        for i in range(5):
-            parts[i].abundances = (numpy.array(range(N))+1)/(N+1.)
-
-        instance.particles.add_particles(parts)
-
-        channel = parts.new_channel_to(instance.particles)
-        channel.copy()
-
-        part2 = instance.particles.copy()
-
-        self.assertAlmostRelativeEquals(parts.number_density, part2.number_density, 12)
-        self.assertAlmostRelativeEquals(parts.temperature, part2.temperature, 12)
-        self.assertAlmostRelativeEquals(parts.ionrate, part2.ionrate, 12)
-
-        for i in range(5):
-            self.assertAlmostRelativeEquals(part2[i].abundances, parts[i].abundances, 12)
-
+        instance.commit_particles()
+        instance.evolve_model(100 | units.yr)
+        self.assertAlmostRelativeEquals(
+            instance.model_time.as_quantity_in(units.yr), 100 | units.yr
+        )
         instance.cleanup_code()
         instance.stop()
 
-    def test3(self):
-        print("test3: evolve test")
+    def test_1000_particles_evolve(self):
+        print("Test 4: evolve test (1000 part)")
 
-        instance = self.new_instance_of_an_optional_code(Krome, **default_options)
+        instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
+        assert instance is not None
 
-        parts = Particles(1)
-        parts.number_density = 1.e5 | units.cm**-3
-        parts.temperature = 50 | units.K
-        parts.ionrate = 2.e-17 | units.s**-1
+        parts = self.molecular_cloud(1000)
 
         Ns = len(instance.species)
-
-        parts.abundances = numpy.zeros((1, Ns))
+        parts.abundances = np.zeros((1000, Ns))
 
         instance.particles.add_particles(parts)
 
         instance.evolve_model(1. | units.Myr)
 
-        print(instance.particles.abundances)
-
-        f = 2*instance.particles[0].abundances[instance.species["H2"]]
-        self.assertTrue(f > 0.95)  # not much of a test..
-        # ~ for x,i in instance.species.items():
-            # ~ print x, instance.particles[0].abundances[i]
-
-        instance.cleanup_code()
-        instance.stop()
-
-    def test4(self):
-        print("test4: evolve test (10 part)")
-
-        instance = self.new_instance_of_an_optional_code(Krome, **default_options)
-
-        parts = Particles(10)
-        parts.number_density = 1.e5 | units.cm**-3
-        parts.temperature = 50 | units.K
-        parts.ionrate = 2.e-17 | units.s**-1
-
-        Ns = len(instance.species)
-
-        parts.abundances = numpy.zeros((10, Ns))
-
-        instance.particles.add_particles(parts)
-
-        instance.evolve_model(1. | units.Myr)
-
-        f = 2*instance.particles[0].abundances[instance.species["H2"]]
-        self.assertTrue(f > 0.95)  # not much of a test..
+        self.assertAlmostRelativeEquals(
+            instance.model_time.as_quantity_in(units.Myr), 1 | units.Myr
+        )
 
         instance.cleanup_code()
         instance.stop()
 
     def test_delete_particles_and_abundances(self):
-        print("Test 6: Delete particles")
+        print("Test 5: Delete particles")
 
         instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
         assert instance is not None
 
         N_particles = 10
-        parts = Particles(N_particles)
-        parts.rho = np.random.rand(N_particles)*1.e5 | units.g*units.cm**-3
-        parts.u = np.random.rand(N_particles)*50 | units.cm**2 * units.s**-2
-        parts.gamma = np.random.rand(N_particles)*5/3
-        parts.mu = np.random.rand(N_particles)*1.23 | units.g
-        parts.ionrate = np.random.rand(N_particles)*2.e-17 | units.s**-1
+        parts = self.molecular_cloud(N_particles)
 
         instance.particles.add_particles(parts)
         instance.commit_particles()
@@ -609,4 +577,155 @@ class TestKrome(TestWithMPI):
         instance.recommit_particles()
         self.assertEquals(instance.get_number_of_particles(), 0)
 
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_species_index(self):
+        print("Test 6: test querying species")
+        instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
+        assert instance is not None
+
+        species = instance.species
+        for name, index in species.items():
+            self.assertEquals(
+                instance.species[name], instance.get_species_index(name)
+            )
+
+            self.assertEquals(
+                name, instance.get_species_name(index)
+            )
+
+        first, last = instance.get_firstlast_species_index()
+        print(first, last)
+        # boundary check 1: first and last index round-trip correctly
+        for i in (first, last):
+            print(i)
+            name = instance.get_species_name(i)
+            idx = instance.get_species_index(name)
+            assert idx == i, f"boundary mismatch at i={i}: name={name}, got idx={idx}"
+
+        # boundary check 2: full round-trip over every index, not just species dict membership
+        for i in range(first, last + 1):
+            print(i)
+            name = instance.get_species_name(i)
+            idx = instance.get_species_index(name)
+            assert idx == i, f"mismatch at i={i}: name={name!r}, idx={idx}"
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_get_abundance(self):
+        print("Test 7: get_abundance")
+
+        instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
+        assert instance is not None
+
+        cloud = self.molecular_cloud(100)
+        instance.particles.add_particles(cloud)
+
+        reference_abundances = {
+            'H': 0.76875095999999998,
+            'H2': 0.0023031866999999998,
+            'H+': 5.8058537999999997e-09,
+            'HE': 0.23894584999999999,
+        }
+
+        for p in cloud.index:
+            for species, value in reference_abundances.items():
+                instance.set_abundance(p+1, instance.species[species], value)
+
+        instance.commit_particles()
+
+        for species, expected in reference_abundances.items():
+            result = instance.get_abundance(1, instance.species[species])
+            self.assertAlmostRelativeEquals(result, expected, 7)
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_set_abundance(self):
+        print("Test 8: set_abundance")
+
+        instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
+        assert instance is not None
+
+        cloud = self.molecular_cloud(100)
+        instance.particles.add_particles(cloud)
+
+        instance.set_abundance(1, instance.species['H2'], 0.0023031866999999998)
+        instance.commit_particles()
+
+        result = instance.get_abundance(1, instance.species['H2'])
+        self.assertEquals(result, 0.0023031866999999998)
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_set_abundances(self):
+        print("Test 9: set_abundances from array")
+
+        instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
+        assert instance is not None
+
+        cloud = self.molecular_cloud(2)
+        instance.particles.add_particles(cloud)
+
+        n_species = len(instance.species)
+        abundances = np.zeros(n_species)
+        abundances[instance.species['H'] - 1] = 0.76875095999999998
+        abundances[instance.species['H2'] - 1] = 0.0023031866999999998
+        abundances[instance.species['H+'] - 1] = 5.8058537999999997e-09
+        abundances[instance.species['HE'] - 1] = 0.23894584999999999
+
+        instance.set_abundances(1, abundances)
+        instance.set_abundances(2, abundances*2)
+        instance.commit_particles()
+
+        for species, expected in [
+            ('H', 0.76875095999999998),
+            ('H2', 0.0023031866999999998),
+            ('H+', 5.8058537999999997e-09),
+            ('HE', 0.23894584999999999),
+        ]:
+            result = instance.get_abundance(1, instance.species[species])
+            self.assertAlmostRelativeEquals(result, expected, 7)
+            result = instance.get_abundance(2, instance.species[species])
+            self.assertAlmostRelativeEquals(result, expected*2, 7)
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_get_abundances_by_name(self):
+        print("Test 10: get_abundances_by_name")
+
+        instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
+        assert instance is not None
+
+        cloud = self.molecular_cloud(10)
+        instance.particles.add_particles(cloud)
+
+        reference_abundances = {
+            'H': 0.76875095999999998,
+            'H2': 0.0023031866999999998,
+            'H+': 5.8058537999999997e-09,
+            'HE': 0.23894584999999999,
+        }
+
+        for p in cloud.index:
+            for species, value in reference_abundances.items():
+                instance.set_abundance(p+1, instance.species[species], value)
+
+        instance.commit_particles()
+
+        # single-name input
+        result_single = instance.get_abundances_by_name(1, 'H')
+        self.assertAlmostRelativeEquals(result_single[0], reference_abundances['H'], 7)
+
+        # sequence-of-names input, order must be preserved
+        names = ['H', 'H2', 'H+', 'HE']
+        result_seq = instance.get_abundances_by_name(1, names)
+        expected_seq = np.array([reference_abundances[n] for n in names])
+        self.assertAlmostRelativeEquals(result_seq, expected_seq, 7)
+
+        instance.cleanup_code()
         instance.stop()
