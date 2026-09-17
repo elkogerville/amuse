@@ -281,11 +281,11 @@ class TestKromeSphInterface(TestWithMPI):
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
-        dens = 1.86510064359e-17
-        u = 204790703997.0
-        gamma = 5./3.
-        mu = 1.23
-        ion = 0
+        dens = 1.86510064359e-17 # u.g * u.cm**-3
+        u = 204790703997.0 # u.cm**2 * u.s**-2,
+        gamma = 5./3. # dimensionless
+        mu = 2.042463e-24 # u.grams
+        ion = 0 # u.s**-1
         id, err = instance.new_particle(dens, u, gamma, mu, ion)
         instance.commit_particles()
 
