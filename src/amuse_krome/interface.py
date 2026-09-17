@@ -142,7 +142,7 @@ class Krome(ChemicalEvolution, ChemNumberDensityTemperature):
         first, last = self.get_firstlast_species_index()
         self.species = dict()
         for i in range(first, last+1):
-          self.species[self.get_species_name(i)] = i - 1
+          self.species[self.get_species_name(i)] = i
 
     def define_properties(self, handler):
         handler.add_property('get_time', public_name='model_time')

@@ -254,7 +254,7 @@ class KromeSph(ChemicalEvolution, ChemDensityInternalEnergy):
         first, last = self.get_firstlast_species_index()
         self.species = dict()
         for i in range(first, last+1):
-          self.species[self.get_species_name(i)] = i - 1
+          self.species[self.get_species_name(i)] = i
 
         amu_in_g = (1 | u.amu).value_in(u.g)
         self.set_amu_in_g(amu_in_g)
