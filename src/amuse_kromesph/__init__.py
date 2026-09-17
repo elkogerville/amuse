@@ -1,1 +1,1 @@
-from amuse.community.kromesph.interface import KromeSph
+from amuse_kromesph.interface import KromeSph
