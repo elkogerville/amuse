@@ -397,6 +397,7 @@ class TestKrome(TestWithMPI):
         parts.number_density = (np.random.random(N)*1.e5+1.e5) | units.cm**-3
         parts.temperature = (np.random.random(N)*500+100) | units.K
         parts.ionrate = (np.random.random(N)*1.e-11+1.e-17) | units.s**-1
+        parts.index = np.arange(N)
         return parts
 
     def test_startup(self):
@@ -436,24 +437,24 @@ class TestKrome(TestWithMPI):
         self.assertAlmostRelativeEquals(parts.ionrate, part2.ionrate, 12)
 
         for p in part2:
-            i = instance.species["E"]
+            i = instance.species["E"] - 1
             self.assertAlmostEqual(p.abundances[i], 0.000369180975425)
-            i = instance.species["H+"]
+            i = instance.species["H+"] - 1
             self.assertAlmostEqual(p.abundances[i], 0.0001)
-            i = instance.species["HE"]
+            i = instance.species["HE"] - 1
             self.assertAlmostEqual(p.abundances[i], 0.0775)
-            i = instance.species["C+"]
+            i = instance.species["C+"] - 1
             self.assertAlmostEqual(p.abundances[i], 0.000269180975425)
-            i = instance.species["SI"]
+            i = instance.species["SI"] - 1
             self.assertAlmostEqual(p.abundances[i], 3.2362683404e-05)
-            i = instance.species["O"]
+            i = instance.species["O"] - 1
             self.assertAlmostEqual(p.abundances[i], 0.000489828841345)
 
         instance.cleanup_code()
         instance.stop()
 
     def test_add_particles_with_abundances(self):
-        print("Test 3: adding particles w abund.")
+        print("Test 3: adding particles with abundances")
 
         instance = self.new_instance_of_an_optional_code(Krome)
         assert instance is not None
@@ -505,7 +506,7 @@ class TestKrome(TestWithMPI):
 
         print(instance.particles.abundances)
 
-        f = 2*instance.particles[0].abundances[instance.species["H2"]]
+        f = 2*instance.particles[0].abundances[instance.species["H2"] - 1]
         self.assertTrue(f > 0.95)  # not much of a test..
 
         self.assertAlmostRelativeEquals(instance.model_time, 1e6 | units.yr)
@@ -532,7 +533,7 @@ class TestKrome(TestWithMPI):
 
         instance.evolve_model(1. | units.Myr)
 
-        f = 2*instance.particles[0].abundances[instance.species["H2"]]
+        f = 2*instance.particles[0].abundances[instance.species["H2"] - 1]
         self.assertTrue(f > 0.95)  # not much of a test..
 
         instance.cleanup_code()
@@ -577,4 +578,154 @@ class TestKrome(TestWithMPI):
         instance.recommit_particles()
         self.assertEquals(instance.get_number_of_particles(), 0)
 
+        instance.stop()
+
+    def test_species_index(self):
+        print("Test 7: test querying species")
+        instance = self.new_instance_of_an_optional_code(Krome, **default_options)
+        assert instance is not None
+
+        species = instance.species
+        for name, index in species.items():
+            self.assertEquals(
+                instance.species[name], instance.get_species_index(name)
+            )
+
+            self.assertEquals(
+                name, instance.get_species_name(index)
+            )
+
+        first, last = instance.get_firstlast_species_index()
+        print(first, last)
+        # boundary check 1: first and last index round-trip correctly
+        for i in (first, last):
+            print(i)
+            name = instance.get_species_name(i)
+            idx = instance.get_species_index(name)
+            assert idx == i, f"boundary mismatch at i={i}: name={name}, got idx={idx}"
+
+        # boundary check 2: full round-trip over every index, not just species dict membership
+        for i in range(first, last + 1):
+            print(i)
+            name = instance.get_species_name(i)
+            idx = instance.get_species_index(name)
+            assert idx == i, f"mismatch at i={i}: name={name!r}, idx={idx}"
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_get_abundance(self):
+        print("Test 8: get_abundance")
+
+        instance = self.new_instance_of_an_optional_code(Krome, **default_options)
+        assert instance is not None
+
+        cloud = self.makeparts(100)
+        instance.particles.add_particles(cloud)
+
+        reference_abundances = {
+            'H': 0.76875095999999998,
+            'H2': 0.0023031866999999998,
+            'H+': 5.8058537999999997e-09,
+            'HE': 0.23894584999999999,
+        }
+
+        for p in cloud.index:
+            for species, value in reference_abundances.items():
+                instance.set_abundance(p+1, instance.species[species], value)
+
+        instance.commit_particles()
+
+        for species, expected in reference_abundances.items():
+            result = instance.get_abundance(1, instance.species[species])
+            self.assertAlmostRelativeEquals(result, expected, 7)
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_set_abundance(self):
+        print("Test 9: set_abundance")
+
+        instance = self.new_instance_of_an_optional_code(Krome, **default_options)
+        assert instance is not None
+
+        cloud = self.makeparts(100)
+        instance.particles.add_particles(cloud)
+
+        instance.set_abundance(1, instance.species['H2'], 0.0023031866999999998)
+        instance.commit_particles()
+
+        result = instance.get_abundance(1, instance.species['H2'])
+        self.assertEquals(result, 0.0023031866999999998)
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_set_abundances(self):
+        print("Test 10: set_abundances from array")
+
+        instance = self.new_instance_of_an_optional_code(Krome, **default_options)
+        assert instance is not None
+
+        cloud = self.makeparts(10)
+        instance.particles.add_particles(cloud)
+
+        n_species = len(instance.species)
+        abundances = np.zeros(n_species)
+        abundances[instance.species['H'] - 1] = 0.76875095999999998
+        abundances[instance.species['H2'] - 1] = 0.0023031866999999998
+        abundances[instance.species['H+'] - 1] = 5.8058537999999997e-09
+        abundances[instance.species['HE'] - 1] = 0.23894584999999999
+
+        instance.set_abundances(1, abundances)
+        instance.set_abundances(2, abundances*2)
+        instance.commit_particles()
+
+        for species, expected in [
+            ('H', 0.76875095999999998),
+            ('H2', 0.0023031866999999998),
+            ('H+', 5.8058537999999997e-09),
+            ('HE', 0.23894584999999999),
+        ]:
+            result = instance.get_abundance(1, instance.species[species])
+            self.assertAlmostRelativeEquals(result, expected, 7)
+            result = instance.get_abundance(2, instance.species[species])
+            self.assertAlmostRelativeEquals(result, expected*2, 7)
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_get_abundances_by_name(self):
+        print("Test 11: get_abundances_by_name")
+
+        instance = self.new_instance_of_an_optional_code(Krome, **default_options)
+        assert instance is not None
+
+        cloud = self.makeparts(10)
+        instance.particles.add_particles(cloud)
+
+        reference_abundances = {
+            'H': 0.76875095999999998,
+            'H2': 0.0023031866999999998,
+            'H+': 5.8058537999999997e-09,
+            'HE': 0.23894584999999999,
+        }
+
+        for p in cloud.index:
+            for species, value in reference_abundances.items():
+                instance.set_abundance(p+1, instance.species[species], value)
+
+        instance.commit_particles()
+
+        # single-name input
+        result_single = instance.get_abundances_by_name(1, 'H')
+        self.assertAlmostRelativeEquals(result_single[0], reference_abundances['H'], 7)
+
+        # sequence-of-names input, order must be preserved
+        names = ['H', 'H2', 'H+', 'HE']
+        result_seq = instance.get_abundances_by_name(1, names)
+        expected_seq = np.array([reference_abundances[n] for n in names])
+        self.assertAlmostRelativeEquals(result_seq, expected_seq, 7)
+
+        instance.cleanup_code()
         instance.stop()
