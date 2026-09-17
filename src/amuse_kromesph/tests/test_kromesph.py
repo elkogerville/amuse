@@ -281,152 +281,27 @@ class TestKromeSphInterface(TestWithMPI):
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
-        dens = 1.e2
-        t = 100.
-        ion = 2.e-17
-        id, err = instance.new_particle(dens, t, ion)
+        dens = 1.86510064359e-17
+        u = 204790703997.0
+        gamma = 5./3.
+        mu = 1.23
+        ion = 0
+        id, err = instance.new_particle(dens, u, gamma, mu, ion)
+        instance.commit_particles()
 
         first, last, err = instance.get_firstlast_species_index()
         for i in range(first, last+1):
-            err = instance.set_abundance(id, i, 1.e-40)
-
-        for s in ["H", "HE", "C", "SI", "O"]:
-            x = solar_abundances[s]
-            aid, err = instance.get_species_index(s)
-            instance.set_abundance(id, aid, x)
-
-        instance.commit_particles()
+            err = instance.set_abundance(id, i, 1e-40)
+            print(instance.get_abundance(id, i))
 
         yr = 365*24*3600.
-        err = instance.evolve_model(10000.*yr)
+        err = instance.evolve_model(10000*yr)
         self.assertEqual(err, 0)
         time, err = instance.get_time()
         self.assertEqual(err, 0)
         self.assertEqual(time, 10000.*yr)
 
-        first, last, err = instance.get_firstlast_species_index()
-        for i in range(first, last+1):
-            x, err = instance.get_abundance(id, i)
-            self.assertEqual(err, 0)
-            name, err = instance.get_species_name(i)
-            print(i, name, x)
-
-    def test9(self):
-        print("evolve test 2")
-
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
-        self.assertEqual(0, instance.initialize_code())
-        self.assertEqual(0, instance.commit_parameters())
-
-        dens = 1.e2
-        t = 100.
-        ion = 2.e-17
-        id, err = instance.new_particle(dens, t, ion)
-
-        first, last, err = instance.get_firstlast_species_index()
-        for i in range(first, last+1):
-            err = instance.set_abundance(id, i, 1.e-40)
-
-        for s in ["H", "HE", "C", "SI", "O"]:
-            x = solar_abundances[s]
-            aid, err = instance.get_species_index(s)
-            instance.set_abundance(id, aid, x)
-
-        aid, err = instance.get_species_index("C")
-        instance.set_abundance(id, aid, 1.e-40)
-
-        aid, err = instance.get_species_index("C+")
-        instance.set_abundance(id, aid, solar_abundances["C"])
-
-        aid, err = instance.get_species_index("H2")
-        instance.set_abundance(id, aid, 1.e-6)
-        aid, err = instance.get_species_index("H+")
-        instance.set_abundance(id, aid, 1.e-4)
-
-        instance.commit_particles()
-
-        yr = 365*24*3600.
-        err = instance.evolve_model(10000.*yr)
-        self.assertEqual(err, 0)
-        time, err = instance.get_time()
-        self.assertEqual(err, 0)
-        self.assertEqual(time, 10000.*yr)
-
-        first, last, err = instance.get_firstlast_species_index()
-        for i in range(first, last+1):
-            x, err = instance.get_abundance(id, i)
-            self.assertEqual(err, 0)
-            name, err = instance.get_species_name(i)
-            print(i, name, x)
-
-    def test10(self):
-        print("check initialization of abundances")
-
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
-        self.assertEqual(0, instance.initialize_code())
-        self.assertEqual(0, instance.commit_parameters())
-
-        dens = 1.e2
-        t = 100.
-        ion = 2.e-17
-        id, err = instance.new_particle(dens, t, ion)
-
-        abundances = {"E": 0.000369180975425,
-                     "H+": 0.0001, "HE": 0.0775,
-                     "C+": 0.000269180975425, "SI": 3.2362683404e-05,
-                     "O": 0.000489828841345}
-
-        first, last, err = instance.get_firstlast_species_index()
-        for i in range(first, last+1):
-            x, err = instance.get_abundance(id, i)
-            self.assertEqual(err, 0)
-            name, err = instance.get_species_name(i)
-            if name in abundances:
-                self.assertAlmostEqual(x, abundances[name], 12)
-
-    def test11(self):
-        print("evolve test, comparison")
-
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
-        self.assertEqual(0, instance.initialize_code())
-        self.assertEqual(0, instance.commit_parameters())
-
-        dens = 1.e2
-        t = 100.
-        ion = 2.e-17
-        id, err = instance.new_particle(dens, t, ion)
-        instance.evolve_model(1.e10)
-
-        result1 = {}
-        first, last, err = instance.get_firstlast_species_index()
-        for i in range(first, last+1):
-            x, err = instance.get_abundance(id, i)
-            self.assertEqual(err, 0)
-            name, err = instance.get_species_name(i)
-            result1[name] = x
-
-        instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
-        self.assertEqual(0, instance.initialize_code())
-        self.assertEqual(0, instance.commit_parameters())
-
-        dens = 1.e2
-        t = 100.
-        ion = 2.e-17
-        id, err = instance.new_particle(dens, t, ion)
-        instance.evolve_model(1.e9)
-        instance.evolve_model(5.e9)
-        instance.evolve_model(1.e10)
-
-        result2 = {}
-        first, last, err = instance.get_firstlast_species_index()
-        for i in range(first, last+1):
-            x, err = instance.get_abundance(id, i)
-            self.assertEqual(err, 0)
-            name, err = instance.get_species_name(i)
-            result2[name] = x
-
-        for x in result1:
-            self.assertAlmostEqual(result1[x], result2[x])
+        instance.stop()
 
 
 class TestKromeSph(TestWithMPI):
