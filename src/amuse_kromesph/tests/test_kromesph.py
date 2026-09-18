@@ -471,17 +471,12 @@ class TestKromeSph(TestWithMPI):
             )
 
         first, last = instance.get_firstlast_species_index()
-        print(first, last)
-        # boundary check 1: first and last index round-trip correctly
         for i in (first, last):
-            print(i)
             name = instance.get_species_name(i)
             idx = instance.get_species_index(name)
             assert idx == i, f"boundary mismatch at i={i}: name={name}, got idx={idx}"
 
-        # boundary check 2: full round-trip over every index, not just species dict membership
         for i in range(first, last + 1):
-            print(i)
             name = instance.get_species_name(i)
             idx = instance.get_species_index(name)
             assert idx == i, f"mismatch at i={i}: name={name!r}, idx={idx}"
@@ -563,7 +558,7 @@ class TestKromeSph(TestWithMPI):
             ('HE', 0.23894584999999999),
         ]:
             result = instance.get_abundance(1, instance.species[species])
-            self.assertAlmostRelativeEquals(result, expected, 7)
+            self.assertEquals(result, expected)
             result = instance.get_abundance(2, instance.species[species])
             self.assertAlmostRelativeEquals(result, expected*2, 7)
 

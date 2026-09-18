@@ -228,7 +228,7 @@ class TestUclchem(TestWithMPI):
 
         instance.stop()
 
-    def test_set_abundance(self):
+    def test_setting_abundance(self):
         """Test setting a single chemical abundance for a particle."""
         instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
         assert instance is not None
@@ -245,7 +245,7 @@ class TestUclchem(TestWithMPI):
 
         instance.stop()
 
-    def test_set_abundances(self):
+    def test_setting_abundances(self):
         """Test setting all abundances of a particle from an array."""
         instance = self.new_instance_of_an_optional_code(Uclchem)
         assert instance is not None
@@ -325,7 +325,7 @@ class TestUclchem(TestWithMPI):
         instance.stop()
 
     def test_delete_particles_and_abundances(self):
-
+        """Test deleting particles deletes abundances correctly."""
         instance = self.new_instance_of_an_optional_code(Uclchem, redirection='none')
         assert instance is not None
 
@@ -363,6 +363,149 @@ class TestUclchem(TestWithMPI):
         instance.recommit_particles()
         self.assertEquals(instance.get_number_of_particles(), 0)
 
+        instance.stop()
+
+    def test_species_index(self):
+        """Test querying species."""
+        instance = self.new_instance_of_an_optional_code(Uclchem)
+        assert instance is not None
+
+        species = instance.species
+        for name, index in species.items():
+            self.assertEquals(
+                instance.species[name], instance.get_species_index(name)
+            )
+
+            self.assertEquals(
+                name, instance.get_species_name(index)
+            )
+
+        first, last = instance.get_firstlast_species_index()
+        for i in (first, last):
+            name = instance.get_species_name(i)
+            idx = instance.get_species_index(name)
+            assert idx == i, f"boundary mismatch at i={i}: name={name}, got idx={idx}"
+
+        for i in range(first, last + 1):
+            name = instance.get_species_name(i)
+            idx = instance.get_species_index(name)
+            assert idx == i, f"mismatch at i={i}: name={name!r}, idx={idx}"
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_get_abundance(self):
+        """Test getting abundances"""
+
+        instance = self.new_instance_of_an_optional_code(Uclchem)
+        assert instance is not None
+
+        cloud = self.generate_two_particles()
+        cloud.index = range(len(cloud))
+        instance.particles.add_particles(cloud)
+        instance.commit_particles()
+
+        reference_abundances = {
+            'H': 0.76875095999999998,
+            'H2': 0.0023031866999999998,
+            'H+': 5.8058537999999997e-09,
+            'HE': 0.23894584999999999,
+        }
+
+        for p in cloud.index:
+            for species, value in reference_abundances.items():
+                instance.set_abundance(p, instance.species[species], value)
+
+
+        for species, expected in reference_abundances.items():
+            result = instance.get_abundance(1, instance.species[species])
+            self.assertAlmostRelativeEquals(result, expected, 7)
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_set_abundance(self):
+        """Test set_abundances."""
+        instance = self.new_instance_of_an_optional_code(Uclchem)
+        assert instance is not None
+
+        cloud = self.generate_two_particles()
+        instance.particles.add_particles(cloud)
+        instance.commit_particles()
+        instance.set_abundance(1, instance.species['H2'], 0.0023031866999999998)
+
+        result = instance.get_abundance(1, instance.species['H2'])
+        self.assertEquals(result, 0.0023031866999999998)
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_set_abundances(self):
+        """Test setting abundances from an array."""
+        instance = self.new_instance_of_an_optional_code(Uclchem)
+        assert instance is not None
+
+        cloud = self.generate_two_particles()
+        instance.particles.add_particles(cloud)
+        instance.commit_particles()
+
+        n_species = len(instance.species)
+        abundances = np.zeros(n_species)
+        abundances[instance.species['H']] = 0.76875095999999998
+        abundances[instance.species['H2']] = 0.0023031866999999998
+        abundances[instance.species['H+']] = 5.8058537999999997e-09
+        abundances[instance.species['HE']] = 0.23894584999999999
+
+        print(abundances)
+
+        instance.set_abundances(0, abundances)
+        instance.set_abundances(1, abundances*2)
+
+        for species, expected in [
+            ('H', 0.76875095999999998),
+            ('H2', 0.0023031866999999998),
+            ('H+', 5.8058537999999997e-09),
+            ('HE', 0.23894584999999999),
+        ]:
+            result = instance.get_abundance(0, instance.species[species])
+            self.assertEquals(result, expected)
+            result = instance.get_abundance(1, instance.species[species])
+            self.assertAlmostRelativeEquals(result, expected*2, 7)
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_get_abundances_by_name(self):
+        """Test getting abundances by name."""
+        instance = self.new_instance_of_an_optional_code(Uclchem)
+        assert instance is not None
+
+        cloud = self.generate_two_particles()
+        cloud.index = range(len(cloud))
+        instance.particles.add_particles(cloud)
+        instance.commit_particles()
+        reference_abundances = {
+            'H': 0.76875095999999998,
+            'H2': 0.0023031866999999998,
+            'H+': 5.8058537999999997e-09,
+            'HE': 0.23894584999999999,
+        }
+
+        for p in cloud.index:
+            for species, value in reference_abundances.items():
+                instance.set_abundance(p, instance.species[species], value)
+
+        # single-name input
+        result_single = instance.get_abundances_by_name(1, 'H')
+        self.assertAlmostRelativeEquals(result_single[0], reference_abundances['H'], 7)
+
+        # sequence-of-names input, order must be preserved
+        names = ['H', 'H2', 'H+', 'HE']
+        result_seq = instance.get_abundances_by_name(1, names)
+        expected_seq = np.array([reference_abundances[n] for n in names])
+        self.assertAlmostRelativeEquals(result_seq, expected_seq, 7)
+
+        instance.cleanup_code()
         instance.stop()
 
     def _cloud_abundances(self) -> NDArray:
