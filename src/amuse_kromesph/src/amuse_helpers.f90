@@ -86,17 +86,19 @@ contains
     double precision :: rho, u, gamma, mu, cr, T
     double precision :: n(krome_nmols)
     integer :: ret
+
     n = particle%abundances
     rho = particle%rho
     u = particle%u
     gamma = particle%gamma
-    mu = particle%mu * amu_2_g
+    mu = particle%mu
     cr = particle%ionrate
 
     n(krome_idx_e) = krome_get_electrons(n(:))
     T = (u*(gamma - 1d0) * mu) / boltzmann_erg
 
     call krome(n, rho, T, dt)
+
     ! get amu -> g conversion from amuse
     particle%mu = krome_get_mu_x(n(:)) * amu_2_g
     particle%gamma = krome_get_gamma_x(n(:), T)
