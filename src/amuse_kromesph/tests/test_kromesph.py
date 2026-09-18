@@ -1,10 +1,7 @@
-from amuse.datamodel import Particles
 from amuse.ic.molecular_cloud import new_molecular_cloud
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse.units import units, nbody_system
-from amuse_kromesph.interface import (
-    KromeSph, KromeSphInterface, solar_abundances
-)
+from amuse_kromesph.interface import KromeSph, KromeSphInterface
 import numpy as np
 
 
