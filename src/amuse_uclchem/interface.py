@@ -723,6 +723,7 @@ class UclchemImplementation(object):
         try:
             idx = species_names.index(name)
         except ValueError:
+            species_index.value = -1
             return -1
 
         species_index.value = idx
@@ -758,6 +759,7 @@ class UclchemImplementation(object):
         """
         species_names = _get_species_names()
         if not 0 <= species_index < len(species_names):
+            name.value = -1
             return -1
 
         name.value = species_names[species_index]
