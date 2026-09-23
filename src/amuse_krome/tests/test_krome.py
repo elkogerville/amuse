@@ -348,7 +348,6 @@ class TestKromeInterface(TestWithMPI):
 
     def test_evolve_comparison(self):
         print("Test 12: evolve test, comparison")
-
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
         assert instance is not None
         self.assertEqual(0, instance.initialize_code())
@@ -369,6 +368,7 @@ class TestKromeInterface(TestWithMPI):
             result1[name] = x
 
         instance = self.new_instance_of_an_optional_code(KromeInterface, **default_options)
+        assert instance is not None
         self.assertEqual(0, instance.initialize_code())
         self.assertEqual(0, instance.commit_parameters())
 
@@ -732,16 +732,11 @@ class TestKrome(TestWithMPI):
 
     def test_get_abundances_by_name(self):
         """Test 12: getting abundances by name."""
-        instance = self.new_instance_of_an_optional_code(Krome)
+        instance = self.new_instance_of_an_optional_code(Krome, **default_options)
         assert instance is not None
 
         N_particles = 4
-        cloud = Particles(N_particles)
-        for i in range(N_particles):
-            cloud[i].number_density = 1e4 | units.cm**-3
-            cloud[i].temperature = 10 | units.K
-            cloud[i].ionrate = 1.3e-17 | units.s**-1
-            cloud[i].radfield = 1 | units.habing
+        cloud = self.makeparts(4)
 
         cloud.index = range(len(cloud))
         instance.particles.add_particles(cloud)
