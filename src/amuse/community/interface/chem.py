@@ -241,7 +241,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         """
         returns (first='i', last='i')
 
-    @remote_function
+    @remote_function(can_handle_array=True)
     def get_species_index(name='s'):
         """
         Given the name of a chemical species in the
@@ -268,7 +268,7 @@ class ChemicalEvolutionInterface(common.CommonCodeInterface):
         """
         returns (species_index='i')
 
-    @remote_function
+    @remote_function(can_handle_array=True)
     def get_species_name(species_index='i'):
         """
         Given the index of a chemical species in the
