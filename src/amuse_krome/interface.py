@@ -179,3 +179,9 @@ class Krome(ChemicalEvolution, ChemNumberDensityTemperature):
     def define_particle_sets(self, handler):
         ChemicalEvolution.define_particle_sets(self, handler)
         ChemNumberDensityTemperature.define_particle_sets(self, handler)
+
+    def define_state(self, handler):
+        ChemicalEvolution.define_state(self, handler)
+        handler.add_method('EDIT', 'set_abundance')
+        handler.add_method('EDIT', 'set_abundances')
+        handler.add_method('EDIT', 'get_abundance')
