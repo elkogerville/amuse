@@ -1,3 +1,5 @@
+import pytest
+
 from amuse.datamodel import Particles
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse.units import units
@@ -590,27 +592,65 @@ class TestKrome(TestWithMPI):
             self.assertEquals(
                 instance.species[name], instance.get_species_index(name)
             )
-
-            self.assertEquals(
-                name, instance.get_species_name(index)
-            )
+            self.assertEquals(name, instance.get_species_name(index))
 
         first, last = instance.get_firstlast_species_index()
         for i in (first, last):
             name = instance.get_species_name(i)
             idx = instance.get_species_index(name)
-            assert idx == i, f"boundary mismatch at i={i}: name={name}, got idx={idx}"
+            assert idx == i, f'boundary mismatch at i={i}: name={name}, got idx={idx}'
 
         for i in range(first, last + 1):
             name = instance.get_species_name(i)
             idx = instance.get_species_index(name)
-            assert idx == i, f"mismatch at i={i}: name={name!r}, idx={idx}"
+            assert idx == i, f'mismatch at i={i}: name={name!r}, idx={idx}'
+
+        instance.cleanup_code()
+        instance.stop()
+
+    def test_species_index_vectorized(self):
+        print("Test 8: test querying species with arrays")
+        instance = self.new_instance_of_an_optional_code(Krome, **default_options)
+        assert instance is not None
+
+        species = instance.species
+        # idx 0 is E; is not a chemical species
+        chem_species = {name: idx for name, idx in species.items() if name != 'E'}
+        chem_names = list(chem_species.keys())
+        indices = list(chem_species.values())
+
+        vec_indices = instance.get_species_index(chem_names)
+        assert len(vec_indices) == len(chem_names), (
+            f'length mismatch: {len(vec_indices)} indices for {len(chem_names)} names'
+        )
+        for name, vec_idx, scalar_idx in zip(chem_names, vec_indices, indices):
+            assert vec_idx == scalar_idx, (
+                f'vectorized get_species_index mismatch for {name!r}: '
+                f'vector={vec_idx}, scalar={scalar_idx}'
+            )
+
+        reversed_names = chem_names[::-1]
+        vec_reversed = instance.get_species_index(reversed_names)
+        assert list(vec_reversed) == [species[n] for n in reversed_names], (
+            'vectorized get_species_index does not preserve input order'
+        )
+
+        np_names = np.array(chem_names)
+        vec_np = instance.get_species_index(np_names)
+        assert list(vec_np) == indices, (
+            'get_species_index fails or diverges on np.ndarray input vs list input'
+        )
+        single = instance.get_species_index([chem_names[0]])
+        assert hasattr(single, '__len__') and len(single) == 1, (
+            f'single-element array input returned non-array result: {single!r}'
+        )
+        assert single[0] == species[chem_names[0]]
 
         instance.cleanup_code()
         instance.stop()
 
     def test_get_abundance(self):
-        print("Test 8: get_abundance")
+        print("Test 9: get_abundance")
 
         instance = self.new_instance_of_an_optional_code(Krome, **default_options)
         assert instance is not None
@@ -639,7 +679,7 @@ class TestKrome(TestWithMPI):
         instance.stop()
 
     def test_set_abundance(self):
-        print("Test 9: set_abundance")
+        print("Test 10: set_abundance")
 
         instance = self.new_instance_of_an_optional_code(Krome, **default_options)
         assert instance is not None
@@ -657,7 +697,7 @@ class TestKrome(TestWithMPI):
         instance.stop()
 
     def test_set_abundances(self):
-        print("Test 10: set_abundances from array")
+        print("Test 11: set_abundances from array")
 
         instance = self.new_instance_of_an_optional_code(Krome, **default_options)
         assert instance is not None
