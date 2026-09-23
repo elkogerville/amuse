@@ -521,10 +521,19 @@ class TestUclchem(TestWithMPI):
         instance = self.new_instance_of_an_optional_code(Uclchem)
         assert instance is not None
 
-        cloud = self.generate_two_particles()
+        N_particles = 4
+        cloud = Particles(N_particles)
+        for i in range(N_particles):
+            cloud[i].number_density = 1e4 | u.cm**-3
+            cloud[i].temperature = 10 | u.K
+            cloud[i].ionrate = 1.3e-17 | u.s**-1
+            cloud[i].radfield = 1 | u.habing
+
         cloud.index = range(len(cloud))
         instance.particles.add_particles(cloud)
         instance.commit_particles()
+
+        start_abund = instance.particles.abundances.copy()
         reference_abundances = {
             'H': 0.76875095999999998,
             'H2': 0.0023031866999999998,
@@ -532,19 +541,125 @@ class TestUclchem(TestWithMPI):
             'HE': 0.23894584999999999,
         }
 
-        for p in cloud.index:
+        # give each particle increasing abundances
+        for i, p in enumerate(cloud.index):
             for species, value in reference_abundances.items():
-                instance.set_abundance(p, instance.species[species], value)
+                instance.set_abundance(p, instance.species[species], value+i)
 
-        # single-name input
-        result_single = instance.get_abundances_by_name(1, 'H')
-        self.assertAlmostRelativeEquals(result_single[0], reference_abundances['H'], 7)
+        species_names = list(reference_abundances.keys())
+        species_indices = instance.get_species_index(species_names)
 
+        abundances = instance.particles.abundances.copy()
+        self.assertEquals(
+            abundances.shape, (N_particles, len(instance.species))
+        )
+
+        # check that only requested abundances were mutated
+        non_target_mask = np.ones(len(instance.species), dtype=bool)
+        non_target_mask[species_indices] = False
+        self.assertAlmostRelativeEquals(
+            abundances[:, non_target_mask],
+            start_abund[:, non_target_mask],
+            7
+        )
+
+        # ####################################
+        # CASE 1: single index, single species
+        # ####################################
+        idx = 0
+        result_single = instance.get_abundances_by_name(idx, 'H')
+
+        self.assertIsInstance(result_single, np.ndarray)
+        # 1 particle, 1 abundance
+        self.assertEquals(result_single.shape, (1,1))
+
+        # check that result matches reference abundance
+        self.assertAlmostRelativeEquals(
+            result_single[0], reference_abundances['H'], 7
+        )
+
+        # check that particle abundances match abundances
+        self.assertAlmostRelativeEquals(
+            instance.particles.abundances[idx, :],
+            abundances[idx, :],
+            7
+        )
+        abunds_1 = start_abund.copy()
+        abunds_1[idx, species_indices] = [ref for ref in reference_abundances.values()]
+        self.assertAlmostRelativeEquals(
+            instance.particles.abundances[idx, :],
+            abunds_1[idx, :],
+            7
+        )
+
+        # ######################################
+        # CASE 2: single index, multiple species
+        # ######################################
+        idx = 1
         # sequence-of-names input, order must be preserved
-        names = ['H', 'H2', 'H+', 'HE']
-        result_seq = instance.get_abundances_by_name(1, names)
-        expected_seq = np.array([reference_abundances[n] for n in names])
-        self.assertAlmostRelativeEquals(result_seq, expected_seq, 7)
+        result_seq = instance.get_abundances_by_name(idx, species_names)
+
+        self.assertIsInstance(result_seq, np.ndarray)
+        # 1 particle, multiple abundances
+        self.assertEquals(result_seq.shape, (1, len(species_names)))
+
+        # check that particle abundances match abundances
+        for res, name in zip(result_seq[0], species_names):
+            self.assertAlmostRelativeEquals(
+                res, reference_abundances[name]+1, 7
+            )
+
+        self.assertAlmostRelativeEquals(
+            instance.particles.abundances[idx, :],
+            abundances[idx, :],
+            7
+        )
+
+        # ########################################
+        # CASE 3: multiple indices, single species
+        # ########################################
+        idxs = [0, 1, 2, 3]
+        result_seq = instance.get_abundances_by_name(idxs, 'H')
+
+        self.assertIsInstance(result_seq, np.ndarray)
+        # 4 particles, 1 abundance
+        self.assertEquals(result_seq.shape, (4,1))
+
+        for i, res in enumerate(result_seq):
+            self.assertAlmostRelativeEquals(
+                res, reference_abundances['H']+i, 7
+            )
+
+        for idx in idxs:
+            self.assertAlmostRelativeEquals(
+                instance.particles.abundances[idx, :],
+                abundances[idx, :],
+                7
+            )
+
+        # ##########################################
+        # CASE 4: multiple indices, multiple species
+        # ##########################################
+        idxs = np.asarray([0, 1, 2, 3])
+        shuffled_names = [species_names[2], species_names[0], species_names[3], species_names[1]]
+        result_seq = instance.get_abundances_by_name(idxs, shuffled_names)
+
+        self.assertIsInstance(result_seq, np.ndarray)
+        # 4 particles, 4 abundances
+        self.assertEquals(result_seq.shape, (4,4))
+
+        # check that particle abundances match abundances
+        for i, res in enumerate(result_seq):
+            expected_row = [reference_abundances[name] + i for name in shuffled_names]
+            self.assertAlmostRelativeEquals(res, expected_row, 7)
+
+        # ##################
+        # CASE 5: Edge cases
+        # ##################
+        with pytest.raises(ValueError):
+            instance.get_abundances_by_name([], 'H')
+        with pytest.raises(ValueError):
+            instance.get_abundances_by_name(0, [])
 
         instance.cleanup_code()
         instance.stop()
