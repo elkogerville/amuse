@@ -342,3 +342,9 @@ class KromeSph(ChemicalEvolution, ChemDensityInternalEnergy):
         handler.add_setter('particles', 'set_gamma')
         handler.add_getter('particles', 'get_mu')
         handler.add_setter('particles', 'set_mu')
+
+    def define_state(self, handler):
+        ChemicalEvolution.define_state(self, handler)
+        handler.add_method('EDIT', 'set_abundance')
+        handler.add_method('EDIT', 'set_abundances')
+        handler.add_method('EDIT', 'get_abundance')
