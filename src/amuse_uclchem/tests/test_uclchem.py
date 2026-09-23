@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.typing import NDArray
+import pytest
 from uclchem.model import get_species_names as _get_species_names
 
 from amuse.datamodel import Particle, Particles
@@ -292,7 +293,10 @@ class TestUclchem(TestWithMPI):
         instance.stop()
 
     def test_evolve_model(self):
-        """Test evolve model."""
+        """
+        Test evolve model. The expected abundances are from
+        a standalone identical Uclchem run.
+        """
         p = Particle()
         p.number_density = 10010.000467300415 | u.cm**-3
         p.temperature = 10.0 | u.K
@@ -319,7 +323,7 @@ class TestUclchem(TestWithMPI):
             4.2327403848735972e-08
         ]
 
-        for a, ea in zip(abund, expected_abundances):
+        for a, ea in zip(abund[0], expected_abundances):
             self.assertAlmostEqual(a, ea, places=3)
 
         instance.stop()
