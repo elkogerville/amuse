@@ -473,57 +473,73 @@ class ChemicalEvolution(common.CommonCode):
 
     def get_abundances_by_name(
         self,
-        index_of_the_particle: int,
+        index_of_the_particle: int | Sequence[int],
         species_names: str | Sequence[str]
     ) -> NDArray[np.float64]:
         """
-        Get the abundances of a particle at the current simulation time
-        by species name. Both a single species name or a sequence of names
-        are valid inputs.
+        Get the abundances of one or more particles at the current
+        simulation time, by species name.
+
+        Both singular and array inputs are permitted for both
+        `index_of_the_particle` and `species_names`.
 
         Parameters
         ----------
-        index_of_the_particle : int
-            Index of the particle as returned by `new_particle`.
+        index_of_the_particle : int | Sequence[int]
+            Indices of the particle(s) as returned by `new_particle`.
         species_names : str | Sequence[str]
             Species name(s) to query. Each name must be a species
-            tracked by the chemistry code network. A single name is
-            also a valid input.
+            tracked by the chemistry code network.
 
         Returns
         -------
-        abundances : np.ndarray[float]
-            Array containing the current abundances of the particle for
-            each species name passed in.
+        abundances : NDArray[np.float64]
+            Array of shape (N_particle, N_species) containing the
+            abundance of each queried species for each queried
+            particle. Always 2D, regardless of whether scalar or
+            sequence inputs were passed.
+
+        Raises
+        ------
+        ValueError
+            If `index_of_the_particle` or `species_names` is empty.
 
         Examples
         --------
         >>> chem = ChemicalEvolution()
         >>> chem.particles.add_particles(particles)
-        >>> chem.get_abundances_by_name(1, ['H','H2'])
-        [1.00000000e-40, 1.00000000e-40]
+        >>> chem.get_abundances_by_names([0, 1], ['H', 'H2'])
+        array([[1.00000000e-40, 1.00000000e-40],
+              [1.00000000e-40, 1.00000000e-40]])
+
+        >>> chem.get_abundances_by_names(0, ['H', 'H2'])
+        array([[1.00000000e-40, 1.00000000e-40]])
 
         Notes
         -----
-        To obtain a dictionary of each (species: index) in a chemistry code:
+        To obtain a dictionary of each (species: index) in a chemistry
+        code:
         >>> chem = ChemicalEvolution()
         >>> chem.species
         {'E': 0, 'H-': 1, 'H': 2, 'HE': 3, 'H2': 4, ...}
         """
-        if isinstance(species_names, str):
-            species_names = [species_names]
+        particle_ids = np.asarray(index_of_the_particle).ravel()
+        species_names_arr = np.asarray(species_names).ravel()
 
-        species_indices = np.asarray(
-            [self.get_species_index(name) for name in species_names],
-            dtype=np.int32,
-        )
-        particle_indices = np.full(
-            species_indices.shape, index_of_the_particle, dtype=np.int32
+        if particle_ids.size == 0:
+            raise ValueError('index_of_the_particle must not be empty.')
+        if species_names_arr.size == 0:
+            raise ValueError('species_names must not be empty.')
+
+        species_indeces = self.get_species_index(species_names_arr)
+
+        particle_idx_grid, species_idx_grid = np.meshgrid(
+            particle_ids, species_indeces, indexing='ij'
         )
 
-        return np.asarray(
-            self.get_abundance(particle_indices, species_indices)
-        )
+        return self.get_abundance(
+            particle_idx_grid.ravel(), species_idx_grid.ravel()
+        ).reshape(particle_idx_grid.shape)
 
     def define_properties(self, handler):
         handler.add_property('get_time', public_name='model_time')
