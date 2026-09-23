@@ -1,3 +1,6 @@
+import pytest
+
+from amuse.datamodel.particles import Particles
 from amuse.ic.molecular_cloud import new_molecular_cloud
 from amuse.support.testing.amusetest import TestWithMPI
 from amuse.units import units, nbody_system
@@ -481,8 +484,49 @@ class TestKromeSph(TestWithMPI):
         instance.cleanup_code()
         instance.stop()
 
+    def test_species_index_vectorized(self):
+        print("Test 7: test querying species with arrays")
+        instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
+        assert instance is not None
+
+        species = instance.species
+        # idx 0 is E; is not a chemical species
+        chem_species = {name: idx for name, idx in species.items() if name != 'E'}
+        chem_names = list(chem_species.keys())
+        indices = list(chem_species.values())
+
+        vec_indices = instance.get_species_index(chem_names)
+        assert len(vec_indices) == len(chem_names), (
+            f'length mismatch: {len(vec_indices)} indices for {len(chem_names)} names'
+        )
+        for name, vec_idx, scalar_idx in zip(chem_names, vec_indices, indices):
+            assert vec_idx == scalar_idx, (
+                f'vectorized get_species_index mismatch for {name!r}: '
+                f'vector={vec_idx}, scalar={scalar_idx}'
+            )
+
+        reversed_names = chem_names[::-1]
+        vec_reversed = instance.get_species_index(reversed_names)
+        assert list(vec_reversed) == [species[n] for n in reversed_names], (
+            'vectorized get_species_index does not preserve input order'
+        )
+
+        np_names = np.array(chem_names)
+        vec_np = instance.get_species_index(np_names)
+        assert list(vec_np) == indices, (
+            'get_species_index fails or diverges on np.ndarray input vs list input'
+        )
+        single = instance.get_species_index([chem_names[0]])
+        assert hasattr(single, '__len__') and len(single) == 1, (
+            f'single-element array input returned non-array result: {single!r}'
+        )
+        assert single[0] == species[chem_names[0]]
+
+        instance.cleanup_code()
+        instance.stop()
+
     def test_get_abundance(self):
-        print("Test 7: get_abundance")
+        print("Test 8: get_abundance")
 
         instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
         assert instance is not None
@@ -511,7 +555,7 @@ class TestKromeSph(TestWithMPI):
         instance.stop()
 
     def test_set_abundance(self):
-        print("Test 8: set_abundance")
+        print("Test 9: set_abundance")
 
         instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
         assert instance is not None
@@ -529,7 +573,7 @@ class TestKromeSph(TestWithMPI):
         instance.stop()
 
     def test_set_abundances(self):
-        print("Test 9: set_abundances from array")
+        print("Test 10: set_abundances from array")
 
         instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
         assert instance is not None
@@ -563,14 +607,17 @@ class TestKromeSph(TestWithMPI):
         instance.stop()
 
     def test_get_abundances_by_name(self):
-        print("Test 10: get_abundances_by_name")
-
-        instance = self.new_instance_of_an_optional_code(KromeSph, **default_options)
+        """Test 11: getting abundances by name."""
+        instance = self.new_instance_of_an_optional_code(KromeSph)
         assert instance is not None
 
-        cloud = self.molecular_cloud(10)
+        N_particles = 4
+        cloud = self.molecular_cloud(4)
+
+        cloud.index = range(len(cloud))
         instance.particles.add_particles(cloud)
 
+        start_abund = instance.particles.abundances.copy()
         reference_abundances = {
             'H': 0.76875095999999998,
             'H2': 0.0023031866999999998,
@@ -578,21 +625,135 @@ class TestKromeSph(TestWithMPI):
             'HE': 0.23894584999999999,
         }
 
-        for p in cloud.index:
+        # give each particle increasing abundances
+        for i, p in enumerate(cloud.index):
             for species, value in reference_abundances.items():
-                instance.set_abundance(p+1, instance.species[species], value)
+                instance.set_abundance(p+1, instance.species[species], value+i)
 
         instance.commit_particles()
+        species_names = list(reference_abundances.keys())
+        species_indices = instance.get_species_index(species_names)
 
-        # single-name input
-        result_single = instance.get_abundances_by_name(1, 'H')
-        self.assertAlmostRelativeEquals(result_single[0], reference_abundances['H'], 7)
+        abundances = instance.particles.abundances.copy()
+        self.assertEquals(
+            abundances.shape, (N_particles, len(instance.species))
+        )
 
+        # check that only requested abundances were mutated
+        # species_indices are 1-based (KROME/Fortran convention);
+        # numpy abundance columns are 0-based
+        python_indeces = np.array(species_indices) - 1
+        non_target_mask = np.ones(len(instance.species), dtype=bool)
+        non_target_mask[python_indeces] = False
+        self.assertAlmostRelativeEquals(
+            abundances[:, non_target_mask],
+            start_abund[:, non_target_mask],
+            7
+        )
+
+        # ####################################
+        # CASE 1: single index, single species
+        # ####################################
+        idx = 1
+        row = idx - 1
+        result_single = instance.get_abundances_by_name(idx, 'H')
+
+        self.assertIsInstance(result_single, np.ndarray)
+        # 1 particle, 1 abundance
+        self.assertEquals(result_single.shape, (1, 1))
+
+        # check that result matches reference abundance
+        self.assertAlmostRelativeEquals(
+            result_single[0], reference_abundances['H'], 7
+        )
+
+        # check that particle abundances match abundances
+        self.assertAlmostRelativeEquals(
+            instance.particles.abundances[row, :],
+            abundances[row, :],
+            7
+        )
+        abunds_1 = start_abund.copy()
+        abunds_1[row, python_indeces] = list(reference_abundances.values())
+        self.assertAlmostRelativeEquals(
+            instance.particles.abundances[row, :],
+            abunds_1[row, :],
+            7
+        )
+
+        # ######################################
+        # CASE 2: single index, multiple species
+        # ######################################
+        idx = 2
+        row = idx - 1
         # sequence-of-names input, order must be preserved
-        names = ['H', 'H2', 'H+', 'HE']
-        result_seq = instance.get_abundances_by_name(1, names)
-        expected_seq = np.array([reference_abundances[n] for n in names])
-        self.assertAlmostRelativeEquals(result_seq, expected_seq, 7)
+        result_seq = instance.get_abundances_by_name(idx, species_names)
+
+        self.assertIsInstance(result_seq, np.ndarray)
+        # 1 particle, multiple abundances
+        self.assertEquals(result_seq.shape, (1, len(species_names)))
+
+        # check that particle abundances match abundances
+        for res, name in zip(result_seq[0], species_names):
+            self.assertAlmostRelativeEquals(
+                res, reference_abundances[name]+1, 7
+            )
+
+        self.assertAlmostRelativeEquals(
+            instance.particles.abundances[row, :],
+            abundances[row, :],
+            7
+        )
+
+        # ########################################
+        # CASE 3: multiple indices, single species
+        # ########################################
+        idxs = [1, 2, 3, 4]
+        rows = [idx - 1 for idx in idxs]
+
+        result_seq = instance.get_abundances_by_name(idxs, 'H')
+
+        self.assertIsInstance(result_seq, np.ndarray)
+        # 4 particles, 1 abundance
+        self.assertEquals(result_seq.shape, (4, 1))
+
+        for i, res in enumerate(result_seq):
+            self.assertAlmostRelativeEquals(
+                res, reference_abundances['H']+i, 7
+            )
+
+        for row in rows:
+            self.assertAlmostRelativeEquals(
+                instance.particles.abundances[row, :],
+                abundances[row, :],
+                7
+            )
+
+        # ##########################################
+        # CASE 4: multiple indices, multiple species
+        # ##########################################
+        idxs = np.asarray([1, 2, 3, 4])
+        shuffled_names = [
+            species_names[2], species_names[0], species_names[3], species_names[1]
+        ]
+        result_seq = instance.get_abundances_by_name(idxs, shuffled_names)
+
+        self.assertIsInstance(result_seq, np.ndarray)
+        # 4 particles, 4 abundances
+        self.assertEquals(result_seq.shape, (4, 4))
+
+        # check that particle abundances match abundances
+        for i, res in enumerate(result_seq):
+            expected_row = [reference_abundances[name] + i for name in shuffled_names]
+            self.assertAlmostRelativeEquals(res, expected_row, 7)
+
+        # ##################
+        # CASE 5: Edge cases
+        # ##################
+        with pytest.raises(ValueError):
+            instance.get_abundances_by_name([], 'H')
+        with pytest.raises(ValueError):
+            instance.get_abundances_by_name(0, [])
 
         instance.cleanup_code()
         instance.stop()
