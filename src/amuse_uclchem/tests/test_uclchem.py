@@ -398,6 +398,45 @@ class TestUclchem(TestWithMPI):
         instance.cleanup_code()
         instance.stop()
 
+    def test_species_index_vectorized(self):
+        print("Test querying species with arrays.")
+        instance = self.new_instance_of_an_optional_code(Uclchem)
+        assert instance is not None
+
+        species = instance.species
+        chem_names = list(species.keys())
+        indices = list(species.values())
+
+        vec_indices = instance.get_species_index(chem_names)
+        assert len(vec_indices) == len(chem_names), (
+            f'length mismatch: {len(vec_indices)} indices for {len(chem_names)} names'
+        )
+        for name, vec_idx, scalar_idx in zip(chem_names, vec_indices, indices):
+            assert vec_idx == scalar_idx, (
+                f'vectorized get_species_index mismatch for {name!r}: '
+                f'vector={vec_idx}, scalar={scalar_idx}'
+            )
+
+        reversed_names = chem_names[::-1]
+        vec_reversed = instance.get_species_index(reversed_names)
+        assert list(vec_reversed) == [species[n] for n in reversed_names], (
+            'vectorized get_species_index does not preserve input order'
+        )
+
+        np_names = np.array(chem_names)
+        vec_np = instance.get_species_index(np_names)
+        assert list(vec_np) == indices, (
+            'get_species_index fails or diverges on np.ndarray input vs list input'
+        )
+        single = instance.get_species_index([chem_names[0]])
+        assert hasattr(single, '__len__') and len(single) == 1, (
+            f'single-element array input returned non-array result: {single!r}'
+        )
+        assert single[0] == species[chem_names[0]]
+
+        instance.cleanup_code()
+        instance.stop()
+
     def test_get_abundance(self):
         """Test getting abundances"""
 
@@ -459,8 +498,6 @@ class TestUclchem(TestWithMPI):
         abundances[instance.species['H2']] = 0.0023031866999999998
         abundances[instance.species['H+']] = 5.8058537999999997e-09
         abundances[instance.species['HE']] = 0.23894584999999999
-
-        print(abundances)
 
         instance.set_abundances(0, abundances)
         instance.set_abundances(1, abundances*2)
