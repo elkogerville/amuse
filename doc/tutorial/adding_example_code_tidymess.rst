@@ -166,89 +166,83 @@ and ensure that there are no ``@VARIABLE@`` symbols left! If there are, check th
     Make sure the the ``amuse_tidymess/support/shared/`` folder is a symlink to ``amuse/support/shared/``
     to ensure that there is no code duplication in the codebase, and that bug fixes are propagated to each
     package automatically. This should be done automatically by the ``amusifier`` but can be a source of bugs
-    if not setup correctly.
+    if not setup correctly. You can verify it with:
+
+    .. code-block:: console
+
+        > cd amuse/src/amuse_tidymess/support/
+        > ls -l
+
+    You should see:
+
+    .. code-block:: text
+
+        lrwxr-xr-x  1 user user  24 May 13 16:16 shared -> ../../../support/shared/
+
 
 Setting up the Makefile
-~~~~~~~~~~~~~~~~~~~~~~~
-With our build system detection working, we now need to download TIDYMESS into AMUSE and compile the code.
-The ``amusifier`` already created our ``Makefile`` for us in ``src/amuse_tidymess/``, which has most of the code we
-will need for this step. The ``Makefile`` has several responsibilities: downloading and patching the community code
-source, compiling it into a static library, and linking that library with the auto-generated worker stub to produce
-the ``tidymess_worker``. This is the executable AMUSE spawns to communicate with the community code at runtime.
+=======================
+The ``amusifier`` already created our ``Makefile``
+for us in ``src/amuse_tidymess/``, which has most of the code we will need for this step. The ``Makefile``
+has several responsibilities: downloading and patching the community code source, compiling it into a static library,
+and linking that library with the auto-generated worker stub to produce the ``tidymess_worker``.
 
-The first thing to do is to set the ``VERSION`` variable at the top of the ``Makefile`` to the correct commit hash
-or tag of TIDYMESS. AMUSE does not bundle the source code of each community code: it downloads it dynamically at install
-time and pins it to a specific ``VERSION``. This decouples AMUSE from upstream changes, and makes version upgrades easy
-by simply changing the commit hash. Thankfully, TIDYMESS is open source, so we can freely download it
-from GitHub.
+Downloading and patching the source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+AMUSE does not bundle community code sources. The ``Makefile`` downloads a
+pinned release at install time, which decouples AMUSE from upstream changes.
+Three edits are needed:
+
+1. Set ``VERSION`` to the upstream commit hash or tag.
+2. Set the URL in the ``tidymess.tar.gz`` rule to match the upstream archive.
+3. Set the extraction target. This rule unpacks the archive and moves the
+   resulting directory into ``src/``. The extracted directory is named
+   ``tidymess-$(VERSION)``, so the generated target
+   ``src/tidymess-$(VERSION)`` changes with every version. Renaming it with
+   ``mv`` to the fixed name ``src/tidymess`` keeps all later paths
+   independent of ``VERSION``.
 
 .. code-block:: make
 
-    # Downloading the code
     VERSION = 4f97bfe11e8c638fdda744ca288e57565efe718a
 
     tidymess.tar.gz:
-    	$(DOWNLOAD) https://github.com/tidymess-code/tidymess/archive/$(VERSION).tar.gz >$@
+        $(DOWNLOAD) https://github.com/tidymess-code/tidymess/archive/$(VERSION).tar.gz >$@
 
     src/tidymess: tidymess.tar.gz
         tar xf $<
         mv tidymess-$(VERSION) src/tidymess
 
-AMUSE will download ``tidymess.tar.gz`` from github, unpack it with the ``tar`` command, and move the newly downloaded
-TIDYMESS source code into ``amuse/src/amuse_tidymess/src``.
+If for some reason the source code needs to be modified, the ``Makefile`` allows us to
+include ``.patch`` files to override the source code. Tidymess needs no patches, so we can
+safely skip this step.
 
-The next step is to build the code into a static library. The ``amusifier`` generated ``Makefile`` will have all the
-flags needed for every AMUSE dependency by default, so we must remove any flag added to ``DEPFLAGS`` that will not
-be used by ``Tidymess``. These flags are generated from running ``./configure`` and are found in ``config.mk``!
+Selecting compiler flags
+~~~~~~~~~~~~~~~~~~~~~~~~
+The generated ``Makefile`` adds the flags and libraries of every dependency
+AMUSE supports (``DEPFLAGS`` for compilation, ``LDLIBS`` for linking). The
+values come from ``config.mk``, which ``./configure`` generates. Edits:
 
-.. code-block:: make
-
-    ##### Remove anything not needed #####
-    DEPFLAGS += $(STOPCOND_CFLAGS) $(STOPCONDMPI_CFLAGS) $(AMUSE_MPI_CFLAGS)
-    DEPFLAGS += $(SIMPLE_HASH_CFLAGS) $(G6LIB_CFLAGS)
-    DEPFLAGS += $(SAPPORO_LIGHT_CFLAGS)
-
-    ##### Pick whichever language is applicable for the code #####
-    DEPFLAGS += $(OPENMP_CFLAGS) $(OPENMP_FFLAGS) $(OPENMP_CXXFLAGS)
-
-    ##### Remove anything not needed #####
-    DEPFLAGS += $(CUDA_FLAGS)
-    DEPFLAGS += $(CL_CFLAGS)
-    ##### LAPACK doesn't have flags, only libs... #####
-    DEPFLAGS += $(GSL_FLAGS)
-    DEPFLAGS += $(GMP_FLAGS)
-    DEPFLAGS += $(MPFR_FLAGS)
-    DEPFLAGS += $(FFTW_FLAGS)
-    CFLAGS += $(DEPFLAGS)
-    LDFLAGS += $(CUDA_LDFLAGS)
-
-    LDLIBS += -lm $(STOPCOND_LIBS) $(STOPCONDMPI_LIBS) $(AMUSE_MPI_LIBS)
-    LDLIBS += $(SIMPLE_HASH_LIBS) $(G6LIB_LIBS)
-    LDLIBS += $(SAPPORO_LIGHT_LIBS)
-
-    # TODO CUDA, anything else?
-    LDLIBS += $(CL_LIBS)
-    LDLIBS += $(LAPACK_LIBS) $(BLAS_LIBS) $(LIBS) $(FLIBS)
-    LDLIBS += $(GSL_LIBS)
-    LDLIBS += $(GMP_LIBS)
-    LDLIBS += $(MPFR_LIBS)
-    LDLIBS += $(FFTW_LIBS)
-
-Since TIDYMESS only depends on C++, we can remove most of the flags. We will keep the ``STOPCOND`` related flags
-to keep stopping conditions support in our package.
+1. Delete every dependency the code does not use. Each retained one adds a
+   link-time requirement and can fail the build on systems lacking that library.
+   Since Tidymess has no external libraries, delete any flag related to CUDA,
+   GSL, GMP, FFTW, etc...
+2. Keep only the variants matching the code's language. TIDYMESS is a C++ code
+   so any Fortran related flags should be deleted.
+3. Append ``DEPFLAGS`` to the variable matching the compiler: ``CXXFLAGS``
+   for C++ (the template uses ``CFLAGS``).
+4. Remove linker-related lines the code does not need (``LDLIBS``).
+   We keep ``STOPCOND`` to support AMUSE stopping conditions.
 
 .. code-block:: make
 
-    # Building the code into a static library
     DEPFLAGS += $(STOPCOND_CFLAGS)
     CXXFLAGS += $(DEPFLAGS)
 
     LDLIBS += -lm $(STOPCOND_LIBS)
 
-We can then move on to compiling TIDYMESS as a static library (``libtidymess.a``). The ``|`` before ``src/tidymess``
-signifies an **order-only prerequisite**, which ensures that the source code is extracted before compilation,
-but is not redownloaded even if the timestep changes. This is so that we only redownload the source
-code if it is missing.
+Building the static library
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: make
 
@@ -258,8 +252,76 @@ code if it is missing.
     $(CODELIB): | src/tidymess
         $(MAKE) -C src -j $(CPU_COUNT) all
 
-The last step is linking, where the ``amusifier`` reads the ``interface.py`` and generates the
-worker ``tidymess_worker.cc``.
+- ``CODELIB``: path of the static library, relative to this ``Makefile``.
+- ``.PHONY``: the outer ``Makefile`` cannot see which files the inner build
+  depends on. Marking the library phony forces ``make -C src`` to run on every
+  invocation. The inner ``Makefile`` then decides what to recompile.
+- ``| src/tidymess``: an order-only prerequisite. Normally, ``make`` rebuilds a target whenever one
+  of its prerequisites is newer than the target. An order-only prerequisite only
+  has to exist before the recipe runs, and its timestamp is ignored. In our case,
+  this means we will only redownload the source code if it is missing. This is very important
+  as otherwise any local edits would be overwritten when compiling!
+- ``-j $(CPU_COUNT)``: compile in parallel.
+
+The inner Makefile
+~~~~~~~~~~~~~~~~~~
+The outer ``Makefile`` delegates compilation to a second ``Makefile`` in
+``src/amuse_tidymess/src/``. The ``amusifier`` also generates this one. It
+must provide:
+
+- ``all``: builds the static library ``libtidymess.a`` in ``src/``.
+- ``clean``: removes the build products.
+
+.. code-block:: make
+
+    CFLAGS   += -Wall -g
+    CXXFLAGS += $(CFLAGS)
+
+    CODELIB := libtidymess.a
+
+    SRCDIR := tidymess/integrator/src
+    INCDIR := tidymess/integrator/include
+
+    SRC := $(wildcard $(SRCDIR)/*.cpp)
+    CODEOBJS := $(SRC:$(SRCDIR)/%.cpp=%.o)
+
+    all: $(CODELIB)
+
+    clean:
+    	rm -f *.o *.a
+
+    distclean: clean
+
+    $(CODELIB): $(CODEOBJS)
+    	rm -f $@
+    	$(AR) -ruv $@ $(CODEOBJS)
+    	$(RANLIB) $@
+
+    %.o: $(SRCDIR)/%.cpp
+        $(CXX) $(CXXFLAGS) -c -o $@ -I$(INCDIR) $<
+
+TIDYMESS keeps its sources and headers in separate directories inside the
+downloaded tree. ``SRCDIR`` tells ``make`` where to find the ``.cpp`` files,
+and ``INCDIR`` is passed to the compiler with ``-I`` so that ``#include``
+directives resolve. Both are relative to the inner ``Makefile`` and must be
+adapted to the layout of the community code.
+
+Building the worker
+~~~~~~~~~~~~~~~~~~~
+The worker is the executable AMUSE spawns to communicate with the community
+code. Building it takes three steps.
+
+1. Generate the stub. ``amusifier`` reads ``interface.py`` and writes
+   ``tidymess_worker.h`` and ``tidymess_worker.cc``. Both are rebuilt when
+   ``interface.py`` changes.
+2. ``tidymess_worker.o`` compiles the stub. ``interface.o``
+   compiles ``interface.cc``, which implements the functions the stub calls.
+   Its ``-I`` flag must point to the code's headers. It depends on
+   ``| src/tidymess`` so that the headers exist before compilation.
+3. Link. ``tidymess_worker`` combines both objects with ``$(CODELIB)``.
+
+Package targets
+~~~~~~~~~~~~~~~
 
 .. code-block:: make
 
@@ -278,6 +340,9 @@ worker ``tidymess_worker.cc``.
 
     interface.o: interface.cc tidymess_worker.h | src/tidymess
     	$(MPICXX) -o $@ -c -I src/tidymess/integrator/include $(CXXFLAGS) $<
+
+- ``amuse-tidymess_contains``: lists the workers the package ships. Add one worker per
+    line for multi-worker packages. It guarantees the workers are built before ``pip`` installs the package.
 
 The final bits of code at the end of the Makefile are for building and installing the package, as well
 as defining how to uninstall and cleanup the package.
@@ -313,7 +378,6 @@ as defining how to uninstall and cleanup the package.
 	rm -f support/config.mk support/config.log support/config.status
 	rm -rf support/autom4te.cache
 
-A typical AMUSE package will have a second ``Makefile``
 
 Creating the Interfaces
 =======================
