@@ -141,7 +141,6 @@ int recommit_particles() {
 
     }
     tidymess->commit_parameters();
-    tidymess->initialize();
 
     return 0;
 }
