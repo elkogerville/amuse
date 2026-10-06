@@ -10,345 +10,17 @@
 #include "interface.h"
 
 
-// general interface functions:
-
-using namespace std;
-
-
 // Global ID_RLOOKUP will be initalized by create_ID_reverse_lookup in
 // initialize_code()
-map<MyIDType, size_t> ID_RLOOKUP;
+std::map<MyIDType, size_t> ID_RLOOKUP;
 static void create_ID_reverse_lookup();
 
 long long dm_particles_in_buffer = 0;
 long long gas_particles_in_buffer = 0;
 long long particle_id_counter = 0;  // dm and sph use same counter
-map<long long, dynamics_state> dm_states;
-map<long long, gas_state> gas_states;
+std::map<long long, dynamics_state> dm_states;
+std::map<long long, gas_state> gas_states;
 
-void set_default_parameters(){
-  // Relevant files
-  strcpy(All.InitCondFile, "./ICs");
-  strcpy(All.OutputDir,   "./output");
-  strcpy(All.SnapshotFileBase, "snap");
-  strcpy(All.OutputListFilename, "./output_list.txt");
-
-  // File formats
-  All.ICFormat = 1;
-  All.SnapFormat = 1;
-
-  // CPU-time LimitUBelowThisDensity
-  All.TimeLimitCPU = 93000;
-  All.CpuTimeBetRestartFile = 12000;
-  All.ResubmitOn = 0;
-  strcpy(All.ResubmitCommand, "my-scriptfile");
-
-  // Memory allocation
-  All.MaxMemSize = 2500;
-
-  // Characteristics of run
-  All.TimeBegin = 0.0;
-  All.TimeMax = 2.7;
-  All.TimeStep = 0.00314159;
-
-  // Basic code options that set simulation type
-  All.ComovingIntegrationOn = 0;
-  All.PeriodicBoundariesOn = 0;
-  All.CoolingOn = 0;
-  All.StarformationOn = 0;
-
-  // Cosmological parameters
-  All.Omega0 = 0.0;
-  All.OmegaLambda = 0.0;
-  All.OmegaBaryon = 0.0;
-  All.HubbleParam = 1.0;
-  All.BoxSize = 100000.0;
-
-  // Output frequency and output parameters
-  All.OutputListOn = 1;
-  All.TimeBetSnapshot = 0.1;
-  All.TimeOfFirstSnapshot = 0.0;
-  All.TimeBetStatistics = 0.01;
-  All.NumFilesPerSnapshot = 1;
-  All.NumFilesWrittenInParallel = 1;
-
-  // Integration timing accuracy
-  All.TypeOfTimestepCriterion = 0;
-  All.ErrTolIntAccuracy = 0.012;
-  All.CourantFac = 0.3;
-  All.MaxSizeTimestep = 0.05;
-  All.MinSizeTimestep = 2.0e-9;
-
-  // Treatment of empty space and temp limits
-  All.InitGasTemp = 244.8095;
-  All.MinGasTemp = 5.0;
-  All.MinimumDensityOnStartUp = 1.0e-20;
-  All.LimitUBelowThisDensity = 0.0;
-  All.LimitUBelowCertainDensityToThisValue = 0.0;
-  All.MinEgySpec = 0.0;
-
-  // Tree algorithm, force accuracy, domain update frequency
-  All.TypeOfOpeningCriterion = 1;
-  All.ErrTolTheta = 0.7;
-  All.ErrTolForceAcc = 0.0025;
-  All.MultipleDomains = 8;
-  All.TopNodeFactor = 2.5;
-  All.ActivePartFracForNewDomainDecomp = 0.01;
-
-  // Initial density estimates
-  All.DesNumNgb = 64;
-  All.MaxNumNgbDeviation = 4;
-
-  // System of Units
-  All.UnitLength_in_cm = 3.085678e21;
-  All.UnitMass_in_g = 1.989e43;
-  All.UnitVelocity_in_cm_per_s = 1e5;
-
-  // Gravitational softening lengths
-  All.SofteningComoving[0] = 1.0;
-  All.SofteningComoving[1] = 1.0;
-  All.SofteningMaxPhys[0] = 1.0;
-  All.SofteningMaxPhys[1] = 1.0;
-  All.GasSoftFactor = 2.5;
-
-
-  All.SofteningTypeOfPartType[0] = 0;
-  All.SofteningTypeOfPartType[1] = 1;
-  All.SofteningTypeOfPartType[2] = 1;
-  All.SofteningTypeOfPartType[3] = 1;
-  All.SofteningTypeOfPartType[4] = 1;
-  All.SofteningTypeOfPartType[5] = 1;
-  #ifdef ADAPTIVE_HYDRO_SOFTENING
-    All.MinimumComovingHydroSoftening = 1.0;
-    All.AdaptiveHydroSofteningSpacing = 1.2;
-  #endif
-
-  // Mesh regularization options
-  All.CellShapingSpeed = 0.5;
-  #ifndef REGULARIZE_MESH_FACE_ANGLE  // Compiler error if flag defined
-    All.CellShapingFactor = 1.0;
-  #endif
-
-  // parameters that are fixed for AMUSE:
-  All.TreeAllocFactor = 0.8; // Memory allocation parameter
-  All.ResubmitOn = 0;              // Keep this turned off!
-  All.OutputListOn = 0;            // Keep this turned off
-  All.GravityConstantInternal = 0; // Keep this turned off
-}
-
-void set_noh_3d_parameters(){
-  // Relevant files
-  strcpy(All.InitCondFile, "./IC");
-  strcpy(All.OutputDir,   "./output");
-  strcpy(All.SnapshotFileBase, "snap");
-  strcpy(All.OutputListFilename, "./output_list.txt");
-
-  All.ICFormat = 3;
-
-  All.SnapFormat = 3;
-  All.NumFilesPerSnapshot = 1;
-  All.NumFilesWrittenInParallel = 1;
-
-  All.ResubmitOn = 0;
-  strcpy(All.ResubmitCommand, "my-scriptfile");
-  All.OutputListOn = 0;
-
-  All.CoolingOn = 0;
-  All.StarformationOn = 0;
-
-  All.Omega0 = 0.0;
-  All.OmegaBaryon = 0.0;
-  All.OmegaLambda = 0.0;
-  All.HubbleParam = 1.0;
-
-  All.BoxSize = 6.0;
-  All.PeriodicBoundariesOn = 1;
-  All.ComovingIntegrationOn = 0;
-
-  All.MaxMemSize = 2500;
-
-  All.TimeOfFirstSnapshot = 10.0;
-  All.CpuTimeBetRestartFile = 9000;
-  All.TimeLimitCPU = 90000;
-
-  All.TimeBetStatistics = 0.005;
-  All.TimeBegin = 0.0;
-  All.TimeMax = 2.0;
-  All.TimeBetSnapshot = 0.5;
-
-  All.UnitVelocity_in_cm_per_s = 1.0;
-  All.UnitLength_in_cm = 1.0;
-  All.UnitMass_in_g = 1.0;
-  All.GravityConstantInternal = 0.0;
-
-  All.ErrTolIntAccuracy = 0.1;
-  All.ErrTolTheta = 0.1;
-  All.ErrTolForceAcc = 0.1;
-
-  All.MaxSizeTimestep = 0.5;
-  All.MinSizeTimestep = 1e-5;
-  All.CourantFac = 0.3;
-
-  All.LimitUBelowThisDensity = 0.0;
-  All.LimitUBelowCertainDensityToThisValue = 0.0;
-  All.DesNumNgb = 64;
-  All.MaxNumNgbDeviation = 2;
-
-  All.MultipleDomains = 2;
-  All.TopNodeFactor = 4;
-  All.ActivePartFracForNewDomainDecomp = 0.1;
-
-  All.TypeOfTimestepCriterion = 0;
-  All.TypeOfOpeningCriterion = 1;
-  All.GasSoftFactor = 0.01;
-
-  All.SofteningComoving[0] = 0.1;
-  All.SofteningComoving[1] = 0.1;
-  All.SofteningComoving[2] = 0.1;
-  All.SofteningComoving[3] = 0.1;
-  All.SofteningComoving[4] = 0.1;
-  All.SofteningComoving[5] = 0.1;
-
-  All.SofteningMaxPhys[0] =  0.1;
-  All.SofteningMaxPhys[1] =  0.1;
-  All.SofteningMaxPhys[2] =  0.1;
-  All.SofteningMaxPhys[3] =  0.1;
-  All.SofteningMaxPhys[4] =  0.1;
-  All.SofteningMaxPhys[5] =  0.1;
-
-  All.SofteningTypeOfPartType[0] = 0;
-  All.SofteningTypeOfPartType[1] = 1;
-  All.SofteningTypeOfPartType[2] = 1;
-  All.SofteningTypeOfPartType[3] = 1;
-  All.SofteningTypeOfPartType[4] = 1;
-  All.SofteningTypeOfPartType[5] = 1;
-
-  All.InitGasTemp = 0.0;
-  All.MinGasTemp = 0.0;
-  All.MinEgySpec = 0.0;
-  All.MinimumDensityOnStartUp = 0.0;
-
-  All.CellShapingSpeed = 0.5;
-  #ifdef REGULARIZE_MESH_FACE_ANGLE
-    All.CellMaxAngleFactor = 2.25;
-  #endif
-
-}
-
-void set_merger_galaxy_parameters(){
-  // Adapted from arepo/examples/galaxy_merger_star_formation_3d/param.txt
-
-  //----- Memory alloction
-  All.MaxMemSize                            = 2500;
-
-  //---- Caracteristics of run
-  All.TimeBegin                             = 0.0;
-  All.TimeMax                               = 3.0; // End of the simulation
-
-  //---- Basic code options that set the type of simulation
-  All.ComovingIntegrationOn                 = 0;
-  All.PeriodicBoundariesOn                  = 0;
-  All.CoolingOn                             = 1;
-  All.StarformationOn                       = 1;
-
-  //---- Cosmological parameters (Planck cosmology)
-  All.Omega0                                = 0.0;
-  All.OmegaLambda                           = 0.0;
-  All.OmegaBaryon                           = 0.0;    //0.0486
-  All.HubbleParam                           = 0.6774;
-  All.BoxSize                               = 649.201;
-
-  /*
-  //---- Output frequency and output parameters
-  All.OutputListOn                            1
-  All.TimeBetSnapshot                         0.0
-  All.TimeOfFirstSnapshot                     0.0
-  All.TimeBetStatistics                       0.0234375
-  All.NumFilesPerSnapshot                     1
-  All.NumFilesWrittenInParallel               1
-  */
-
-  //---- Accuracy of time integration
-  All.TypeOfTimestepCriterion               = 0;
-  All.ErrTolIntAccuracy                     = 0.012;
-  All.CourantFac                            = 0.3;
-  All.MaxSizeTimestep                       = 0.0234375;
-  All.MinSizeTimestep                       = 2.0e-8;
-
-
-  //---- Treatment of empty space and temperature limits
-  All.InitGasTemp                           = 244.8095;
-  All.MinGasTemp                            = 5.0;
-  All.MinimumDensityOnStartUp               = 1.0e-10;  // very important for this setup!
-  All.LimitUBelowThisDensity                = 0.0;
-  All.LimitUBelowCertainDensityToThisValue  = 0.0;
-  All.MinEgySpec                            = 0.0;
-
-  //---- Tree algorithm, force accuracy, domain update frequency
-  All.TypeOfOpeningCriterion                = 1;
-  All.ErrTolTheta                           = 0.7;
-  All.ErrTolForceAcc                        = 0.0025;
-  All.MultipleDomains                       = 8;
-  All.TopNodeFactor                         = 2.5;
-  All.ActivePartFracForNewDomainDecomp      = 0.01;
-
-  //---- Initial density estimate
-  All.DesNumNgb                             = 64;
-  All.MaxNumNgbDeviation                    = 4;
-
-  //---- System of units
-  All.UnitLength_in_cm                      = 3.085678e21;   //  1.0 kpc
-  All.UnitMass_in_g                         = 1.989e43;      //  1.0e10 solar masses
-  All.UnitVelocity_in_cm_per_s              = 1e5;           //  1 km/sec
-  All.GravityConstantInternal               = 0;
-
-  //---- Gravitational softening lengths
-  // AREPO: Special format from params.txt
-  All.SofteningComoving[0]                = 2.0;
-  All.SofteningComoving[1]                = 2.0;
-
-  // AREPO: Special format from params.txt
-  All.SofteningMaxPhys[0]                 = 2.0;
-  All.SofteningMaxPhys[1]                 = 2.0;
-
-  All.GasSoftFactor                         = 2.5;
-
-  // AMUSE: Special treatment
-  All.SofteningTypeOfPartType[0]              = 0;
-  All.SofteningTypeOfPartType[1]              = 1;
-  All.SofteningTypeOfPartType[2]              = 1;
-  All.SofteningTypeOfPartType[3]              = 1;
-  All.SofteningTypeOfPartType[4]              = 1;
-  All.SofteningTypeOfPartType[5]              = 1;
-
-
-  All.MinimumComovingHydroSoftening         = 1.0;
-  All.AdaptiveHydroSofteningSpacing         = 1.2;
-
-  //----- Mesh regularization options
-  All.CellShapingSpeed                      = 0.5;
-  All.CellMaxAngleFactor                    = 2.25;
-  All.ReferenceGasPartMass                  = 9.76211e-05;
-  All.TargetGasMassFactor                   = 1;
-  All.RefinementCriterion                   = 1;
-  All.DerefinementCriterion                 = 1;
-  All.MeanVolume                            = 66800.2;
-  All.MaxVolumeDiff                         = 10;      // avoid strong resolution gradients
-  All.MinVolume                             = 1;
-  All.MaxVolume                             = 1.0e9;   // no limits
-
-  //---- Parameters for star formation model
-  All.CritPhysDensity                       = 0;       // critical physical density for star formation (in cm^(-3))
-  All.MaxSfrTimescale                       = 2.27;    // in internal time units
-  All.CritOverDensity                       = 57.7;    // overdensity threshold value
-  All.TempSupernova                         = 5.73e7;  // in Kelvin
-  All.TempClouds                            = 1000.0;  // in Kelvin
-  All.FactorEVP                             = 573.0;
-  All.TemperatureThresh                     = 1e+06;
-  All.FactorSN                              = 0.1;
-
-  strcpy(All.TreecoolFile, "./TREECOOL_ep");
-}
 
 int initialize_code(){
 
@@ -405,9 +77,9 @@ int run_sim() {
 }
 
 int cleanup_code(){
-  printf("Code run for %f seconds!\n", timediff(StartOfRun, second()));
-  printf("endrun called, calling MPI_Finalize()\nbye!\n\n");
-  fflush(stdout);
+  std::printf("Code run for %f seconds!\n", timediff(StartOfRun, second()));
+  std::printf("endrun called, calling MPI_Finalize()\nbye!\n\n");
+  std::fflush(stdout);
 
 #ifdef HAVE_HDF5
   /*The hdf5 library will sometimes register an atexit() handler that calls its
@@ -424,7 +96,7 @@ int cleanup_code(){
 }
 
 static void create_ID_reverse_lookup() {
-  map<MyIDType, size_t> id_rlookup_local;
+  std::map<MyIDType, size_t> id_rlookup_local;
   for (size_t i = 0; i < NumPart; i++) {
     MyIDType id = P[i].ID;
     id_rlookup_local[id] = i;
@@ -441,7 +113,7 @@ static int find_particle_with_ID(int particle_id) {
 
     if (it == ID_RLOOKUP.end()) {
       // particle_id wasn't in the map - rebuild ID_RLOOKUP and try again
-      printf("AMUSE: Rebuilding particle_ID lookup (ID not found).\n");
+      std::printf("AMUSE: Rebuilding particle_ID lookup (ID not found).\n");
       create_ID_reverse_lookup();
       continue;
     }
@@ -450,7 +122,7 @@ static int find_particle_with_ID(int particle_id) {
 
     if (P[particle_pos].ID != particle_id) {
       // particle_id had the wrong value - rebuild ID_RLOOKUP and try again
-      printf("AMUSE: Rebuilding particle ID lookup table (ID index changed).\n");
+      std::printf("AMUSE: Rebuilding particle ID lookup table (ID index changed).\n");
       create_ID_reverse_lookup();
       continue;
     }
@@ -499,7 +171,7 @@ int commit_particles(){
 
   // Initialize gas particles; From gadget2 interface.cc
   i = 0;
-  for (map<long long, gas_state>::iterator state_iter = gas_states.begin();
+  for (std::map<long long, gas_state>::iterator state_iter = gas_states.begin();
           state_iter != gas_states.end(); state_iter++, i++){
       P[i].ID = (*state_iter).first;
       P[i].Mass = (*state_iter).second.mass;
@@ -521,7 +193,7 @@ int commit_particles(){
   gas_states.clear();
 
   // initialize dark matter particles
-  for (map<long long, dynamics_state>::iterator state_iter = dm_states.begin();
+  for (std::map<long long, dynamics_state>::iterator state_iter = dm_states.begin();
           state_iter != dm_states.end(); state_iter++, i++){
       P[i].ID = (*state_iter).first;
       P[i].Mass = (*state_iter).second.mass;
@@ -555,7 +227,7 @@ int commit_particles(){
   if(status >= 0)
     {
       if(status > 0)
-        printf("init() returned with %d\n", status);
+        std::printf("init() returned with %d\n", status);
 
       cleanup_code();
     }
@@ -636,7 +308,7 @@ int get_total_mass(double * mass){
 }
 
 int evolve_model(double time){
-  printf("AMUSE interface: setting TimeMax from %g to %g\n", All.TimeMax, time);
+  std::printf("AMUSE interface: setting TimeMax from %g to %g\n", All.TimeMax, time);
   All.TimeMax = time;
   //All.TimeStep = time - All.Time;
   run();
@@ -699,12 +371,12 @@ int get_state_gas(int index_of_the_particle, double * mass, double * x,
   double * u){
   int p_idx = find_particle_with_ID(index_of_the_particle);
   if (p_idx < 0) {
-    printf("AREPO: Particle with ID %d not found in P", index_of_the_particle);
+    std::printf("AREPO: Particle with ID %d not found in P", index_of_the_particle);
     return p_idx;
   }
 
   if (P[p_idx].Type > 0){
-    printf("AREPO: Particle with index %d not gas", index_of_the_particle);
+    std::printf("AREPO: Particle with index %d not gas", index_of_the_particle);
     return -2;
   }
   *mass = P[p_idx].Mass;
@@ -846,12 +518,12 @@ int set_velocity(int index_of_the_particle, double vx, double vy,
 int get_pressure(int index_of_the_particle, double * p){
   int p_idx = find_particle_with_ID(index_of_the_particle);
   if (p_idx < 0) {
-    printf("AREPO: Particle with ID %d not found in P", index_of_the_particle);
+    std::printf("AREPO: Particle with ID %d not found in P", index_of_the_particle);
     return p_idx;
   }
 
   if (P[p_idx].Type > 0){
-    printf("AREPO: Particle with index %d not gas", index_of_the_particle);
+    std::printf("AREPO: Particle with index %d not gas", index_of_the_particle);
     return -2;
   }
 
@@ -862,12 +534,12 @@ int get_pressure(int index_of_the_particle, double * p){
 int get_density(int index_of_the_particle, double * rho){
   int p_idx = find_particle_with_ID(index_of_the_particle);
   if (p_idx < 0) {
-    printf("AREPO: Particle with ID %d not found in P", index_of_the_particle);
+    std::printf("AREPO: Particle with ID %d not found in P", index_of_the_particle);
     return p_idx;
   }
 
   if (P[p_idx].Type > 0){
-    printf("AREPO: Particle with index %d not gas", index_of_the_particle);
+    std::printf("AREPO: Particle with index %d not gas", index_of_the_particle);
     return -2;
   }
 
@@ -878,12 +550,12 @@ int get_density(int index_of_the_particle, double * rho){
 int get_internal_energy(int index_of_the_particle, double * u){
   int p_idx = find_particle_with_ID(index_of_the_particle);
   if (p_idx < 0) {
-    printf("AREPO: Particle with ID %d not found in P", index_of_the_particle);
+    std::printf("AREPO: Particle with ID %d not found in P", index_of_the_particle);
     return p_idx;
   }
 
   if (P[p_idx].Type > 0){
-    printf("AREPO: Particle with index %d not gas", index_of_the_particle);
+    std::printf("AREPO: Particle with index %d not gas", index_of_the_particle);
     return -2;
   }
 
@@ -894,12 +566,12 @@ int get_internal_energy(int index_of_the_particle, double * u){
 int set_internal_energy(int index_of_the_particle, double u){
   int p_idx = find_particle_with_ID(index_of_the_particle);
   if (p_idx < 0) {
-    printf("AREPO: Particle with ID %d not found in P", index_of_the_particle);
+    std::printf("AREPO: Particle with ID %d not found in P", index_of_the_particle);
     return p_idx;
   }
 
   if (P[p_idx].Type > 0){
-    printf("AREPO: Particle with index %d not gas", index_of_the_particle);
+    std::printf("AREPO: Particle with index %d not gas", index_of_the_particle);
     return -2;
   }
 
