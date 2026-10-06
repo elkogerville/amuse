@@ -59,7 +59,7 @@ int initialize_code() {
     // AMUSE STOPPING CONDITIONS SUPPORT
     initialize_stopping_conditions();
     set_support_for_condition(COLLISION_DETECTION);
-    set_support_for_condition(BREAKUP_DETECTION);
+    set_support_for_condition(CENTRIFUGAL_BREAKUP_DETECTION);
 
     return 0;
 }
@@ -227,7 +227,7 @@ int evolve_model(double time) {
         &is_collision_detection_enabled
     );
     is_stopping_condition_enabled(
-        BREAKUP_DETECTION,
+        CENTRIFUGAL_BREAKUP_DETECTION,
         &is_breakup_detection_enabled
     );
 
@@ -248,7 +248,7 @@ int evolve_model(double time) {
     ) {
         for (const auto& i : breakup->get_breakup_indices()) {
             int stopping_index = next_index_for_stopping_condition();
-            set_stopping_condition_info(stopping_index, BREAKUP_DETECTION);
+            set_stopping_condition_info(stopping_index, CENTRIFUGAL_BREAKUP_DETECTION);
             set_stopping_condition_particle_index(stopping_index, 0, i);
         }
     }

@@ -562,7 +562,7 @@ class StoppingConditions:
                 "when two a star goes supernova"
             )
         )
-        self.breakup_detection = StoppingCondition(
+        self.centrifugal_breakup_detection = StoppingCondition(
             self,
             10,
             (
