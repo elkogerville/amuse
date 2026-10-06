@@ -794,8 +794,6 @@ int get_roche_mode(int* roche_mode) {
 }
 int set_roche_mode(int roche_mode) {
     tidymess->set_roche_mode(roche_mode);
-    // collision->set_roche_mode(roche_mode); // doesn't appear in Tidy
-    // collision->setup();
     return 0;
 }
 
