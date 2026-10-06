@@ -842,11 +842,11 @@ int get_total_energy(double* total_energy) {
 }
 
 /**
- * Needed to compile the interface;
- * not implemented yet
+ * Get kinetic energy
  */
 int get_kinetic_energy(double* kinetic_energy) {
     if (!kinetic_energy) return -1;
+    *kinetic_energy = tidymess->get_orbital_kinetic_energy();
     return 0;
 }
 
