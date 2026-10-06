@@ -566,7 +566,8 @@ class StoppingConditions:
             self,
             10,
             (
-                "If enabled, the code will stop after the breakup of a body"
+                "If enabled, the code will stop when a body is "
+                "spinning beyond the breakup speed"
             )
         )
 
