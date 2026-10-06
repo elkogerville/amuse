@@ -1,12 +1,16 @@
-from amuse.community import CodeInterface
-from amuse.community import LegacyFunctionSpecification
-from amuse.community import legacy_function
-from amuse.community import LiteratureReferencesMixIn
+import os
 
 from amuse.community.interface.gd import GravitationalDynamicsInterface
 from amuse.community.interface.gd import GravitationalDynamics
-
+from amuse.rfi.core import (
+    CodeInterface, LegacyFunctionSpecification, legacy_function, remote_function
+)
+from amuse.support.literature import LiteratureReferencesMixIn
 from amuse.units import generic_unit_system
+
+
+AMUSE_AREPO_DIR = os.environ.get('AMUSE_AREPO_DIR') or os.getcwd()
+DEFAULT_PARAM_FILE = os.path.join(AMUSE_AREPO_DIR, 'param.txt')
 
 
 class ArepoInterface(
@@ -50,7 +54,7 @@ class ArepoInterface(
     @legacy_function
     def set_minimum_time_step():
         """
-        Retrieve the model timestep.
+        Set the model timestep.
         """
         function = LegacyFunctionSpecification()
         function.addParameter(
@@ -100,7 +104,7 @@ class ArepoInterface(
             "index_of_the_particle", dtype="int32", direction=function.IN)
         function.addParameter("u", dtype="float64", direction=function.IN)
         function.result_type = "int32"
-        function.can_handle_array = True        
+        function.can_handle_array = True
         return function
 
     @legacy_function
@@ -194,7 +198,7 @@ class ArepoInterface(
             description = "Cosmological matter density parameter in units of the critical density at z=0.")
         function.result_type = 'i'
         return function
-    
+
     @legacy_function
     def get_omega_lambda():
         function = LegacyFunctionSpecification()
@@ -209,7 +213,7 @@ class ArepoInterface(
             description = "Cosmological vacuum energy density parameter in units of the critical density at z=0.")
         function.result_type = 'i'
         return function
-    
+
     @legacy_function
     def get_omega_baryon():
         function = LegacyFunctionSpecification()
@@ -224,7 +228,7 @@ class ArepoInterface(
             description = "Cosmological baryonic density parameter in units of the critical density at z=0.")
         function.result_type = 'i'
         return function
-    
+
     @legacy_function
     def get_hubble_param():
         function = LegacyFunctionSpecification()
@@ -232,6 +236,7 @@ class ArepoInterface(
             description = "The cosmological Hubble parameter.")
         function.result_type = 'i'
         return function
+
     @legacy_function
     def set_hubble_param():
         function = LegacyFunctionSpecification()
@@ -277,10 +282,7 @@ class Arepo(GravitationalDynamics):
                 generic_unit_system.speed,
                 generic_unit_system.speed,
             ),
-            (
-                handler.INDEX,
-                handler.ERROR_CODE,
-            ),
+            (handler.INDEX, handler.ERROR_CODE,),
         )
         handler.add_method(
             "new_gas_particle",
@@ -294,16 +296,11 @@ class Arepo(GravitationalDynamics):
                 generic_unit_system.speed,
                 generic_unit_system.specific_energy,
             ),
-            (
-                handler.INDEX,
-                handler.ERROR_CODE,
-            )
+            (handler.INDEX, handler.ERROR_CODE,)
         )
         handler.add_method(
             "get_state_gas",
-            (
-                handler.INDEX,
-            ),
+            (handler.INDEX,),
             (
                 generic_unit_system.mass,
                 generic_unit_system.length,
@@ -329,9 +326,7 @@ class Arepo(GravitationalDynamics):
                 generic_unit_system.speed,
                 generic_unit_system.specific_energy,
             ),
-            (
-                handler.ERROR_CODE,
-            )
+            (handler.ERROR_CODE,)
         )
 
         handler.add_method(
@@ -339,10 +334,10 @@ class Arepo(GravitationalDynamics):
             (),
             (generic_unit_system.length, handler.ERROR_CODE,)
         )
-        
+
         handler.add_method(
             "set_box_size",
-            (generic_unit_system.length, ),
+            (generic_unit_system.length,),
             (handler.ERROR_CODE,)
         )
 
