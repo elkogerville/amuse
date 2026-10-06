@@ -110,7 +110,6 @@ int commit_particles() {
 
     }
     tidymess->commit_parameters();
-    tidymess->initialize();
 
     return 0;
 }
