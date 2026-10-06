@@ -349,14 +349,17 @@ class Arepo(GravitationalDynamics):
 
         handler.add_method(
             "set_minimum_time_step",
-            (generic_unit_system.time),
+            (generic_unit_system.time,),
             (handler.ERROR_CODE,)
         )
-        
+
 
     def define_particle_sets(self, handler):
-        handler.define_super_set('particles', ['dm_particles','gas_particles'], 
-            index_to_default_set = 0)
+        handler.define_super_set(
+            'particles',
+            ['dm_particles', 'gas_particles'],
+            index_to_default_set=0
+        )
         handler.define_set('dm_particles', 'index_of_the_particle')
         handler.set_new('dm_particles', 'new_dm_particle')
         handler.set_delete('dm_particles', 'delete_particle')
@@ -371,7 +374,6 @@ class Arepo(GravitationalDynamics):
         # handler.add_getter('dm_particles', 'get_acceleration')
         # handler.add_getter('dm_particles', 'get_epsilon_dm_part', names = ('radius',))
         # handler.add_getter('dm_particles', 'get_epsilon_dm_part', names = ('epsilon',))
-
         handler.define_set('gas_particles', 'index_of_the_particle')
         handler.set_new('gas_particles', 'new_gas_particle')
         handler.set_delete('gas_particles', 'delete_particle')

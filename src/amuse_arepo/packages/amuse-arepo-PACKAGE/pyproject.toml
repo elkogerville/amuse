@@ -3,7 +3,7 @@ name = "amuse-arepo-PACKAGE"
 dynamic = ["version"]
 requires-python = ">=3.7"
 dependencies = [
-    "amuse-framework==2026.3.1.dev61+g005eae22c",
+    "amuse-framework",
     "amuse-arepo"
 ]
 
@@ -37,4 +37,3 @@ artifacts = ["amuse_arepo/arepo_PACKAGE_worker"]
 pythonpath = ["amuse_arepo/tests/", "../../../../../tests"]
 
 testpaths = ["amuse_arepo/tests"]
-
