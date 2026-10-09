@@ -606,7 +606,7 @@ class UclchemImplementation(object):
         species_index : int
             Index of the species in the abundance array of the particle.
             The `species_index` can be queried for using `get_species_index`.
-        abundance : float
+        abundance : np.ndarray[float]
             Abundance of the chemical species of the particle.
 
         Returns
