@@ -695,6 +695,11 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
         if convert_nbody is not None:
             self.parameters.speed_of_light = constants.c
 
+    def commit_parameters(self):
+        """Check speed of light before committing parameters."""
+        self._check_pn_speed_of_light()
+        super().commit_parameters()
+
     def define_state(self, handler):
         GravitationalDynamics.define_state(self, handler)
         GravityFieldCode.define_state(self, handler)
