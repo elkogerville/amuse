@@ -547,22 +547,47 @@ class TestTidymess(TestWithMPI):
         lod = 24.47 | u.day
         obl = 0 | u.deg
         psi = 0 | u.deg
+        spin1 = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
+        self.assertEquals(spin1[0], 0 | 1/u.s)
+        self.assertAlmostEquals(spin1[1], 0 | 1/u.s)
+        self.assertAlmostEquals(spin1[2], 2.9718860713702659e-06 | 1/u.s)
 
-        spin = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
+        lod = 24.47 | u.day
+        obl = 2.5 | u.deg
+        psi = 3.0 | u.deg
+        spin2 = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
+        self.assertAlmostRelativeEquals(
+            spin2[0].value_in(1/u.yr), 2.1409959654769711e-1, places=3
+        )
+        self.assertAlmostRelativeEquals(
+            spin2[1].value_in(1/u.yr), -4.0852636665140709, places=3
+        )
+        self.assertAlmostRelativeEquals(
+            spin2[2].value_in(1/u.yr), 9.3696328783584647e+1, places=3
+        )
 
-        self.assertEquals(spin[0], 0 | 1/u.s)
-        self.assertAlmostEquals(spin[1], 0 | 1/u.s)
-        self.assertAlmostEquals(spin[2], 2.9718860713702659e-06 | 1/u.s)
+        # check radians
+        lod = 24.47 | u.day
+        obl = (2.5 | u.deg).as_quantity_in(u.rad)
+        psi = (3.0 | u.deg).as_quantity_in(u.rad)
+        spin3 = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
+        self.assertAlmostRelativeEquals(
+            spin3[0].value_in(1/u.yr), 2.1409959654769711e-1, places=3
+        )
+        self.assertAlmostRelativeEquals(
+            spin3[1].value_in(1/u.yr), -4.0852636665140709, places=3
+        )
+        self.assertAlmostRelativeEquals(
+            spin3[2].value_in(1/u.yr), 9.3696328783584647e+1, places=3
+        )
 
         lod = 0.5 | u.day
         obl = 0 | u.deg
         psi = 0 | u.deg
-
-        spin = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
-
-        self.assertEquals(spin[0], 0 | 1/u.s)
-        self.assertAlmostEquals(spin[1], 0 | 1/u.s)
-        self.assertAlmostEquals(spin[2], 1.4544410433286076e-04 | 1/u.s)
+        spin4 = instance.convert_spin_vectors_to_inertial(lod, obl, psi)
+        self.assertEquals(spin4[0], 0 | 1/u.s)
+        self.assertAlmostEquals(spin4[1], 0 | 1/u.s)
+        self.assertAlmostEquals(spin4[2], 1.4544410433286076e-04 | 1/u.s)
 
         instance.stop()
 

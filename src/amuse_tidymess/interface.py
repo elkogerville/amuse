@@ -863,8 +863,8 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
             'convert_spin_vectors_to_inertial',
             (
                 nbody_system.time,
-                u.deg,
-                u.deg,
+                u.rad,
+                u.rad,
             ),
             (
                 1/nbody_system.time,
