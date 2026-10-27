@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from amuse.datamodel import Particles
 from amuse.ext.orbital_elements import generate_binaries
@@ -697,6 +698,10 @@ class TestTidymess(TestWithMPI):
         instance.parameters.eta = 0.015625
         instance.parameters.initial_shape = 0
         instance.commit_parameters()
+
+        self.assertAlmostRelativeEquals(
+            instance.parameters.speed_of_light, constants.c
+        )
 
         instance.particles.add_particles(system)
         channel = instance.particles.new_channel_to(system)
@@ -1426,5 +1431,20 @@ class TestTidymess(TestWithMPI):
 
         cd.disable()
         assert not cd.is_enabled()
+
+        instance.stop()
+
+    def test_warning_when_pn_set(self):
+        """
+        Test that a warning is generated if PN is set but not speed of light.
+        """
+        system = self.generate_figure8_system()
+
+        instance = self.new_instance_of_an_optional_code(Tidymess)
+        assert instance is not None
+
+        instance.parameters.pn_order = 1
+        with pytest.warns(UserWarning):
+            instance.commit_parameters()
 
         instance.stop()

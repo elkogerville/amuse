@@ -1,3 +1,5 @@
+import warnings
+
 from amuse.community.interface.gd import (
     GravitationalDynamics,
     GravitationalDynamicsInterface,
@@ -1018,3 +1020,25 @@ class Tidymess(GravitationalDynamics, GravityFieldCode):
         GravitationalDynamics.define_particle_sets(self, handler)
 
         self.stopping_conditions.define_particle_set(handler)
+
+
+    def _check_pn_speed_of_light(self):
+        """
+        Warn if PN is active and the speed of light has not been set.
+
+        Notes
+        -----
+        - Only relevant when no unit converter is used (`convert_nbody=None`).
+        - With a converter, `speed_of_light` is set in `__init__`.
+        """
+        if self.unit_converter is not None:
+            return
+        if self.parameters.pn_order == 0:
+            return
+        # default tidymess sentinel speed of light value
+        if self.parameters.speed_of_light == 1e100 | nbody_system.speed:
+            warnings.warn(
+                "pn_order != 0 but speed_of_light is not set; "
+                "set code.parameters.speed_of_light before running.",
+                stacklevel=3,
+            )
