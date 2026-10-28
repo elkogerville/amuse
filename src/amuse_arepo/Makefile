@@ -60,7 +60,7 @@ MPI_LINK_FLAGS := $(shell mpicxx --showme:link)
 $(CODELIB): | src/arepo-$(VERSION)
 	mkdir -p src/arepo-$(VERSION)/build
 	cd src/arepo-$(VERSION) && /usr/bin/perl prepare-config.perl Config.sh build
-	$(MAKE) -C src/arepo-$(VERSION) -j 1 SYSTYPE="$(SYSTYPE)" \
+	$(MAKE) -C src/arepo-$(VERSION) -j $(CPU_COUNT) SYSTYPE="$(SYSTYPE)" \
 		GSL_INCL="$(GSL_FLAGS)" \
 		GSL_LIB="$(GSL_LIBS)" \
 		MPICH_INCL="$(MPI_COMPILE_FLAGS)" \
@@ -73,15 +73,18 @@ $(CODELIB): | src/arepo-$(VERSION)
 
 # Building the workers
 arepo_worker.h: interface.py
-	amusifier --type=h interface.py ArepoInterface -o $@
+	AMUSE_AREPO_DIR=$(CURDIR) amusifier --type=h interface.py ArepoInterface -o $@
 
 arepo_worker.cc: interface.py
-	amusifier --type=c interface.py ArepoInterface -o $@
+	AMUSE_AREPO_DIR=$(CURDIR) amusifier --type=c interface.py ArepoInterface -o $@
 
 arepo_worker.o: arepo_worker.cc arepo_worker.h
 	$(MPICXX) -c -o $@ $(CFLAGS) $<
 
-arepo_worker: interface.o arepo_worker.o $(CODELIB)
+read_parameters.o: read_parameters.cc $(CODELIB)
+	$(MPICXX) -o $@ -c $(CFLAGS) $<
+
+arepo_worker: interface.o read_parameters.o arepo_worker.o $(CODELIB)
 	$(MPICXX) -o $@ $(LDFLAGS) $^ $(LDLIBS)
 
 
