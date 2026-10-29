@@ -1463,8 +1463,6 @@ class TestTidymess(TestWithMPI):
         """
         Test that a warning is generated if PN is set but not speed of light.
         """
-        system = self.generate_figure8_system()
-
         instance = self.new_instance_of_an_optional_code(Tidymess)
         assert instance is not None
 
