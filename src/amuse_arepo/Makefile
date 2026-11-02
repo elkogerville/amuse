@@ -2,6 +2,9 @@ ifneq (,$(filter-out clean distclean, $(MAKECMDGOALS)))
 include support/config.mk
 endif
 
+ifneq (,$(filter 2.%,$(HDF5_VERSION)))
+$(error HDF5 2.x not supported: run 'mamba install "hdf5<2"')
+endif
 
 # Detecting dependencies
 support/config.mk:
